@@ -19,7 +19,7 @@ If you want to view the parse tree graphs using the built-in tools this library 
 
 ## Interface
 
-This library is in its infancy, but a lite command line interface exists for parsing string expressions into parse trees. To use this interface, edit the file: `interface.py` by modifying `constraint_str` and `delta` to your values of interest. Then run (make sure you have activated the `seldo` conda environment first):
+This library is in its infancy, but a lite command line interface exists for parsing string expressions into parse trees. To use this interface, edit the file: `interface.py`. Modify `constraint_str` and `delta` to values of interest. Then run (make sure you have activated the `seldo` conda environment first) from the command line:
 ```
 python interface.py
 ```

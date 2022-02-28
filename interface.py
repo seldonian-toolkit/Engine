@@ -1,5 +1,5 @@
 import sys
-from parse_tree import ParseTree
+from src.parse_tree import ParseTree
 
 
 if __name__ == '__main__':

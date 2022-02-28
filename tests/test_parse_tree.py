@@ -1,6 +1,7 @@
-from parse_tree import *
+from src.parse_tree import *
 import pytest
 
+### Utilities for testing 
 def stump(operator_type,left_bounds,right_bounds):
     # A parse tree with a root node and left and right children only
     root = InternalNode(operator_type)
@@ -137,6 +138,8 @@ answer_dict = {
 
 }
 
+
+### Begin tests
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
 def test_add_bounds(interval_index):
     ### Addition ###
@@ -246,7 +249,3 @@ def test_deltas_assigned_equally():
     assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
     assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
 
-
-# @pytest.mark.parametrize("fixt", ["add"], indirect=True)
-# def test_indirect(fixt):
-#     assert len(fixt) == 3
