@@ -1,6 +1,6 @@
 # Seldonian
 
-This is the source code repository for a framework for creating and running [Seldonian](aisafety) algorithms. 
+This is the source code repository for a framework for creating and running [Seldonian](http://aisafety.cs.umass.edu/) algorithms. 
 
 ## Installation
 To run this code as a developer, you will need Anaconda: https://www.anaconda.com/products/individual
