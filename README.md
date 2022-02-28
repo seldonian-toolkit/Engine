@@ -15,7 +15,7 @@ This will create a virtual python environment called `seldo` which you need to a
 conda activate seldo
 ```
 
-If you want to use view the parse tree graphs using the built-in tools this library provides, install [graphviz](https://graphviz.org/download/). The Seldonian library uses a Python API for graphviz, and the API requires that graphviz be installed system-wide. This should resolve mysterious error messages like "dot" not found. "dot" is a command line program included with graphviz for rendering the graphs from code. 
+If you want to view the parse tree graphs using the built-in tools this library provides, install [graphviz](https://graphviz.org/download/). The Seldonian library uses a Python API for graphviz, and the API requires that graphviz be installed system-wide. This should resolve mysterious error messages like "dot" not found. "dot" is a command line program included with graphviz for rendering the graphs from code. 
 
 ## Interface
 
