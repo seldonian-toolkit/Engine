@@ -27,16 +27,16 @@ class Node(object):
         the name of the node
     index : int
         the index of the node in the tree, root index is 0
-    left : int
+    left : Node object or None
         left child node
-    right : int
+    right : Node object or None
         right child node
     lower : float
         lower confidence bound
     upper : float
         upper confidence bound
-    **kwargs : dict
-        optional additional key value pairs
+    **kwargs : 
+        optional additional arguments which get bundled into a dict
 
     Methods
     -------
@@ -45,11 +45,10 @@ class Node(object):
 
     """
     def __init__(self,name,lower,upper,**kwargs):
-        
         self.name = name
         self.index = None 
         self.left  = None 
-        self.right = None # right child node
+        self.right = None 
         self.lower = lower 
         self.upper = upper 
 
@@ -60,6 +59,7 @@ class Node(object):
             lower_bracket = '('
         if np.isinf(self.upper):
             upper_bracket = ')'
+
         bounds_str = f'{lower_bracket}{self.lower:g}, {self.upper:g}{upper_bracket}' \
             if (self.lower or self.upper) else '()'
 
@@ -84,7 +84,7 @@ class BaseNode(Node):
     name : str
         The name of the node
     node_type : str
-        'base_node'
+        equal to 'base_node'
     lower : float
         Lower confidence bound
     upper : float
@@ -98,13 +98,11 @@ class BaseNode(Node):
     conditional_columns: List(str)
         When calculating confidence bounds on a special 
         function, condition on these columns being == 1
-    **kwargs : dict
-        Optional additional key value pairs
 
     Methods
     -------
     calculate_bounds(bound_method)
-        Calculate confidence bounds given a method
+        Calculate confidence bounds given a method, such as t-test
     
     compute_HC_lowerbound()
         --TODO--
