@@ -11,7 +11,7 @@ special_functions = [
 op_mapper = {
     ast.Sub: 'sub',
     ast.Add: 'add',
-    ast.Mult: 'mult',
+    ast.Mult:'mult',
     ast.Div: 'div',
     ast.Mod: 'modulo',
     ast.Pow: 'pow'
@@ -149,10 +149,10 @@ class BaseNode(Node):
     def __repr__(self):
         """ 
         Overrides Node.__repr__()
-        Just adds the delta assigned to this node
+        By adding the delta assigned to this node
         """
         node_repr = super().__repr__()
-        return node_repr + ', ' + u'\u03B4' + f'={self.delta}'
+        return node_repr + ', ' + u'\u03B4' + f'={self.delta:g}'
      
     def calculate_bounds(self,bound_method='ttest',**kwargs):
         """

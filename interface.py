@@ -14,7 +14,8 @@ if __name__ == '__main__':
 	parse_tree.create_from_ast(constraint_str)
 	
 	# assign deltas for each base node
-	parse_tree.assign_deltas()
+	# use equal weighting for each base node
+	parse_tree.assign_deltas(weight_method='equal')
 
 	# Propagate bounds using random interval assignment to base variables
 	parse_tree.propagate_bounds(bound_method='random')
