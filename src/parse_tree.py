@@ -121,6 +121,7 @@ class BaseNode(Node):
         name,
         lower=float('-inf'),
         upper=float('inf'),
+        conditional_columns=[],
         **kwargs):
         """
         Parameters
@@ -138,11 +139,7 @@ class BaseNode(Node):
         self.delta = 0 
         self.compute_lower = True # whether to compute lower bound
         self.compute_upper = True # whether to computer upper bound
-        
-        if 'conditional_columns' in kwargs:
-            self.conditional_columns = kwargs['conditional_columns']
-        else:
-            self.conditional_columns = []
+        self.conditional_columns = conditional_columns
 
     def __repr__(self):
         """ 
@@ -493,6 +490,8 @@ class ParseTree(object):
                 node_name = '(' + ' | '.join([ast_node.left.id,ast_node.right.id]) + ')'
                 conditional_columns.append(ast_node.right.id)
                 is_leaf = True
+                return node_class(node_name,
+                    conditional_columns=conditional_columns),is_leaf
             else:
                 node_class = InternalNode
                 node_name = op_mapper[ast_node.op.__class__]
@@ -512,9 +511,6 @@ class ParseTree(object):
         elif isinstance(ast_node,ast.Call):
             node_class = InternalNode
             node_name = ast_node.func.id
-
-        if conditional_columns != []:
-            kwargs['conditional_columns'] = conditional_columns
 
         return node_class(node_name),is_leaf
 
