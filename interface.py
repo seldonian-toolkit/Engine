@@ -4,7 +4,8 @@ from src.parse_tree import ParseTree
 
 if __name__ == '__main__':
 	# constraint_str = input("Enter your constraint: ")
-	constraint_str = 'abs((Mean_Error | M) - (Mean_Error | F)) - 0.1'
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	# constraint_str = '(Mean_Error | [X,Y,Z]) - 0.1'
 	delta = 0.05
 
 	# Create parse tree object

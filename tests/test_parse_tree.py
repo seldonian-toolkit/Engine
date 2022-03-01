@@ -222,7 +222,7 @@ def test_parse_tree_from_simple_string():
  
 def test_parse_tree_with_special_base_variables():
 
-    constraint_str = 'abs((Mean_Error|M) - (Mean_Error|F)) - 0.1'
+    constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
     delta = 0.05
     pt = ParseTree(delta)
     pt.create_from_ast(constraint_str)
@@ -234,8 +234,30 @@ def test_parse_tree_with_special_base_variables():
     assert pt.root.left.name == 'abs'
     assert pt.root.right.value == 0.1
 
+def test_single_conditional_columns():
+
+    constraint_str = 'abs(Mean_Error|[X]) - 0.1'
+    delta = 0.05
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.n_nodes == 4
+    assert pt.n_base_nodes == 1
+    assert len(pt.base_node_dict) == 1  
+    assert pt.root.left.left.conditional_columns == ['X']
+
+def test_multiple_conditional_columns():
+
+    constraint_str = 'abs(Mean_Error|[X,Y,Z]) - 0.1'
+    delta = 0.05
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.n_nodes == 4
+    assert pt.n_base_nodes == 1
+    assert len(pt.base_node_dict) == 1  
+    assert pt.root.left.left.conditional_columns == ['X','Y','Z']
+
 def test_deltas_assigned_equally():
-    constraint_str = 'abs((Mean_Error|M) - (Mean_Error|F)) - 0.1'
+    constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
     delta = 0.05 
 
     pt = ParseTree(delta)

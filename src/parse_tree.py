@@ -484,11 +484,14 @@ class ParseTree(object):
         conditional_columns = []
         
         if isinstance(ast_node,ast.BinOp):
-            # The | is the BitOr which denotes a conditional base node
             if ast_node.op.__class__ == ast.BitOr:
+                # BitOr is used for "X | Y" i.e. "X given Y" 
                 node_class = BaseNode
-                node_name = '(' + ' | '.join([ast_node.left.id,ast_node.right.id]) + ')'
-                conditional_columns.append(ast_node.right.id)
+                print(ast_node)
+                print(ast_node.right)
+
+                conditional_columns = [x.id for x in ast_node.right.elts]
+                node_name = '(' + ' | '.join([ast_node.left.id,str(conditional_columns)]) + ')'
                 is_leaf = True
                 return node_class(node_name,
                     conditional_columns=conditional_columns),is_leaf

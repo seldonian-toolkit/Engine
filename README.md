@@ -25,7 +25,7 @@ python interface.py
 ```
 As a quick test, if you use the following variables:
 ```
-constraint_str = 'abs((Mean_Error | M) - (Mean_Error | F)) - 0.1'
+constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
 delta = 0.05
 ```
 The resulting diagram should match [this one](example_graph.pdf), although the actual intervals may be different due to the random seeding of the base variable intervals. 
