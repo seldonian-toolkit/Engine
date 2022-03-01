@@ -7,7 +7,7 @@ To run this code as a developer, you will need Anaconda: https://www.anaconda.co
 
 Once Anaconda is installed, create the conda environment for this library from the command line using: 
 ``` bash
-conda env create -f environment.yml
+conda env create -f environment_linux.yml
 ```
 
 This will create a virtual python environment called `seldo` which you need to activate before running the code in this repository. Activate it via:
