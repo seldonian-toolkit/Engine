@@ -1,55 +1,14 @@
 from src.parse_tree import *
+from src.dataset import *
+from src.safety_test import SafetyTest
 import pytest
-
-### Utilities for testing 
-def stump(operator_type,left_bounds,right_bounds):
-    # A parse tree with a root node and left and right children only
-    root = InternalNode(operator_type)
-    root.left = BaseNode('a')
-    root.right = BaseNode('b')
-    pt = ParseTree(delta=0.05)
-    pt.root = root
-    pt.root.left.lower  = left_bounds[0]
-    pt.root.left.upper  = left_bounds[1]
-    pt.root.right.lower = right_bounds[0]
-    pt.root.right.upper = right_bounds[1]
-    pt.n_nodes = 3
-    pt.n_base_nodes = 2
-    pt.base_node_dict = {
-        'a':{
-            'computed':False,
-            'lower':float("-inf"),
-            'upper':float("inf")
-            },
-        'b':{
-            'computed':False,
-            'lower':float("-inf"),
-            'upper':float("inf")
-            },
-    }
-    return pt
-
-def edge(operator_type,left_bounds):
-    # A parse tree with a single edge
-    assert operator_type in ['abs','exp']
-    root = InternalNode(operator_type)
-    root.left = BaseNode('a')
-    pt = ParseTree(delta=0.05)
-    pt.root = root
-    pt.root.left.lower  = left_bounds[0]
-    pt.root.left.upper  = left_bounds[1]
-    pt.n_nodes = 2
-    pt.n_base_nodes = 1
-    pt.base_node_dict = {
-        'a':{
-            'computed':False,
-            'lower':float("-inf"),
-            'upper':float("inf")
-            },
-    }
-    return pt
+import time
 
 two_interval_options = [
+    [[2.0,3.0],[4.0,5.0]],
+    [[-2.0,1.0],[2.0,3.0]],
+    [[0.5,0.75],[2,4]],
+    [[0.5,1.1],[0.0,0.4]],
     [[-3.2,-2.0],[-4.5,-4.0]],
     [[-3.2,-2.0],[-4.5,5.0]],
     [[-6.1,-6.0],[0.0,0.5]],
@@ -76,6 +35,10 @@ single_interval_options = [
 
 answer_dict = {
     'add': [
+        [6.0,8.0],
+        [0.0,4.0],
+        [2.5,4.75],
+        [0.5,1.5],
         [-7.7, -6.0],
         [-7.7,3.0],
         [-6.1, -5.5],
@@ -88,6 +51,10 @@ answer_dict = {
         [float('inf'), float('inf')],
     ],
     'sub': [
+        [-3.0,-1.0],
+        [-5.0,-1.0],
+        [-3.5,-1.25],
+        [0.1,1.1],
         [0.8, 2.5],
         [-8.2, 2.5],
         [-6.6, -6.0],
@@ -100,6 +67,10 @@ answer_dict = {
         [float('-inf'), float('inf')],
     ],
     'mult': [
+        [8.0,15.0],
+        [-6.0,3.0],
+        [1.0,3.0],
+        [0.0,1.1*0.4],
         [8.0, 14.4],
         [-16.0, 14.4],
         [-3.05, 0.0],
@@ -113,6 +84,10 @@ answer_dict = {
     ],
 
     'div': [
+        [2/5.0,3/4.0],
+        [-1.0,0.5],
+        [1/8,3/8],
+        [0.5/0.4,float('inf')],
         [2/4.5, 3.2/4],
         [float('-inf'),float('inf')],
         [float('-inf'), -12.0],
@@ -123,6 +98,22 @@ answer_dict = {
         [float('-inf'), float('inf')],
         [float('-inf'), float('inf')],
         [float('-inf'), float('inf')],
+    ],
+    'pow':[
+        [16,243],
+        [None,None],
+        [pow(0.5,4),pow(0.75,2)],
+        [pow(0.5,0.4),pow(1.1,0.4)],
+        [None,None], # input raises exception 
+        [None,None], # input raises exception 
+        [None,None], # input raises exception 
+        [0.0, 0.5],
+        [0.0, 0.5],
+        [None,None], # input raises exception 
+        [0.0,float('inf')],
+        [None,None], # input raises exception 
+        [None,None], # input raises exception 
+        [float('inf'),float('inf')]
     ],
     'abs': [
         [2.0,3.2],
@@ -138,10 +129,15 @@ answer_dict = {
 
 }
 
-
 ### Begin tests
+
+########################
+### Propagator tests ###
+########################
+
+
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
-def test_add_bounds(interval_index):
+def test_add_bounds(interval_index,stump):
     ### Addition ###
 
     a,b=two_interval_options[interval_index]
@@ -154,7 +150,7 @@ def test_add_bounds(interval_index):
     assert pt.base_node_dict['b']['computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
-def test_subtract_bounds(interval_index):
+def test_subtract_bounds(interval_index,stump):
     ### Subtraction ###
 
     a,b=two_interval_options[interval_index]
@@ -168,7 +164,7 @@ def test_subtract_bounds(interval_index):
     assert pt.base_node_dict['b']['computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
-def test_multiply_bounds(interval_index):
+def test_multiply_bounds(interval_index,stump):
     ### Multiplication ###
 
     a,b=two_interval_options[interval_index]
@@ -182,7 +178,7 @@ def test_multiply_bounds(interval_index):
     assert pt.base_node_dict['b']['computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
-def test_divide_bounds(interval_index):
+def test_divide_bounds(interval_index,stump):
     ### Division ###
 
     a,b=two_interval_options[interval_index]
@@ -195,8 +191,37 @@ def test_divide_bounds(interval_index):
     assert pt.base_node_dict['a']['computed'] == True
     assert pt.base_node_dict['b']['computed'] == True
 
+@pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
+def test_power_bounds(interval_index,stump):
+    ### power ###
+
+    a,b=two_interval_options[interval_index]
+    print(a,b)
+    pt = stump('pow',a,b)
+    if a[0] < 0:
+        with pytest.raises(ArithmeticError) as excinfo:
+            pt.propagate_bounds(bound_method='manual')
+        
+        assert "Cannot compute interval" in str(excinfo.value)
+        assert "because first argument contains negatives" in str(excinfo.value)
+
+    elif 0 in a and (b[0]<0 or b[1]<1):
+        with pytest.raises(ZeroDivisionError) as excinfo:
+            pt.propagate_bounds(bound_method='manual')
+        
+        assert "0.0 cannot be raised to a negative power" in str(excinfo.value)
+    else:
+        answer = answer_dict['pow'][interval_index]
+        print(answer)
+        pt.propagate_bounds(bound_method='manual')
+        # Use approx due to floating point imprecision
+        assert pt.root.lower == pytest.approx(answer[0])
+        assert pt.root.upper == pytest.approx(answer[1])
+        assert pt.base_node_dict['a']['computed'] == True
+        assert pt.base_node_dict['b']['computed'] == True
+
 @pytest.mark.parametrize('interval_index',range(len(single_interval_options)))
-def test_abs_bounds(interval_index):
+def test_abs_bounds(interval_index,edge):
     ### Absolute value ###
 
     a=single_interval_options[interval_index]
@@ -207,6 +232,10 @@ def test_abs_bounds(interval_index):
     assert pt.root.lower == pytest.approx(answer[0])
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict['a']['computed'] == True
+
+########################
+### Parse tree tests ###
+########################
 
 def test_parse_tree_from_simple_string():
 
@@ -219,6 +248,53 @@ def test_parse_tree_from_simple_string():
     assert len(pt.base_node_dict) == 3
     assert isinstance(pt.root,InternalNode)
     assert pt.root.name == 'sub'
+
+def test_raise_error_on_excluded_operators():
+
+    constraint_str = 'x^4'
+    delta = 0.05
+    pt = ParseTree(delta)
+    with pytest.raises(NotImplementedError) as excinfo:
+        pt.create_from_ast(constraint_str)
+    error_str = ("Error parsing your expression."
+         " An operator was used which we do not support: ^")
+    assert str(excinfo.value) == error_str
+
+    constraint_str = 'x<<4'
+    delta = 0.05
+    pt = ParseTree(delta)
+    with pytest.raises(NotImplementedError) as excinfo:
+        pt.create_from_ast(constraint_str)
+    error_str = ("Error parsing your expression."
+         " An operator was used which we do not support: <<")
+    assert str(excinfo.value) == error_str
+
+    constraint_str = 'x>>4'
+    delta = 0.05
+    pt = ParseTree(delta)
+    with pytest.raises(NotImplementedError) as excinfo:
+        pt.create_from_ast(constraint_str)
+    error_str = ("Error parsing your expression."
+         " An operator was used which we do not support: >>")
+    assert str(excinfo.value) == error_str
+
+    constraint_str = 'x & y'
+    delta = 0.05
+    pt = ParseTree(delta)
+    with pytest.raises(NotImplementedError) as excinfo:
+        pt.create_from_ast(constraint_str)
+    error_str = ("Error parsing your expression."
+         " An operator was used which we do not support: &")
+    assert str(excinfo.value) == error_str
+
+    constraint_str = 'x//4'
+    delta = 0.05
+    pt = ParseTree(delta)
+    with pytest.raises(NotImplementedError) as excinfo:
+        pt.create_from_ast(constraint_str)
+    error_str = ("Error parsing your expression."
+         " An operator was used which we do not support: //")
+    assert str(excinfo.value) == error_str
  
 def test_parse_tree_with_special_base_variables():
 
@@ -234,7 +310,7 @@ def test_parse_tree_with_special_base_variables():
     assert pt.root.left.name == 'abs'
     assert pt.root.right.value == 0.1
 
-def test_single_conditional_columns():
+def test_single_conditional_columns_assigned():
 
     constraint_str = 'abs(Mean_Error|[X]) - 0.1'
     delta = 0.05
@@ -245,7 +321,7 @@ def test_single_conditional_columns():
     assert len(pt.base_node_dict) == 1  
     assert pt.root.left.left.conditional_columns == ['X']
 
-def test_multiple_conditional_columns():
+def test_multiple_conditional_columns_assigned():
 
     constraint_str = 'abs(Mean_Error|[X,Y,Z]) - 0.1'
     delta = 0.05
@@ -271,3 +347,141 @@ def test_deltas_assigned_equally():
     assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
     assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
 
+def test_special_functions_recognized():
+    constraint_str = 'Mean_Squared_Error - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.root.left.is_special == True
+    assert pt.root.left.special_function_name == 'Mean_Squared_Error'
+    
+    constraint_str = '(Mean_Error|[M]) - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.root.left.is_special == True
+    assert pt.root.left.special_function_name == 'Mean_Error'
+
+    # Test that a non-special base node 
+    # is not recognized as special
+    constraint_str = 'X - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.root.left.is_special == False
+
+def test_duplicate_base_nodes():
+    constraint_str = 'x + 4/x - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.n_base_nodes == 2 
+    assert len(pt.base_node_dict) == 1 
+    assert pt.base_node_dict['x']['computed'] == False
+    pt.propagate_bounds(bound_method='random')
+    assert pt.base_node_dict['x']['computed'] == True
+
+def test_propagate_special_functions(generate_data):
+    # dummy data for linear regression
+    np.random.seed(0)
+    numPoints=1000
+    from src.model import LRModel
+
+    model_instance = LRModel()
+    X,Y = generate_data(numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+    rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
+    df = pd.DataFrame(rows,columns=['feature1','label'])
+    dataset = DataSet(df,meta_information=['feature1','label'],
+        regime='supervised',label_column='label')
+    
+    constraint_str = 'Mean_Squared_Error - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    pt.assign_deltas(weight_method='equal')
+    assert pt.n_nodes == 3
+    assert pt.n_base_nodes == 1
+    assert len(pt.base_node_dict) == 1
+    assert pt.root.name == 'sub'  
+    theta = np.array([0,1])
+    pt.propagate_bounds(theta=theta,dataset=dataset,
+        model=model_instance,branch='safety_test',bound_method='ttest')
+    assert pt.root.lower == pytest.approx(-1.14262257)
+    assert pt.root.upper == pytest.approx(-0.98233907)
+
+def test_reset_parse_tree():
+    
+    constraint_str = '(x + y) - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    pt.assign_deltas(weight_method='equal')
+    assert pt.n_base_nodes == 2
+    assert len(pt.base_node_dict) == 2
+    assert pt.base_node_dict['x']['computed'] == False
+    assert pt.base_node_dict['x']['lower'] == float('-inf')
+    assert pt.base_node_dict['x']['upper'] == float('inf')
+    assert pt.base_node_dict['y']['lower'] == float('-inf')
+    assert pt.base_node_dict['y']['upper'] == float('inf')
+    assert pt.base_node_dict['y']['computed'] == False
+
+    # propagate bounds
+    pt.propagate_bounds(bound_method='random')
+    assert len(pt.base_node_dict) == 2
+    assert pt.base_node_dict['x']['computed'] == True
+    assert pt.base_node_dict['y']['computed'] == True
+    assert pt.base_node_dict['x']['lower'] >= 0
+    assert pt.base_node_dict['x']['upper'] > 0
+    assert pt.base_node_dict['y']['lower'] >= 0
+    assert pt.base_node_dict['y']['upper'] > 0
+
+    # reset the node dict 
+    pt.reset_base_node_dict()
+    assert len(pt.base_node_dict) == 2
+    assert pt.base_node_dict['x']['computed'] == False
+    assert pt.base_node_dict['y']['computed'] == False
+    assert pt.base_node_dict['x']['lower'] == float('-inf')
+    assert pt.base_node_dict['x']['upper'] == float('inf')
+    assert pt.base_node_dict['y']['lower'] == float('-inf')
+    assert pt.base_node_dict['y']['upper'] == float('inf')
+
+def test_single_conditional_columns_propagated():
+    np.random.seed(0)
+    csv_file = '../datasets/GPA/data_phil_modified.csv'
+    columns = ["M","F","SAT_Physics",
+           "SAT_Biology","SAT_History",
+           "SAT_Second_Language","SAT_Geography",
+           "SAT_Literature","SAT_Portuguese_and_Essay",
+           "SAT_Math","SAT_Chemistry","GPA"]
+           
+    loader = DataSetLoader(column_names=columns,
+        sensitive_column_names=['M','F'],
+        regime='supervised',label_column='GPA')
+    dataset = loader.from_csv(csv_file)
+
+    from src.model import LRModel
+    model_instance = LRModel()
+
+    constraint_str = 'abs(Mean_Error|[M]) - 0.1'
+    delta = 0.05
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    pt.assign_deltas(weight_method='equal')
+
+    # propagate the bounds with example theta value
+    # theta = np.hstack([np.array([0.0,0.0]),np.random.uniform(-0.05,0.05,10)])
+    theta = np.random.uniform(-0.05,0.05,10)
+    pt.propagate_bounds(theta=theta,dataset=dataset,
+        model=model_instance,branch='safety_test',
+        bound_method='ttest')
+    assert pt.root.lower == pytest.approx(61.9001779655)
+    assert pt.root.upper == pytest.approx(62.1362236720)
+    assert len(pt.base_node_dict["(Mean_Error | ['M'])"]['data_dict']['features']) == 22335
+    pt.reset_base_node_dict()
+    
