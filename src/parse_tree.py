@@ -1,455 +1,7 @@
 import ast
 import graphviz
 import numpy as np
-from operator import itemgetter
-from .stats_utils import *
-from functools import reduce
-
-# Special functions that are always leaf nodes
-special_functions = [
-	'Mean_Error','Mean_Squared_Error','Pr', 'FPR','TPR','FNR','TNR'
-]
-
-# map ast operators to string representations of operators
-op_mapper = {
-	ast.Sub: 'sub',
-	ast.Add: 'add',
-	ast.Mult:'mult',
-	ast.Div: 'div',
-	ast.Mod: 'modulo',
-	ast.Pow: 'pow'
-}
-
-# Not supported ast operators
-not_supported_op_mapper = {
-	ast.BitXor: '^',
-	ast.LShift: '<<',
-	ast.RShift: '>>',
-	ast.BitAnd: '&',
-	ast.FloorDiv: '//'
-}
-
-class Node(object):
-	""" 
-	The base class for all parse tree nodes
-	
-	Attributes
-	----------
-	name : str
-		the name of the node
-	index : int
-		the index of the node in the tree, root index is 0
-	left : Node object or None
-		left child node
-	right : Node object or None
-		right child node
-	lower : float
-		lower confidence bound
-	upper : float
-		upper confidence bound
-	**kwargs : 
-		optional additional arguments which get bundled into a dict
-
-	Methods
-	-------
-	__repr__()
-		String representation of the object 
-
-	"""
-	def __init__(self,name,lower,upper,**kwargs):
-		self.name = name
-		self.index = None 
-		self.left  = None 
-		self.right = None 
-		self.lower = lower 
-		self.upper = upper 
-
-	def __repr__(self):
-		lower_bracket = '['
-		upper_bracket = ']'
-		if np.isinf(self.lower):
-			lower_bracket = '('
-		if np.isinf(self.upper):
-			upper_bracket = ')'
-
-		bounds_str = f'{lower_bracket}{self.lower:g}, {self.upper:g}{upper_bracket}' \
-			if (self.lower or self.upper) else '()'
-
-		return '\n'.join(
-			[
-				'['+str(self.index)+']',
-				str(self.name),
-				u'\u03B5' + ' ' + bounds_str
-			]
-		) 
-  
-class BaseNode(Node):
-	""" 
-	Class for base variable leaf nodes
-	in the parse tree.
-	Inherits all attributes from Node class
-
-	
-	Attributes
-	----------
-	name : str
-		The name of the node
-	node_type : str
-		equal to 'base_node'
-	lower : float
-		Lower confidence bound
-	upper : float
-		Upper confidence bound
-	delta : float
-		The share of the confidence put into this node
-	compute_lower : bool
-		Whether to compute the lower confidence interval
-	compute_upper : bool
-		Whether to compute the upper confidence interval
-	conditional_columns: List(str)
-		When calculating confidence bounds on a special 
-		function, condition on these columns being == 1
-
-	Methods
-	-------
-	calculate_bounds(bound_method)
-		Calculate confidence bounds given a method, such as t-test
-	
-	compute_HC_lowerbound()
-		--TODO--
-		Calculate high confidence lower bound. 
-
-	compute_HC_upperbound()
-		--TODO--
-		Calculate high confidence upper bound
-	
-	compute_HC_upper_and_lowerbound()
-		--TODO--
-		Calculate high confidence upper and lower bound
-
-	"""
-	def __init__(self,
-		name,
-		lower=float('-inf'),
-		upper=float('inf'),
-		conditional_columns=[],
-		**kwargs):
-		"""
-		Parameters
-		----------
-		name : str
-			The name of the node
-		lower : float
-			The lower bound, default -infinity
-		upper : float
-			The upper bound, default infinity
-		"""
-
-		super().__init__(name,lower,upper,**kwargs)
-		self.node_type = 'base_node'
-		self.delta = 0 
-		self.is_special = False 
-		self.special_function_name = '' # non-empty if is_special True
-		self.compute_lower = True 
-		self.compute_upper = True 
-		self.conditional_columns = conditional_columns
-
-	def __repr__(self):
-		""" 
-		Overrides Node.__repr__()
-		"""
-		return super().__repr__() + ', ' + u'\u03B4' + f'={self.delta:g}'
-	
-	def mask_dataframe(self,dataset,conditional_columns):
-		"""
-		"""
-		masks = reduce(np.logical_and,(dataset.df[col]==1 for col in conditional_columns))
-		masked_df = dataset.df.loc[masks] 
-		return masked_df
-
-	def calculate_data_forbound(self,**kwargs):
-		theta,dataset,model = itemgetter(
-					'theta','dataset','model')(kwargs)
-
-		if kwargs['branch'] == 'candidate_selection':
-			# Then we're in candidate selection
-			n_safety = kwargs['n_safety']
-
-		# mask the data using the conditional columns, if present
-		if self.conditional_columns:
-			dataframe = self.mask_dataframe(
-				dataset,self.conditional_columns)
-		else:
-			dataframe = dataset.df
-
-		# If in candidate selection want to use safety data size
-		# in bound calculation
-		if kwargs['branch'] == 'candidate_selection':
-			frac_masked = len(dataframe)/len(dataset.df)
-			datasize = int(round(frac_masked*n_safety))
-		else:
-			datasize = len(dataframe)
-		# Separate features from label
-		label_column = dataset.label_column
-		labels = dataframe[label_column]
-		features = dataframe.loc[:, dataframe.columns != label_column]
-		features.insert(0,'offset',1.0) # inserts a column of 1's
-
-		# drop sensitive column names
-		if dataset.sensitive_column_names:
-			features = features.drop(columns=dataset.sensitive_column_names)
-		data_dict = {'features':features,'labels':labels}  
-		return data_dict,datasize
-
-	def calculate_bounds(self,
-		**kwargs):
-		"""
-		Parameters
-		----------
-		method : str
-			The method for calculating the bounds, 
-			default Student's t-test
-		""" 
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-			if bound_method == 'manual':
-				# Bounds set by user
-				return self.lower,self.upper
-
-			elif bound_method == 'random':
-				# Randomly assign lower and upper bounds
-				lower, upper = (
-					np.random.randint(0,2),
-					np.random.randint(2,4)
-					)
-				return lower,upper
-
-			else:
-				# Real confidence bound 
-
-				# --TODO-- abstract away to support things like 
-				# getting confidence intervals from bootstrap
-				# and RL cases
-				branch = kwargs['branch']
-				model = kwargs['model']
-				theta = kwargs['theta']
-				data_dict = kwargs['data_dict']
-				# take samples from the special function   
-				special_samples = model.sample_from_statistic(
-					self.special_function_name,theta,data_dict)
-
-				if self.compute_lower and self.compute_upper:
-					if branch == 'candidate_selection':
-						lower,upper = self.predict_HC_upper_and_lowerbound(
-							data=special_samples,
-							delta=self.delta,
-							**kwargs)  
-					elif branch == 'safety_test':
-						lower,upper = self.compute_HC_upper_and_lowerbound(
-							data=special_samples,
-							delta=self.delta,
-							**kwargs)  
-				else:
-					raise NotImplementedError(
-						"Have not implemented one-sided confidence bounds yet")
-
-		return lower,upper
-
-	def compute_HC_lowerbound(self,
-		data,
-		datasize,
-		delta,
-		**kwargs):
-		"""
-		Parameters
-		----------
-		-- TODO -- 
-		""" 
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-			if bound_method == 'ttest':	
-				lower = data.mean() - stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
-			else:
-				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
-			
-		return lower
-
-	def compute_HC_upperbound(self,
-		data,
-		datasize,
-		delta,
-		**kwargs):
-		"""
-		Parameters
-		----------
-		-- TODO -- 
-		"""
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-			if bound_method == 'ttest':
-				upper = data.mean() + stddev(data) / np.sqrt(datasize) \
-					* tinv(1.0 - delta, datasize - 1)
-			else:
-				raise NotImplementedError("Have not implemented" 
-					f"confidence bounds with bound_method: {bound_method}")
-			
-		return upper
-	
-	def compute_HC_upper_and_lowerbound(self,
-		data,
-		datasize,
-		delta,
-		**kwargs):
-		"""
-		Parameters
-		----------
-		-- TODO -- 
-		"""
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-			if bound_method == 'ttest':
-				lower = self.compute_HC_lowerbound(data=data,
-					datasize=datasize,delta=delta/2,
-					**kwargs)
-				upper = self.compute_HC_upperbound(data=data,
-					datasize=datasize,delta=delta/2,
-					**kwargs)
-
-			elif bound_method == 'manual':
-				pass
-			else:
-				raise NotImplementedError("Have not implemented" 
-					f"confidence bounds with bound_method: {bound_method}")
-		else:
-			raise NotImplementedError("Have not implemented" 
-					"confidence bounds without the keyword bound_method")
-
-		return lower,upper
-  
-	def predict_HC_lowerbound(self,
-		data,
-		datasize,
-		delta,
-		**kwargs):
-		"""
-		Parameters
-		----------
-		-- TODO -- 
-		""" 
-		# print(data.shape)
-		# print(delta)
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-
-			if bound_method == 'ttest':
-				lower = data.mean() - 2*stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
-			else:
-				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
-			
-		return lower
-
-	def predict_HC_upperbound(self,
-		data,
-		datasize,
-		delta,
-		**kwargs):
-		"""
-		Parameters
-		----------
-		-- TODO -- 
-		""" 
-		# print(data.shape)
-		# print(delta)
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-			if bound_method == 'ttest':
-				lower = data.mean() + 2*stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
-			else:
-				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
-			
-		return lower
-
-	def predict_HC_upper_and_lowerbound(self,
-		data,
-		datasize,
-		delta,
-		conditional_columns=[],
-		**kwargs):
-		"""
-		Parameters
-		----------
-		-- TODO -- 
-		"""
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-			if bound_method == 'ttest':
-				lower = self.predict_HC_lowerbound(data=data,
-					datasize=datasize,delta=delta/2,
-					**kwargs)
-				upper = self.predict_HC_upperbound(data=data,
-					datasize=datasize,delta=delta/2,
-					**kwargs)
-
-			elif bound_method == 'manual':
-				pass
-			else:
-				raise NotImplementedError(f"Have not implemented" 
-					"confidence bounds with bound_method: {bound_method}")
-			
-		return lower,upper
-
-
-class ConstantNode(Node):
-	""" 
-	Class for constant leaf nodes 
-	in the parse tree. 
-	Inherits all attributes from Node class
-
-	Attributes
-	----------
-	name : str
-		The name of the node
-	value: float
-		The value of the constant the node represents
-	node_type : str
-		'constant_node'
-
-	"""
-	def __init__(self,name,value,**kwargs):
-		"""
-		Sets lower and upper bound as the value of 
-		the constant
-
-		Parameters
-		----------
-		name : str
-			The name of the node
-		value: float
-			The value of the constant 
-		"""
-		super().__init__(name=name,
-			lower=value,upper=value,**kwargs)
-		self.value = value
-		self.node_type = 'constant_node'
-  
-
-class InternalNode(Node):
-	""" 
-	Class for internal (non-leaf) nodes 
-	in the parse tree.
-	These represent operators, such as +,-,*,/ etc.
-	Inherits all attributes from Node class
-
-	Attributes
-	----------
-	name : str
-		The name of the node
-	"""
-	def __init__(self,name,
-		lower=float('-inf'),upper=float('inf'),**kwargs):
-		super().__init__(name,lower,upper,**kwargs)
-		self.node_type = 'internal_node'
-
+from src.nodes import *
 
 class ParseTree(object):
 	""" 
@@ -595,14 +147,11 @@ class ParseTree(object):
 		if new_node.node_type == 'base_node':
 			self.n_base_nodes += 1
 
-			# check if special function
 			# strip out conditional columns and parentheses
 			node_name_isolated = new_node.name.split(
 				"|")[0].strip().strip('(').strip()
-			
-			if node_name_isolated in special_functions:
-				new_node.is_special = True
-				new_node.special_function_name = node_name_isolated
+			if node_name_isolated in measure_functions:
+				new_node.measure_function_name = node_name_isolated		
 
 			# if node with this name not already in self.base_node_dict
 			# then make a new entry 
@@ -628,9 +177,17 @@ class ParseTree(object):
 			new_node.left = self._ast_tree_helper(node.left)
 		if hasattr(node,'right'):
 			new_node.right = self._ast_tree_helper(node.right)
-		if hasattr(node,'args') and node.func.id not in special_functions:
+		if hasattr(node,'args') and node.func.id not in measure_functions:
+			if len(node.args) == 0 or len(node.args) > 2: 
+				readable_args = [x.id for x in node.args]
+				raise NotImplementedError(
+					"Please check the syntax of the function: "
+				   f" {new_node.name}(), with arguments: {readable_args}")
 			for ii,arg in enumerate(node.args):
-				new_node.left = self._ast_tree_helper(arg)
+				if ii == 0:
+					new_node.left = self._ast_tree_helper(arg)
+				if ii == 1:
+					new_node.right = self._ast_tree_helper(arg)
 
 		return new_node
 
@@ -647,6 +204,7 @@ class ParseTree(object):
 		kwargs = {}
 		conditional_columns = []
 		if isinstance(ast_node,ast.BinOp):
+			# +,-,*,/,** operators
 			if ast_node.op.__class__ == ast.BitOr:
 				# BitOr is used for "X | Y" i.e. "X given Y" 
 				node_class = BaseNode
@@ -668,6 +226,7 @@ class ParseTree(object):
 					   f"{op}")
 
 		elif isinstance(ast_node,ast.Name):
+			# named variable like "e"
 			# If variable name is "e" then make it a constant, not a base variable
 			if ast_node.id == 'e':
 				node_name = 'e'
@@ -681,6 +240,7 @@ class ParseTree(object):
 			is_leaf = True
 
 		elif isinstance(ast_node,ast.Constant):
+			# A constant floating point or integer number
 			node_class = ConstantNode
 			node_value = ast_node.value
 			node_name = str(node_value)
@@ -688,10 +248,35 @@ class ParseTree(object):
 			return node_class(node_name,node_value),is_leaf
 
 		elif isinstance(ast_node,ast.Call):
+			# a function call like abs(arg1) or min(arg1,arg2)
 			node_class = InternalNode
 			node_name = ast_node.func.id
 
 		return node_class(node_name),is_leaf
+
+	def create_from_ghat_str(self,s,**kwargs):
+		""" 
+		Create the node structure of the tree
+		given a custom string expression
+		for ghat, s
+
+		Parameters
+		----------
+		s : str
+			mathematical expression written in Python syntax
+			from which we build the parse tree
+		"""
+		self.root = CustomBaseNode(name=s,**kwargs)
+		self.root.index = 0
+		self.n_nodes = 1
+		self.n_base_nodes = 1
+		self.base_node_dict[self.root.name] = {
+					'computed':False,
+					'lower':float('-inf'),
+					'upper':float('inf'),
+					'data_dict':None,
+					'datasize':0
+				}
 
 	def assign_deltas(self,weight_method='equal',**kwargs):
 		""" 
@@ -726,7 +311,7 @@ class ParseTree(object):
 		if not node:
 			return
 
-		if node.node_type == 'base_node':
+		if isinstance(node,BaseNode): # captures all child classes of BaseNode as well
 			if weight_method == 'equal':
 				node.delta = self.delta/self.n_base_nodes
 
@@ -776,10 +361,9 @@ class ParseTree(object):
 		# if we hit a BaseNode,
 		# then calculate confidence bounds and return 
 		if isinstance(node,BaseNode):
-			# Check if bound has already been calculated this node name
+			# Check if bound has already been calculated for this node name
 			# If so, use precalculated bound
 			if self.base_node_dict[node.name]['computed'] == True:
-				# print("Bound already computed for this node name")
 				node.lower = self.base_node_dict[node.name]['lower']
 				node.upper = self.base_node_dict[node.name]['upper'] 
 				return
@@ -788,9 +372,11 @@ class ParseTree(object):
 					# Check if data has already been prepared
 					# for this node name. If so, use precalculated data
 					if self.base_node_dict[node.name]['data_dict']!=None:
+						# print("Data precalculated for bound")
 						data_dict = self.base_node_dict[node.name]['data_dict']
 						datasize = self.base_node_dict[node.name]['datasize']
 					else:
+						# print("calculating data for bound")
 						data_dict,datasize = node.calculate_data_forbound(
 							**kwargs)
 						self.base_node_dict[node.name]['data_dict'] = data_dict
@@ -846,41 +432,52 @@ class ParseTree(object):
 		if node.name == 'add':
 			a = (node.left.lower,node.left.upper)
 			b = (node.right.lower,node.right.upper)
-			return self.add(a,b)
+			return self._add(a,b)
 			
 		if node.name == 'sub':
 			a = (node.left.lower,node.left.upper)
 			b = (node.right.lower,node.right.upper)
-			return self.sub(a,b)
+			return self._sub(a,b)
 			
 		if node.name == 'mult':
 			a = (node.left.lower,node.left.upper)
 			b = (node.right.lower,node.right.upper)
-			return self.mult(a,b)
+			return self._mult(a,b)
 
 		if node.name == 'div':
 			a = (node.left.lower,node.left.upper)
 			b = (node.right.lower,node.right.upper)
-			return self.div(a,b) 
+			return self._div(a,b) 
 		
 		if node.name == 'pow':
 			a = (node.left.lower,node.left.upper)
 			b = (node.right.lower,node.right.upper)
-			return self.pow(a,b)
+			return self._pow(a,b)
+
+		if node.name == 'min':
+			a = (node.left.lower,node.left.upper)
+			b = (node.right.lower,node.right.upper)
+			return self._min(a,b)
+
+		if node.name == 'max':
+			a = (node.left.lower,node.left.upper)
+			b = (node.right.lower,node.right.upper)
+			return self._max(a,b)
 
 		if node.name == 'abs':
 			# takes one node
 			a = (node.left.lower,node.left.upper)
-			return self.abs(a)
-		elif node.name == 'exp':
+			return self._abs(a)
+		
+		if node.name == 'exp':
 			# takes one node
 			a = (node.left.lower,node.left.upper)
-			return self.exp(a)
+			return self._exp(a)
 
 		else:
 			raise NotImplementedError("Encountered an operation we do not yet support", node.name)
 	
-	def add(self,a,b):
+	def _add(self,a,b):
 		"""
 		Add two confidence intervals
 
@@ -901,7 +498,7 @@ class ParseTree(object):
 		
 		return (lower,upper)
 
-	def sub(self,a,b):
+	def _sub(self,a,b):
 		"""
 		Subract two confidence intervals
 
@@ -922,7 +519,7 @@ class ParseTree(object):
 
 		return (lower,upper)
 
-	def mult(self,a,b):
+	def _mult(self,a,b):
 		"""
 		Multiply two confidence intervals
 
@@ -943,7 +540,7 @@ class ParseTree(object):
 
 		return (lower,upper)
 
-	def div(self,a,b):
+	def _div(self,a,b):
 		"""
 		Divide two confidence intervals
 
@@ -963,67 +560,21 @@ class ParseTree(object):
 		elif b[1] == 0:
 			# reduces to multiplication of a*(-inf,1/b[0]]
 			new_b = (float('-inf'),1/b[0])
-			lower,upper = self.mult(a,new_b)
+			lower,upper = self._mult(a,new_b)
 
 		elif b[0] == 0:
 			# reduces to multiplication of a*(1/b[1],+inf)
 			new_b = (1/b[1],float('inf'))
-			lower,upper = self.mult(a,new_b)
+			lower,upper = self._mult(a,new_b)
 		else:
 			# b is either entirely negative or positive
 			# reduces to multiplication of a*(1/b[1],1/b[0])
 			new_b = (1/b[1],1/b[0])
-			lower, upper = self.mult(a,new_b)
+			lower, upper = self._mult(a,new_b)
 
 		return (lower,upper)
 
-	def abs(self,a):
-		"""
-		Absolute value of a confidence interval
-
-		Parameters
-		----------
-		a : tuple
-			Confidence interval like: (lower,upper)
-		"""
-		abs_a0 = abs(a[0])
-		abs_a1 = abs(a[1])
-		
-		lower = self._protect_nan(
-			min(abs_a0,abs_a1) \
-			if np.sign(a[0])==np.sign(a[1]) else 0,
-			'lower')
-
-		upper = self._protect_nan(
-			max(abs_a0,abs_a1),
-			'upper')
-
-		return (lower,upper)
-
-	def exp(self,a):
-		"""
-		Exponentiate a confidence interval
-		--TODO-- make this pow(A,B) where 
-		A and B can both be intervals or scalars
-
-		Parameters
-		----------
-		a : tuple
-			Confidence interval like: (lower,upper)
-		"""
-		
-		
-		lower = self._protect_nan(
-			np.exp(a[0]),
-			'lower')
-
-		upper = self._protect_nan(
-			np.exp(a[1]),
-			'upper')
-
-		return (lower,upper)
-
-	def pow(self,a,b):
+	def _pow(self,a,b):
 		"""
 		Get the confidence interval on 
 		pow(A,B) where 
@@ -1057,6 +608,60 @@ class ParseTree(object):
 				pow(a[0],b[1]),
 				pow(a[1],b[0]),
 				pow(a[1],b[1])),
+			'upper')
+
+		return (lower,upper)
+
+	def _min(self,a,b):
+		lower = min(a[0],b[0])
+		upper = min(a[1],b[1])
+		return (lower,upper)
+
+	def _max(self,a,b):
+		lower = max(a[0],b[0])
+		upper = max(a[1],b[1])
+		return (lower,upper)
+
+	def _abs(self,a):
+		"""
+		Absolute value of a confidence interval
+
+		Parameters
+		----------
+		a : tuple
+			Confidence interval like: (lower,upper)
+		"""
+		abs_a0 = abs(a[0])
+		abs_a1 = abs(a[1])
+		
+		lower = self._protect_nan(
+			min(abs_a0,abs_a1) \
+			if np.sign(a[0])==np.sign(a[1]) else 0,
+			'lower')
+
+		upper = self._protect_nan(
+			max(abs_a0,abs_a1),
+			'upper')
+
+		return (lower,upper)
+
+	def _exp(self,a):
+		"""
+		Exponentiate a confidence interval
+
+		Parameters
+		----------
+		a : tuple
+			Confidence interval like: (lower,upper)
+		"""
+		
+		
+		lower = self._protect_nan(
+			np.exp(a[0]),
+			'lower')
+
+		upper = self._protect_nan(
+			np.exp(a[1]),
 			'upper')
 
 		return (lower,upper)

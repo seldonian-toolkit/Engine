@@ -23,9 +23,9 @@ def minimize(N,lamb,initial_solution,objective):
 	# Initialize hyperparameters
 	xmean = initial_solution.reshape(N,1)
 	# xmean = np.array([0.0,1.0]).reshape(N,1)  # objective variables initial point
-	sigma = 0.3          # coordinate wise standard deviation (step size)
-	stopfitness = 0.8  # stop if fitness < stopfitness (minimization). 
-	stopeval = 5e3  # stop after stopeval number of function evaluations
+	sigma = 0.5          # coordinate wise standard deviation (step size)
+	stopfitness = 0.75  # stop if fitness < stopfitness (minimization). 
+	stopeval = 5e4  # stop after stopeval number of function evaluations
 
 	# Strategy parameter setting: Selection  
 	mu = lamb/2

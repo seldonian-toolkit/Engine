@@ -25,7 +25,7 @@ if __name__ == '__main__':
 	dataset = loader.from_csv(csv_file)
 	# sensitive_df = dataset.df[sensitive_column_names]
 	
-	frac_data_in_safety = 0.6
+	frac_data_in_safety = 0.8
 	# (sensitive_candidate_df,
 	# 	sensitive_safety_df) = train_test_split(sensitive_df,
 	# 	test_size=frac_data_in_safety,shuffle=False)
@@ -50,8 +50,8 @@ if __name__ == '__main__':
 	n_safety = len(safety_df)
 	print(n_safety)
 	# Linear regression model
-	from src.model import LRModel
-	model_instance = LRModel()
+	from src.model import LinearRegressionModel
+	model_instance = LinearRegressionModel()
 
 	# Constraints
 	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.05'

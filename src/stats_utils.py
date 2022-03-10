@@ -6,9 +6,6 @@ def stddev(v):
     Sample standard deviation of the vector v,
     with Bessel's correction
     """
-    # n = len(v)
-    # variance = (np.var(v) * n) / (n-1) 
-    # return np.sqrt(variance)  
     return np.std(v,ddof=1)         
 
 def tinv(p, nu):

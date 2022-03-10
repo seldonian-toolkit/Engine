@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class CandidateSelection(object):
 	def __init__(self,
 		model,
@@ -34,11 +35,11 @@ class CandidateSelection(object):
 		# default initial solution function is leastsq
 		if not self.initial_solution_fn:
 			initial_solution = self.model.fit(
-				self.features, self.labels)
+				self.model,self.features, self.labels)
 		else:
 			initial_solution = self.initial_solution_fn(
-				self.features, self.labels)
-
+				self.model, self.features, self.labels)
+		# print("initial solution is:",initial_solution)
 		if self.optimizer == 'Powell':
 			from scipy.optimize import minimize 
 			res = minimize(
@@ -48,14 +49,15 @@ class CandidateSelection(object):
 				options=kwargs['minimizer_options'], 
 				args=())
 			candidate_solution=res.x
-			
+
 		elif self.optimizer == 'cmaes':
 			from src.cmaes import minimize
 
 			N=self.features.shape[1]
 
 			candidate_solution = minimize(N=N,
-				lamb=int(4+np.floor(3*np.log(N))),
+				# lamb=int(4+np.floor(3*np.log(N))),
+				lamb=20,
 				initial_solution=initial_solution,
 				objective=self.candidate_objective)
 
@@ -72,9 +74,10 @@ class CandidateSelection(object):
 	def candidate_objective(self,theta):
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
-
-		result = self.primary_objective(theta, 
+		# print("theta is:", theta)
+		result = self.primary_objective(self.model,theta, 
 			self.features, self.labels)
+		# print("Primary objective eval is:", result)
 		# Prediction of what the safety test will return. 
 		# Initialized to pass
 		predictSafetyTest = True     
@@ -110,4 +113,9 @@ class CandidateSelection(object):
 				# the prediction of the safety test
 				result = result + upper_bound
 		print(result)
+		# title = f'Parse tree'
+		# graph = pt.make_viz(title)
+		# graph.attr(fontsize='12')
+		# graph.view() # to open it as a pdf
+		# input("End of optimzer iteration")
 		return result

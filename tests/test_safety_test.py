@@ -24,8 +24,8 @@ def test_safety_test(generate_data):
         regime='supervised',label_column='label')
 
     # Linear regression model
-    from src.model import LRModel
-    model_instance = LRModel()
+    from src.model import LinearRegressionModel
+    model_instance = LinearRegressionModel()
     
     # One constraint, so one parse tree
     constraint_str1 = 'Mean_Squared_Error - 2.0'

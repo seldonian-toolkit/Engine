@@ -115,6 +115,38 @@ answer_dict = {
         [None,None], # input raises exception 
         [float('inf'),float('inf')]
     ],
+    'min': [
+        [2.0,3.0],
+        [-2.0,1.0],
+        [0.5,0.75],
+        [0.0,0.4],
+        [-4.5,-4.0],
+        [-4.5,-2.0],
+        [-6.1,-6.0],
+        [0.0,0.5],
+        [-6.8,-5.0],
+        [float('-inf'),-5.0],
+        [0.0,10.0],
+        [float('-inf'),10.0],
+        [float('-inf'),float('inf')],
+        [float('inf'),float('inf')]
+    ],
+    'max': [
+        [4.0,5.0],
+        [2.0,3.0],
+        [2.0,4.0],
+        [0.5,1.1],
+        [-3.2,-2.0],
+        [-3.2,5.0],
+        [0.0,0.5],
+        [1.0,9.0],
+        [0.0,0.5],
+        [-6.8,5.0],
+        [5.0,float('inf')],
+        [5.0,float('inf')],
+        [float('-inf'),float('inf')],
+        [float('inf'),float('inf')]
+    ],
     'abs': [
         [2.0,3.2],
         [0,3.2],
@@ -219,6 +251,41 @@ def test_power_bounds(interval_index,stump):
         assert pt.root.upper == pytest.approx(answer[1])
         assert pt.base_node_dict['a']['computed'] == True
         assert pt.base_node_dict['b']['computed'] == True
+
+@pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
+def test_min_bounds(interval_index,stump):
+    ### min ###
+
+    a,b=two_interval_options[interval_index]
+    print(a,b)
+    pt = stump('min',a,b)
+    
+    answer = answer_dict['min'][interval_index]
+    print(answer)
+    pt.propagate_bounds(bound_method='manual')
+    # Use approx due to floating point imprecision
+    assert pt.root.lower == pytest.approx(answer[0])
+    assert pt.root.upper == pytest.approx(answer[1])
+    assert pt.base_node_dict['a']['computed'] == True
+    assert pt.base_node_dict['b']['computed'] == True
+
+@pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
+def test_max_bounds(interval_index,stump):
+    ### min ###
+
+    a,b=two_interval_options[interval_index]
+    print(a,b)
+    pt = stump('max',a,b)
+    
+    answer = answer_dict['max'][interval_index]
+    print(answer)
+    pt.propagate_bounds(bound_method='manual')
+    # Use approx due to floating point imprecision
+    assert pt.root.lower == pytest.approx(answer[0])
+    assert pt.root.upper == pytest.approx(answer[1])
+    assert pt.base_node_dict['a']['computed'] == True
+    assert pt.base_node_dict['b']['computed'] == True
+
 
 @pytest.mark.parametrize('interval_index',range(len(single_interval_options)))
 def test_abs_bounds(interval_index,edge):
@@ -347,31 +414,29 @@ def test_deltas_assigned_equally():
     assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
     assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
 
-def test_special_functions_recognized():
+def test_measure_functions_recognized():
     constraint_str = 'Mean_Squared_Error - 2.0'
     delta = 0.05 
 
     pt = ParseTree(delta)
     pt.create_from_ast(constraint_str)
-    assert pt.root.left.is_special == True
-    assert pt.root.left.special_function_name == 'Mean_Squared_Error'
+    assert pt.root.left.measure_function_name == 'Mean_Squared_Error'
     
     constraint_str = '(Mean_Error|[M]) - 2.0'
     delta = 0.05 
 
     pt = ParseTree(delta)
     pt.create_from_ast(constraint_str)
-    assert pt.root.left.is_special == True
-    assert pt.root.left.special_function_name == 'Mean_Error'
+    assert pt.root.left.measure_function_name == 'Mean_Error'
 
-    # Test that a non-special base node 
-    # is not recognized as special
+    # Test that a non-measure base node 
+    # is not recognized as measure
     constraint_str = 'X - 2.0'
     delta = 0.05 
 
     pt = ParseTree(delta)
     pt.create_from_ast(constraint_str)
-    assert pt.root.left.is_special == False
+    assert pt.root.left.measure_function_name == ''
 
 def test_duplicate_base_nodes():
     constraint_str = 'x + 4/x - 2.0'
@@ -389,9 +454,9 @@ def test_propagate_special_functions(generate_data):
     # dummy data for linear regression
     np.random.seed(0)
     numPoints=1000
-    from src.model import LRModel
+    from src.model import LinearRegressionModel
 
-    model_instance = LRModel()
+    model_instance = LinearRegressionModel()
     X,Y = generate_data(numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
     rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
     df = pd.DataFrame(rows,columns=['feature1','label'])
@@ -465,8 +530,8 @@ def test_single_conditional_columns_propagated():
         regime='supervised',label_column='GPA')
     dataset = loader.from_csv(csv_file)
 
-    from src.model import LRModel
-    model_instance = LRModel()
+    from src.model import LinearRegressionModel
+    model_instance = LinearRegressionModel()
 
     constraint_str = 'abs(Mean_Error|[M]) - 0.1'
     delta = 0.05
