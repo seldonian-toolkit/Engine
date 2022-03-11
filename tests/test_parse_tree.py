@@ -305,8 +305,7 @@ def test_abs_bounds(interval_index,edge):
 ########################
 
 def test_parse_tree_from_simple_string():
-
-    constraint_str = 'x - (y + b)*4'
+    constraint_str = 'FPR - (FNR + PR)*4'
     delta = 0.05
     pt = ParseTree(delta)
     pt.create_from_ast(constraint_str)
@@ -315,10 +314,45 @@ def test_parse_tree_from_simple_string():
     assert len(pt.base_node_dict) == 3
     assert isinstance(pt.root,InternalNode)
     assert pt.root.name == 'sub'
+    assert pt.root.left.name == 'FPR'
+    assert pt.root.right.name == 'mult'
+    assert pt.root.right.left.name == 'add'
+    assert pt.root.right.left.left.name == 'FNR'
+    assert pt.root.right.left.right.name == 'PR'
+    assert pt.root.right.right.name == '4'
+    assert pt.root.right.right.value == 4
 
+def test_measure_functions_recognized():
+    constraint_str = 'Mean_Squared_Error - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.root.left.measure_function_name == 'Mean_Squared_Error'
+    
+    constraint_str = '(Mean_Error|[M]) - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    pt.create_from_ast(constraint_str)
+    assert pt.root.left.measure_function_name == 'Mean_Error'
+
+    # Test that a non-measure base node 
+    # is not recognized as measure
+    constraint_str = 'X - 2.0'
+    delta = 0.05 
+
+    pt = ParseTree(delta)
+    with pytest.raises(NotImplementedError) as excinfo:
+        pt.create_from_ast(constraint_str)
+    
+    error_str = ("Error parsing your expression."
+             " A variable name was used which we do not recognize: X")
+    assert str(excinfo.value) == error_str
+    
 def test_raise_error_on_excluded_operators():
 
-    constraint_str = 'x^4'
+    constraint_str = 'FPR^4'
     delta = 0.05
     pt = ParseTree(delta)
     with pytest.raises(NotImplementedError) as excinfo:
@@ -327,7 +361,7 @@ def test_raise_error_on_excluded_operators():
          " An operator was used which we do not support: ^")
     assert str(excinfo.value) == error_str
 
-    constraint_str = 'x<<4'
+    constraint_str = 'FPR<<4'
     delta = 0.05
     pt = ParseTree(delta)
     with pytest.raises(NotImplementedError) as excinfo:
@@ -336,7 +370,7 @@ def test_raise_error_on_excluded_operators():
          " An operator was used which we do not support: <<")
     assert str(excinfo.value) == error_str
 
-    constraint_str = 'x>>4'
+    constraint_str = 'FPR>>4'
     delta = 0.05
     pt = ParseTree(delta)
     with pytest.raises(NotImplementedError) as excinfo:
@@ -345,7 +379,7 @@ def test_raise_error_on_excluded_operators():
          " An operator was used which we do not support: >>")
     assert str(excinfo.value) == error_str
 
-    constraint_str = 'x & y'
+    constraint_str = 'FPR & FNR'
     delta = 0.05
     pt = ParseTree(delta)
     with pytest.raises(NotImplementedError) as excinfo:
@@ -354,7 +388,7 @@ def test_raise_error_on_excluded_operators():
          " An operator was used which we do not support: &")
     assert str(excinfo.value) == error_str
 
-    constraint_str = 'x//4'
+    constraint_str = 'FPR//4'
     delta = 0.05
     pt = ParseTree(delta)
     with pytest.raises(NotImplementedError) as excinfo:
@@ -363,20 +397,6 @@ def test_raise_error_on_excluded_operators():
          " An operator was used which we do not support: //")
     assert str(excinfo.value) == error_str
  
-def test_parse_tree_with_special_base_variables():
-
-    constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
-    delta = 0.05
-    pt = ParseTree(delta)
-    pt.create_from_ast(constraint_str)
-    assert pt.n_nodes == 6
-    assert pt.n_base_nodes == 2
-    assert len(pt.base_node_dict) == 2  
-    assert isinstance(pt.root,InternalNode)
-    assert pt.root.name == 'sub'  
-    assert pt.root.left.name == 'abs'
-    assert pt.root.right.value == 0.1
-
 def test_single_conditional_columns_assigned():
 
     constraint_str = 'abs(Mean_Error|[X]) - 0.1'
@@ -414,43 +434,19 @@ def test_deltas_assigned_equally():
     assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
     assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
 
-def test_measure_functions_recognized():
-    constraint_str = 'Mean_Squared_Error - 2.0'
-    delta = 0.05 
-
-    pt = ParseTree(delta)
-    pt.create_from_ast(constraint_str)
-    assert pt.root.left.measure_function_name == 'Mean_Squared_Error'
-    
-    constraint_str = '(Mean_Error|[M]) - 2.0'
-    delta = 0.05 
-
-    pt = ParseTree(delta)
-    pt.create_from_ast(constraint_str)
-    assert pt.root.left.measure_function_name == 'Mean_Error'
-
-    # Test that a non-measure base node 
-    # is not recognized as measure
-    constraint_str = 'X - 2.0'
-    delta = 0.05 
-
-    pt = ParseTree(delta)
-    pt.create_from_ast(constraint_str)
-    assert pt.root.left.measure_function_name == ''
-
 def test_duplicate_base_nodes():
-    constraint_str = 'x + 4/x - 2.0'
+    constraint_str = 'FPR + 4/FPR - 2.0'
     delta = 0.05 
 
     pt = ParseTree(delta)
     pt.create_from_ast(constraint_str)
     assert pt.n_base_nodes == 2 
     assert len(pt.base_node_dict) == 1 
-    assert pt.base_node_dict['x']['computed'] == False
+    assert pt.base_node_dict['FPR']['computed'] == False
     pt.propagate_bounds(bound_method='random')
-    assert pt.base_node_dict['x']['computed'] == True
+    assert pt.base_node_dict['FPR']['computed'] == True
 
-def test_propagate_special_functions(generate_data):
+def test_propagate_ttest_bound(generate_data):
     # dummy data for linear regression
     np.random.seed(0)
     numPoints=1000
@@ -481,7 +477,7 @@ def test_propagate_special_functions(generate_data):
 
 def test_reset_parse_tree():
     
-    constraint_str = '(x + y) - 2.0'
+    constraint_str = '(FPR + FNR) - 0.5'
     delta = 0.05 
 
     pt = ParseTree(delta)
@@ -489,32 +485,32 @@ def test_reset_parse_tree():
     pt.assign_deltas(weight_method='equal')
     assert pt.n_base_nodes == 2
     assert len(pt.base_node_dict) == 2
-    assert pt.base_node_dict['x']['computed'] == False
-    assert pt.base_node_dict['x']['lower'] == float('-inf')
-    assert pt.base_node_dict['x']['upper'] == float('inf')
-    assert pt.base_node_dict['y']['lower'] == float('-inf')
-    assert pt.base_node_dict['y']['upper'] == float('inf')
-    assert pt.base_node_dict['y']['computed'] == False
+    assert pt.base_node_dict['FPR']['computed'] == False
+    assert pt.base_node_dict['FPR']['lower'] == float('-inf')
+    assert pt.base_node_dict['FPR']['upper'] == float('inf')
+    assert pt.base_node_dict['FNR']['lower'] == float('-inf')
+    assert pt.base_node_dict['FNR']['upper'] == float('inf')
+    assert pt.base_node_dict['FNR']['computed'] == False
 
     # propagate bounds
     pt.propagate_bounds(bound_method='random')
     assert len(pt.base_node_dict) == 2
-    assert pt.base_node_dict['x']['computed'] == True
-    assert pt.base_node_dict['y']['computed'] == True
-    assert pt.base_node_dict['x']['lower'] >= 0
-    assert pt.base_node_dict['x']['upper'] > 0
-    assert pt.base_node_dict['y']['lower'] >= 0
-    assert pt.base_node_dict['y']['upper'] > 0
+    assert pt.base_node_dict['FPR']['computed'] == True
+    assert pt.base_node_dict['FNR']['computed'] == True
+    assert pt.base_node_dict['FPR']['lower'] >= 0
+    assert pt.base_node_dict['FPR']['upper'] > 0
+    assert pt.base_node_dict['FNR']['lower'] >= 0
+    assert pt.base_node_dict['FNR']['upper'] > 0
 
     # reset the node dict 
     pt.reset_base_node_dict()
     assert len(pt.base_node_dict) == 2
-    assert pt.base_node_dict['x']['computed'] == False
-    assert pt.base_node_dict['y']['computed'] == False
-    assert pt.base_node_dict['x']['lower'] == float('-inf')
-    assert pt.base_node_dict['x']['upper'] == float('inf')
-    assert pt.base_node_dict['y']['lower'] == float('-inf')
-    assert pt.base_node_dict['y']['upper'] == float('inf')
+    assert pt.base_node_dict['FPR']['computed'] == False
+    assert pt.base_node_dict['FNR']['computed'] == False
+    assert pt.base_node_dict['FPR']['lower'] == float('-inf')
+    assert pt.base_node_dict['FPR']['upper'] == float('inf')
+    assert pt.base_node_dict['FNR']['lower'] == float('-inf')
+    assert pt.base_node_dict['FNR']['upper'] == float('inf')
 
 def test_single_conditional_columns_propagated():
     np.random.seed(0)

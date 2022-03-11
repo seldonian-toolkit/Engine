@@ -7,7 +7,7 @@ if __name__ == '__main__':
 	# constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
 	# constraint_str = 'X**Y - 2.0'
 	# constraint_str = '(Mean_Error | [X,Y,Z]) - 0.1'
-	constraint_str = 'max(X,Y)'
+	constraint_str = 'FPR | [M] - FNR | [F] - 0.1'
 	delta = 0.05
 
 	# Create parse tree object

@@ -202,14 +202,21 @@ class ParseTree(object):
 		"""
 		is_leaf = False
 		kwargs = {}
-		conditional_columns = []
+
 		if isinstance(ast_node,ast.BinOp):
 			# +,-,*,/,** operators
 			if ast_node.op.__class__ == ast.BitOr:
-				# BitOr is used for "X | Y" i.e. "X given Y" 
+				# BitOr is used for "Function | [Y]" i.e. 
+				# "Function given conditional column Y" 
 				node_class = BaseNode
-
-				conditional_columns = [x.id for x in ast_node.right.elts]
+				try: 
+					conditional_columns = [x.id for x in ast_node.right.elts]
+				except:
+					raise RuntimeError(
+						"An issue was found when parsing"
+						" your conditional expression.\n"
+						"The issue is most likely due to"
+						" missing or mismatched parentheses. ")
 				# node_name = ast_node.left.id
 				node_name = '(' + ' | '.join([ast_node.left.id,str(conditional_columns)]) + ')'
 				is_leaf = True
@@ -224,9 +231,10 @@ class ParseTree(object):
 					raise NotImplementedError("Error parsing your expression."
 						" An operator was used which we do not support: "
 					   f"{op}")
+				return node_class(node_name),is_leaf
 
 		elif isinstance(ast_node,ast.Name):
-			# named variable like "e"
+			# named quantity like "e", "Mean_Squared_Error"
 			# If variable name is "e" then make it a constant, not a base variable
 			if ast_node.id == 'e':
 				node_name = 'e'
@@ -234,10 +242,15 @@ class ParseTree(object):
 				node_value = np.e
 				is_leaf = True
 				return node_class(node_name,node_value),is_leaf
-			else:
+			else:	
+				if ast_node.id not in measure_functions:
+					raise NotImplementedError("Error parsing your expression."
+						" A variable name was used which we do not recognize: "
+					   f"{ast_node.id}")
 				node_class = BaseNode
 				node_name = ast_node.id
-			is_leaf = True
+				is_leaf = True
+				return node_class(node_name),is_leaf
 
 		elif isinstance(ast_node,ast.Constant):
 			# A constant floating point or integer number
@@ -248,7 +261,7 @@ class ParseTree(object):
 			return node_class(node_name,node_value),is_leaf
 
 		elif isinstance(ast_node,ast.Call):
-			# a function call like abs(arg1) or min(arg1,arg2)
+			# a function call like abs(arg1), min(arg1,arg2), FPR()
 			node_class = InternalNode
 			node_name = ast_node.func.id
 
