@@ -2,8 +2,11 @@ import numpy as np
 from sklearn.linear_model import (LinearRegression,
 	LogisticRegression, SGDClassifier)
 
+class SeldonianModel(object):
+	def __init__(self):
+		pass
 
-class SupervisedModel(object):
+class SupervisedModel(SeldonianModel):
 	def __init__(self):
 		pass
 
@@ -102,7 +105,7 @@ class ClassificationModel(SupervisedModel):
 		prediction = model.predict(theta,X)
 		acc = np.mean(1.0*prediction==Y)
 		return acc
-		
+
 	def perceptron_loss(self,model,theta,X,Y):
 	    prediction = model.predict(theta,X)
 	    res = np.mean(prediction!=Y) # 0 if all correct, 1 if all incorrect
