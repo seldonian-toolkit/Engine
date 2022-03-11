@@ -1,6 +1,25 @@
 import numpy as np
 
 class SafetyTest(object):
+	""" 
+	Class for the safety test
+	
+	Attributes
+	----------
+	dataset : src.dataset.DataSet instance
+		Object representing the safety dataset
+	model   : src.model.SeldonianModel (or child) instance
+		Object representing the model
+	parse_trees : List(src.parse_tree.Parse_Tree)
+		List of parse trees containing the behavioral consraints
+
+	Methods
+	-------
+	run(candidate_solution,bound_method)
+		Run the safety test given a candidate solution
+		and a method for computing the confidence bounds
+
+	"""
 	def __init__(self,dataset,model,parse_trees):
 		self.dataset = dataset
 		self.model = model

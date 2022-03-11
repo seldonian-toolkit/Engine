@@ -38,9 +38,8 @@ not_supported_op_mapper = {
 class BehavioralConstraint(object):
 	def __init__(self,str_expression):
 		self.str_expression = str_expression
-
 		
-class PhilGPARegressionConstraint(BehavioralConstraint):
+class ScienceGPARegressionConstraint(BehavioralConstraint):
 	def __init__(self,str_expression,epsilon):
 		super().__init__(str_expression=str_expression)
 		self.epsilon = epsilon
@@ -123,10 +122,10 @@ custom_ghat_strs = [
 
 custom_ghat_dict = {
 	'(y_i - y_hat_i | [M]) - (y_j - y_hat_j | [F]) - epsilon': {
-		'class':PhilGPARegressionConstraint,
+		'class':ScienceGPARegressionConstraint,
 		'method':'ghat1'},
 	'(y_i - y_hat_i | [F]) - (y_j - y_hat_j | [M]) - epsilon': {
-	'class':PhilGPARegressionConstraint,
+	'class':ScienceGPARegressionConstraint,
 		'method':'ghat2'},
 
 }

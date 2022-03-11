@@ -2,7 +2,7 @@ from operator import itemgetter
 from functools import reduce
 
 from .stats_utils import *
-from src.constraints import *
+from src.constraints.constraints import *
 
 
 class Node(object):
@@ -261,8 +261,6 @@ class BaseNode(Node):
 						return upper
 
 				raise AssertionError("compute_lower and computer_upper cannot both be False")
-
-		
 
 	def compute_HC_lowerbound(self,
 		data,
