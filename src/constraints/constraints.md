@@ -2,7 +2,7 @@
 ## Supervised learning case
 It is possible that at some point you will want to enforce custom behavioral constraints that cannot be captured using the available interfaces. Depending on the type of constraint, this library supports the addition of custom user-defined constraints. The prerequisites that the constraint need to meet are as follows:
 - You must be able to write a function, <img src="https://render.githubusercontent.com/render/math?math=\hat{g}\mathrm{(model,weights,data_dict)}">, that provides (ideally) unbiased estimates of the constraint, `g`. 
-- You must be able to uniquely define a string expression for this constraint or set of constraints. The expression need not be mathematical, but it needs to be unique from the existing strings in the list: `custom_ghat_strs` in [src/constraints.py](https://github.com/seldonian-framework/Seldonian/blob/main/src/constraints.py).
+- You must be able to uniquely define a string expression for this constraint or set of constraints. The expression need not be mathematical, but it needs to be unique from the existing strings in the list: `custom_ghat_strs` in [src/constraints.py](./constraints.py).
 
 
 The way constraints are handled in this framework is in Python classes in the module: [src/constraints.py](https://github.com/seldonian-framework/Seldonian/blob/main/src/constraints.py). If your constraint does not fit into one of the existing constraint classes, and meets the two criteria above, then you may be able to define a new class for your constraint.  The steps you would need to take to do this are:
