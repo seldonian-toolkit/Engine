@@ -79,9 +79,9 @@ class BaseNode(Node):
 		Upper confidence bound
 	delta : float
 		The share of the confidence put into this node
-	compute_lower : bool
+	will_lower_bound : bool
 		Whether to compute the lower confidence interval
-	compute_upper : bool
+	will_upper_bound : bool
 		Whether to compute the upper confidence interval
 	conditional_columns: List(str)
 		When calculating confidence bounds on a special 
@@ -126,8 +126,8 @@ class BaseNode(Node):
 		self.node_type = 'base_node'
 		self.delta = 0  
 		self.measure_function_name = '' # non-empty if is_special True
-		self.compute_lower = True 
-		self.compute_upper = True 
+		self.will_lower_bound = True 
+		self.will_upper_bound = True 
 		self.conditional_columns = conditional_columns
 
 	def __repr__(self):
@@ -190,7 +190,8 @@ class BaseNode(Node):
 			bound_method = kwargs['bound_method']
 			if bound_method == 'manual':
 				# Bounds set by user
-				return self.lower,self.upper
+				return {'lower':self.lower,
+						'upper':self.upper}
 
 			elif bound_method == 'random':
 				# Randomly assign lower and upper bounds
@@ -198,7 +199,7 @@ class BaseNode(Node):
 					np.random.randint(0,2),
 					np.random.randint(2,4)
 					)
-				return lower,upper
+				return {'lower':lower,'upper':upper}
 		
 			else:
 				# Real confidence bound 
@@ -221,7 +222,7 @@ class BaseNode(Node):
 					theta,
 					data_dict)
 
-				if self.compute_lower and self.compute_upper:
+				if self.will_lower_bound and self.will_upper_bound:
 					if branch == 'candidate_selection':
 						lower,upper = self.predict_HC_upper_and_lowerbound(
 							data=estimator_samples,
@@ -232,9 +233,9 @@ class BaseNode(Node):
 							data=estimator_samples,
 							delta=self.delta,
 							**kwargs)  
-					return lower,upper
+					return {'lower':lower,'upper':upper}
 				
-				elif self.compute_lower:
+				elif self.will_lower_bound:
 					if branch == 'candidate_selection':
 						lower = self.predict_HC_lowerbound(
 							data=estimator_samples,
@@ -245,9 +246,9 @@ class BaseNode(Node):
 							data=estimator_samples,
 							delta=self.delta,
 							**kwargs)  
-					return lower
+					return {'lower':lower}
 
-				elif self.compute_upper:
+				elif self.will_upper_bound:
 					if branch == 'candidate_selection':
 						upper = self.predict_HC_upperbound(
 							data=estimator_samples,
@@ -258,9 +259,9 @@ class BaseNode(Node):
 							data=estimator_samples,
 							delta=self.delta,
 							**kwargs)  
-						return upper
+						return {'upper':upper}
 
-				raise AssertionError("compute_lower and computer_upper cannot both be False")
+				raise AssertionError("will_lower_bound and computer_upper cannot both be False")
 
 	def compute_HC_lowerbound(self,
 		data,
@@ -427,15 +428,15 @@ class CustomBaseNode(BaseNode):
 		else:
 			self.epsilon = None
 
-		if 'compute_lower' in kwargs:
-			self.compute_lower = kwargs['compute_lower'] 
+		if 'will_lower_bound' in kwargs:
+			self.will_lower_bound = kwargs['will_lower_bound'] 
 		else:
-			self.compute_lower = True
+			self.will_lower_bound = True
 
-		if 'compute_upper' in kwargs:
-			self.compute_upper = kwargs['compute_upper'] 
+		if 'will_upper_bound' in kwargs:
+			self.will_upper_bound = kwargs['will_upper_bound'] 
 		else:
-			self.compute_upper = True
+			self.will_upper_bound = True
 
 	def calculate_data_forbound(self,**kwargs):
 		""" Overrides parent method """
@@ -511,7 +512,7 @@ class CustomBaseNode(BaseNode):
 				estimator_samples = ghat_method(model,theta,data_dict)
 				# print("estimator_samples: ",estimator_samples)
 				# print(estimator_samples.mean())
-				if self.compute_lower and self.compute_upper:
+				if self.will_lower_bound and self.will_upper_bound:
 					if branch == 'candidate_selection':
 						lower,upper = self.predict_HC_upper_and_lowerbound(
 							data=estimator_samples,
@@ -524,7 +525,7 @@ class CustomBaseNode(BaseNode):
 							**kwargs)  
 					return lower,upper
 				
-				elif self.compute_lower:
+				elif self.will_lower_bound:
 					if branch == 'candidate_selection':
 						lower = self.predict_HC_lowerbound(
 							data=estimator_samples,
@@ -537,7 +538,7 @@ class CustomBaseNode(BaseNode):
 							**kwargs)  
 					return lower,lower
 
-				elif self.compute_upper:
+				elif self.will_upper_bound:
 					if branch == 'candidate_selection':
 						upper = self.predict_HC_upperbound(
 							data=estimator_samples,
@@ -550,7 +551,7 @@ class CustomBaseNode(BaseNode):
 							**kwargs)  
 					return upper,upper
 
-				raise AssertionError("compute_lower and compute_upper cannot both be False")
+				raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
 
 
 class ConstantNode(Node):

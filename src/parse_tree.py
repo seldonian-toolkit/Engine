@@ -1,7 +1,13 @@
 import ast
+import warnings
+
+
 import graphviz
 import numpy as np
+
+from src.warnings.custom_warnings import *
 from src.nodes import *
+
 
 class ParseTree(object):
 	""" 
@@ -148,6 +154,8 @@ class ParseTree(object):
 			self.n_base_nodes += 1
 
 			# strip out conditional columns and parentheses
+			# to get the measure function name
+			# does not fail if none are present
 			node_name_isolated = new_node.name.split(
 				"|")[0].strip().strip('(').strip()
 			if node_name_isolated in measure_functions:
@@ -155,8 +163,7 @@ class ParseTree(object):
 
 			# if node with this name not already in self.base_node_dict
 			# then make a new entry 
-			if new_node.name not in self.base_node_dict:
-				# 
+			if new_node.name not in self.base_node_dict: 
 				self.base_node_dict[new_node.name] = {
 					'computed':False,
 					'lower':float('-inf'),
@@ -177,6 +184,8 @@ class ParseTree(object):
 			new_node.left = self._ast_tree_helper(node.left)
 		if hasattr(node,'right'):
 			new_node.right = self._ast_tree_helper(node.right)
+		
+		# Handle function operators like min(), abs(), etc...
 		if hasattr(node,'args') and node.func.id not in measure_functions:
 			if len(node.args) == 0 or len(node.args) > 2: 
 				readable_args = [x.id for x in node.args]
@@ -203,6 +212,12 @@ class ParseTree(object):
 		is_leaf = False
 		kwargs = {}
 
+		if isinstance(ast_node,ast.Tuple):
+			raise RuntimeError(
+				"Error parsing your expression."
+				" The issue is most likely due to"
+				" missing/mismatched parentheses or square brackets"
+				" in a conditional expression involving '|'.")
 		if isinstance(ast_node,ast.BinOp):
 			# +,-,*,/,** operators
 			if ast_node.op.__class__ == ast.BitOr:
@@ -210,15 +225,15 @@ class ParseTree(object):
 				# "Function given conditional column Y" 
 				node_class = BaseNode
 				try: 
-					conditional_columns = [x.id for x in ast_node.right.elts]
+					conditional_columns = [str(x.id) for x in ast_node.right.elts]
+					conditional_columns_liststr = '[' + ''.join(conditional_columns) + ']'
+					node_name = '(' + ' | '.join([ast_node.left.id,conditional_columns_liststr]) + ')'
 				except:
 					raise RuntimeError(
-						"An issue was found when parsing"
-						" your conditional expression.\n"
-						"The issue is most likely due to"
-						" missing or mismatched parentheses. ")
-				# node_name = ast_node.left.id
-				node_name = '(' + ' | '.join([ast_node.left.id,str(conditional_columns)]) + ')'
+						"Error parsing your expression."
+						" The issue is most likely due to"
+						" missing/mismatched parentheses or square brackets"
+						" in a conditional expression involving '|'.")
 				is_leaf = True
 				return node_class(node_name,
 					conditional_columns=conditional_columns),is_leaf
@@ -332,6 +347,114 @@ class ParseTree(object):
 		self._assign_deltas_helper(node.right,weight_method)
 		return
 
+	def assign_bounds_needed(self,**kwargs):
+		""" 
+		BFS through the tree and decide which bounds
+		are required to compute on each child node.
+		Eventually we get to base nodes 
+		There are cases where it is not always 
+		necessary to compute both lower and upper 
+		bounds because at the end all we care about
+		is the upper bound of the root node. 
+
+		Parameters
+		----------
+		weight_method : str
+			How you want to assign the deltas to the base nodes
+			'equal' : split up delta equally among base nodes 
+		"""
+		assert self.n_nodes > 0, "Number of nodes must be > 0"
+		# initialize needed bounds for root
+		lower_needed = False
+		upper_needed = True
+		self._assign_bounds_helper(self.root,
+			lower_needed,upper_needed,**kwargs)
+		
+	def _assign_bounds_helper(self,node,
+		lower_needed,upper_needed,
+		**kwargs):
+		""" 
+		Helper function to traverse the parse tree 
+		and assign which bounds we need to calculate 
+		on the base nodes.
+		--TODO-- 
+		Currently uses preorder, but there is likely
+		a faster way to do this because if you get 
+		to a base node, you know none 
+		of its parents are possible base nodes
+
+		Parameters
+		----------
+		"""
+
+		# if we go off the end or hit a constant node return
+		if not node or isinstance(node,ConstantNode):
+			return
+
+		# If we get to a base node, then set the attributes
+		if isinstance(node,BaseNode): # captures all child classes of BaseNode as well
+
+			node.will_lower_bound = lower_needed
+			node.will_upper_bound = upper_needed
+			return
+
+		if isinstance(node,InternalNode):
+			# depending on operator type and current bounds 
+			# needed in the parent, determine which bounds
+			# need to be calculated on the child nodes
+			
+			bounds_dict = bounds_required_dict[node.name]
+
+			two_children = True
+			if len(bounds_dict['lower']) == 2:
+				two_children = False
+
+			if lower_needed and upper_needed:
+				if two_children:
+					(left_lower_needed,
+					left_upper_needed,
+					right_lower_needed,
+					right_upper_needed) = np.logical_or(
+						bounds_dict['lower'],
+						bounds_dict['upper']
+					)
+				else:
+					(left_lower_needed,
+					left_upper_needed) = np.logical_or(
+						bounds_dict['lower'],
+						bounds_dict['upper']
+					)
+
+			elif lower_needed or upper_needed:
+				# only one bound is needed
+				if lower_needed:
+					if two_children:
+						(left_lower_needed,
+						left_upper_needed,
+						right_lower_needed,
+						right_upper_needed) = bounds_dict['lower']
+					else:
+						(left_lower_needed,
+						left_upper_needed) = bounds_dict['lower']
+				if upper_needed:
+					if two_children:
+						(left_lower_needed,
+						left_upper_needed,
+						right_lower_needed,
+						right_upper_needed) = bounds_dict['upper']
+					else:
+						(left_lower_needed,
+						left_upper_needed) = bounds_dict['upper']			
+			else:
+				raise RuntimeError("Need at least lower or upper bound")
+			
+			self._assign_bounds_helper(node.left,
+				left_lower_needed,left_upper_needed)
+			if two_children:
+				self._assign_bounds_helper(node.right,
+					right_lower_needed,right_upper_needed)
+			return
+
 	def propagate_bounds(self,
 		**kwargs):
 		""" 
@@ -398,11 +521,19 @@ class ParseTree(object):
 					kwargs['data_dict'] = data_dict
 					kwargs['datasize'] = datasize
 
-				node.lower,node.upper = node.calculate_bounds(
+
+				bound_result = node.calculate_bounds(
 					**kwargs)
 				self.base_node_dict[node.name]['computed'] = True
-				self.base_node_dict[node.name]['lower'] = node.lower
-				self.base_node_dict[node.name]['upper'] = node.upper
+				
+				if node.will_lower_bound:
+					node.lower = bound_result['lower']
+					self.base_node_dict[node.name]['lower'] = node.lower
+
+				if node.will_upper_bound:
+					node.upper = bound_result['upper']
+					self.base_node_dict[node.name]['upper'] = node.upper
+				
 			return 
 		
 		# traverse to children first
@@ -463,6 +594,9 @@ class ParseTree(object):
 			return self._div(a,b) 
 		
 		if node.name == 'pow':
+			warning_msg = ("Warning: Power operation "
+				"is an experimental feature. Use with caution.")
+			warnings.warn(warning_msg)
 			a = (node.left.lower,node.left.upper)
 			b = (node.right.lower,node.right.upper)
 			return self._pow(a,b)
@@ -762,4 +896,48 @@ class ParseTree(object):
 			graph.edge(str(root.index),str(root.right.index))
 			self.make_viz_helper(root.right,graph)   
 
-
+# map containing which child bounds are required for each operator
+# If an operator has two children, A and B then
+# arrays are boolean of length 4, like: 
+# [need_A_lower,need_A_upper,need_B_lower,need_B_upper]
+# If an operator has one child, A, then
+# arrays are boolean:
+# [need_A_lower, need_A_upper]
+bounds_required_dict = {
+	'add':{
+	'lower':[1,0,1,0],
+	'upper':[0,1,0,1],
+	},
+	'sub':{
+	'lower':[1,0,0,1],
+	'upper':[0,1,1,0],
+	},
+	'mult':{
+	'lower':[1,1,1,1],
+	'upper':[1,1,1,1],
+	},
+	'div':{
+	'lower':[1,1,1,1],
+	'upper':[1,1,1,1],
+	},
+	'pow':{
+	'lower':[1,1,1,1],
+	'upper':[1,1,1,1],
+	},
+	'min':{
+	'lower':[1,0,1,0],
+	'upper':[0,1,0,1],
+	},
+	'max':{
+	'lower':[1,0,1,0],
+	'upper':[0,1,0,1],
+	},
+	'abs':{
+	'lower':[1,1],
+	'upper':[1,1],
+	},
+	'exp':{
+	'lower':[1,0],
+	'upper':[0,1],
+	},
+}
