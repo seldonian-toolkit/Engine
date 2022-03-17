@@ -40,7 +40,7 @@ class CandidateSelection(object):
 			initial_solution = self.initial_solution_fn(
 				self.model, self.features, self.labels)
 		# print("initial solution is:",initial_solution)
-		if self.optimizer == 'Powell':
+		if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS',]:
 			from scipy.optimize import minimize 
 			res = minimize(
 				self.candidate_objective,
@@ -48,9 +48,10 @@ class CandidateSelection(object):
 				method=self.optimizer,
 				options=kwargs['minimizer_options'], 
 				args=())
+			
 			candidate_solution=res.x
 
-		elif self.optimizer == 'cmaes':
+		elif self.optimizer == 'CMA-ES':
 			from src.cmaes import minimize
 
 			N=self.features.shape[1]
@@ -60,7 +61,9 @@ class CandidateSelection(object):
 				lamb=20,
 				initial_solution=initial_solution,
 				objective=self.candidate_objective)
-
+		else:
+			raise NotImplementedError(
+				f"Optimizer {self.optimizer} is not supported")
 		# Reset parse tree base node dicts, 
 		# including data and datasize attributes
 		for pt in self.parse_trees:
@@ -95,23 +98,25 @@ class CandidateSelection(object):
 
 			# Check if the i-th behavioral constraint is satisfied
 			upper_bound = pt.root.upper  
-			if upper_bound > 0.0: # If the current constraint was not satisfied, the safety test failed
-				# If up until now all previous constraints passed,
-				# then we need to predict that the test will fail
-				# and potentially add a penalty to the objective
-				if predictSafetyTest:
-					# Set this flag to indicate that we don't think the safety test will pass
-					predictSafetyTest = False  
+			if self.optimization_technique == 'barrier_function':
+				if upper_bound > 0.0: # If the current constraint was not satisfied, the safety test failed
+					# If up until now all previous constraints passed,
+					# then we need to predict that the test will fail
+					# and potentially add a penalty to the objective
+					if predictSafetyTest:
+						# Set this flag to indicate that we don't think the safety test will pass
+						predictSafetyTest = False  
 
-					# Put a barrier in the objective. Any solution 
-					# that we think will fail the safety test 
-					# will have a large cost associated with it
-					result = 100000.0    
+						# Put a barrier in the objective. Any solution 
+						# that we think will fail the safety test 
+						# will have a large cost associated with it
 
-				# Add a shaping to the objective function that will 
-				# push the search toward solutions that will pass 
-				# the prediction of the safety test
-				result = result + upper_bound
+						result = 100000.0    
+
+					# Add a shaping to the objective function that will 
+					# push the search toward solutions that will pass 
+					# the prediction of the safety test
+					result = result + upper_bound
 		print(result)
 		# title = f'Parse tree'
 		# graph = pt.make_viz(title)
