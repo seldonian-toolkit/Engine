@@ -403,6 +403,16 @@ def test_custom_base_node():
 def test_unary_op():
 	delta = 0.05 
 
+	constraint_str = '-10+abs(Mean_Error)'
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+	assert pt.root.name == 'add'
+	assert pt.root.left.value == -10
+	assert pt.root.left.name == '-10'
+	assert pt.root.right.name == 'abs'
+	assert pt.root.right.left.name == 'Mean_Error'
+	assert pt.n_nodes == 4
+	assert pt.n_base_nodes == 1
 
 	constraint_str = '-MED_MF'
 	pt = ParseTree(delta)
@@ -438,8 +448,6 @@ def test_unary_op():
 	assert pt.n_nodes == 6
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1
-
-
 
 
 def test_raise_error_on_excluded_operators():

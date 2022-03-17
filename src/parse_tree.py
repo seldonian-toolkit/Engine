@@ -144,15 +144,16 @@ class ParseTree(object):
 		node : ast.AST node class instance 
 			
 		"""
-		# print(ast_node)
+		print(ast_node)
 		# base case
 		if ast_node is None:
 			return None
 
 		is_parent = False
-		# make a new node object
+		
+		# handle unary operator like "-var" 
 		if isinstance(ast_node,ast.UnaryOp):
-			# print("Unary op")
+
 			# Only handle unary "-", reject rest	
 			if ast_node.op.__class__ != ast.USub:
 				op = not_supported_op_mapper[ast_node.op.__class__]
@@ -160,17 +161,14 @@ class ParseTree(object):
 					" A unary operator was used which we do not support: "
 					f"{op}")
 			
-			# If operand is a constant, just make the 
-			# constant negative
+			# If operand is a constant, make a ConstantNode
+			# with a negative value
 			if isinstance(ast_node.operand,ast.Constant):
-				# print("just a constant")
-				node_value = -1*ast_node.value
-				node_name = str(ast_node_value)
+				node_value = -ast_node.operand.value
+				node_name = str(-ast_node.operand.value)
 				is_leaf = True
 				new_node = ConstantNode(node_name,node_value)
-			
 			else:
-				# print("making three nodes")
 				# Make three nodes, -1, * and whatever the operand is
 				new_node_parent = InternalNode('mult')
 				self.n_nodes += 1
@@ -236,8 +234,7 @@ class ParseTree(object):
 		if hasattr(ast_node,'right'):
 			new_node.right = self._ast_tree_helper(ast_node.right)
 		
-		# Handle function operators like min(), abs(), etc...
-
+		# Handle functions like min(), abs(), etc...
 		if hasattr(ast_node,'args') and ast_node.func.id not in measure_functions:
 			print("has args")
 			if len(ast_node.args) == 0 or len(ast_node.args) > 2: 
@@ -246,6 +243,7 @@ class ParseTree(object):
 					"Please check the syntax of the function: "
 				   f" {new_node.name}(), with arguments: {readable_args}")
 			for ii,arg in enumerate(ast_node.args):
+				print(ii,arg)
 				if ii == 0:
 					new_node.left = self._ast_tree_helper(arg)
 				if ii == 1:
