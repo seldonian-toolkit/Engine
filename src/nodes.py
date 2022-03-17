@@ -1,8 +1,8 @@
 from operator import itemgetter
-from functools import reduce
+from functools import reduce,partial
+import pandas as pd
 
 from .stats_utils import *
-from src.constraints.constraints import *
 
 
 class Node(object):
@@ -39,17 +39,19 @@ class Node(object):
 		self.right = None 
 		self.lower = lower 
 		self.upper = upper 
+		self.will_lower_bound = True
+		self.will_upper_bound = True
 
 	def __repr__(self):
-		lower_bracket = '['
-		upper_bracket = ']'
-		if np.isinf(self.lower):
-			lower_bracket = '('
-		if np.isinf(self.upper):
-			upper_bracket = ')'
+		lower_bracket = '(' if np.isinf(self.lower) else '[' 
+		upper_bracket = ')' if np.isinf(self.upper) else ']'
 
-		bounds_str = f'{lower_bracket}{self.lower:g}, {self.upper:g}{upper_bracket}' \
-			if (self.lower or self.upper) else '()'
+		lower_str = f'{self.lower:g}' if self.will_lower_bound else '_'
+		upper_str = f'{self.upper:g}' if self.will_upper_bound else '_'
+
+
+		bounds_str = f'{lower_bracket}{lower_str}, {upper_str}{upper_bracket}' \
+			if (self.lower!= None or self.upper!=None) else '()'
 
 		return '\n'.join(
 			[
@@ -59,7 +61,6 @@ class Node(object):
 			]
 		) 
   
-
 class BaseNode(Node):
 	""" 
 	Class for base variable leaf nodes
@@ -79,6 +80,11 @@ class BaseNode(Node):
 		Upper confidence bound
 	delta : float
 		The share of the confidence put into this node
+	measure_function_name : str
+		The name of the statistical measurement
+		that this node represents, e.g. "FPR". 
+		Must be contained in measure_functions
+		list in constraints.py 
 	will_lower_bound : bool
 		Whether to compute the lower confidence interval
 	will_upper_bound : bool
@@ -110,6 +116,7 @@ class BaseNode(Node):
 		lower=float('-inf'),
 		upper=float('inf'),
 		conditional_columns=[],
+		negate=False,
 		**kwargs):
 		"""
 		Parameters
@@ -125,9 +132,7 @@ class BaseNode(Node):
 		super().__init__(name,lower,upper,**kwargs)
 		self.node_type = 'base_node'
 		self.delta = 0  
-		self.measure_function_name = '' # non-empty if is_special True
-		self.will_lower_bound = True 
-		self.will_upper_bound = True 
+		self.measure_function_name = '' 
 		self.conditional_columns = conditional_columns
 
 	def __repr__(self):
@@ -165,6 +170,7 @@ class BaseNode(Node):
 			datasize = int(round(frac_masked*n_safety))
 		else:
 			datasize = len(dataframe)
+		
 		# Separate features from label
 		label_column = dataset.label_column
 		labels = dataframe[label_column]
@@ -177,6 +183,11 @@ class BaseNode(Node):
 		data_dict = {'features':features,'labels':labels}  
 		return data_dict,datasize
 
+	def ghat(self,model,theta,data_dict):
+		return model.sample_from_statistic(
+			statistic_name=self.measure_function_name,
+			model=model,theta=theta,data_dict=data_dict)
+					
 	def calculate_bounds(self,
 		**kwargs):
 		"""
@@ -212,15 +223,10 @@ class BaseNode(Node):
 				theta = kwargs['theta']
 				data_dict = kwargs['data_dict']
 
-				# if user has custom ghat, this is where
-				# we sample from it
-				# if kwargs['']
-				# take samples from the special function   
-				estimator_samples = model.sample_from_statistic(
-					self.measure_function_name,
-					model,
-					theta,
-					data_dict)
+				estimator_samples = self.ghat(
+					model=model,
+					theta=theta,
+					data_dict=data_dict)
 
 				if self.will_lower_bound and self.will_upper_bound:
 					if branch == 'candidate_selection':
@@ -261,7 +267,7 @@ class BaseNode(Node):
 							**kwargs)  
 						return {'upper':upper}
 
-				raise AssertionError("will_lower_bound and computer_upper cannot both be False")
+				raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
 
 	def compute_HC_lowerbound(self,
 		data,
@@ -402,8 +408,30 @@ class BaseNode(Node):
 			
 		return lower,upper
 
+class MEDCustomBaseNode(BaseNode):
+	""" 
+	Custom base node that calculates pair-wise
+	mean error differences between male and female
+	points. This was used in the Seldonian regression algorithm 
+	in the Thomas et al. 2019 Science paper (see Figure 2).
+	
+	Attributes
+	----------
+	name : str
+		The name of the node
+	node_type : str
+		equal to 'base_node'
+	lower : float
+		Lower confidence bound
+	upper : float
+		Upper confidence bound
 
-class CustomBaseNode(BaseNode):
+	Methods
+	-------
+	__repr__()
+		String representation of the object 
+
+	"""
 	def __init__(self,
 		name,
 		lower=float('-inf'),
@@ -422,37 +450,13 @@ class CustomBaseNode(BaseNode):
 		super().__init__(name,lower,upper,**kwargs)
 		self.node_type = 'custom_base_node'
 		self.delta = 0  
-
-		if 'epsilon' in kwargs:
-			self.epsilon = kwargs['epsilon']
-		else:
-			self.epsilon = None
-
-		if 'will_lower_bound' in kwargs:
-			self.will_lower_bound = kwargs['will_lower_bound'] 
-		else:
-			self.will_lower_bound = True
-
-		if 'will_upper_bound' in kwargs:
-			self.will_upper_bound = kwargs['will_upper_bound'] 
-		else:
-			self.will_upper_bound = True
-
+		
 	def calculate_data_forbound(self,**kwargs):
 		""" Overrides parent method """
 		dataset = kwargs['dataset']
 		dataframe = dataset.df
-
-		# Use custom ghat dict to find the ghat function
-		custom_dict_entry = custom_ghat_dict[self.name]
-		ghat_class = custom_dict_entry['class']
-		method_str = custom_dict_entry['method']
-		# Make class instance
-		ghat_instance = ghat_class(
-			str_expression=self.name,
-			epsilon=self.epsilon)
 		
-		# call the method to precalculate data
+		# set up features and labels 
 		label_column = dataset.label_column
 		labels = dataframe[label_column]
 		features = dataframe.loc[:, dataframe.columns != label_column]
@@ -460,8 +464,7 @@ class CustomBaseNode(BaseNode):
 		
 		# Do not drop the sensitive columns yet. 
 		# They might be needed in precalculate_data()
-
-		data_dict,datasize = ghat_instance.precalculate_data(
+		data_dict,datasize = self.precalculate_data(
 			features,labels,**kwargs)
 
 		if kwargs['branch'] == 'candidate_selection':
@@ -473,85 +476,57 @@ class CustomBaseNode(BaseNode):
 
 		return data_dict,datasize
 
-	def calculate_bounds(self,
-		**kwargs):
-		"""
-		Overrides parent method
-		""" 
-		# print("in calculate_bounds()")
-		if 'bound_method' in kwargs:
-			bound_method = kwargs['bound_method']
-			if bound_method == 'manual':
-				# Bounds set by user
-				return self.lower,self.upper
+	def precalculate_data(self,X,Y,**kwargs):
+		dataset = kwargs['dataset']
 
-			elif bound_method == 'random':
-				# Randomly assign lower and upper bounds
-				lower, upper = (
-					np.random.randint(0,2),
-					np.random.randint(2,4)
-					)
-				return lower,upper
+		male_mask = X.M == 1
+		# drop sensitive column names 
+		if dataset.sensitive_column_names:
+			X = X.drop(columns=dataset.sensitive_column_names)
+		X_male = X[male_mask]
+		Y_male = Y[male_mask]
+		X_female = X[~male_mask]
+		Y_female = Y[~male_mask]
+		N_male = len(X_male)
+		N_female = len(X_female)
+		N_least = min(N_male,N_female)
 		
-			else:
-				# Real confidence bound 
-				branch = kwargs['branch']
-				model = kwargs['model']
-				theta = kwargs['theta']
-				data_dict = kwargs['data_dict']
-				# Use custom ghat dict to find the ghat function
-				custom_dict_entry = custom_ghat_dict[self.name]
-				ghat_class = custom_dict_entry['class']
-				method_str = custom_dict_entry['method']
-				# Make class instance
-				ghat_instance = ghat_class(
-					str_expression=self.name,
-					epsilon=self.epsilon)
-				# call the method to generate the samples of ghat
-				ghat_method = getattr(ghat_instance,method_str)
-				estimator_samples = ghat_method(model,theta,data_dict)
-				# print("estimator_samples: ",estimator_samples)
-				# print(estimator_samples.mean())
-				if self.will_lower_bound and self.will_upper_bound:
-					if branch == 'candidate_selection':
-						lower,upper = self.predict_HC_upper_and_lowerbound(
-							data=estimator_samples,
-							delta=self.delta,
-							**kwargs)  
-					elif branch == 'safety_test':
-						lower,upper = self.compute_HC_upper_and_lowerbound(
-							data=estimator_samples,
-							delta=self.delta,
-							**kwargs)  
-					return lower,upper
-				
-				elif self.will_lower_bound:
-					if branch == 'candidate_selection':
-						lower = self.predict_HC_lowerbound(
-							data=estimator_samples,
-							delta=self.delta,
-							**kwargs)  
-					elif branch == 'safety_test':
-						lower = self.compute_HC_lowerbound(
-							data=estimator_samples,
-							delta=self.delta,
-							**kwargs)  
-					return lower,lower
+		# sample N_least from both without repeats 
+		XY_male = pd.concat([X_male,Y_male],axis=1)
+		XY_male = XY_male.sample(N_least,replace=True)
+		X_male = XY_male.loc[:,XY_male.columns!= dataset.label_column]
+		Y_male = XY_male[dataset.label_column]
+		
+		XY_female = pd.concat([X_female,Y_female],axis=1)
+		XY_female = XY_female.sample(N_least,replace=True)
+		X_female = XY_female.loc[:,XY_female.columns!= dataset.label_column]
+		Y_female = XY_female[dataset.label_column]
+		
+		data_dict = {
+			'X_male':X_male,
+			'Y_male':Y_male,
+			'X_female':X_female,
+			'Y_female':Y_female}
+		datasize=N_least
+		return data_dict,datasize
 
-				elif self.will_upper_bound:
-					if branch == 'candidate_selection':
-						upper = self.predict_HC_upperbound(
-							data=estimator_samples,
-							delta=self.delta,
-							**kwargs)  
-					elif branch == 'safety_test':
-						upper = self.compute_HC_upperbound(
-							data=estimator_samples,
-							delta=self.delta,
-							**kwargs)  
-					return upper,upper
+	def ghat(self,model,theta,data_dict):
+		# pair up male and female columns and compute a vector of:
+		# (y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon
+		# There may not be the same number of male and female rows
+		# so the number of pairs is min(N_male,N_female)
+		X_male = data_dict['X_male']
+		Y_male = data_dict['Y_male']
+		X_female = data_dict['X_female']
+		Y_female = data_dict['Y_female']
 
-				raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
+		prediction_male = model.predict(theta,X_male)
+		mean_error_male = prediction_male-Y_male
+
+		prediction_female = model.predict(theta,X_female)
+		mean_error_female = prediction_female-Y_female
+
+		return mean_error_male.values - mean_error_female.values 
 
 
 class ConstantNode(Node):
