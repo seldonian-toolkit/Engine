@@ -390,6 +390,58 @@ def test_measure_function_with_conditional_bad_syntax_captured():
 		
 		assert str(excinfo.value) == error_str
  
+def test_custom_base_node():
+	constraint_str = 'MED_MF - 0.1'
+	delta = 0.05 
+
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+	assert isinstance(pt.root.left,BaseNode)
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+
+def test_unary_op():
+	delta = 0.05 
+
+
+	constraint_str = '-MED_MF'
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+	assert pt.root.name == 'mult'
+	assert pt.root.left.value == -1
+	assert pt.root.right.name == 'MED_MF'
+	assert pt.n_nodes == 3
+
+
+	constraint_str = '-abs(Mean_Error) - 10'
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+	assert pt.root.name == 'sub'
+	assert pt.root.right.value == 10
+	assert pt.root.left.name == 'mult'
+	assert pt.root.left.left.value == -1
+	assert pt.root.left.right.name == 'abs'
+	assert pt.root.left.right.left.name == 'Mean_Error'
+	assert pt.n_nodes == 6
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+
+	constraint_str = '-abs(Mean_Error | [M]) - 10'
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+	assert pt.root.name == 'sub'
+	assert pt.root.right.value == 10
+	assert pt.root.left.name == 'mult'
+	assert pt.root.left.left.value == -1
+	assert pt.root.left.right.name == 'abs'
+	assert pt.root.left.right.left.name == 'Mean_Error | [M]'
+	assert pt.n_nodes == 6
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+
+
+
+
 def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR^4'
@@ -496,7 +548,7 @@ def test_bounds_needed_assigned_correctly():
 	pt = ParseTree(delta)
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
-	assert pt.root.left.name == '(Mean_Error | [M])'
+	assert pt.root.left.name == 'Mean_Error | [M]'
 	assert pt.root.left.will_lower_bound == True
 	assert pt.root.left.will_upper_bound == True
 	pt.assign_bounds_needed()
@@ -526,10 +578,10 @@ def test_bounds_needed_assigned_correctly():
 	pt = ParseTree(delta)
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
-	assert pt.root.left.left.left.name == '(Mean_Error | [M])'
+	assert pt.root.left.left.left.name == 'Mean_Error | [M]'
 	assert pt.root.left.left.left.will_lower_bound == True
 	assert pt.root.left.left.left.will_upper_bound == True
-	assert pt.root.left.left.right.name == '(Mean_Error | [F])'
+	assert pt.root.left.left.right.name == 'Mean_Error | [F]'
 	assert pt.root.left.left.right.will_lower_bound == True
 	assert pt.root.left.left.right.will_upper_bound == True
 	pt.assign_bounds_needed()
@@ -685,8 +737,6 @@ def test_reset_parse_tree():
 	assert pt.base_node_dict['FNR']['lower'] == float('-inf')
 	assert pt.base_node_dict['FNR']['upper'] == float('inf')
 
-
-
 def test_single_conditional_columns_propagated():
 	np.random.seed(0)
 	csv_file = '../datasets/GPA/data_phil_modified.csv'
@@ -719,6 +769,6 @@ def test_single_conditional_columns_propagated():
 	assert pt.root.lower == pytest.approx(61.9001779655)
 	assert pt.root.upper == pytest.approx(62.1362236720)
 	print(pt.base_node_dict.keys())
-	assert len(pt.base_node_dict["(Mean_Error | [M])"]['data_dict']['features']) == 22335
+	assert len(pt.base_node_dict["Mean_Error | [M]"]['data_dict']['features']) == 22335
 	pt.reset_base_node_dict()
 	

@@ -7,6 +7,7 @@ import numpy as np
 
 from src.warnings.custom_warnings import *
 from src.nodes import *
+from src.constraints.constraints import *
 
 
 class ParseTree(object):
@@ -132,7 +133,7 @@ class ParseTree(object):
 		# Recursively build the tree
 		self.root = self._ast_tree_helper(root)
 
-	def _ast_tree_helper(self,node):
+	def _ast_tree_helper(self,ast_node):
 		""" 
 		From a given node in the ast tree,
 		make a node in our tree and recurse
@@ -143,14 +144,61 @@ class ParseTree(object):
 		node : ast.AST node class instance 
 			
 		"""
+		# print(ast_node)
 		# base case
-		if node is None:
+		if ast_node is None:
 			return None
 
+		is_parent = False
 		# make a new node object
-		new_node,is_leaf = self._ast2pt_node(node)
+		if isinstance(ast_node,ast.UnaryOp):
+			# print("Unary op")
+			# Only handle unary "-", reject rest	
+			if ast_node.op.__class__ != ast.USub:
+				op = not_supported_op_mapper[ast_node.op.__class__]
+				raise NotImplementedError("Error parsing your expression."
+					" A unary operator was used which we do not support: "
+					f"{op}")
+			
+			# If operand is a constant, just make the 
+			# constant negative
+			if isinstance(ast_node.operand,ast.Constant):
+				# print("just a constant")
+				node_value = -1*ast_node.value
+				node_name = str(ast_node_value)
+				is_leaf = True
+				new_node = ConstantNode(node_name,node_value)
+			
+			else:
+				# print("making three nodes")
+				# Make three nodes, -1, * and whatever the operand is
+				new_node_parent = InternalNode('mult')
+				self.n_nodes += 1
+				new_node_parent.index = self.node_index
+				self.node_index +=1
 
-		if new_node.node_type == 'base_node':
+				new_node_parent.left = ConstantNode('-1',-1.0)
+				self.n_nodes += 1
+				new_node_parent.left.index = self.node_index
+				self.node_index +=1
+				
+				new_node, is_leaf =  self._ast2pt_node(ast_node.operand)
+				# print(ast_node.operand,is_leaf)
+				# print(new_node)
+				# is_leaf=True
+				# new_node = BaseNode(ast_node.operand.id)
+				new_node_parent.right = new_node
+				new_node_parent.right.index = self.node_index
+				is_parent = True
+				ast_node = ast_node.operand
+			
+		else: 
+			new_node,is_leaf = self._ast2pt_node(ast_node)
+
+
+		if isinstance(new_node,BaseNode):
+			# print("New node is base node:")
+			# print(new_node)
 			self.n_base_nodes += 1
 
 			# strip out conditional columns and parentheses
@@ -178,26 +226,33 @@ class ParseTree(object):
 
 		# If node is a leaf node, don't check for children
 		if is_leaf:
+			if is_parent:
+				return new_node_parent
 			return new_node
-
-		if hasattr(node,'left'):
-			new_node.left = self._ast_tree_helper(node.left)
-		if hasattr(node,'right'):
-			new_node.right = self._ast_tree_helper(node.right)
+		# otherwise we are at an internal node
+		# and need to recurse
+		if hasattr(ast_node,'left'):
+			new_node.left = self._ast_tree_helper(ast_node.left)
+		if hasattr(ast_node,'right'):
+			new_node.right = self._ast_tree_helper(ast_node.right)
 		
 		# Handle function operators like min(), abs(), etc...
-		if hasattr(node,'args') and node.func.id not in measure_functions:
-			if len(node.args) == 0 or len(node.args) > 2: 
-				readable_args = [x.id for x in node.args]
+
+		if hasattr(ast_node,'args') and ast_node.func.id not in measure_functions:
+			print("has args")
+			if len(ast_node.args) == 0 or len(ast_node.args) > 2: 
+				readable_args = [x.id for x in ast_node.args]
 				raise NotImplementedError(
 					"Please check the syntax of the function: "
 				   f" {new_node.name}(), with arguments: {readable_args}")
-			for ii,arg in enumerate(node.args):
+			for ii,arg in enumerate(ast_node.args):
 				if ii == 0:
 					new_node.left = self._ast_tree_helper(arg)
 				if ii == 1:
 					new_node.right = self._ast_tree_helper(arg)
 
+		if is_parent:
+			return new_node_parent
 		return new_node
 
 	def _ast2pt_node(self,ast_node):
@@ -211,13 +266,13 @@ class ParseTree(object):
 		"""
 		is_leaf = False
 		kwargs = {}
-
 		if isinstance(ast_node,ast.Tuple):
 			raise RuntimeError(
 				"Error parsing your expression."
 				" The issue is most likely due to"
 				" missing/mismatched parentheses or square brackets"
 				" in a conditional expression involving '|'.")
+		
 		if isinstance(ast_node,ast.BinOp):
 			# +,-,*,/,** operators
 			if ast_node.op.__class__ == ast.BitOr:
@@ -227,7 +282,8 @@ class ParseTree(object):
 				try: 
 					conditional_columns = [str(x.id) for x in ast_node.right.elts]
 					conditional_columns_liststr = '[' + ''.join(conditional_columns) + ']'
-					node_name = '(' + ' | '.join([ast_node.left.id,conditional_columns_liststr]) + ')'
+					node_name = ' | '.join(
+						[ast_node.left.id,conditional_columns_liststr])
 				except:
 					raise RuntimeError(
 						"Error parsing your expression."
@@ -250,6 +306,7 @@ class ParseTree(object):
 
 		elif isinstance(ast_node,ast.Name):
 			# named quantity like "e", "Mean_Squared_Error"
+			# Custom base nodes will be caught here too
 			# If variable name is "e" then make it a constant, not a base variable
 			if ast_node.id == 'e':
 				node_name = 'e'
@@ -258,12 +315,20 @@ class ParseTree(object):
 				is_leaf = True
 				return node_class(node_name,node_value),is_leaf
 			else:	
-				if ast_node.id not in measure_functions:
+				if ast_node.id in custom_base_node_dict:
+					# A user-defined base node 
+					node_class = custom_base_node_dict[ast_node.id]
+					node_name = ast_node.id
+
+				elif ast_node.id not in measure_functions:
 					raise NotImplementedError("Error parsing your expression."
 						" A variable name was used which we do not recognize: "
 					   f"{ast_node.id}")
-				node_class = BaseNode
-				node_name = ast_node.id
+				else:
+					# a measure function in our list
+					node_class = BaseNode
+					node_name = ast_node.id
+				
 				is_leaf = True
 				return node_class(node_name),is_leaf
 
@@ -276,35 +341,11 @@ class ParseTree(object):
 			return node_class(node_name,node_value),is_leaf
 
 		elif isinstance(ast_node,ast.Call):
-			# a function call like abs(arg1), min(arg1,arg2), FPR()
+			# a function call like abs(arg1), min(arg1,arg2)
 			node_class = InternalNode
 			node_name = ast_node.func.id
 
 		return node_class(node_name),is_leaf
-
-	def create_from_ghat_str(self,s,**kwargs):
-		""" 
-		Create the node structure of the tree
-		given a custom string expression
-		for ghat, s
-
-		Parameters
-		----------
-		s : str
-			mathematical expression written in Python syntax
-			from which we build the parse tree
-		"""
-		self.root = CustomBaseNode(name=s,**kwargs)
-		self.root.index = 0
-		self.n_nodes = 1
-		self.n_base_nodes = 1
-		self.base_node_dict[self.root.name] = {
-					'computed':False,
-					'lower':float('-inf'),
-					'upper':float('inf'),
-					'data_dict':None,
-					'datasize':0
-				}
 
 	def assign_deltas(self,weight_method='equal',**kwargs):
 		""" 
@@ -316,7 +357,9 @@ class ParseTree(object):
 			How you want to assign the deltas to the base nodes
 			'equal' : split up delta equally among base nodes 
 		"""
-		assert self.n_nodes > 0, "Number of nodes must be > 0"
+		assert self.n_base_nodes > 0, (
+			"Number of base nodes must be > 0."
+			" Make sure to build the tree before assigning deltas.")
 		self._assign_deltas_helper(self.root,weight_method,**kwargs)
 		
 	def _assign_deltas_helper(self,node,weight_method,**kwargs):
@@ -387,15 +430,14 @@ class ParseTree(object):
 		----------
 		"""
 
-		# if we go off the end or hit a constant node return
-		if not node or isinstance(node,ConstantNode):
+		# if we go off the end return
+		if not node:
 			return
-
-		# If we get to a base node, then set the attributes
-		if isinstance(node,BaseNode): # captures all child classes of BaseNode as well
-
-			node.will_lower_bound = lower_needed
-			node.will_upper_bound = upper_needed
+		node.will_lower_bound = lower_needed
+		node.will_upper_bound = upper_needed
+		
+		# If we get to a base node or constant node, then return
+		if isinstance(node,BaseNode) or isinstance(node,ConstantNode): 
 			return
 
 		if isinstance(node,InternalNode):
@@ -844,7 +886,7 @@ class ParseTree(object):
 		graph=graphviz.Digraph()
 		graph.attr(label=title+'\n\n')
 		graph.attr(labelloc='t')
-		graph.node(str(self.root.index),self.root.__repr__(),
+		graph.node(str(self.root.index),label=self.root.__repr__(),
 			shape='box',
 			fontsize=f'{self.node_fontsize}')
 		self.make_viz_helper(self.root,graph)
