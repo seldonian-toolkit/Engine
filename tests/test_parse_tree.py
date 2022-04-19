@@ -1,6 +1,6 @@
-from src.parse_tree import *
-from src.dataset import *
-from src.safety_test import SafetyTest
+from seldonian.parse_tree import *
+from seldonian.dataset import *
+from seldonian.safety_test import SafetyTest
 import pytest
 import time
 
@@ -330,22 +330,20 @@ def test_parse_tree_from_simple_string():
 	assert pt.root.right.right.value == 4
 
 def test_measure_functions_recognized():
-	constraint_str = 'Mean_Squared_Error - 2.0'
-	delta = 0.05 
+	delta = 0.05
 
+	constraint_str = 'Mean_Squared_Error - 2.0'
 	pt = ParseTree(delta)
 	pt.create_from_ast(constraint_str)
 	assert pt.root.left.measure_function_name == 'Mean_Squared_Error'
 	
 	constraint_str = '(Mean_Error|[M]) - 2.0'
-	delta = 0.05 
 
 	pt = ParseTree(delta)
 	pt.create_from_ast(constraint_str)
 	assert pt.root.left.measure_function_name == 'Mean_Error'
 
 	constraint_str = '(FPR|[A,B]) - 2.0'
-	delta = 0.05 
 
 	pt = ParseTree(delta)
 	pt.create_from_ast(constraint_str)
@@ -354,7 +352,18 @@ def test_measure_functions_recognized():
 	# Test that a non-measure base node 
 	# is not recognized as measure
 	constraint_str = 'X - 2.0'
-	delta = 0.05 
+
+	pt = ParseTree(delta)
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Error parsing your expression."
+			 " A variable name was used which we do not recognize: X")
+	assert str(excinfo.value) == error_str
+
+	# Test that a non-measure base node 
+	# is not recognized as measure
+	constraint_str = '(X | [A]) - 2.0'
 
 	pt = ParseTree(delta)
 	with pytest.raises(NotImplementedError) as excinfo:
@@ -448,7 +457,6 @@ def test_unary_op():
 	assert pt.n_nodes == 6
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1
-
 
 def test_raise_error_on_excluded_operators():
 
@@ -677,7 +685,7 @@ def test_ttest_bound(generate_data):
 	# dummy data for linear regression
 	np.random.seed(0)
 	numPoints=1000
-	from src.model import LinearRegressionModel
+	from seldonian.model import LinearRegressionModel
 
 	model_instance = LinearRegressionModel()
 	X,Y = generate_data(
@@ -759,7 +767,7 @@ def test_single_conditional_columns_propagated():
 		regime='supervised',label_column='GPA')
 	dataset = loader.from_csv(csv_file)
 
-	from src.model import LinearRegressionModel
+	from seldonian.model import LinearRegressionModel
 	model_instance = LinearRegressionModel()
 
 	constraint_str = 'abs(Mean_Error|[M]) - 0.1'

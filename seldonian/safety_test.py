@@ -41,7 +41,6 @@ class SafetyTest(object):
 
 			# Check if the i-th behavioral constraint is satisfied
 			upperBound = pt.root.upper  
-			print(upperBound)
 			if upperBound > 0.0: # If the current constraint was not satisfied, the safety test failed
 				passed = False
 			# reset bounds and data for this node

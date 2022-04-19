@@ -4,8 +4,7 @@ from sklearn.model_selection import train_test_split
 from src.dataset import *
 from src.candidate_selection import CandidateSelection
 from src.safety_test import SafetyTest
-from src.parse_tree import (ParseTree,
-	custom_ghat_strs)
+from src.parse_tree import ParseTree
 
 
 if __name__ == '__main__':
@@ -43,39 +42,42 @@ if __name__ == '__main__':
 	model_instance = LinearRegressionModel()
 
 	# Constraints
-	constraint_str1 = '(y_i - y_hat_i | [M]) - (y_j - y_hat_j | [F]) - epsilon'
-	delta1 = 0.025
+	constraint_str1 = 'abs(MED_MF) - 0.05'
+	delta1 = 0.05
 
 	# Create parse tree object
 	pt1 = ParseTree(delta=delta1)
 
 	# Fill out tree
-	if constraint_str1 in custom_ghat_strs:
-		pt1.create_from_ghat_str(s=constraint_str1,
-			epsilon=0.05,compute_lower=False,compute_upper=True)
-	
+	pt1.create_from_ast(s=constraint_str1)
+
 	# assign delta to single node
 	pt1.assign_deltas(weight_method='equal')
 
-	constraint_str2 = '(y_i - y_hat_i | [F]) - (y_j - y_hat_j | [M]) - epsilon'
-	delta2 = 0.025
+	# assign needed bounds
+	pt1.assign_bounds_needed()
 
-	# Create parse tree object
-	pt2 = ParseTree(delta=delta2)
+	# constraint_str2 = '0.0 - MED_MF - 0.05'
+	# delta2 = 0.025
 
-	# Fill out tree
-	if constraint_str2 in custom_ghat_strs:
-		pt2.create_from_ghat_str(s=constraint_str2,
-			epsilon=0.05,compute_lower=False,compute_upper=True)
-	
-	# assign delta to single node
-	pt2.assign_deltas(weight_method='equal')
+	# # Create parse tree object
+	# pt2 = ParseTree(delta=delta2)
+
+	# # Fill out tree
+	# pt2.create_from_ast(s=constraint_str2)
+
+	# # # assign delta to single node
+	# pt2.assign_deltas(weight_method='equal')
+
+	# # assign needed bounds
+	# pt2.assign_bounds_needed()
 
 	# title = f'Parse tree for expression:\n{constraint_str1}\ndelta={delta}'
 	# graph = pt1.make_viz(title)
 	# graph.attr(fontsize='12')
 	# graph.view() # to open it as a pdf
-	parse_trees = [pt1,pt2]
+	# parse_trees = [pt1,pt2]
+	parse_trees = [pt1]
 
 	minimizer_options = {}
 
@@ -86,22 +88,22 @@ if __name__ == '__main__':
 	    parse_trees=parse_trees,
 	    primary_objective=model_instance.sample_Mean_Squared_Error,
 	    optimization_technique='barrier_function',
-	    optimizer='cmaes',
+	    optimizer='Nelder-Mead',
 	    initial_solution_fn=model_instance.fit)
 
 	candidate_solution = cs.run(minimizer_options=minimizer_options)
 	# candidate_solution = np.array([ 2.35142471e+00, -5.92682323e-03,  5.84554876e-04,  3.45285398e-04,
 	#   1.89794363e-04,  5.09917663e-05,  3.30307314e-03,  1.56678156e-03,
 	#   3.55345048e-04,  3.77028366e-04])
-	# candidate_solution = np.array([ 2.15927631e+00, -6.18007353e-03,  8.92258627e-04,  3.45953630e-04,
-	# 	1.89847929e-04,  5.09917809e-05,  3.43067832e-03,  1.65542813e-03,
-	# 	4.19503821e-04,  3.74452590e-04])
+	# # candidate_solution = np.array([ 2.15927631e+00, -6.18007353e-03,  8.92258627e-04,  3.45953630e-04,
+	# # 	1.89847929e-04,  5.09917809e-05,  3.43067832e-03,  1.65542813e-03,
+	# # 	4.19503821e-04,  3.74452590e-04])
 	# candidate_solution = np.array([0.405349,-0.00129556,   0.00134197, -0.000391698,  0.000718466,  -0.00100044,    0.0038478,   0.00260554,  -0.00189149,  0.000285684])
 	# candidate_solution = np.array([0.405349,  -0.0012894,    0.0013513, -0.000405117,  0.000711782,  -0.00100753,   0.00385943,   0.00261718,  -0.00188643,  0.000302202])
-	print(candidate_solution)
+	# print(candidate_solution)
 	st = SafetyTest(safety_dataset,model_instance,parse_trees)
 	passed = st.run(candidate_solution,bound_method='ttest')
-	print(passed)
+	# print(passed)
 	# pt1.propagate_bounds(bound_method='ttest',
 	# 	branch='candidate_selection')
 	# # Propagate bounds using random interval assignment to base variables

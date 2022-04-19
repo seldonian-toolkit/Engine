@@ -35,10 +35,11 @@ class CandidateSelection(object):
 		# default initial solution function is leastsq
 		if not self.initial_solution_fn:
 			initial_solution = self.model.fit(
-				self.model,self.features, self.labels)
+				self.features, self.labels)
 		else:
 			initial_solution = self.initial_solution_fn(
-				self.model, self.features, self.labels)
+				self.features, self.labels)
+		# prin
 		# print("initial solution is:",initial_solution)
 		if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS',]:
 			from scipy.optimize import minimize 
@@ -52,15 +53,25 @@ class CandidateSelection(object):
 			candidate_solution=res.x
 
 		elif self.optimizer == 'CMA-ES':
-			from src.cmaes import minimize
+			# from src.cmaes import minimize
+			import cma
+			n_iters=1000
+			options = {'tolfun':1e-14, 'maxiter':n_iters}
 
-			N=self.features.shape[1]
+			es = cma.CMAEvolutionStrategy(initial_solution, 0.5,options)
+			# es = cma.CMAEvolutionStrategy(np.zeros_like(initial_solution), 0.5,options)
+			
+			es.optimize(self.candidate_objective)
+			# print(es.result_pretty())
+			candidate_solution=es.result.xbest
+			# 
+			# N=self.features.shape[1]
 
-			candidate_solution = minimize(N=N,
-				# lamb=int(4+np.floor(3*np.log(N))),
-				lamb=20,
-				initial_solution=initial_solution,
-				objective=self.candidate_objective)
+			# candidate_solution = minimize(N=N,
+			# 	# lamb=int(4+np.floor(3*np.log(N))),
+			# 	lamb=20,
+			# 	initial_solution=np.zeros_like(initial_solution),
+			# 	objective=self.candidate_objective)
 		else:
 			raise NotImplementedError(
 				f"Optimizer {self.optimizer} is not supported")
@@ -78,7 +89,7 @@ class CandidateSelection(object):
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
 		# print("theta is:", theta)
-		result = self.primary_objective(self.model,theta, 
+		result = self.primary_objective(self.model, theta, 
 			self.features, self.labels)
 		# print("Primary objective eval is:", result)
 		# Prediction of what the safety test will return. 
@@ -117,7 +128,8 @@ class CandidateSelection(object):
 					# push the search toward solutions that will pass 
 					# the prediction of the safety test
 					result = result + upper_bound
-		print(result)
+		# print(result)
+		
 		# title = f'Parse tree'
 		# graph = pt.make_viz(title)
 		# graph.attr(fontsize='12')

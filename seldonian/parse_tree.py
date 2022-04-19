@@ -5,9 +5,9 @@ import warnings
 import graphviz
 import numpy as np
 
-from src.warnings.custom_warnings import *
-from src.nodes import *
-from src.constraints.constraints import *
+from seldonian.warnings.custom_warnings import *
+from seldonian.nodes import *
+from seldonian.constraints.constraints import *
 
 
 class ParseTree(object):
@@ -144,7 +144,6 @@ class ParseTree(object):
 		node : ast.AST node class instance 
 			
 		"""
-		print(ast_node)
 		# base case
 		if ast_node is None:
 			return None
@@ -181,10 +180,6 @@ class ParseTree(object):
 				self.node_index +=1
 				
 				new_node, is_leaf =  self._ast2pt_node(ast_node.operand)
-				# print(ast_node.operand,is_leaf)
-				# print(new_node)
-				# is_leaf=True
-				# new_node = BaseNode(ast_node.operand.id)
 				new_node_parent.right = new_node
 				new_node_parent.right.index = self.node_index
 				is_parent = True
@@ -195,8 +190,6 @@ class ParseTree(object):
 
 
 		if isinstance(new_node,BaseNode):
-			# print("New node is base node:")
-			# print(new_node)
 			self.n_base_nodes += 1
 
 			# strip out conditional columns and parentheses
@@ -236,14 +229,12 @@ class ParseTree(object):
 		
 		# Handle functions like min(), abs(), etc...
 		if hasattr(ast_node,'args') and ast_node.func.id not in measure_functions:
-			print("has args")
 			if len(ast_node.args) == 0 or len(ast_node.args) > 2: 
 				readable_args = [x.id for x in ast_node.args]
 				raise NotImplementedError(
 					"Please check the syntax of the function: "
 				   f" {new_node.name}(), with arguments: {readable_args}")
 			for ii,arg in enumerate(ast_node.args):
-				print(ii,arg)
 				if ii == 0:
 					new_node.left = self._ast_tree_helper(arg)
 				if ii == 1:
@@ -272,22 +263,31 @@ class ParseTree(object):
 				" in a conditional expression involving '|'.")
 		
 		if isinstance(ast_node,ast.BinOp):
-			# +,-,*,/,** operators
+			# +,-,*,/,**,| operators
 			if ast_node.op.__class__ == ast.BitOr:
-				# BitOr is used for "Function | [Y]" i.e. 
-				# "Function given conditional column Y" 
+				# BitOr is the "|" operator, used to represent
+				# a "A | B" -> "A given B"
+				
 				node_class = BaseNode
-				try: 
+
+				try:
 					conditional_columns = [str(x.id) for x in ast_node.right.elts]
 					conditional_columns_liststr = '[' + ''.join(conditional_columns) + ']'
-					node_name = ' | '.join(
-						[ast_node.left.id,conditional_columns_liststr])
+					left_id = ast_node.left.id
 				except:
 					raise RuntimeError(
 						"Error parsing your expression."
 						" The issue is most likely due to"
 						" missing/mismatched parentheses or square brackets"
 						" in a conditional expression involving '|'.")
+				
+				if left_id not in measure_functions:
+					raise NotImplementedError("Error parsing your expression."
+						" A variable name was used which we do not recognize: "
+					   f"{ast_node.left.id}")
+				node_name = ' | '.join(
+					[ast_node.left.id,conditional_columns_liststr])
+
 				is_leaf = True
 				return node_class(node_name,
 					conditional_columns=conditional_columns),is_leaf
@@ -468,7 +468,7 @@ class ParseTree(object):
 			elif lower_needed or upper_needed:
 				# only one bound is needed
 				if lower_needed:
-					if two_children:
+					if two_children:	
 						(left_lower_needed,
 						left_upper_needed,
 						right_lower_needed,
@@ -476,6 +476,7 @@ class ParseTree(object):
 					else:
 						(left_lower_needed,
 						left_upper_needed) = bounds_dict['lower']
+
 				if upper_needed:
 					if two_children:
 						(left_lower_needed,
@@ -487,9 +488,10 @@ class ParseTree(object):
 						left_upper_needed) = bounds_dict['upper']			
 			else:
 				raise RuntimeError("Need at least lower or upper bound")
-			
+
 			self._assign_bounds_helper(node.left,
 				left_lower_needed,left_upper_needed)
+
 			if two_children:
 				self._assign_bounds_helper(node.right,
 					right_lower_needed,right_upper_needed)
@@ -548,11 +550,9 @@ class ParseTree(object):
 					# Check if data has already been prepared
 					# for this node name. If so, use precalculated data
 					if self.base_node_dict[node.name]['data_dict']!=None:
-						# print("Data precalculated for bound")
 						data_dict = self.base_node_dict[node.name]['data_dict']
 						datasize = self.base_node_dict[node.name]['datasize']
 					else:
-						# print("calculating data for bound")
 						data_dict,datasize = node.calculate_data_forbound(
 							**kwargs)
 						self.base_node_dict[node.name]['data_dict'] = data_dict

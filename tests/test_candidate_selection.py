@@ -1,6 +1,6 @@
-from src.parse_tree import *
-from src.dataset import *
-from src.candidate_selection import CandidateSelection
+from seldonian.parse_tree import *
+from seldonian.dataset import *
+from seldonian.candidate_selection import CandidateSelection
 from sklearn.model_selection import train_test_split
 import pytest
 
@@ -26,7 +26,7 @@ def test_simulated_data(generate_data):
         regime='supervised',label_column='label')
     n_safety = len(safety_df)
     # Linear regression model
-    from src.model import LinearRegressionModel
+    from seldonian.model import LinearRegressionModel
     model_instance = LinearRegressionModel()
     
     # One constraint, so one parse tree
@@ -79,7 +79,7 @@ def test_GPA_data(generate_data):
     n_safety = len(safety_df)
 
     # Linear regression model
-    from src.model import LinearRegressionModel
+    from seldonian.model import LinearRegressionModel
     model_instance = LinearRegressionModel()
 
     # Constraints

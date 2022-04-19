@@ -1,6 +1,6 @@
-from src.parse_tree import *
-from src.dataset import *
-from src.safety_test import SafetyTest
+from seldonian.parse_tree import *
+from seldonian.dataset import *
+from seldonian.safety_test import SafetyTest
 from sklearn.model_selection import train_test_split
 import pytest
 
@@ -24,7 +24,7 @@ def test_safety_test(generate_data):
         regime='supervised',label_column='label')
 
     # Linear regression model
-    from src.model import LinearRegressionModel
+    from seldonian.model import LinearRegressionModel
     model_instance = LinearRegressionModel()
     
     # One constraint, so one parse tree

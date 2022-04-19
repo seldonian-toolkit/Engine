@@ -4,9 +4,9 @@ from sklearn.model_selection import train_test_split
 
 from src.dataset import DataSetLoader,DataSet
 from src.parse_tree import ParseTree
+from src.model import LinearClassifierModel,LogisticRegressionModel
 from src.candidate_selection import CandidateSelection
 from src.safety_test import SafetyTest
-
 
 if __name__ == '__main__':
 	# gpa dataset
@@ -46,27 +46,27 @@ if __name__ == '__main__':
 	n_safety = len(safety_df)
 
 	# Linear regression model
-	from src.model import LinearClassifierModel
 	model_instance = LinearClassifierModel()
+	# model_instance = LogisticRegressionModel()
 
 	# Constraints
 
 	# Demographic parity
-	# constraint_str = 'abs((PR | [M]) - (PR | [F])) - 0.15'
+	constraint_str = 'abs((PR | [M]) - (PR | [F])) - 0.15'
 
-	# # Predictive equality 
+	# Predictive equality 
 	# constraint_str = 'abs((FPR | [M]) - (FPR | [F])) - 0.2'
 
 	# Equal opportunity 
 	# constraint_str = 'abs((FNR | [M]) - (FNR | [F])) - 0.2'
 
-	# Equalized odds - predictive equality and equal opportunity - use 0.35
+	# Equalized odds - predictive equality and equal opportunity - 
 
 	# Disparate impact 
 	# constraint_str = '0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'
 
 	# Treatment equality
-	constraint_str = '(FNR | [M])/(FPR | [M]) - (FNR | [F])/(FPR | [F]) - 0.2'
+	# constraint_str = '(FNR | [M])/(FPR | [M]) - (FNR | [F])/(FPR | [F]) - 0.2'
 
 	delta = 0.05
 	# Create parse tree object
@@ -93,20 +93,19 @@ if __name__ == '__main__':
 		parse_trees=parse_trees,
 		primary_objective=model_instance.perceptron_loss,
 		optimization_technique='barrier_function',
-		optimizer='Powell',
-		# optimizer='cmaes',
+		optimizer='Nelder-Mead',
+		# optimizer='CMA-ES',
 		initial_solution_fn=model_instance.fit)
 
 	candidate_solution = cs.run(minimizer_options=minimizer_options)
 	print(candidate_solution)
-	# # try Phil's solution that worked for him -- put last value first since it is offset term
-	# # candidate_solution = np.array([0.405349,-0.00129556,0.00134197,-0.000391698,0.000718466,-0.00100044,0.0038478,0.00260554,-0.00189149,0.000285684])
-	# # candidate_solution = np.array([0.405349, -0.00129964,   0.00133977, -0.000394042,  0.000716346,  -0.00100369,   0.00384656,   0.00260374,  -0.00189604,  0.000282313])
 	
 	# # Safety test
 	st = SafetyTest(safety_dataset,model_instance,parse_trees)
 	passed_safety = st.run(candidate_solution,bound_method='ttest')
 	print(passed_safety)
+
+
 	# # title = f'Parse tree for expression:\n{constraint_str}\ndelta={delta}'
 	# # graph = pt.make_viz(title)
 	# # graph.attr(fontsize='12')

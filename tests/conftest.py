@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from src.parse_tree import *
+from seldonian.parse_tree import *
 
 
 @pytest.fixture

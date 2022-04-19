@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import ast
 
-from src.nodes import *
+from seldonian.nodes import *
 
 measure_functions = [
 	'Mean_Error',

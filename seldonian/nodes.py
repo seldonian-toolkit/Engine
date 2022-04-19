@@ -183,7 +183,7 @@ class BaseNode(Node):
 		data_dict = {'features':features,'labels':labels}  
 		return data_dict,datasize
 
-	def ghat(self,model,theta,data_dict):
+	def zhat(self,model,theta,data_dict):
 		return model.sample_from_statistic(
 			statistic_name=self.measure_function_name,
 			model=model,theta=theta,data_dict=data_dict)
@@ -223,7 +223,7 @@ class BaseNode(Node):
 				theta = kwargs['theta']
 				data_dict = kwargs['data_dict']
 
-				estimator_samples = self.ghat(
+				estimator_samples = self.zhat(
 					model=model,
 					theta=theta,
 					data_dict=data_dict)
@@ -265,7 +265,7 @@ class BaseNode(Node):
 							data=estimator_samples,
 							delta=self.delta,
 							**kwargs)  
-						return {'upper':upper}
+					return {'upper':upper}
 
 				raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
 
@@ -448,7 +448,6 @@ class MEDCustomBaseNode(BaseNode):
 			The upper bound, default infinity
 		"""
 		super().__init__(name,lower,upper,**kwargs)
-		self.node_type = 'custom_base_node'
 		self.delta = 0  
 		
 	def calculate_data_forbound(self,**kwargs):
@@ -468,7 +467,6 @@ class MEDCustomBaseNode(BaseNode):
 			features,labels,**kwargs)
 
 		if kwargs['branch'] == 'candidate_selection':
-			# print("figuring out fraction of safety data to take")
 			n_safety = kwargs['n_safety']
 			# frac_masked = len(dataframe)/len(dataset.df)
 			frac_masked = datasize/len(dataframe)
@@ -510,7 +508,7 @@ class MEDCustomBaseNode(BaseNode):
 		datasize=N_least
 		return data_dict,datasize
 
-	def ghat(self,model,theta,data_dict):
+	def zhat(self,model,theta,data_dict):
 		# pair up male and female columns and compute a vector of:
 		# (y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon
 		# There may not be the same number of male and female rows
@@ -527,7 +525,6 @@ class MEDCustomBaseNode(BaseNode):
 		mean_error_female = prediction_female-Y_female
 
 		return mean_error_male.values - mean_error_female.values 
-
 
 class ConstantNode(Node):
 	""" 
@@ -562,7 +559,6 @@ class ConstantNode(Node):
 		self.value = value
 		self.node_type = 'constant_node'
   
-
 class InternalNode(Node):
 	""" 
 	Class for internal (non-leaf) nodes 
