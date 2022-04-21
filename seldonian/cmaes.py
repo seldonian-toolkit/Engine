@@ -17,9 +17,9 @@ def minimize(N,lamb,initial_solution,objective):
 	xmean = initial_solution.reshape(N,1)
 	# xmean = np.array([0.0,1.0]).reshape(N,1)  # objective variables initial point
 	sigma = 0.5          # coordinate wise standard deviation (step size)
-	stopfitness = 0.4  # stop if fitness < stopfitness (minimization). 
+	stopfitness = -20  # stop if fitness < stopfitness (minimization). 
 	# fitness_diff = 1e-8 # stop when successive solutions differ by less than this value
-	prevfitness=np.inf
+	# prevfitness=np.inf
 	stopeval = 3e3  # stop after stopeval number of function evaluations
 
 	# Strategy parameter setting: Selection  
@@ -50,6 +50,7 @@ def minimize(N,lamb,initial_solution,objective):
 	# -------------------- Generation Loop --------------------------------
 	counteval = 0 
 	while counteval < stopeval:
+		# print("here")
 		# Generate and evaluate lambda offspring
 		arx = np.zeros((N,lamb))
 		arfitness = np.zeros(lamb)
@@ -108,6 +109,7 @@ def minimize(N,lamb,initial_solution,objective):
 
 		# Stop if we achieve a fitness within our tolerance range 
 		# if abs(arfitness[0] - prevfitness) < fitness_diff:
+		# print(arfitness)
 		if (arfitness[0] <= stopfitness):
 			print(f"Found solution in {counteval} iterations")
 			

@@ -2,11 +2,11 @@ import sys
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from src.dataset import DataSetLoader,DataSet
-from src.parse_tree import ParseTree
-from src.model import LinearClassifierModel,LogisticRegressionModel
-from src.candidate_selection import CandidateSelection
-from src.safety_test import SafetyTest
+from seldonian.dataset import DataSetLoader,DataSet
+from seldonian.parse_tree import ParseTree
+from seldonian.model import LinearClassifierModel,LogisticRegressionModel
+from seldonian.candidate_selection import CandidateSelection
+from seldonian.safety_test import SafetyTest
 
 if __name__ == '__main__':
 	# gpa dataset
@@ -85,7 +85,14 @@ if __name__ == '__main__':
 	# input("End of optimzer iteration")
 	# Candidate selection
 	minimizer_options = {}
-	
+	labels = candidate_dataset.df[label_column]
+	features = candidate_dataset.df.loc[:,
+		candidate_dataset.df.columns != label_column]
+	features = features.drop(
+		columns=candidate_dataset.sensitive_column_names)
+	features.insert(0,'offset',1.0) # inserts a column of 1's
+	initial_solution = model_instance.fit(features,labels)
+
 	cs = CandidateSelection(
 		model=model_instance,
 		candidate_dataset=candidate_dataset,
@@ -95,7 +102,7 @@ if __name__ == '__main__':
 		optimization_technique='barrier_function',
 		optimizer='Nelder-Mead',
 		# optimizer='CMA-ES',
-		initial_solution_fn=model_instance.fit)
+		initial_solution=initial_solution)
 
 	candidate_solution = cs.run(minimizer_options=minimizer_options)
 	print(candidate_solution)

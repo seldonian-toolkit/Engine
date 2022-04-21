@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.linear_model import (LinearRegression,
 	LogisticRegression, SGDClassifier)
+from seldonian.stats_utils import weighted_sum_gamma
+from functools import partial
 
 class SeldonianModel(object):
 	def __init__(self):
@@ -294,3 +296,67 @@ class LogisticRegressionModel(ClassificationModel):
 	def fit(self,model,X,Y):
 		reg = model.model_class().fit(X, Y)
 		return reg.coef_[0]
+
+
+class RLModel(SeldonianModel):
+	def __init__(self,policy):
+		self.policy = policy
+
+	def sample_from_statistic(self,
+		statistic_name,model,theta,data_dict):
+		if statistic_name == 'J_pi_new':
+			return model.vector_IS_estimate(model,
+				theta,data_dict)
+
+	def IS_estimate(self,model,theta,dataset):
+		"""Computed the basic importance sampling weight """
+		# For all state, action pairs in data,
+		# compute pi_new, the probability of 
+		# picking that action at that state
+		df = dataset.df
+
+		df['pi_new/pi_b'] = list(map(
+			partial(model.apply_policy,theta=theta),
+			df['O'],df['A']))/df['pi_b']
+		df_new = df.drop(columns=['timestep','O','A','pi_b'])
+		g=df_new.groupby('episode_index')
+		products_by_episode = g.prod()['pi_new/pi_b']
+		result = (
+			products_by_episode*g['R'].apply(weighted_sum_gamma)
+			).sum()/len(g)
+		return result 
+
+	def vector_IS_estimate(self,model,theta,data_dict):
+		"""Get an IS estimate vector where
+		each entry is the IS estimate from each episode
+		"""
+		df = data_dict['dataframe']
+
+		df['pi_new/pi_b'] = list(map(
+			partial(model.apply_policy,theta=theta),
+			df['O'],df['A']))/df['pi_b']
+		df_new = df.drop(columns=['timestep','O','A','pi_b'])
+		g=df_new.groupby('episode_index')
+		products_by_episode = g.prod()['pi_new/pi_b']
+
+		result = (
+			products_by_episode*data_dict['reward_sums_by_episode']
+			)
+		return result 
+
+
+class SoftmaxRLModel(RLModel):
+	def __init__(self,policy):
+		super().__init__(policy)
+	
+	def apply_policy(self,state,action,theta):
+		""" Apply the softmax policy given a state and action
+		as well as the set of policy parameters, theta.
+		Theta is a flattened parameter vector """
+		index = int(state*4+action)
+		# print(index)
+		arg = theta[index]
+		# print(arg)
+		return np.exp(arg)/np.sum(
+			[np.exp(theta[int(state*4+a)]) \
+			 for a in self.policy.actions])

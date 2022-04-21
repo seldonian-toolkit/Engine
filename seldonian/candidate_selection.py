@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class CandidateSelection(object):
 	def __init__(self,
 		model,
@@ -10,42 +9,37 @@ class CandidateSelection(object):
 		primary_objective,
 		optimization_technique='barrier_function',
 		optimizer='Powell',
-		initial_solution_fn=None,
+		initial_solution=None,
+		regime='supervised',
 		**kwargs):
+		self.regime = regime
 		self.model = model
 		self.candidate_dataset = candidate_dataset
 		self.n_safety = n_safety
-		# Separate features from label
-		label_column = candidate_dataset.label_column
-		self.labels = self.candidate_dataset.df[label_column]
-		self.features = self.candidate_dataset.df.loc[:,
-			self.candidate_dataset.df.columns != label_column]
-		self.features = self.features.drop(
-			columns=self.candidate_dataset.sensitive_column_names)
-		self.features.insert(0,'offset',1.0) # inserts a column of 1's
+		if self.regime == 'supervised':
+			# Separate features from label
+			label_column = candidate_dataset.label_column
+			self.labels = self.candidate_dataset.df[label_column]
+			self.features = self.candidate_dataset.df.loc[:,
+				self.candidate_dataset.df.columns != label_column]
+			self.features = self.features.drop(
+				columns=self.candidate_dataset.sensitive_column_names)
+			self.features.insert(0,'offset',1.0) # inserts a column of 1's
 		self.parse_trees = parse_trees
 		self.primary_objective = primary_objective # must accept theta, features, labels
 		self.optimization_technique = optimization_technique
 		self.optimizer = optimizer
-		self.initial_solution_fn = initial_solution_fn
+		self.initial_solution = initial_solution
 		self.candidate_solution = None
 
 	def run(self,**kwargs):
 
-		# default initial solution function is leastsq
-		if not self.initial_solution_fn:
-			initial_solution = self.model.fit(
-				self.features, self.labels)
-		else:
-			initial_solution = self.initial_solution_fn(
-				self.features, self.labels)
-		# prin
 		# print("initial solution is:",initial_solution)
 		if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS',]:
 			from scipy.optimize import minimize 
 			res = minimize(
 				self.candidate_objective,
-				x0=initial_solution,
+				x0=self.initial_solution,
 				method=self.optimizer,
 				options=kwargs['minimizer_options'], 
 				args=())
@@ -53,12 +47,12 @@ class CandidateSelection(object):
 			candidate_solution=res.x
 
 		elif self.optimizer == 'CMA-ES':
-			# from src.cmaes import minimize
+			# from seldonian.cmaes import minimize
 			import cma
-			n_iters=1000
-			options = {'tolfun':1e-14, 'maxiter':n_iters}
+			n_iters=100
+			options = {'tolfun':1e-5, 'maxiter':n_iters}
 
-			es = cma.CMAEvolutionStrategy(initial_solution, 0.5,options)
+			es = cma.CMAEvolutionStrategy(self.initial_solution, 0.5,options)
 			# es = cma.CMAEvolutionStrategy(np.zeros_like(initial_solution), 0.5,options)
 			
 			es.optimize(self.candidate_objective)
@@ -66,11 +60,11 @@ class CandidateSelection(object):
 			candidate_solution=es.result.xbest
 			# 
 			# N=self.features.shape[1]
-
+			# N = len(self.initial_solution)
 			# candidate_solution = minimize(N=N,
 			# 	# lamb=int(4+np.floor(3*np.log(N))),
 			# 	lamb=20,
-			# 	initial_solution=np.zeros_like(initial_solution),
+			# 	initial_solution=np.zeros_like(self.initial_solution),
 			# 	objective=self.candidate_objective)
 		else:
 			raise NotImplementedError(
@@ -89,8 +83,13 @@ class CandidateSelection(object):
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
 		# print("theta is:", theta)
-		result = self.primary_objective(self.model, theta, 
-			self.features, self.labels)
+		if self.regime == 'supervised':
+			result = self.primary_objective(self.model, theta, 
+				self.features, self.labels)
+		elif self.regime == 'RL':
+			# Want to maximize the importance weight so minimize negative importance weight
+			result = -1.0*self.primary_objective(self.model,theta,
+				self.candidate_dataset) 
 		# print("Primary objective eval is:", result)
 		# Prediction of what the safety test will return. 
 		# Initialized to pass
@@ -105,10 +104,12 @@ class CandidateSelection(object):
 				model=self.model,
 				bound_method='ttest',
 				branch='candidate_selection',
-				n_safety=self.n_safety)
+				n_safety=self.n_safety,
+				regime=self.regime)
 
 			# Check if the i-th behavioral constraint is satisfied
-			upper_bound = pt.root.upper  
+			upper_bound = pt.root.upper 
+			# print(f"Upper_bound on ghat: {upper_bound}") 
 			if self.optimization_technique == 'barrier_function':
 				if upper_bound > 0.0: # If the current constraint was not satisfied, the safety test failed
 					# If up until now all previous constraints passed,
@@ -128,7 +129,7 @@ class CandidateSelection(object):
 					# push the search toward solutions that will pass 
 					# the prediction of the safety test
 					result = result + upper_bound
-		# print(result)
+		print(f"Result = {result}")
 		
 		# title = f'Parse tree'
 		# graph = pt.make_viz(title)

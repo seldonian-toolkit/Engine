@@ -14,6 +14,7 @@ measure_functions = [
 	'TPR',
 	'FNR',
 	'TNR',
+	'J_pi_new',
 ]
 
 custom_base_node_dict = {

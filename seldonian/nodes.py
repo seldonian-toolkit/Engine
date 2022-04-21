@@ -149,10 +149,12 @@ class BaseNode(Node):
 		return masked_df
 
 	def calculate_data_forbound(self,**kwargs):
-		theta,dataset,model = itemgetter(
-					'theta','dataset','model')(kwargs)
+		theta,dataset,model,regime,branch = itemgetter(
+					'theta','dataset','model',
+					'regime','branch')(kwargs)
 
-		if kwargs['branch'] == 'candidate_selection':
+
+		if branch == 'candidate_selection':
 			# Then we're in candidate selection
 			n_safety = kwargs['n_safety']
 
@@ -165,22 +167,37 @@ class BaseNode(Node):
 
 		# If in candidate selection want to use safety data size
 		# in bound calculation
-		if kwargs['branch'] == 'candidate_selection':
-			frac_masked = len(dataframe)/len(dataset.df)
-			datasize = int(round(frac_masked*n_safety))
-		else:
-			datasize = len(dataframe)
 		
-		# Separate features from label
-		label_column = dataset.label_column
-		labels = dataframe[label_column]
-		features = dataframe.loc[:, dataframe.columns != label_column]
-		features.insert(0,'offset',1.0) # inserts a column of 1's
+		if regime == 'supervised':
+			if branch == 'candidate_selection':
+				frac_masked = len(dataframe)/len(dataset.df)
+				datasize = int(round(frac_masked*n_safety))
+			else:
+				datasize = len(dataframe)
+			# Separate features from label
+			label_column = dataset.label_column
+			labels = dataframe[label_column]
+			features = dataframe.loc[:, dataframe.columns != label_column]
+			features.insert(0,'offset',1.0) # inserts a column of 1's
 
-		# drop sensitive column names
-		if dataset.sensitive_column_names:
-			features = features.drop(columns=dataset.sensitive_column_names)
-		data_dict = {'features':features,'labels':labels}  
+			# drop sensitive column names
+			if dataset.sensitive_column_names:
+				features = features.drop(columns=dataset.sensitive_column_names)
+			data_dict = {'features':features,'labels':labels}  
+			
+		elif regime == 'RL':
+			g=dataframe.groupby('episode_index')
+			if branch == 'candidate_selection':
+				datasize = n_safety
+			else:
+				datasize = len(g)
+			# Precalculate expected return from behavioral policy
+			reward_sums_by_episode = g['R'].apply(weighted_sum_gamma)
+			
+			data_dict = {
+				'dataframe':dataframe,
+				'reward_sums_by_episode':reward_sums_by_episode
+			}
 		return data_dict,datasize
 
 	def zhat(self,model,theta,data_dict):
@@ -285,7 +302,6 @@ class BaseNode(Node):
 				lower = data.mean() - stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
 				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
-			
 		return lower
 
 	def compute_HC_upperbound(self,
@@ -357,7 +373,8 @@ class BaseNode(Node):
 				lower = data.mean() - 2*stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
 				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
-			
+		
+
 		return lower
 
 	def predict_HC_upperbound(self,

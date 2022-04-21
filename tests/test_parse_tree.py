@@ -712,7 +712,8 @@ def test_ttest_bound(generate_data):
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,
 		branch='safety_test',
-		bound_method='ttest')
+		bound_method='ttest',
+		regime='supervised')
 	assert pt.root.lower == float('-inf') # not computed 
 	assert pt.root.upper == pytest.approx(-0.995242)
 
@@ -781,7 +782,8 @@ def test_single_conditional_columns_propagated():
 	theta = np.random.uniform(-0.05,0.05,10)
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,branch='safety_test',
-		bound_method='ttest')
+		bound_method='ttest',
+		regime='supervised')
 	assert pt.root.lower == pytest.approx(61.9001779655)
 	assert pt.root.upper == pytest.approx(62.1362236720)
 	print(pt.base_node_dict.keys())

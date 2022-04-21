@@ -104,6 +104,7 @@ class ParseTree(object):
 	"""
 	def __init__(self,delta):
 		self.root = None 
+		self.constraint_str = ''
 		self.delta = delta
 		self.n_nodes = 0
 		self.n_base_nodes = 0
@@ -121,6 +122,7 @@ class ParseTree(object):
 			mathematical expression written in Python syntax
 			from which we build the parse tree
 		"""
+		self.constraint_str = s
 		self.node_index = 0
 
 		tree = ast.parse(s)

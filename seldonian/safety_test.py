@@ -20,10 +20,11 @@ class SafetyTest(object):
 		and a method for computing the confidence bounds
 
 	"""
-	def __init__(self,dataset,model,parse_trees):
+	def __init__(self,dataset,model,parse_trees,regime='supervised'):
 		self.dataset = dataset
 		self.model = model
 		self.parse_trees = parse_trees
+		self.regime = regime
 
 	def run(self,candidate_solution,bound_method='ttest',**kwargs):
 		# Loop over parse trees and propagate
@@ -37,7 +38,8 @@ class SafetyTest(object):
 				dataset=self.dataset,
 				model=self.model,
 				branch='safety_test',
-				bound_method=bound_method)
+				bound_method=bound_method,
+				regime=self.regime)
 
 			# Check if the i-th behavioral constraint is satisfied
 			upperBound = pt.root.upper  

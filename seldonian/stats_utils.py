@@ -17,3 +17,9 @@ def tinv(p, nu):
      https://www.mathworks.com/help/stats/tinv.html
     """
     return t.ppf(p, nu)
+
+def weighted_sum_gamma(arr,gamma=0.9):
+    """ Calculate weighted sum of arr,
+    where weights are gamma**(index of arr)  """
+    weights = np.power(gamma,range(len(arr)))
+    return np.average(arr,weights=weights)*np.sum(weights)

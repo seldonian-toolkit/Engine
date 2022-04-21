@@ -24,8 +24,7 @@ class DataSetLoader(object):
 			return DataSet(
 				df=df,
 				meta_information=self.column_names,
-				sensitive_column_names=self.sensitive_column_names,
-				regime=regime)
+				regime=self.regime)
 
 class DataSet(object):
 	def __init__(self,df,meta_information,
