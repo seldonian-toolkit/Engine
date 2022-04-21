@@ -178,11 +178,14 @@ class BaseNode(Node):
 			label_column = dataset.label_column
 			labels = dataframe[label_column]
 			features = dataframe.loc[:, dataframe.columns != label_column]
-			features.insert(0,'offset',1.0) # inserts a column of 1's
+			if dataset.include_intercept_term:
+				features.insert(0,'offset',1.0) # inserts a column of 1's
 
-			# drop sensitive column names
-			if dataset.sensitive_column_names:
-				features = features.drop(columns=dataset.sensitive_column_names)
+			# drop sensitive column names, unless instructed to keep them
+			if not dataset.include_sensitive_columns:
+				if dataset.sensitive_column_names:
+					features = features.drop(columns=dataset.sensitive_column_names)
+
 			data_dict = {'features':features,'labels':labels}  
 			
 		elif regime == 'RL':

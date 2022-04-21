@@ -693,7 +693,9 @@ def test_ttest_bound(generate_data):
 	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
 	df = pd.DataFrame(rows,columns=['feature1','label'])
 	dataset = DataSet(df,meta_information=['feature1','label'],
-		regime='supervised',label_column='label')
+		regime='supervised',label_column='label',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
 	
 	constraint_str = 'Mean_Squared_Error - 2.0'
 	delta = 0.05 
@@ -765,7 +767,9 @@ def test_single_conditional_columns_propagated():
 		   
 	loader = DataSetLoader(column_names=columns,
 		sensitive_column_names=['M','F'],
-		regime='supervised',label_column='GPA')
+		regime='supervised',label_column='GPA',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
 	dataset = loader.from_csv(csv_file)
 
 	from seldonian.model import LinearRegressionModel

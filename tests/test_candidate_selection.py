@@ -17,19 +17,28 @@ def test_simulated_data(generate_data):
     candidate_df, safety_df = train_test_split(
             df, test_size=0.5, shuffle=False)
     label_column = 'label'
+    include_sensitive_columns=False
+    include_intercept_term=True,
     candidate_dataset = DataSet(
         candidate_df,meta_information=['feature1','label'],
-        regime='supervised',label_column=label_column)
+        regime='supervised',label_column=label_column,
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term)
     candidate_labels = candidate_dataset.df[label_column]
     candidate_features = candidate_dataset.df.loc[:,
         candidate_dataset.df.columns != label_column]
-    candidate_features = candidate_features.drop(
-        columns=candidate_dataset.sensitive_column_names)
-    candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
+    if not include_sensitive_columns:
+        candidate_features = candidate_features.drop(
+            columns=candidate_dataset.sensitive_column_names)
+
+    if include_intercept_term:
+        candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
     safety_dataset = DataSet(
         safety_df,meta_information=['feature1','label'],
-        regime='supervised',label_column='label')
+        regime='supervised',label_column='label',
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term)
     n_safety = len(safety_df)
     # Linear regression model
     from seldonian.model import LinearRegressionModel
@@ -73,9 +82,13 @@ def test_GPA_data(generate_data):
            "SAT_Math","SAT_Chemistry","GPA"]
     sensitive_column_names = ['M','F']
     label_column = 'GPA'
+    include_sensitive_columns=False
+    include_intercept_term=True
     loader = DataSetLoader(column_names=columns,
         sensitive_column_names=sensitive_column_names,
-        regime='supervised',label_column=label_column)
+        regime='supervised',label_column=label_column,
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term)
     dataset = loader.from_csv(csv_file)
 
     candidate_df, safety_df = train_test_split(
@@ -84,13 +97,21 @@ def test_GPA_data(generate_data):
     candidate_dataset = DataSet(
         candidate_df,meta_information=dataset.df.columns,
         sensitive_column_names=sensitive_column_names,
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term,
         regime='supervised',label_column='GPA')
+
     candidate_labels = candidate_dataset.df[label_column]
     candidate_features = candidate_dataset.df.loc[:,
         candidate_dataset.df.columns != label_column]
-    candidate_features = candidate_features.drop(
-        columns=candidate_dataset.sensitive_column_names)
-    candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
+    
+    if not include_sensitive_columns:
+        candidate_features = candidate_features.drop(
+            columns=candidate_dataset.sensitive_column_names)
+    
+    if include_intercept_term:
+        candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
+
     n_safety = len(safety_df)
 
     # Linear regression model

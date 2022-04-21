@@ -14,14 +14,24 @@ def test_safety_test(generate_data):
         loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
     rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
     df = pd.DataFrame(rows,columns=['feature1','label'])
-    dataset = DataSet(df,meta_information=['feature1','label'],
-        regime='supervised',label_column='label')
+    columns = ['feature1','label']
+    label_column = 'label'
+    regime = 'supervised'
+    include_sensitive_columns=False
+    include_intercept_term=True
+    dataset = DataSet(df,meta_information=columns,
+        regime=regime,label_column='label',
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term)
+
     candidate_df, safety_df = train_test_split(
             df, test_size=0.5, shuffle=False)
 
     safety_dataset = DataSet(
-        safety_df,meta_information=['feature1','label'],
-        regime='supervised',label_column='label')
+        safety_df,meta_information=columns,
+        regime=regime,label_column='label',
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term)
 
     # Linear regression model
     from seldonian.model import LinearRegressionModel

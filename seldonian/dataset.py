@@ -2,11 +2,17 @@ import numpy as np
 import pandas as pd
 
 class DataSetLoader(object):
-	def __init__(self,column_names,
+	def __init__(self,
+		regime,
+		column_names,
 		sensitive_column_names,
-		regime,**kwargs):
+		include_sensitive_columns=False,
+		include_intercept_term=False,
+		**kwargs):
 		self.column_names = column_names
 		self.sensitive_column_names = sensitive_column_names
+		self.include_sensitive_columns = include_sensitive_columns
+		self.include_intercept_term = include_intercept_term
 		self.regime = regime
 		if self.regime == 'supervised':
 			self.label_column = kwargs['label_column']
@@ -18,9 +24,11 @@ class DataSetLoader(object):
 				df=df,
 				meta_information=self.column_names,
 				sensitive_column_names=self.sensitive_column_names,
+				include_sensitive_columns=self.include_sensitive_columns,
+				include_intercept_term=self.include_intercept_term,
 				regime=self.regime,
 				label_column=self.label_column)
-		else:
+		elif self.regime == 'RL':
 			return DataSet(
 				df=df,
 				meta_information=self.column_names,
@@ -29,12 +37,17 @@ class DataSetLoader(object):
 class DataSet(object):
 	def __init__(self,df,meta_information,
 		regime,label_column='',
-		sensitive_column_names=[],**kwargs):
+		sensitive_column_names=[],
+		include_sensitive_columns=False,
+		include_intercept_term=False,
+		**kwargs):
 		self.df = df
 		self.meta_information = meta_information
 		self.regime = regime # supervised or RL
 		self.label_column = label_column
 		self.sensitive_column_names = sensitive_column_names
+		self.include_sensitive_columns = include_sensitive_columns
+		self.include_intercept_term = include_intercept_term
 
 		
 	

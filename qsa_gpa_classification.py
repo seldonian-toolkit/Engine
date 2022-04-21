@@ -20,11 +20,14 @@ if __name__ == '__main__':
 
 	sensitive_column_names = ['M','F']
 	label_column = "GPA_class"
+	include_sensitive_columns=False
+	include_intercept_term=True
 	loader = DataSetLoader(column_names=columns,
 		sensitive_column_names=sensitive_column_names,
+		include_sensitive_columns=include_sensitive_columns,
 		regime='supervised',label_column=label_column)
 	dataset = loader.from_csv(csv_file)
-	
+
 	frac_data_in_safety = 0.6
 
 	candidate_df, safety_df = train_test_split(
@@ -36,11 +39,15 @@ if __name__ == '__main__':
 	candidate_dataset = DataSet(
 		candidate_df,meta_information=dataset.df.columns,
 		sensitive_column_names=sensitive_column_names,
+		include_sensitive_columns=include_sensitive_columns,
+		include_intercept_term=include_intercept_term,
 		regime='supervised',label_column=label_column)
 
 	safety_dataset = DataSet(
 		safety_df,meta_information=dataset.df.columns,
 		sensitive_column_names=sensitive_column_names,
+		include_sensitive_columns=include_sensitive_columns,
+		include_intercept_term=include_intercept_term,
 		regime='supervised',label_column=label_column)
 	
 	n_safety = len(safety_df)
@@ -85,13 +92,18 @@ if __name__ == '__main__':
 	# input("End of optimzer iteration")
 	# Candidate selection
 	minimizer_options = {}
+
+	# Set up initial solution
 	labels = candidate_dataset.df[label_column]
 	features = candidate_dataset.df.loc[:,
 		candidate_dataset.df.columns != label_column]
-	features = features.drop(
-		columns=candidate_dataset.sensitive_column_names)
-	features.insert(0,'offset',1.0) # inserts a column of 1's
+	if not include_sensitive_columns:
+		features = features.drop(
+			columns=candidate_dataset.sensitive_column_names)
+	if include_intercept_term:
+		features.insert(0,'offset',1.0) # inserts a column of 1's
 	initial_solution = model_instance.fit(features,labels)
+	print(initial_solution.shape)
 
 	cs = CandidateSelection(
 		model=model_instance,
@@ -111,7 +123,6 @@ if __name__ == '__main__':
 	st = SafetyTest(safety_dataset,model_instance,parse_trees)
 	passed_safety = st.run(candidate_solution,bound_method='ttest')
 	print(passed_safety)
-
 
 	# # title = f'Parse tree for expression:\n{constraint_str}\ndelta={delta}'
 	# # graph = pt.make_viz(title)

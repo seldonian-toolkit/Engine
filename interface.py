@@ -17,8 +17,8 @@ if __name__ == '__main__':
 		help='Path to metadata file')
 	parser.add_argument('n_constraints',  type=int, default=1,help="Number of constraints")
 	# Optional args
-	parser.add_argument('--sensitive_column_names',  type=str,nargs="+",
-		help="Sensitive column names (space-separated list)")
+	parser.add_argument('--include_sensitive_columns',  action='store_true',
+		help="Whether to include sensitive columns as predictive features")
 	parser.add_argument('--save_dir',  type=dir_path, default='.',
 		help="Folder in which to save interface outputs")
 	args = parser.parse_args()
@@ -36,6 +36,7 @@ if __name__ == '__main__':
 	loader = DataSetLoader(
 		column_names=columns,
 		sensitive_column_names=sensitive_columns,
+		include_sensitive_columns=args.include_sensitive_columns,
 		label_column=label_column,
 		regime=regime)
 

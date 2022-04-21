@@ -22,9 +22,11 @@ class CandidateSelection(object):
 			self.labels = self.candidate_dataset.df[label_column]
 			self.features = self.candidate_dataset.df.loc[:,
 				self.candidate_dataset.df.columns != label_column]
-			self.features = self.features.drop(
-				columns=self.candidate_dataset.sensitive_column_names)
-			self.features.insert(0,'offset',1.0) # inserts a column of 1's
+			if not candidate_dataset.include_sensitive_columns:
+				self.features = self.features.drop(
+					columns=self.candidate_dataset.sensitive_column_names)
+			if candidate_dataset.include_intercept_term:
+				self.features.insert(0,'offset',1.0) # inserts a column of 1's
 		self.parse_trees = parse_trees
 		self.primary_objective = primary_objective # must accept theta, features, labels
 		self.optimization_technique = optimization_technique
