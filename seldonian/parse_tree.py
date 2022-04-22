@@ -563,7 +563,6 @@ class ParseTree(object):
 					kwargs['data_dict'] = data_dict
 					kwargs['datasize'] = datasize
 
-
 				bound_result = node.calculate_bounds(
 					**kwargs)
 				self.base_node_dict[node.name]['computed'] = True

@@ -8,6 +8,7 @@ class SeldonianModel(object):
 	def __init__(self):
 		pass
 
+
 class SupervisedModel(SeldonianModel):
 	def __init__(self):
 		pass
@@ -15,6 +16,7 @@ class SupervisedModel(SeldonianModel):
 	def fit(self,X,Y):
 		reg = self.model_class().fit(X, Y)
 		return np.hstack([np.array(reg.intercept_),reg.coef_[1:]])
+
 
 class RegressionModel(SupervisedModel):
 	def __init__(self):
@@ -67,6 +69,7 @@ class RegressionModel(SupervisedModel):
 		prediction = model.predict(theta, X)
 		return prediction-Y
 
+
 class LinearRegressionModel(RegressionModel):
 	def __init__(self):
 		super().__init__()
@@ -78,6 +81,7 @@ class LinearRegressionModel(RegressionModel):
 		in the first column,
 		make prediction using the model """
 		return np.dot(theta.T,X.T)
+
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):
@@ -237,6 +241,7 @@ class ClassificationModel(SupervisedModel):
 		TP_mask = np.logical_and(Y==1,prediction==1)
 		return 1.0*TP_mask
 
+
 class LinearClassifierModel(ClassificationModel):
 	def __init__(self):
 		super().__init__()
@@ -249,6 +254,7 @@ class LinearClassifierModel(ClassificationModel):
 		make prediction using the model """
 		prediction = np.sign(np.dot(theta.T,X.T)) # -1 or 1
 		return prediction
+
 
 class SGDClassifierModel(ClassificationModel):
 	def __init__(self):
@@ -269,6 +275,7 @@ class SGDClassifierModel(ClassificationModel):
 		# map -1 to 0
 		prediction[prediction==-1]=0
 		return prediction
+
 
 class LogisticRegressionModel(ClassificationModel):
 	def __init__(self):
@@ -299,9 +306,9 @@ class LogisticRegressionModel(ClassificationModel):
 
 
 class RLModel(SeldonianModel):
-	def __init__(self,policy):
-		self.policy = policy
-
+	def __init__(self):
+		pass
+		
 	def sample_from_statistic(self,
 		statistic_name,model,theta,data_dict):
 		if statistic_name == 'J_pi_new':
@@ -344,19 +351,18 @@ class RLModel(SeldonianModel):
 			)
 		return result 
 
-
 class SoftmaxRLModel(RLModel):
-	def __init__(self,policy):
-		super().__init__(policy)
+	def __init__(self,environment):
+		self.environment = environment
 	
 	def apply_policy(self,state,action,theta):
 		""" Apply the softmax policy given a state and action
 		as well as the set of policy parameters, theta.
 		Theta is a flattened parameter vector """
-		index = int(state*4+action)
+		state = int(state)
+		action = int(action)
+		index = state*4+action
 		# print(index)
 		arg = theta[index]
 		# print(arg)
-		return np.exp(arg)/np.sum(
-			[np.exp(theta[int(state*4+a)]) \
-			 for a in self.policy.actions])
+		return np.exp(arg)/np.sum(np.exp(theta[state*4+self.environment.actions]))

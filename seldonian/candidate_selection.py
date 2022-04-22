@@ -51,7 +51,7 @@ class CandidateSelection(object):
 		elif self.optimizer == 'CMA-ES':
 			# from seldonian.cmaes import minimize
 			import cma
-			n_iters=100
+			n_iters=500
 			options = {'tolfun':1e-5, 'maxiter':n_iters}
 
 			es = cma.CMAEvolutionStrategy(self.initial_solution, 0.5,options)
