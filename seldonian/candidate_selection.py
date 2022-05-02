@@ -33,9 +33,9 @@ class CandidateSelection(object):
 		self.optimizer = optimizer
 		self.initial_solution = initial_solution
 		self.candidate_solution = None
+		self.reg_coef = kwargs['reg_coef']
 
 	def run(self,**kwargs):
-
 		# print("initial solution is:",initial_solution)
 		if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS',]:
 			from scipy.optimize import minimize 
@@ -51,14 +51,12 @@ class CandidateSelection(object):
 		elif self.optimizer == 'CMA-ES':
 			# from seldonian.cmaes import minimize
 			import cma
-			n_iters=500
-			options = {'tolfun':1e-5, 'maxiter':n_iters}
 
-			es = cma.CMAEvolutionStrategy(self.initial_solution, 0.5,options)
+			es = cma.CMAEvolutionStrategy(self.initial_solution, 0.2,
+				kwargs['minimizer_options'])
 			# es = cma.CMAEvolutionStrategy(np.zeros_like(initial_solution), 0.5,options)
 			
 			es.optimize(self.candidate_objective)
-			# print(es.result_pretty())
 			candidate_solution=es.result.xbest
 			# 
 			# N=self.features.shape[1]
@@ -82,6 +80,7 @@ class CandidateSelection(object):
 		return candidate_solution
 
 	def candidate_objective(self,theta):
+
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
 		# print("theta is:", theta)
@@ -90,8 +89,15 @@ class CandidateSelection(object):
 				self.features, self.labels)
 		elif self.regime == 'RL':
 			# Want to maximize the importance weight so minimize negative importance weight
+			# Adding regularization term so that large thetas make this less negative
+			# and therefore worse 
 			result = -1.0*self.primary_objective(self.model,theta,
-				self.candidate_dataset) 
+				self.candidate_dataset)
+			if hasattr(self,'reg_coef'):
+				reg_term = self.reg_coef*np.linalg.norm(theta)
+				result += reg_term
+				# print(f"reg_term = {reg_term}")
+		# print(self.candidate_dataset.df.episode_index.nunique(),theta,result)
 		# print("Primary objective eval is:", result)
 		# Prediction of what the safety test will return. 
 		# Initialized to pass
@@ -108,30 +114,32 @@ class CandidateSelection(object):
 				branch='candidate_selection',
 				n_safety=self.n_safety,
 				regime=self.regime)
-
+			
 			# Check if the i-th behavioral constraint is satisfied
 			upper_bound = pt.root.upper 
 			# print(f"Upper_bound on ghat: {upper_bound}") 
-			if self.optimization_technique == 'barrier_function':
-				if upper_bound > 0.0: # If the current constraint was not satisfied, the safety test failed
-					# If up until now all previous constraints passed,
-					# then we need to predict that the test will fail
-					# and potentially add a penalty to the objective
-					if predictSafetyTest:
-						# Set this flag to indicate that we don't think the safety test will pass
-						predictSafetyTest = False  
+			
+			if upper_bound > 0.0: # If the current constraint was not satisfied, the safety test failed
+				# If up until now all previous constraints passed,
+				# then we need to predict that the test will fail
+				# and potentially add a penalty to the objective
+				if predictSafetyTest:
+					# Set this flag to indicate that we don't think the safety test will pass
+					predictSafetyTest = False  
 
-						# Put a barrier in the objective. Any solution 
-						# that we think will fail the safety test 
-						# will have a large cost associated with it
-
+					# Put a barrier in the objective. Any solution 
+					# that we think will fail the safety test 
+					# will have a large cost associated with it
+					if self.optimization_technique == 'barrier_function':
+						# print("here")
 						result = 100000.0    
+				# Add a shaping to the objective function that will 
+				# push the search toward solutions that will pass 
+				# the prediction of the safety test
 
-					# Add a shaping to the objective function that will 
-					# push the search toward solutions that will pass 
-					# the prediction of the safety test
-					result = result + upper_bound
-		print(f"Result = {result}")
+				result = result + upper_bound
+		
+		# print(f"Result = {result}")
 		
 		# title = f'Parse tree'
 		# graph = pt.make_viz(title)

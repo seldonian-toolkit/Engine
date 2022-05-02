@@ -15,10 +15,10 @@ if __name__ == '__main__':
 		help='Path to data file')
 	parser.add_argument('metadata_pth',  type=str,
 		help='Path to metadata file')
-	parser.add_argument('n_constraints',  type=int, default=1,help="Number of constraints")
+	parser.add_argument('n_constraints',  type=int, default=1,
+		help="Number of constraints")
+	
 	# Optional args
-	parser.add_argument('--sensitive_column_names',  type=str,nargs="+",
-		help="Sensitive column names (space-separated list)")
 	parser.add_argument('--save_dir',  type=dir_path, default='.',
 		help="Folder in which to save interface outputs")
 	args = parser.parse_args()
@@ -28,7 +28,6 @@ if __name__ == '__main__':
 		metadata_dict = json.load(infile)
 	print(metadata_dict)
 	regime = metadata_dict['regime']
-	print(regime)
 	columns = metadata_dict['columns']
 
 	if regime == 'supervised':
@@ -45,16 +44,10 @@ if __name__ == '__main__':
 		label_column=label_column,
 		regime=regime)
 
-	ds = loader.from_csv(args.data_pth)
+	dataset = loader.from_csv(args.data_pth)
 	
-	# Save dataset object
-	ds_save_dir = os.path.join(args.save_dir,'dataset.p')
-	with open(ds_save_dir,'wb') as outfile:
-		pickle.dump(ds,outfile,protocol=pickle.HIGHEST_PROTOCOL)
-		print(f"Saved {ds_save_dir}\n")
-
 	constraint_strs = ['-0.25 - J_pi_new'] 
-	constraint_names = ['improved_J_pi_new']
+	constraint_names = ['main_reward']
 	# constraint_strs = ['0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))']
 	deltas = [0.05]
 
@@ -78,18 +71,29 @@ if __name__ == '__main__':
 		parse_tree.assign_bounds_needed()
 		# Save parse tree
 
-		pt_save_pth = os.path.join(args.save_dir,f'parse_tree_{constraint_name}.p')
+		pt_save_pth = os.path.join(args.save_dir,
+			f'parse_tree_{constraint_name}.p')
 		with open(pt_save_pth,'wb') as outfile:
 			pickle.dump(parse_tree,outfile,protocol=pickle.HIGHEST_PROTOCOL)
 			print(f"Saved {pt_save_pth}")
 
-		# print(parse_tree.root.left.will_lower_bound)
-		# print(parse_tree.root.left.will_upper_bound)
-		# # # # Propagate bounds using random interval assignment to base variables
-		# parse_tree.propagate_bounds(bound_method='manual')
-
+		# Modify dataframe to include extra "constraint rewards"
+		# In this case they are the same rewards as from the behavioral policy
+		constraint_rewards = dataset.df['R']
+		# want R_i to range from 1 to n, where n is number of constraints
+		reward_col = f'R_{ii+1}'
+		dataset.df[reward_col] = constraint_rewards 
+		columns += [reward_col]
+		
 		# # # Create the graphviz visualization and render it to a PDF
-		title = f'Parse tree for expression:\n{constraint_str}\ndelta={delta}'
-		graph = parse_tree.make_viz(title)
-		graph.attr(fontsize='12')
-		graph.view() # to open it as a pdf
+		# title = f'Parse tree for expression:\n{constraint_str}\ndelta={delta}'
+		# graph = parse_tree.make_viz(title)
+		# graph.attr(fontsize='12')
+		# graph.view() # to open it as a pdf
+	dataset.meta_information = columns
+
+	# Save dataset object
+	ds_save_dir = os.path.join(args.save_dir,'dataset.p')
+	with open(ds_save_dir,'wb') as outfile:
+		pickle.dump(dataset,outfile,protocol=pickle.HIGHEST_PROTOCOL)
+		print(f"Saved {ds_save_dir}\n")

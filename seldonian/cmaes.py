@@ -16,8 +16,8 @@ def minimize(N,lamb,initial_solution,objective):
 	# Initialize hyperparameters
 	xmean = initial_solution.reshape(N,1)
 	# xmean = np.array([0.0,1.0]).reshape(N,1)  # objective variables initial point
-	sigma = 0.5          # coordinate wise standard deviation (step size)
-	stopfitness = -20  # stop if fitness < stopfitness (minimization). 
+	sigma = 0.2          # coordinate wise standard deviation (step size)
+	stopfitness = -2  # stop if fitness < stopfitness (minimization). 
 	# fitness_diff = 1e-8 # stop when successive solutions differ by less than this value
 	# prevfitness=np.inf
 	stopeval = 3e3  # stop after stopeval number of function evaluations

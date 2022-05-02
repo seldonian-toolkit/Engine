@@ -103,7 +103,6 @@ if __name__ == '__main__':
 	if include_intercept_term:
 		features.insert(0,'offset',1.0) # inserts a column of 1's
 	initial_solution = model_instance.fit(features,labels)
-	print(initial_solution.shape)
 
 	cs = CandidateSelection(
 		model=model_instance,

@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.linear_model import (LinearRegression,
 	LogisticRegression, SGDClassifier)
 from seldonian.stats_utils import weighted_sum_gamma
-from functools import partial
+from functools import partial, lru_cache
 
 class SeldonianModel(object):
 	def __init__(self):
@@ -255,6 +255,9 @@ class LinearClassifierModel(ClassificationModel):
 		prediction = np.sign(np.dot(theta.T,X.T)) # -1 or 1
 		return prediction
 
+	def default_objective(self,model,theta,X,Y):
+		return self.perceptron_loss(model,theta,X,Y)
+
 
 class SGDClassifierModel(ClassificationModel):
 	def __init__(self):
@@ -321,13 +324,15 @@ class RLModel(SeldonianModel):
 		# compute pi_new, the probability of 
 		# picking that action at that state
 		df = dataset.df
-
-		df['pi_new/pi_b'] = list(map(
-			partial(model.apply_policy,theta=theta),
-			df['O'],df['A']))/df['pi_b']
-		df_new = df.drop(columns=['timestep','O','A','pi_b'])
-		g=df_new.groupby('episode_index')
-		products_by_episode = g.prod()['pi_new/pi_b']
+		model.theta = theta
+		df['pi_new/pi'] = list(map(
+			model.apply_policy,
+			df['O'],df['A']))/df['pi']
+		model.theta = None
+		model.denom.cache_clear()
+		model.arg.cache_clear()
+		g=df.groupby('episode_index')
+		products_by_episode = g.prod()['pi_new/pi']
 		result = (
 			products_by_episode*g['R'].apply(weighted_sum_gamma)
 			).sum()/len(g)
@@ -338,31 +343,44 @@ class RLModel(SeldonianModel):
 		each entry is the IS estimate from each episode
 		"""
 		df = data_dict['dataframe']
-
-		df['pi_new/pi_b'] = list(map(
-			partial(model.apply_policy,theta=theta),
-			df['O'],df['A']))/df['pi_b']
-		df_new = df.drop(columns=['timestep','O','A','pi_b'])
-		g=df_new.groupby('episode_index')
-		products_by_episode = g.prod()['pi_new/pi_b']
+		model.theta = theta
+		df['pi_new/pi'] = list(map(model.apply_policy,
+			df['O'],df['A']))/df['pi']
+		model.theta = None
+		model.denom.cache_clear()
+		model.arg.cache_clear()
+		g=df.groupby('episode_index')
+		products_by_episode = g.prod()['pi_new/pi']
 
 		result = (
 			products_by_episode*data_dict['reward_sums_by_episode']
 			)
 		return result 
 
-class SoftmaxRLModel(RLModel):
+
+class TabularSoftmaxModel(RLModel):
+	# Call this tabular softmax
 	def __init__(self,environment):
 		self.environment = environment
-	
-	def apply_policy(self,state,action,theta):
+		self.theta = None
+
+	@lru_cache
+	def denom(self,state):
+		return np.sum(np.exp(self.theta[state*4+self.environment.actions]))
+
+	@lru_cache
+	def arg(self,state,action):
+		return self.theta[state*4+action]
+
+	def apply_policy(self,state,action):
+		# Call pi or get action probability
 		""" Apply the softmax policy given a state and action
 		as well as the set of policy parameters, theta.
 		Theta is a flattened parameter vector """
 		state = int(state)
 		action = int(action)
-		index = state*4+action
-		# print(index)
-		arg = theta[index]
-		# print(arg)
-		return np.exp(arg)/np.sum(np.exp(theta[state*4+self.environment.actions]))
+		
+		return np.exp(self.arg(state,action))/self.denom(state)
+
+	def default_objective(self,model,theta,dataset):
+		return self.IS_estimate(model,theta,dataset)
