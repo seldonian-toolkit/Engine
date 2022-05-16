@@ -4,7 +4,7 @@
 ### maximize an objective function
 
 # import argparse
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 # def objective(x1,x2):
 # 	### The function we are trying to maximize

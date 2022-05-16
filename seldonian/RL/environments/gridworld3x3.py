@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
 from functools import lru_cache, partial
 from concurrent.futures import ProcessPoolExecutor
@@ -152,13 +152,13 @@ class Environment():
 					episodes_per_worker.append(n_episodes-cumulative_episodes)
 
 			helper = partial(self.generate_episodes_par,return_index=False)
-			# episodes = []
-			# for n_episodes_this_worker in episodes_per_worker:
-			#     episodes_this_worker = helper(n_episodes_this_worker)
-			#     episodes.append(episodes_this_worker)
-			with ProcessPoolExecutor(max_workers=8,mp_context=mp.get_context('fork')) as executor:
-				episodes = tqdm(executor.map(helper, episodes_per_worker),
-					total=n_workers)
+			episodes = []
+			for n_episodes_this_worker in episodes_per_worker:
+			    episodes_this_worker = helper(n_episodes_this_worker)
+			    episodes.append(episodes_this_worker)
+			# with ProcessPoolExecutor(max_workers=8,mp_context=mp.get_context('fork')) as executor:
+			# 	episodes = tqdm(executor.map(helper, episodes_per_worker),
+			# 		total=n_workers)
 
 			data = []
 			episode_index = 0

@@ -7,7 +7,6 @@ from seldonian.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
 from seldonian.io_utils import dir_path
 
-
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	# Required args
@@ -15,28 +14,37 @@ if __name__ == '__main__':
 		help='Path to data file')
 	parser.add_argument('metadata_pth',  type=str,
 		help='Path to metadata file')
-	parser.add_argument('n_constraints',  type=int, default=1,help="Number of constraints")
+	
 	# Optional args
 	parser.add_argument('--include_sensitive_columns',  action='store_true',
 		help="Whether to include sensitive columns as predictive features")
+	parser.add_argument('--include_intercept_term',  action='store_true',
+		help="Whether to add columns of ones in leftmost column")
+	parser.add_argument('--scale_features',  action='store_true',
+		help="Whether to scale features to mean 0 and unit variance")
 	parser.add_argument('--save_dir',  type=dir_path, default='.',
 		help="Folder in which to save interface outputs")
+
 	args = parser.parse_args()
 
 	# Load metadata
 	with open(args.metadata_pth,'r') as infile:
 		metadata_dict = json.load(infile)
+
 	regime = metadata_dict['regime']
 	columns = metadata_dict['columns']
 	sensitive_columns = metadata_dict['sensitive_columns']
 
 	if regime == 'supervised':
 		label_column = metadata_dict['label_column']
+
 	# Load dataset from file
 	loader = DataSetLoader(
 		column_names=columns,
 		sensitive_column_names=sensitive_columns,
 		include_sensitive_columns=args.include_sensitive_columns,
+		include_intercept_term=args.include_intercept_term,
+		scale_features=args.scale_features,
 		label_column=label_column,
 		regime=regime)
 
@@ -58,12 +66,12 @@ if __name__ == '__main__':
 	# constraint_str = 'abs(ME | [M])'
 	constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.15'] 
 	constraint_names = ['demographic_parity']
+	# constraint_names = ['disparate_impact']
 	# constraint_strs = ['0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))']
 	deltas = [0.05]
 
-	assert args.n_constraints == len(constraint_strs)
 	# For each constraint, make a parse tree
-	for ii in range(args.n_constraints):
+	for ii in range(len(constraint_strs)):
 		constraint_str = constraint_strs[ii]
 		constraint_name = constraint_names[ii]
 

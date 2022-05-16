@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 class SafetyTest(object):
 	""" 
@@ -20,29 +20,39 @@ class SafetyTest(object):
 		and a method for computing the confidence bounds
 
 	"""
-	def __init__(self,dataset,model,parse_trees,regime='supervised'):
+	def __init__(self,dataset,model,parse_trees,regime='supervised',**kwargs):
 		self.dataset = dataset
 		self.model = model
 		self.parse_trees = parse_trees
 		self.regime = regime
+		if 'scaler' in kwargs:
+			self.scaler = kwargs['scaler']
 
 	def run(self,candidate_solution,bound_method='ttest',**kwargs):
 		# Loop over parse trees and propagate
 		passed = True
 		for tree_i,pt in enumerate(self.parse_trees): 
 			# before we propagate reset the tree
-			# pt.reset_base_node_dict()
+			pt.reset_base_node_dict()
+			# print(f"Before running safety test pt.root.upper: {pt.root.upper}")
+			# print(pt.root.upper)
 
-			pt.propagate_bounds(
+			bounds_kwargs = dict(
 				theta=candidate_solution,
 				dataset=self.dataset,
 				model=self.model,
 				branch='safety_test',
 				bound_method=bound_method,
-				regime=self.regime)
+				regime=self.regime
+				)
+			if hasattr(self,'scaler'):
+				bounds_kwargs['scaler'] = self.scaler
+			
+			pt.propagate_bounds(**bounds_kwargs)
 
 			# Check if the i-th behavioral constraint is satisfied
-			upperBound = pt.root.upper  
+			upperBound = pt.root.upper 
+			print(f"Upper bound from running safety test: {upperBound}") 
 			if upperBound > 0.0: # If the current constraint was not satisfied, the safety test failed
 				passed = False
 			# reset bounds and data for this node

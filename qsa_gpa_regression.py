@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from sklearn.model_selection import train_test_split
 
 from seldonian.dataset import *

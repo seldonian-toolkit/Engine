@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from sklearn.linear_model import (LinearRegression,
 	LogisticRegression, SGDClassifier)
 from seldonian.stats_utils import weighted_sum_gamma
@@ -27,7 +27,7 @@ class RegressionModel(SupervisedModel):
 		
 		if statistic_name == 'Mean_Squared_Error':
 			return model.vector_Mean_Squared_Error(model,
-				theta,data_dict['features'],data_dict['labels'])
+				theta,data_dict['features'].values,data_dict['labels'].values)
 
 		if statistic_name == 'Mean_Error':
 			return model.vector_Mean_Error(model,
@@ -44,6 +44,7 @@ class RegressionModel(SupervisedModel):
 		prediction = model.predict(theta,X) # vector of values
 		res = sum(pow(prediction-Y,2))/n
 		return res
+
 
 	def sample_Mean_Error(self,model,theta,X,Y):
 		"""
@@ -80,7 +81,7 @@ class LinearRegressionModel(RegressionModel):
 		and an array of feature vectors, X, which include offsets
 		in the first column,
 		make prediction using the model """
-		return np.dot(theta.T,X.T)
+		return np.dot(X,theta)
 
 
 class ClassificationModel(SupervisedModel):
@@ -117,19 +118,13 @@ class ClassificationModel(SupervisedModel):
 		return acc
 
 	def perceptron_loss(self,model,theta,X,Y):
-		# print(f"Model={model}")
 		prediction = model.predict(theta,X)
 		res = np.mean(prediction!=Y) # 0 if all correct, 1 if all incorrect
 		return res
 
 	def logistic_loss(self,model,theta,X,Y):
-		n = len(X)
-		Y_mask = Y==1
-		prediction = model.predict(theta,X)
-		# res = np.sum(-Y*np.log(prediction) - (1.0-Y)*np.log(1.0-prediction))
-		res = np.sum(-np.log(prediction[Y_mask])) # Y==1
-		res += np.sum(-np.log(1.0 - prediction[~Y_mask])) # Y==0
-		res /=n
+		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
+		res = np.mean(-Y*np.log(h) - (1.0-Y)*np.log(1.0-h))
 		return res
 
 	def sample_Positive_Rate(self,model,theta,X,Y):
@@ -139,7 +134,7 @@ class ClassificationModel(SupervisedModel):
 		This happens when prediction = 1
 		Outputs a value between 0 and 1
 		"""
-		prediction = self.predict(theta,X)
+		prediction = self.predict(theta,X.values)
 		X_P = X.loc[prediction==1]
 		return len(X_P)/len(X)
 
@@ -185,8 +180,7 @@ class ClassificationModel(SupervisedModel):
 		This happens when prediction = 1
 		Outputs a value between 0 and 1
 		"""
-
-		prediction = self.predict(theta,X)
+		prediction = self.predict(theta,X.values)
 		P_mask = prediction==1
 		return 1.0*P_mask
 
@@ -252,7 +246,7 @@ class LinearClassifierModel(ClassificationModel):
 		and an array of feature vectors, X, which include offsets
 		in the first column,
 		make prediction using the model """
-		prediction = np.sign(np.dot(theta.T,X.T)) # -1 or 1
+		prediction = np.sign(np.dot(X,theta)) # -1 or 1
 		return prediction
 
 	def default_objective(self,model,theta,X,Y):
@@ -288,20 +282,18 @@ class LogisticRegressionModel(ClassificationModel):
 	def predict(self,theta,X):
 		""" Given a model class instance predict the class label 
 		given features X"""
-		arg = np.dot(theta.T,X.T)
-		val = np.exp(arg)/(1+np.exp(arg))
-		prediction = val>=0.5
-		# print(prediction)
+
+		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
+
+		prediction = h>=0.5
 		return prediction
 
 	def predict_proba(self,theta,X):
 		""" Given a model class instance predict the class label 
 		given features X"""
-		arg = np.dot(theta.T,X.T)
-		prediction = np.exp(arg)/(1+np.exp(arg))
+		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 
-		return prediction
-		# return model.predict(X.loc[:,X.columns[1:]])
+		return h
 
 	def fit(self,model,X,Y):
 		reg = model.model_class().fit(X, Y)
@@ -318,27 +310,48 @@ class RLModel(SeldonianModel):
 			return model.vector_IS_estimate(model,
 				theta,data_dict)
 
-	def IS_estimate(self,model,theta,dataset):
+	def IS_estimate_pandas(self,model,theta,dataset):
 		"""Computed the basic importance sampling weight """
 		# For all state, action pairs in data,
 		# compute pi_new, the probability of 
 		# picking that action at that state
+		print("In IS_estimate")
 		df = dataset.df
 		model.theta = theta
 		df['pi_new/pi'] = list(map(
 			model.apply_policy,
 			df['O'],df['A']))/df['pi']
+		# print(df)
 		model.theta = None
 		model.denom.cache_clear()
 		model.arg.cache_clear()
 		g=df.groupby('episode_index')
+		print(g.head())
 		products_by_episode = g.prod()['pi_new/pi']
 		result = (
 			products_by_episode*g['R'].apply(weighted_sum_gamma)
 			).sum()/len(g)
 		return result 
 
-	def vector_IS_estimate(self,model,theta,data_dict):
+	def IS_estimate(self,model,theta,dataset):
+		model.theta = theta
+		pi_ratios = list(map(model.apply_policy,
+					dataset.df['O'].values,
+					dataset.df['A'].values))/dataset.df['pi'].values
+		model.theta = None
+		model.denom.cache_clear()
+		model.arg.cache_clear()
+		split_indices_by_episode = np.unique(dataset.df['episode_index'].values,
+			return_index=True)[1][1:]
+		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
+		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
+		# Weighted rewards
+		rewards_by_episode = np.split(dataset.df['R'].values,split_indices_by_episode)
+		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,rewards_by_episode)))
+		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
+		return result
+
+	def vector_IS_estimate_pandas(self,model,theta,data_dict):
 		"""Get an IS estimate vector where
 		each entry is the IS estimate from each episode
 		"""
@@ -353,10 +366,27 @@ class RLModel(SeldonianModel):
 		products_by_episode = g.prod()['pi_new/pi']
 
 		result = (
-			products_by_episode*data_dict['reward_sums_by_episode']
+			products_by_episode*data_dict['reward_sums_by_episode'].values
 			)
 		return result 
 
+
+	def vector_IS_estimate(self,model,theta,data_dict):
+		model.theta = theta
+		pi_ratios = list(map(model.apply_policy,
+					data_dict['dataframe']['O'].values,
+					data_dict['dataframe']['A'].values))/data_dict['dataframe']['pi'].values
+		model.theta = None
+		model.denom.cache_clear()
+		model.arg.cache_clear()
+		split_indices_by_episode = np.unique(data_dict['dataframe']['episode_index'].values,
+			return_index=True)[1][1:]
+		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
+		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
+		result = (
+			products_by_episode*data_dict['reward_sums_by_episode'].values
+			)
+		return result
 
 class TabularSoftmaxModel(RLModel):
 	# Call this tabular softmax

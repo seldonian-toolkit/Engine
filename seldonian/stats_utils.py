@@ -1,5 +1,6 @@
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from scipy.stats import t
+
 
 def stddev(v):
     """
@@ -24,3 +25,9 @@ def weighted_sum_gamma(arr,gamma=0.9):
     where weights are gamma**(index of arr)  """
     weights = np.power(gamma,range(len(arr)))
     return np.average(arr,weights=weights)*np.sum(weights)
+
+
+def generate_data(numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
+    X =     np.random.normal(loc_X, sigma_X, numPoints) # Sample x from a standard normal distribution
+    Y = X + np.random.normal(loc_Y, sigma_Y, numPoints) # Set y to be x, plus noise from a standard normal distribution
+    return (X,Y)

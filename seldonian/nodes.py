@@ -153,7 +153,6 @@ class BaseNode(Node):
 					'theta','dataset','model',
 					'regime','branch')(kwargs)
 
-
 		if branch == 'candidate_selection':
 			# Then we're in candidate selection
 			n_safety = kwargs['n_safety']
@@ -174,17 +173,25 @@ class BaseNode(Node):
 				datasize = int(round(frac_masked*n_safety))
 			else:
 				datasize = len(dataframe)
+			
 			# Separate features from label
 			label_column = dataset.label_column
 			labels = dataframe[label_column]
 			features = dataframe.loc[:, dataframe.columns != label_column]
-			if dataset.include_intercept_term:
-				features.insert(0,'offset',1.0) # inserts a column of 1's
-
+			
 			# drop sensitive column names, unless instructed to keep them
 			if not dataset.include_sensitive_columns:
 				if dataset.sensitive_column_names:
 					features = features.drop(columns=dataset.sensitive_column_names)
+			
+			# Scale features if necessary
+			if dataset.scale_features:
+				scaler = kwargs['scaler']
+				features = pd.DataFrame(scaler.transform(features))
+
+			# Intercept term
+			if dataset.include_intercept_term:
+				features.insert(0,'offset',1.0) # inserts a column of 1's
 
 			data_dict = {'features':features,'labels':labels}  
 			
@@ -533,10 +540,10 @@ class MEDCustomBaseNode(BaseNode):
 		# (y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon
 		# There may not be the same number of male and female rows
 		# so the number of pairs is min(N_male,N_female)
-		X_male = data_dict['X_male']
-		Y_male = data_dict['Y_male']
-		X_female = data_dict['X_female']
-		Y_female = data_dict['Y_female']
+		X_male = data_dict['X_male'].values
+		Y_male = data_dict['Y_male'].values
+		X_female = data_dict['X_female'].values
+		Y_female = data_dict['Y_female'].values
 
 		prediction_male = model.predict(theta,X_male)
 		mean_error_male = prediction_male-Y_male
@@ -544,7 +551,7 @@ class MEDCustomBaseNode(BaseNode):
 		prediction_female = model.predict(theta,X_female)
 		mean_error_female = prediction_female-Y_female
 
-		return mean_error_male.values - mean_error_female.values 
+		return mean_error_male - mean_error_female
 
 class ConstantNode(Node):
 	""" 

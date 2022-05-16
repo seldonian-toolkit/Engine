@@ -1,9 +1,8 @@
 import ast
 import warnings
 
-
 import graphviz
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 from seldonian.warnings.custom_warnings import *
 from seldonian.nodes import *
@@ -513,7 +512,6 @@ class ParseTree(object):
 			The method for calculating confidence bounds 
 				'ttest' : Student's t test
 		"""
-
 		if not self.root:
 			return []
 
