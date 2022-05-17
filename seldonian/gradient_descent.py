@@ -1,5 +1,6 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from autograd import grad
+
 def gradient_descent_adam(
     primary_objective,
     upper_bound_function,
@@ -41,7 +42,6 @@ def gradient_descent_adam(
                 print(f"Iteration {i}")
 
         primary_val = primary_objective(theta)
-
         g_val = upper_bound_function(theta)
 
         # Check if this is best feasible value so far
@@ -62,16 +62,17 @@ def gradient_descent_adam(
 
         # Obtain gradients at current values of theta and lambda
         # Gradient of sum is sum of gradients
-        print("here1")
+        # print("here1")
         grad_primary_theta_val = grad_primary_theta(theta)
-        print("here2")
+        # print("calculating d upper_bound_function / dtheta")
+
         gu_theta = grad_upper_bound_theta(theta)
-        print(f"theta: {theta}")
-        print(f"d upper_bound_function / dtheta = {gu_theta}")
+        # print(f"theta: {theta}")
+        # print(f"d upper_bound_function / dtheta = {gu_theta}")
         grad_secondary_theta_val = lamb*gu_theta
-        print("here3")
+        # print("here3")
         gradient_theta = grad_primary_theta_val + grad_secondary_theta_val
-        input("next")
+        # input("next")
         gradient_lamb = g_val
         # print(theta,lamb,primary_val,g_val)
         # print(grad_primary_theta_val,grad_secondary_theta_val)

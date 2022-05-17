@@ -15,6 +15,7 @@ measure_functions = [
 	'FNR',
 	'TNR',
 	'J_pi_new',
+	'logistic_loss'
 ]
 
 custom_base_node_dict = {

@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
 	dataset = loader.from_csv(args.data_pth)
 	
-	constraint_strs = ['-0.25 - J_pi_new'] 
+	constraint_strs = ['-4711.12 - J_pi_new'] 
 	constraint_names = ['main_reward']
 	# constraint_strs = ['0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))']
 	deltas = [0.05]

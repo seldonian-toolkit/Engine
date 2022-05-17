@@ -1,7 +1,6 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from scipy.stats import t
 
-
 def stddev(v):
     """
     Sample standard deviation of the vector v,

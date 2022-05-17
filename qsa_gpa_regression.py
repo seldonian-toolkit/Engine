@@ -99,7 +99,8 @@ if __name__ == '__main__':
 	    optimizer='Nelder-Mead',
 	    initial_solution=initial_solution)
 
-	candidate_solution = cs.run(minimizer_options=minimizer_options)
+	candidate_solution = cs.run(
+		minimizer_options=minimizer_options,verbose=True)
 	# candidate_solution = np.array([ 2.35142471e+00, -5.92682323e-03,  5.84554876e-04,  3.45285398e-04,
 	#   1.89794363e-04,  5.09917663e-05,  3.30307314e-03,  1.56678156e-03,
 	#   3.55345048e-04,  3.77028366e-04])

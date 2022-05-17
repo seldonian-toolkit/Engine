@@ -92,7 +92,7 @@ class ClassificationModel(SupervisedModel):
 		statistic_name,model,theta,data_dict):
 		if statistic_name == 'PR':
 			return model.Vector_Positive_Rate(model,
-				theta,data_dict['features'],data_dict['labels'])
+				theta,data_dict['features'])
 
 		if statistic_name == 'NR':
 			return model.Vector_Negative_Rate(model,
@@ -108,6 +108,9 @@ class ClassificationModel(SupervisedModel):
 
 		if statistic_name == 'TPR':
 			return model.Vector_True_Positive_Rate(model,
+				theta,data_dict['features'],data_dict['labels'])
+		if statistic_name == 'logistic_loss':
+			return model.Vector_logistic_loss(model,
 				theta,data_dict['features'],data_dict['labels'])
 
 		raise NotImplementedError(f"Statistic: {statistic_name} is not implemented")
@@ -126,6 +129,11 @@ class ClassificationModel(SupervisedModel):
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 		res = np.mean(-Y*np.log(h) - (1.0-Y)*np.log(1.0-h))
 		return res
+
+	def Vector_logistic_loss(self,model,theta,X,Y):
+		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
+		res = -Y*np.log(h) - (1.0-Y)*np.log(1.0-h)
+		return res		
 
 	def sample_Positive_Rate(self,model,theta,X,Y):
 		"""
@@ -173,15 +181,16 @@ class ClassificationModel(SupervisedModel):
 		X_FN = X.loc[np.logical_and(Y==1,prediction!=1)]
 		return len(X_FN)/len(X) 
 
-	def Vector_Positive_Rate(self,model,theta,X,Y):
+	def Vector_Positive_Rate(self,model,theta,X):
 		"""
 		Calculate positive rate
 		for each observation.
 		This happens when prediction = 1
 		Outputs a value between 0 and 1
 		"""
-		prediction = self.predict(theta,X.values)
-		P_mask = prediction==1
+		prediction = self.predict(theta,X)
+		P_mask = prediction==1.0
+		res = 1.0*P_mask
 		return 1.0*P_mask
 
 	def Vector_Negative_Rate(self,model,theta,X,Y):
@@ -310,29 +319,6 @@ class RLModel(SeldonianModel):
 			return model.vector_IS_estimate(model,
 				theta,data_dict)
 
-	def IS_estimate_pandas(self,model,theta,dataset):
-		"""Computed the basic importance sampling weight """
-		# For all state, action pairs in data,
-		# compute pi_new, the probability of 
-		# picking that action at that state
-		print("In IS_estimate")
-		df = dataset.df
-		model.theta = theta
-		df['pi_new/pi'] = list(map(
-			model.apply_policy,
-			df['O'],df['A']))/df['pi']
-		# print(df)
-		model.theta = None
-		model.denom.cache_clear()
-		model.arg.cache_clear()
-		g=df.groupby('episode_index')
-		print(g.head())
-		products_by_episode = g.prod()['pi_new/pi']
-		result = (
-			products_by_episode*g['R'].apply(weighted_sum_gamma)
-			).sum()/len(g)
-		return result 
-
 	def IS_estimate(self,model,theta,dataset):
 		model.theta = theta
 		pi_ratios = list(map(model.apply_policy,
@@ -345,29 +331,13 @@ class RLModel(SeldonianModel):
 			return_index=True)[1][1:]
 		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
 		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
+		
 		# Weighted rewards
+		gamma = self.environment.gamma
 		rewards_by_episode = np.split(dataset.df['R'].values,split_indices_by_episode)
-		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,rewards_by_episode)))
+		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,
+			rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
 		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
-		return result
-
-	def vector_IS_estimate_pandas(self,model,theta,data_dict):
-		"""Get an IS estimate vector where
-		each entry is the IS estimate from each episode
-		"""
-		df = data_dict['dataframe']
-		model.theta = theta
-		df['pi_new/pi'] = list(map(model.apply_policy,
-			df['O'],df['A']))/df['pi']
-		model.theta = None
-		model.denom.cache_clear()
-		model.arg.cache_clear()
-		g=df.groupby('episode_index')
-		products_by_episode = g.prod()['pi_new/pi']
-
-		result = (
-			products_by_episode*data_dict['reward_sums_by_episode'].values
-			)
 		return result 
 
 
@@ -411,6 +381,36 @@ class TabularSoftmaxModel(RLModel):
 		action = int(action)
 		
 		return np.exp(self.arg(state,action))/self.denom(state)
+
+	def default_objective(self,model,theta,dataset):
+		return self.IS_estimate(model,theta,dataset)
+
+class LinearSoftmaxModel(RLModel):
+	# Call this linear softmax. 
+	# Must provide an objective (or default objective)
+	# and an apply policy method
+	def __init__(self,environment):
+		self.environment = environment
+		self.theta = None
+
+	@lru_cache
+	def denom(self,state):
+		return np.sum(np.exp(self.theta[state*4+self.environment.actions]))
+
+	@lru_cache
+	def arg(self,state,action):
+		return self.theta[state*4+action]
+
+	def apply_policy(self,state,action):
+		print("In apply policy. State, action:")
+		print(state,action)
+		print(type(state))
+		# Call pi or get action probability
+		""" Apply the softmax policy given a state and action
+		as well as the set of policy parameters """
+		logp = self.environment.policy.log_probabilty(state, action)
+		return np.exp(logp)
+
 
 	def default_objective(self,model,theta,dataset):
 		return self.IS_estimate(model,theta,dataset)

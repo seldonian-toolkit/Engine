@@ -3,6 +3,7 @@ from functools import reduce,partial
 import pandas as pd
 
 from .stats_utils import *
+import autograd.numpy as np
 
 
 class Node(object):
@@ -144,8 +145,10 @@ class BaseNode(Node):
 	def mask_dataframe(self,dataset,conditional_columns):
 		"""
 		"""
-		masks = reduce(np.logical_and,(dataset.df[col]==1 for col in conditional_columns))
-		masked_df = dataset.df.loc[masks] 
+		# col_indices = [dataset.df.columns.get_loc(col) for col in conditional_columns]
+		col_indices=[0 if conditional_columns[0]=='M' else 1]
+		masks = reduce(np.logical_and,(dataset.df.values[:,col_index]==1 for col_index in col_indices))
+		masked_df = dataset.df.values[masks] 
 		return masked_df
 
 	def calculate_data_forbound(self,**kwargs):
@@ -159,10 +162,11 @@ class BaseNode(Node):
 
 		# mask the data using the conditional columns, if present
 		if self.conditional_columns:
+			# print("there are conditional columns. Masking them out here.")
 			dataframe = self.mask_dataframe(
 				dataset,self.conditional_columns)
 		else:
-			dataframe = dataset.df
+			dataframe = dataset.df.values
 
 		# If in candidate selection want to use safety data size
 		# in bound calculation
@@ -176,33 +180,43 @@ class BaseNode(Node):
 			
 			# Separate features from label
 			label_column = dataset.label_column
-			labels = dataframe[label_column]
-			features = dataframe.loc[:, dataframe.columns != label_column]
-			
+			# label_column_index = dataset.df.columns.get_loc(label_column)
+			label_column_index = -1
+			labels = dataframe[:,label_column_index]
+			# features = dataframe.loc[:, dataframe.columns != label_column]
+			features = np.delete(dataframe,label_column_index,axis=1)
+
 			# drop sensitive column names, unless instructed to keep them
 			if not dataset.include_sensitive_columns:
 				if dataset.sensitive_column_names:
-					features = features.drop(columns=dataset.sensitive_column_names)
+					# sensitive_col_indices = [dataset.df.columns.get_loc(col) for col in dataset.sensitive_column_names]
+					sensitive_col_indices = [0,1]
+					# features = features.drop(columns=dataset.sensitive_column_names)
+					features = np.delete(features,sensitive_col_indices,axis=1)
 			
 			# Scale features if necessary
 			if dataset.scale_features:
+				print("scaling features")
 				scaler = kwargs['scaler']
 				features = pd.DataFrame(scaler.transform(features))
 
 			# Intercept term
 			if dataset.include_intercept_term:
-				features.insert(0,'offset',1.0) # inserts a column of 1's
+				# features.insert(0,'offset',1.0) # inserts a column of 1's
+				features = np.insert(features,0,np.ones(len(dataframe)),axis=1)
 
 			data_dict = {'features':features,'labels':labels}  
+			print(f"data_dict: {data_dict}")
 			
 		elif regime == 'RL':
+			gamma = kwargs['gamma']
 			g=dataframe.groupby('episode_index')
 			if branch == 'candidate_selection':
 				datasize = n_safety
 			else:
 				datasize = len(g)
 			# Precalculate expected return from behavioral policy
-			reward_sums_by_episode = g['R'].apply(weighted_sum_gamma)
+			reward_sums_by_episode = g['R'].apply(weighted_sum_gamma,gamma=gamma)
 			
 			data_dict = {
 				'dataframe':dataframe,
