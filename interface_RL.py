@@ -44,7 +44,10 @@ if __name__ == '__main__':
 		label_column=label_column,
 		regime=regime)
 
-	dataset = loader.from_csv(args.data_pth)
+	if args.data_pth.endswith('.csv'):
+		dataset = loader.from_csv(args.data_pth)
+	elif args.data_pth.endswith('.pkl'):
+		dataset = loader.from_pickle(args.data_pth)
 	
 	constraint_strs = ['-4711.12 - J_pi_new'] 
 	constraint_names = ['main_reward']
@@ -93,7 +96,7 @@ if __name__ == '__main__':
 	dataset.meta_information = columns
 
 	# Save dataset object
-	ds_save_dir = os.path.join(args.save_dir,'dataset.p')
+	ds_save_dir = os.path.join(args.save_dir,'dataset.pkl')
 	with open(ds_save_dir,'wb') as outfile:
 		pickle.dump(dataset,outfile,protocol=pickle.HIGHEST_PROTOCOL)
 		print(f"Saved {ds_save_dir}\n")

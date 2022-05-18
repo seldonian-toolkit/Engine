@@ -160,18 +160,17 @@ class BaseNode(Node):
 			# Then we're in candidate selection
 			n_safety = kwargs['n_safety']
 
-		# mask the data using the conditional columns, if present
-		if self.conditional_columns:
-			# print("there are conditional columns. Masking them out here.")
-			dataframe = self.mask_dataframe(
-				dataset,self.conditional_columns)
-		else:
-			dataframe = dataset.df.values
-
 		# If in candidate selection want to use safety data size
 		# in bound calculation
 		
 		if regime == 'supervised':
+			# mask the data using the conditional columns, if present
+			if self.conditional_columns:
+				dataframe = self.mask_dataframe(
+					dataset,self.conditional_columns)
+			else:
+				dataframe = dataset.df.values
+
 			if branch == 'candidate_selection':
 				frac_masked = len(dataframe)/len(dataset.df)
 				datasize = int(round(frac_masked*n_safety))
@@ -206,22 +205,30 @@ class BaseNode(Node):
 				features = np.insert(features,0,np.ones(len(dataframe)),axis=1)
 
 			data_dict = {'features':features,'labels':labels}  
-			print(f"data_dict: {data_dict}")
+			# print(f"data_dict: {data_dict}")
 			
 		elif regime == 'RL':
+			dataframe = dataset.df
 			gamma = kwargs['gamma']
-			g=dataframe.groupby('episode_index')
+
+			split_indices_by_episode = np.unique(dataframe['episode_index'].values,
+				return_index=True)[1][1:]
+
 			if branch == 'candidate_selection':
 				datasize = n_safety
 			else:
-				datasize = len(g)
-			# Precalculate expected return from behavioral policy
-			reward_sums_by_episode = g['R'].apply(weighted_sum_gamma,gamma=gamma)
+				datasize = len(dataframe)
 			
+			# Precalculate expected return from behavioral policy
+			rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
+			reward_sums_by_episode = np.array(list(map(weighted_sum_gamma,
+				rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
+
 			data_dict = {
 				'dataframe':dataframe,
 				'reward_sums_by_episode':reward_sums_by_episode
 			}
+
 		return data_dict,datasize
 
 	def zhat(self,model,theta,data_dict):
@@ -263,12 +270,10 @@ class BaseNode(Node):
 				model = kwargs['model']
 				theta = kwargs['theta']
 				data_dict = kwargs['data_dict']
-
 				estimator_samples = self.zhat(
 					model=model,
 					theta=theta,
 					data_dict=data_dict)
-
 				if self.will_lower_bound and self.will_upper_bound:
 					if branch == 'candidate_selection':
 						lower,upper = self.predict_HC_upper_and_lowerbound(

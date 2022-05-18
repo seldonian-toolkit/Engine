@@ -38,6 +38,26 @@ class DataSetLoader(object):
 				meta_information=self.column_names,
 				regime=self.regime)
 
+	def from_pickle(self,pkl_file):
+		import pickle
+		with open(pkl_file,'rb') as infile:
+			df = pickle.load(infile) # will include the header if it is present
+		if self.regime == 'supervised':
+			return DataSet(
+				df=df,
+				meta_information=self.column_names,
+				sensitive_column_names=self.sensitive_column_names,
+				include_sensitive_columns=self.include_sensitive_columns,
+				include_intercept_term=self.include_intercept_term,
+				scale_features=self.scale_features,
+				regime=self.regime,
+				label_column=self.label_column)
+		elif self.regime == 'RL':
+			return DataSet(
+				df=df,
+				meta_information=self.column_names,
+				regime=self.regime)
+
 class DataSet(object):
 	def __init__(self,df,meta_information,
 		regime,label_column='',

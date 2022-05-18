@@ -553,7 +553,6 @@ class ParseTree(object):
 						data_dict = self.base_node_dict[node.name]['data_dict']
 						datasize = self.base_node_dict[node.name]['datasize']
 					else:
-						print("calculating data for bound")
 						data_dict,datasize = node.calculate_data_forbound(
 							**kwargs)
 						self.base_node_dict[node.name]['data_dict'] = data_dict

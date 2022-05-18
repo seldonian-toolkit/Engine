@@ -1,4 +1,5 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+import pickle
 import pandas as pd
 from functools import lru_cache, partial
 from concurrent.futures import ProcessPoolExecutor
@@ -190,8 +191,13 @@ class Environment():
 			"R": float,
 			"pi": float
 			})
+
 		if savename:
-			df.to_csv(savename,index=False,header=header)
+			if savename.endswith('.csv'):
+				df.to_csv(savename,index=False,header=header)
+			elif savename.endswith('.pkl'):
+				with open(savename,'wb') as outfile:
+					pickle.dump(df,outfile)
 			print(f"Saved {savename}")
 		return df 
 

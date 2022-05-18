@@ -28,6 +28,9 @@ class SafetyTest(object):
 		if 'scaler' in kwargs:
 			self.scaler = kwargs['scaler']
 
+		if self.regime == 'RL':
+			self.gamma = kwargs['gamma']
+
 	def run(self,candidate_solution,bound_method='ttest',**kwargs):
 		# Loop over parse trees and propagate
 		passed = True
@@ -48,6 +51,9 @@ class SafetyTest(object):
 			if hasattr(self,'scaler'):
 				bounds_kwargs['scaler'] = self.scaler
 			
+			if self.regime == 'RL':
+				bounds_kwargs['gamma'] = self.gamma
+
 			pt.propagate_bounds(**bounds_kwargs)
 
 			# Check if the i-th behavioral constraint is satisfied

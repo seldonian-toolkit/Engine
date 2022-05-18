@@ -53,6 +53,9 @@ class CandidateSelection(object):
 		if 'reg_coef' in kwargs:
 			self.reg_coef = kwargs['reg_coef']
 
+		if 'gamma' in kwargs:
+			self.gamma = kwargs['gamma']
+
 	def run(self,**kwargs):
 		# print("initial solution is:",initial_solution)
 		if self.optimization_technique == 'gradient_descent':
@@ -181,6 +184,9 @@ class CandidateSelection(object):
 				n_safety=self.n_safety,
 				regime=self.regime)
 
+			if self.regime == 'RL':
+				bounds_kwargs['gamma'] = self.gamma
+
 			if hasattr(self,'scaler'):
 				bounds_kwargs['scaler'] = self.scaler
 
@@ -227,12 +233,12 @@ class CandidateSelection(object):
 			return result
 
 		elif self.regime == 'RL':
-			print("Evaluating primary objective")
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
 			result = -1.0*self.primary_objective(self.model,theta,
 				self.candidate_dataset)
+
 			if hasattr(self,'reg_coef'):
 				reg_term = self.reg_coef*np.linalg.norm(theta)
 				result += reg_term
@@ -252,9 +258,10 @@ class CandidateSelection(object):
 			regime=self.regime
 			)
 
+		if self.regime == 'RL':
+			bounds_kwargs['gamma'] = self.gamma
+
 		if hasattr(self,'scaler'):
 			bounds_kwargs['scaler'] = self.scaler
-
 		pt.propagate_bounds(**bounds_kwargs)
-
 		return pt.root.upper

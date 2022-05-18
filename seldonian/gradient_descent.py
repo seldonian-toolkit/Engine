@@ -13,6 +13,7 @@ def gradient_descent_adam(
     num_iters=200,
     store_values=False,
     verbose=False):
+
     # initialize modeling parameters
     theta = theta_init
     lamb = lambda_init
@@ -43,7 +44,7 @@ def gradient_descent_adam(
 
         primary_val = primary_objective(theta)
         g_val = upper_bound_function(theta)
-
+        
         # Check if this is best feasible value so far
         if g_val <= 0 and primary_val < best_feasible_primary:
             best_feasible_primary = primary_val
@@ -62,21 +63,22 @@ def gradient_descent_adam(
 
         # Obtain gradients at current values of theta and lambda
         # Gradient of sum is sum of gradients
-        # print("here1")
         grad_primary_theta_val = grad_primary_theta(theta)
+        
         # print("calculating d upper_bound_function / dtheta")
-
+        # print("")
         gu_theta = grad_upper_bound_theta(theta)
-        # print(f"theta: {theta}")
-        # print(f"d upper_bound_function / dtheta = {gu_theta}")
-        grad_secondary_theta_val = lamb*gu_theta
-        # print("here3")
-        gradient_theta = grad_primary_theta_val + grad_secondary_theta_val
+        # print(f"theta = {theta}")
+        # print(f"lambda = {lamb}")
+        # print
+        print(f"primary = {primary_val}, g_val = {g_val}")
+        # print(f"g upper bound = {g_val}")
+        # print(f"d primary/d theta: {grad_primary_theta_val}")
+        # print(f"d upper bound/d theta: {gu_theta}")
         # input("next")
+        grad_secondary_theta_val = lamb*gu_theta
+        gradient_theta = grad_primary_theta_val + grad_secondary_theta_val
         gradient_lamb = g_val
-        # print(theta,lamb,primary_val,g_val)
-        # print(grad_primary_theta_val,grad_secondary_theta_val)
-        # print()
 
         # Momementum term
         velocity_theta = beta_velocity*velocity_theta + (1.0-beta_velocity)*gradient_theta

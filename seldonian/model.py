@@ -139,12 +139,15 @@ class ClassificationModel(SupervisedModel):
 		"""
 		Calculate positive rate
 		for the whole sample.
-		This happens when prediction = 1
-		Outputs a value between 0 and 1
+		This is the sum of probability of each 
+		sample being in the positive class
+		normalized to the number of predictions 
 		"""
-		prediction = self.predict(theta,X.values)
-		X_P = X.loc[prediction==1]
-		return len(X_P)/len(X)
+
+		prediction = self.predict_proba(theta,X)
+		return np.sum(prediction)/len(X) # if all 1s then PR=1. 
+		# X_P = X.loc[prediction==1]
+		# return len(X_P)/len(X)
 
 	def sample_Negative_Rate(self,model,theta,X,Y):
 		"""
@@ -188,10 +191,15 @@ class ClassificationModel(SupervisedModel):
 		This happens when prediction = 1
 		Outputs a value between 0 and 1
 		"""
-		prediction = self.predict(theta,X)
-		P_mask = prediction==1.0
-		res = 1.0*P_mask
-		return 1.0*P_mask
+		# prediction = self.predict(theta,X)
+		# P_mask = prediction==1.0
+		# res = 1.0*P_mask
+		# return 1.0*P_mask
+		prediction = self.predict_proba(theta,X) # probability of class 1 for each observation
+		print("In Vector_Positive_Rate. Predictions:")
+		print(prediction)
+		print(np.sum(prediction)/len(X))
+		return prediction 
 
 	def Vector_Negative_Rate(self,model,theta,X,Y):
 		"""
@@ -340,7 +348,6 @@ class RLModel(SeldonianModel):
 		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
 		return result 
 
-
 	def vector_IS_estimate(self,model,theta,data_dict):
 		model.theta = theta
 		pi_ratios = list(map(model.apply_policy,
@@ -354,7 +361,7 @@ class RLModel(SeldonianModel):
 		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
 		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
 		result = (
-			products_by_episode*data_dict['reward_sums_by_episode'].values
+			products_by_episode*data_dict['reward_sums_by_episode']
 			)
 		return result
 
@@ -393,24 +400,57 @@ class LinearSoftmaxModel(RLModel):
 		self.environment = environment
 		self.theta = None
 
-	@lru_cache
-	def denom(self,state):
-		return np.sum(np.exp(self.theta[state*4+self.environment.actions]))
+	def IS_estimate(self,model,theta,dataset):
+		self.theta = theta
+		pi_ratios = list(map(self.apply_policy,
+					dataset.df['O'].values,
+					dataset.df['A'].values))/dataset.df['pi'].values
+		self.theta = None
+		split_indices_by_episode = np.unique(dataset.df['episode_index'].values,
+			return_index=True)[1][1:]
+		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
+		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
+		
+		# Weighted rewards
+		gamma = self.environment.gamma
+		rewards_by_episode = np.split(dataset.df['R'].values,split_indices_by_episode)
+		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,
+			rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
+		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
+		return result 
 
-	@lru_cache
-	def arg(self,state,action):
-		return self.theta[state*4+action]
+	def vector_IS_estimate(self,model,theta,data_dict):
+		self.theta = theta
+		pi_ratios = list(map(self.apply_policy,
+					data_dict['dataframe']['O'].values,
+					data_dict['dataframe']['A'].values))/data_dict['dataframe']['pi'].values
+		self.theta = None
+		split_indices_by_episode = np.unique(data_dict['dataframe']['episode_index'].values,
+			return_index=True)[1][1:]
+		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
+		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
+		result = (
+			products_by_episode*data_dict['reward_sums_by_episode']
+			)
+		return result
 
-	def apply_policy(self,state,action):
-		print("In apply policy. State, action:")
-		print(state,action)
-		print(type(state))
-		# Call pi or get action probability
-		""" Apply the softmax policy given a state and action
-		as well as the set of policy parameters """
-		logp = self.environment.policy.log_probabilty(state, action)
-		return np.exp(logp)
+	def apply_policy(self, state:np.ndarray, action: int)->float:
+		x = self.environment.basis.encode(state)
+		p = self.get_p(x)
+		return p[action]
 
+	def get_p(self, x):
+		u = np.exp(np.clip(np.dot(x, 
+			self.theta.reshape(self.environment.policy.n_inputs, self.environment.policy.n_actions)), -32, 32)) 
+		# print(x,self.theta)
+		# u = np.exp(np.dot(x, 
+		# 	self.theta.reshape(self.environment.policy.n_inputs, self.environment.policy.n_actions)))
+		# u = self.theta.reshape(self.environment.policy.n_inputs, self.environment.policy.n_actions)
+		# u = self.theta[0:3]
+		# u = np.array([1.0,1.0,1.0])
+		u /= u.sum()
+
+		return u
 
 	def default_objective(self,model,theta,dataset):
 		return self.IS_estimate(model,theta,dataset)
