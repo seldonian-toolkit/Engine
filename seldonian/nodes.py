@@ -210,6 +210,8 @@ class BaseNode(Node):
 		elif regime == 'RL':
 			dataframe = dataset.df
 			gamma = kwargs['gamma']
+			min_return = kwargs['min_return']
+			max_return = kwargs['max_return']
 
 			split_indices_by_episode = np.unique(dataframe['episode_index'].values,
 				return_index=True)[1][1:]
@@ -223,10 +225,11 @@ class BaseNode(Node):
 			rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
 			reward_sums_by_episode = np.array(list(map(weighted_sum_gamma,
 				rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
-
+			# normalize returns to 0-1
+			normalized_returns = (reward_sums_by_episode-min_return)/(max_return-min_return)
 			data_dict = {
 				'dataframe':dataframe,
-				'reward_sums_by_episode':reward_sums_by_episode
+				'reward_sums_by_episode':normalized_returns
 			}
 
 		return data_dict,datasize

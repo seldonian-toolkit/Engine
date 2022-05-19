@@ -196,9 +196,6 @@ class ClassificationModel(SupervisedModel):
 		# res = 1.0*P_mask
 		# return 1.0*P_mask
 		prediction = self.predict_proba(theta,X) # probability of class 1 for each observation
-		print("In Vector_Positive_Rate. Predictions:")
-		print(prediction)
-		print(np.sum(prediction)/len(X))
 		return prediction 
 
 	def Vector_Negative_Rate(self,model,theta,X,Y):
@@ -416,7 +413,12 @@ class LinearSoftmaxModel(RLModel):
 		rewards_by_episode = np.split(dataset.df['R'].values,split_indices_by_episode)
 		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,
 			rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
-		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
+		# normalize to [0,1]
+		min_return = self.environment.min_return
+		max_return = self.environment.max_return
+		normalized_returns = (weighted_reward_sums-min_return)/(max_return-min_return)
+
+		result = sum(products_by_episode*normalized_returns)/len(pi_ratios_by_episode)
 		return result 
 
 	def vector_IS_estimate(self,model,theta,data_dict):

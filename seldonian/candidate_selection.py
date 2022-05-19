@@ -53,8 +53,10 @@ class CandidateSelection(object):
 		if 'reg_coef' in kwargs:
 			self.reg_coef = kwargs['reg_coef']
 
-		if 'gamma' in kwargs:
+		if self.regime == 'RL':
 			self.gamma = kwargs['gamma']
+			self.min_return = kwargs['min_return']
+			self.max_return = kwargs['max_return']
 
 	def run(self,**kwargs):
 		# print("initial solution is:",initial_solution)
@@ -186,6 +188,8 @@ class CandidateSelection(object):
 
 			if self.regime == 'RL':
 				bounds_kwargs['gamma'] = self.gamma
+				bounds_kwargs['min_return'] = self.min_return
+				bounds_kwargs['max_return'] = self.max_return
 
 			if hasattr(self,'scaler'):
 				bounds_kwargs['scaler'] = self.scaler
@@ -218,7 +222,6 @@ class CandidateSelection(object):
 		
 		# print(f"Primary objective: {result}, ghat_upper_bound: {upper_bound}")
 		
-		# title = f'Parse tree'
 		# graph = pt.make_viz(title)
 		# graph.attr(fontsize='12')
 		# graph.view() # to open it as a pdf
@@ -260,8 +263,11 @@ class CandidateSelection(object):
 
 		if self.regime == 'RL':
 			bounds_kwargs['gamma'] = self.gamma
+			bounds_kwargs['min_return'] = self.min_return
+			bounds_kwargs['max_return'] = self.max_return
 
 		if hasattr(self,'scaler'):
 			bounds_kwargs['scaler'] = self.scaler
+
 		pt.propagate_bounds(**bounds_kwargs)
 		return pt.root.upper
