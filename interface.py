@@ -20,8 +20,6 @@ if __name__ == '__main__':
 		help="Whether to include sensitive columns as predictive features")
 	parser.add_argument('--include_intercept_term',  action='store_true',
 		help="Whether to add columns of ones in leftmost column")
-	parser.add_argument('--scale_features',  action='store_true',
-		help="Whether to scale features to mean 0 and unit variance")
 	parser.add_argument('--save_dir',  type=dir_path, default='.',
 		help="Folder in which to save interface outputs")
 
@@ -44,7 +42,6 @@ if __name__ == '__main__':
 		sensitive_column_names=sensitive_columns,
 		include_sensitive_columns=args.include_sensitive_columns,
 		include_intercept_term=args.include_intercept_term,
-		scale_features=args.scale_features,
 		label_column=label_column,
 		regime=regime)
 

@@ -25,8 +25,6 @@ class SafetyTest(object):
 		self.model = model
 		self.parse_trees = parse_trees
 		self.regime = regime
-		if 'scaler' in kwargs:
-			self.scaler = kwargs['scaler']
 
 		if self.regime == 'RL':
 			self.gamma = kwargs['gamma']
@@ -39,8 +37,6 @@ class SafetyTest(object):
 		for tree_i,pt in enumerate(self.parse_trees): 
 			# before we propagate reset the tree
 			pt.reset_base_node_dict()
-			# print(f"Before running safety test pt.root.upper: {pt.root.upper}")
-			# print(pt.root.upper)
 
 			bounds_kwargs = dict(
 				theta=candidate_solution,
@@ -50,8 +46,6 @@ class SafetyTest(object):
 				bound_method=bound_method,
 				regime=self.regime
 				)
-			if hasattr(self,'scaler'):
-				bounds_kwargs['scaler'] = self.scaler
 			
 			if self.regime == 'RL':
 				bounds_kwargs['gamma'] = self.gamma
@@ -60,6 +54,9 @@ class SafetyTest(object):
 
 			pt.propagate_bounds(**bounds_kwargs)
 
+			# graph = pt.make_viz(pt.constraint_str)
+			# graph.view()
+			# input("next")
 			# Check if the i-th behavioral constraint is satisfied
 			upperBound = pt.root.upper 
 			print(f"Upper bound from running safety test: {upperBound}") 

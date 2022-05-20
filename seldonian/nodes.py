@@ -192,12 +192,6 @@ class BaseNode(Node):
 					sensitive_col_indices = [0,1]
 					# features = features.drop(columns=dataset.sensitive_column_names)
 					features = np.delete(features,sensitive_col_indices,axis=1)
-			
-			# Scale features if necessary
-			if dataset.scale_features:
-				print("scaling features")
-				scaler = kwargs['scaler']
-				features = pd.DataFrame(scaler.transform(features))
 
 			# Intercept term
 			if dataset.include_intercept_term:

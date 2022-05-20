@@ -1,6 +1,7 @@
 import os, pickle
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
+from functools import partial
 
 class CandidateSelection(object):
 	def __init__(self,
@@ -32,12 +33,6 @@ class CandidateSelection(object):
 			if not candidate_dataset.include_sensitive_columns:
 				self.features = self.features.drop(
 					columns=self.candidate_dataset.sensitive_column_names)
-			
-			if self.candidate_dataset.scale_features:
-				print("Scaling candidate dataset features")
-				scaler = kwargs['scaler']
-				self.scaler = scaler
-				self.features = pd.DataFrame(self.scaler.transform(self.features))
 		
 			if candidate_dataset.include_intercept_term:
 				self.features.insert(0,'offset',1.0) # inserts a column of 1's
@@ -59,17 +54,11 @@ class CandidateSelection(object):
 			self.max_return = kwargs['max_return']
 
 	def run(self,**kwargs):
-		# print("initial solution is:",initial_solution)
-		if self.optimization_technique == 'gradient_descent':
-			minimizer_options = kwargs['minimizer_options']
-			if 'num_iters' in minimizer_options:
-				num_iters = minimizer_options['num_iters']
-			else:
-				num_iters=300
 
+		if self.optimization_technique == 'gradient_descent':
 			from seldonian.gradient_descent import gradient_descent_adam
 
-			res = gradient_descent_adam(
+			gd_kwargs = dict(
 				primary_objective=self.evaluate_primary_objective,
 				upper_bound_function=self.get_constraint_upper_bound,
 				alpha_theta=0.005,
@@ -77,9 +66,45 @@ class CandidateSelection(object):
 			    beta_velocity=0.9,
 			    beta_rmsprop=0.95,
 				theta_init=self.initial_solution,
-				num_iters=num_iters,
 				store_values=self.write_logfile,
-				verbose=kwargs['verbose'])
+				verbose=kwargs['verbose'],
+				parse_trees=self.parse_trees,
+			)
+
+			minimizer_options = kwargs['minimizer_options']
+			if 'maxiter' in minimizer_options:
+				num_iters = minimizer_options['maxiter']
+			else:
+				num_iters=300
+			
+			gd_kwargs['num_iters']=num_iters
+
+			# If user specified the gradient of the primary
+			# objective, then pass it here
+
+			if 'use_primary_gradient' in kwargs:
+				if kwargs['use_primary_gradient']==True:
+					if self.regime == 'supervised':
+
+						# need to know name of primary objective first
+						primary_objective_name = self.primary_objective.__name__
+						grad_primary_objective = getattr(self.model,
+							f'gradient_{primary_objective_name}')
+						# Now fix the features and labels so that the function 
+						# is only a function of theta
+						
+						grad_primary_objective_theta = partial(
+							grad_primary_objective,
+							X=self.features.values,Y=self.labels.values)
+						gd_kwargs['primary_gradient'] = grad_primary_objective_theta
+					else:
+						raise NotImplementedError(
+							"Using a provided primary objective gradient"
+							" is not yet supported for regimes other"
+							" than supervised learning")
+
+			res = gradient_descent_adam(**gd_kwargs
+				)
 
 			if self.write_logfile:
 				log_counter = 0
@@ -106,6 +131,7 @@ class CandidateSelection(object):
 
 		elif self.optimization_technique == 'barrier_function':
 			if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS']:
+				
 				from scipy.optimize import minimize 
 				res = minimize(
 					self.candidate_objective,
@@ -153,23 +179,22 @@ class CandidateSelection(object):
 
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
-		# print("theta is:", theta)
 		if self.regime == 'supervised':
 			result = self.primary_objective(self.model, theta, 
 				self.features, self.labels)
 
 		elif self.regime == 'RL':
 			# Want to maximize the importance weight so minimize negative importance weight
-			# Adding regularization term so that large thetas make this less negative
-			# and therefore worse 
 			result = -1.0*self.primary_objective(self.model,theta,
 				self.candidate_dataset)
+
+			# Optionally adding regularization term so that large thetas
+			# make this less negative
+			# and therefore worse 
 			if hasattr(self,'reg_coef'):
 				reg_term = self.reg_coef*np.linalg.norm(theta)
 				result += reg_term
-				# print(f"reg_term = {reg_term}")
-		# print(self.candidate_dataset.df.episode_index.nunique(),theta,result)
-		# print("Primary objective eval is:", result)
+
 		# Prediction of what the safety test will return. 
 		# Initialized to pass
 		predictSafetyTest = True     
@@ -191,14 +216,11 @@ class CandidateSelection(object):
 				bounds_kwargs['min_return'] = self.min_return
 				bounds_kwargs['max_return'] = self.max_return
 
-			if hasattr(self,'scaler'):
-				bounds_kwargs['scaler'] = self.scaler
 
 			pt.propagate_bounds(**bounds_kwargs)
 			
 			# Check if the i-th behavioral constraint is satisfied
 			upper_bound = pt.root.upper 
-			# print(f"Upper_bound on ghat: {upper_bound}") 
 			
 			if upper_bound > 0.0: # If the current constraint was not satisfied, the safety test failed
 				# If up until now all previous constraints passed,
@@ -219,8 +241,6 @@ class CandidateSelection(object):
 				# the prediction of the safety test
 
 				result = result + upper_bound
-		
-		# print(f"Primary objective: {result}, ghat_upper_bound: {upper_bound}")
 		
 		# graph = pt.make_viz(title)
 		# graph.attr(fontsize='12')
@@ -266,8 +286,6 @@ class CandidateSelection(object):
 			bounds_kwargs['min_return'] = self.min_return
 			bounds_kwargs['max_return'] = self.max_return
 
-		if hasattr(self,'scaler'):
-			bounds_kwargs['scaler'] = self.scaler
-
 		pt.propagate_bounds(**bounds_kwargs)
+
 		return pt.root.upper

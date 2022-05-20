@@ -9,13 +9,11 @@ class DataSetLoader(object):
 		sensitive_column_names,
 		include_sensitive_columns=False,
 		include_intercept_term=False,
-		scale_features=False,
 		**kwargs):
 		self.column_names = column_names
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns
 		self.include_intercept_term = include_intercept_term
-		self.scale_features = scale_features
 		self.regime = regime
 		if self.regime == 'supervised':
 			self.label_column = kwargs['label_column']
@@ -29,7 +27,6 @@ class DataSetLoader(object):
 				sensitive_column_names=self.sensitive_column_names,
 				include_sensitive_columns=self.include_sensitive_columns,
 				include_intercept_term=self.include_intercept_term,
-				scale_features=self.scale_features,
 				regime=self.regime,
 				label_column=self.label_column)
 		elif self.regime == 'RL':
@@ -49,7 +46,6 @@ class DataSetLoader(object):
 				sensitive_column_names=self.sensitive_column_names,
 				include_sensitive_columns=self.include_sensitive_columns,
 				include_intercept_term=self.include_intercept_term,
-				scale_features=self.scale_features,
 				regime=self.regime,
 				label_column=self.label_column)
 		elif self.regime == 'RL':
@@ -64,7 +60,6 @@ class DataSet(object):
 		sensitive_column_names=[],
 		include_sensitive_columns=False,
 		include_intercept_term=False,
-		scale_features=False,
 		**kwargs):
 		self.df = df
 		self.meta_information = meta_information
@@ -73,7 +68,6 @@ class DataSet(object):
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns
 		self.include_intercept_term = include_intercept_term
-		self.scale_features=scale_features
 	
 	
 	
