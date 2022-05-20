@@ -12,8 +12,9 @@ def gradient_descent_adam(
     beta_rmsprop=0.9,
     num_iters=200,
     store_values=False,
-    verbose=False):
-
+    verbose=False,
+    **kwargs):
+    
     # initialize modeling parameters
     theta = theta_init
     lamb = lambda_init
@@ -25,8 +26,12 @@ def gradient_descent_adam(
     best_index = 0  
 
     # Define a function that returns gradients of LM loss function using Autograd
+    # It is possible the user provided a function for the gradient of the primary
+    if 'primary_gradient' in kwargs:
+        grad_primary_theta = kwargs['primary_gradient']
+    else:
+        grad_primary_theta = grad(primary_objective,argnum=0)
 
-    grad_primary_theta = grad(primary_objective,argnum=0)
     grad_upper_bound_theta = grad(upper_bound_function,argnum=0)
     
     if store_values: 
@@ -39,11 +44,17 @@ def gradient_descent_adam(
 
     for i in range(num_iters):
         if verbose:
-            if i % 50 == 0:
-                print(f"Iteration {i}")
+            # if i % 50 == 0:
+            print(f"Iteration {i}")
 
         primary_val = primary_objective(theta)
         g_val = upper_bound_function(theta)
+        # print(primary_val,g_val)
+        # if 'parse_trees' in kwargs:
+        #     pt = kwargs['parse_trees'][0]
+        #     graph = pt.make_viz(pt.constraint_str)
+        #     graph.view()
+        #     input("next")
         
         # Check if this is best feasible value so far
         if g_val <= 0 and primary_val < best_feasible_primary:
@@ -63,15 +74,20 @@ def gradient_descent_adam(
 
         # Obtain gradients at current values of theta and lambda
         # Gradient of sum is sum of gradients
+        # print(f"theta: {theta}")
         grad_primary_theta_val = grad_primary_theta(theta)
-        
+        # print(primary_val,g_val)
         # print("calculating d upper_bound_function / dtheta")
         # print("")
         gu_theta = grad_upper_bound_theta(theta)
+        # print(f"d primary/d theta: {grad_primary_theta_val}")
+        # print(f"d upper_bound/d theta: {gu_theta}")
+        # # print("Done")
+        # input("Next")
         # print(f"theta = {theta}")
         # print(f"lambda = {lamb}")
         # print
-        print(f"primary = {primary_val}, g_val = {g_val}")
+        # print(f"primary = {primary_val}, g_val = {g_val}")
         # print(f"g upper bound = {g_val}")
         # print(f"d primary/d theta: {grad_primary_theta_val}")
         # print(f"d upper bound/d theta: {gu_theta}")
