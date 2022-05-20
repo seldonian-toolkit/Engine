@@ -3,6 +3,7 @@ from functools import reduce,partial
 import pandas as pd
 
 from .stats_utils import *
+import autograd.numpy as np
 
 
 class Node(object):
@@ -144,43 +145,87 @@ class BaseNode(Node):
 	def mask_dataframe(self,dataset,conditional_columns):
 		"""
 		"""
-		masks = reduce(np.logical_and,(dataset.df[col]==1 for col in conditional_columns))
-		masked_df = dataset.df.loc[masks] 
+		# col_indices = [dataset.df.columns.get_loc(col) for col in conditional_columns]
+		col_indices=[0 if conditional_columns[0]=='M' else 1]
+		masks = reduce(np.logical_and,(dataset.df.values[:,col_index]==1 for col_index in col_indices))
+		masked_df = dataset.df.values[masks] 
 		return masked_df
 
 	def calculate_data_forbound(self,**kwargs):
-		theta,dataset,model = itemgetter(
-					'theta','dataset','model')(kwargs)
+		theta,dataset,model,regime,branch = itemgetter(
+					'theta','dataset','model',
+					'regime','branch')(kwargs)
 
-		if kwargs['branch'] == 'candidate_selection':
+		if branch == 'candidate_selection':
 			# Then we're in candidate selection
 			n_safety = kwargs['n_safety']
 
-		# mask the data using the conditional columns, if present
-		if self.conditional_columns:
-			dataframe = self.mask_dataframe(
-				dataset,self.conditional_columns)
-		else:
-			dataframe = dataset.df
-
 		# If in candidate selection want to use safety data size
 		# in bound calculation
-		if kwargs['branch'] == 'candidate_selection':
-			frac_masked = len(dataframe)/len(dataset.df)
-			datasize = int(round(frac_masked*n_safety))
-		else:
-			datasize = len(dataframe)
 		
-		# Separate features from label
-		label_column = dataset.label_column
-		labels = dataframe[label_column]
-		features = dataframe.loc[:, dataframe.columns != label_column]
-		features.insert(0,'offset',1.0) # inserts a column of 1's
+		if regime == 'supervised':
+			# mask the data using the conditional columns, if present
+			if self.conditional_columns:
+				dataframe = self.mask_dataframe(
+					dataset,self.conditional_columns)
+			else:
+				dataframe = dataset.df.values
 
-		# drop sensitive column names
-		if dataset.sensitive_column_names:
-			features = features.drop(columns=dataset.sensitive_column_names)
-		data_dict = {'features':features,'labels':labels}  
+			if branch == 'candidate_selection':
+				frac_masked = len(dataframe)/len(dataset.df)
+				datasize = int(round(frac_masked*n_safety))
+			else:
+				datasize = len(dataframe)
+			
+			# Separate features from label
+			label_column = dataset.label_column
+			# label_column_index = dataset.df.columns.get_loc(label_column)
+			label_column_index = -1
+			labels = dataframe[:,label_column_index]
+			# features = dataframe.loc[:, dataframe.columns != label_column]
+			features = np.delete(dataframe,label_column_index,axis=1)
+
+			# drop sensitive column names, unless instructed to keep them
+			if not dataset.include_sensitive_columns:
+				if dataset.sensitive_column_names:
+					# sensitive_col_indices = [dataset.df.columns.get_loc(col) for col in dataset.sensitive_column_names]
+					sensitive_col_indices = [0,1]
+					# features = features.drop(columns=dataset.sensitive_column_names)
+					features = np.delete(features,sensitive_col_indices,axis=1)
+
+			# Intercept term
+			if dataset.include_intercept_term:
+				# features.insert(0,'offset',1.0) # inserts a column of 1's
+				features = np.insert(features,0,np.ones(len(dataframe)),axis=1)
+
+			data_dict = {'features':features,'labels':labels}  
+			# print(f"data_dict: {data_dict}")
+			
+		elif regime == 'RL':
+			dataframe = dataset.df
+			gamma = kwargs['gamma']
+			min_return = kwargs['min_return']
+			max_return = kwargs['max_return']
+
+			split_indices_by_episode = np.unique(dataframe['episode_index'].values,
+				return_index=True)[1][1:]
+
+			if branch == 'candidate_selection':
+				datasize = n_safety
+			else:
+				datasize = len(dataframe)
+			
+			# Precalculate expected return from behavioral policy
+			rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
+			reward_sums_by_episode = np.array(list(map(weighted_sum_gamma,
+				rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
+			# normalize returns to 0-1
+			normalized_returns = (reward_sums_by_episode-min_return)/(max_return-min_return)
+			data_dict = {
+				'dataframe':dataframe,
+				'reward_sums_by_episode':normalized_returns
+			}
+
 		return data_dict,datasize
 
 	def zhat(self,model,theta,data_dict):
@@ -222,12 +267,10 @@ class BaseNode(Node):
 				model = kwargs['model']
 				theta = kwargs['theta']
 				data_dict = kwargs['data_dict']
-
 				estimator_samples = self.zhat(
 					model=model,
 					theta=theta,
 					data_dict=data_dict)
-
 				if self.will_lower_bound and self.will_upper_bound:
 					if branch == 'candidate_selection':
 						lower,upper = self.predict_HC_upper_and_lowerbound(
@@ -285,7 +328,6 @@ class BaseNode(Node):
 				lower = data.mean() - stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
 				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
-			
 		return lower
 
 	def compute_HC_upperbound(self,
@@ -357,7 +399,8 @@ class BaseNode(Node):
 				lower = data.mean() - 2*stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
 				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
-			
+		
+
 		return lower
 
 	def predict_HC_upperbound(self,
@@ -513,10 +556,10 @@ class MEDCustomBaseNode(BaseNode):
 		# (y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon
 		# There may not be the same number of male and female rows
 		# so the number of pairs is min(N_male,N_female)
-		X_male = data_dict['X_male']
-		Y_male = data_dict['Y_male']
-		X_female = data_dict['X_female']
-		Y_female = data_dict['Y_female']
+		X_male = data_dict['X_male'].values
+		Y_male = data_dict['Y_male'].values
+		X_female = data_dict['X_female'].values
+		Y_female = data_dict['Y_female'].values
 
 		prediction_male = model.predict(theta,X_male)
 		mean_error_male = prediction_male-Y_male
@@ -524,7 +567,7 @@ class MEDCustomBaseNode(BaseNode):
 		prediction_female = model.predict(theta,X_female)
 		mean_error_female = prediction_female-Y_female
 
-		return mean_error_male.values - mean_error_female.values 
+		return mean_error_male - mean_error_female
 
 class ConstantNode(Node):
 	""" 

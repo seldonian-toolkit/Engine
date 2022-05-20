@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
 import ast
 
@@ -14,6 +14,8 @@ measure_functions = [
 	'TPR',
 	'FNR',
 	'TNR',
+	'J_pi_new',
+	'logistic_loss'
 ]
 
 custom_base_node_dict = {

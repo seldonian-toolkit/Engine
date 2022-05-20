@@ -1,9 +1,8 @@
 import ast
 import warnings
 
-
 import graphviz
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 from seldonian.warnings.custom_warnings import *
 from seldonian.nodes import *
@@ -104,6 +103,7 @@ class ParseTree(object):
 	"""
 	def __init__(self,delta):
 		self.root = None 
+		self.constraint_str = ''
 		self.delta = delta
 		self.n_nodes = 0
 		self.n_base_nodes = 0
@@ -121,6 +121,7 @@ class ParseTree(object):
 			mathematical expression written in Python syntax
 			from which we build the parse tree
 		"""
+		self.constraint_str = s
 		self.node_index = 0
 
 		tree = ast.parse(s)
@@ -382,7 +383,7 @@ class ParseTree(object):
 
 		if isinstance(node,BaseNode): # captures all child classes of BaseNode as well
 			if weight_method == 'equal':
-				node.delta = self.delta/self.n_base_nodes
+				node.delta = self.delta/len(self.base_node_dict)
 
 		self._assign_deltas_helper(node.left,weight_method)
 		self._assign_deltas_helper(node.right,weight_method)
@@ -511,7 +512,6 @@ class ParseTree(object):
 			The method for calculating confidence bounds 
 				'ttest' : Student's t test
 		"""
-
 		if not self.root:
 			return []
 
@@ -560,7 +560,6 @@ class ParseTree(object):
 
 					kwargs['data_dict'] = data_dict
 					kwargs['datasize'] = datasize
-
 
 				bound_result = node.calculate_bounds(
 					**kwargs)

@@ -1,10 +1,11 @@
-import numpy as np
+import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from sklearn.model_selection import train_test_split
 
-from src.dataset import *
-from src.candidate_selection import CandidateSelection
-from src.safety_test import SafetyTest
-from src.parse_tree import ParseTree
+from seldonian.dataset import *
+from seldonian.candidate_selection import CandidateSelection
+from seldonian.safety_test import SafetyTest
+from seldonian.parse_tree import ParseTree
+from seldonian.model import LinearRegressionModel
 
 
 if __name__ == '__main__':
@@ -17,9 +18,10 @@ if __name__ == '__main__':
 		   "SAT_Literature","SAT_Portuguese_and_Essay",
 		   "SAT_Math","SAT_Chemistry","GPA"]
 	sensitive_column_names = ['M','F']
+	label_column = 'GPA'
 	loader = DataSetLoader(column_names=columns,
 		sensitive_column_names=sensitive_column_names,
-		regime='supervised',label_column='GPA')
+		regime='supervised',label_column=label_column)
 	dataset = loader.from_csv(csv_file)
 
 	candidate_df, safety_df = train_test_split(
@@ -28,17 +30,16 @@ if __name__ == '__main__':
 	candidate_dataset = DataSet(
 		candidate_df,meta_information=dataset.df.columns,
 		sensitive_column_names=sensitive_column_names,
-		regime='supervised',label_column='GPA')
+		regime='supervised',label_column=label_column)
 
 	safety_dataset = DataSet(
 		safety_df,meta_information=dataset.df.columns,
 		sensitive_column_names=sensitive_column_names,
-		regime='supervised',label_column='GPA')
+		regime='supervised',label_column=label_column)
 	
 	n_safety = len(safety_df)
 
 	# Linear regression model
-	from src.model import LinearRegressionModel
 	model_instance = LinearRegressionModel()
 
 	# Constraints
@@ -80,6 +81,13 @@ if __name__ == '__main__':
 	parse_trees = [pt1]
 
 	minimizer_options = {}
+	labels = candidate_dataset.df[label_column]
+	features = candidate_dataset.df.loc[:,
+		candidate_dataset.df.columns != label_column]
+	features = features.drop(
+		columns=candidate_dataset.sensitive_column_names)
+	features.insert(0,'offset',1.0) # inserts a column of 1's
+	initial_solution = model_instance.fit(features,labels)
 
 	cs = CandidateSelection(
 	    model=model_instance,
@@ -89,9 +97,10 @@ if __name__ == '__main__':
 	    primary_objective=model_instance.sample_Mean_Squared_Error,
 	    optimization_technique='barrier_function',
 	    optimizer='Nelder-Mead',
-	    initial_solution_fn=model_instance.fit)
+	    initial_solution=initial_solution)
 
-	candidate_solution = cs.run(minimizer_options=minimizer_options)
+	candidate_solution = cs.run(
+		minimizer_options=minimizer_options,verbose=True)
 	# candidate_solution = np.array([ 2.35142471e+00, -5.92682323e-03,  5.84554876e-04,  3.45285398e-04,
 	#   1.89794363e-04,  5.09917663e-05,  3.30307314e-03,  1.56678156e-03,
 	#   3.55345048e-04,  3.77028366e-04])
@@ -103,7 +112,7 @@ if __name__ == '__main__':
 	# print(candidate_solution)
 	st = SafetyTest(safety_dataset,model_instance,parse_trees)
 	passed = st.run(candidate_solution,bound_method='ttest')
-	# print(passed)
+	print(passed)
 	# pt1.propagate_bounds(bound_method='ttest',
 	# 	branch='candidate_selection')
 	# # Propagate bounds using random interval assignment to base variables

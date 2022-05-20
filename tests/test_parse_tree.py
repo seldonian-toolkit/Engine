@@ -539,8 +539,28 @@ def test_deltas_assigned_equally():
 	assert len(pt.base_node_dict) == 2  
 	assert isinstance(pt.root,InternalNode)
 	assert pt.root.name == 'sub'  
-	assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
-	assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
+	assert pt.root.left.left.left.delta == delta/len(pt.base_node_dict)
+	assert pt.root.left.left.right.delta == delta/len(pt.base_node_dict)
+
+def test_deltas_assigned_once_per_unique_basenode():
+	""" Make sure that the delta assigned to each base node 
+	is delta/number_of_unique_base_nodes, such that if a base
+	node appears more than once it doesn't further dilute delta 
+	"""
+	constraint_str = '0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'
+	delta = 0.05 
+
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	assert pt.n_nodes == 9
+	assert pt.n_base_nodes == 4
+	assert len(pt.base_node_dict) == 2  
+	# assert isinstance(pt.root,InternalNode)
+	# assert pt.root.name == 'sub'  
+	# assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
+	# assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
+
 
 def test_bounds_needed_assigned_correctly():
 	delta = 0.05 # use for all trees below
@@ -693,7 +713,9 @@ def test_ttest_bound(generate_data):
 	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
 	df = pd.DataFrame(rows,columns=['feature1','label'])
 	dataset = DataSet(df,meta_information=['feature1','label'],
-		regime='supervised',label_column='label')
+		regime='supervised',label_column='label',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
 	
 	constraint_str = 'Mean_Squared_Error - 2.0'
 	delta = 0.05 
@@ -712,7 +734,8 @@ def test_ttest_bound(generate_data):
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,
 		branch='safety_test',
-		bound_method='ttest')
+		bound_method='ttest',
+		regime='supervised')
 	assert pt.root.lower == float('-inf') # not computed 
 	assert pt.root.upper == pytest.approx(-0.995242)
 
@@ -764,7 +787,9 @@ def test_single_conditional_columns_propagated():
 		   
 	loader = DataSetLoader(column_names=columns,
 		sensitive_column_names=['M','F'],
-		regime='supervised',label_column='GPA')
+		regime='supervised',label_column='GPA',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
 	dataset = loader.from_csv(csv_file)
 
 	from seldonian.model import LinearRegressionModel
@@ -781,7 +806,8 @@ def test_single_conditional_columns_propagated():
 	theta = np.random.uniform(-0.05,0.05,10)
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,branch='safety_test',
-		bound_method='ttest')
+		bound_method='ttest',
+		regime='supervised')
 	assert pt.root.lower == pytest.approx(61.9001779655)
 	assert pt.root.upper == pytest.approx(62.1362236720)
 	print(pt.base_node_dict.keys())
