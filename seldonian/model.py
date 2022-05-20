@@ -27,7 +27,7 @@ class RegressionModel(SupervisedModel):
 		
 		if statistic_name == 'Mean_Squared_Error':
 			return model.vector_Mean_Squared_Error(model,
-				theta,data_dict['features'].values,data_dict['labels'].values)
+				theta,data_dict['features'],data_dict['labels'])
 
 		if statistic_name == 'Mean_Error':
 			return model.vector_Mean_Error(model,
@@ -117,7 +117,8 @@ class ClassificationModel(SupervisedModel):
 
 	def accuracy(self,model,theta,X,Y):
 		prediction = model.predict(theta,X)
-		acc = np.mean(1.0*prediction==Y)
+		predict_class = prediction>=0.5
+		acc = np.mean(1.0*predict_class==Y)
 		return acc
 
 	def perceptron_loss(self,model,theta,X,Y):
@@ -129,6 +130,11 @@ class ClassificationModel(SupervisedModel):
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 		res = np.mean(-Y*np.log(h) - (1.0-Y)*np.log(1.0-h))
 		return res
+
+	def gradient_logistic_loss(self,theta,X,Y):
+		# gradient of logistic loss w.r.t. theta
+		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
+		return (1/len(X))*np.dot(X.T, (h - Y))
 
 	def Vector_logistic_loss(self,model,theta,X,Y):
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
@@ -142,85 +148,104 @@ class ClassificationModel(SupervisedModel):
 		This is the sum of probability of each 
 		sample being in the positive class
 		normalized to the number of predictions 
+
+		Outputs a value between 0 and 1
 		"""
 
-		prediction = self.predict_proba(theta,X)
+		prediction = self.predict(theta,X)
 		return np.sum(prediction)/len(X) # if all 1s then PR=1. 
-		# X_P = X.loc[prediction==1]
-		# return len(X_P)/len(X)
 
 	def sample_Negative_Rate(self,model,theta,X,Y):
 		"""
-		Calculate positive rate
+		Calculate negative rate
 		for the whole sample.
-		This happens when prediction = 1
+		This is the sum of the probability of each 
+		sample being in the negative class, which is
+		1.0 - probability of being in positive class
+
 		Outputs a value between 0 and 1
 		"""
 		prediction = self.predict(theta,X)
-		X_N = X.loc[prediction!=1]
-		return len(X_N)/len(X)
+		return np.sum(1.0-prediction)/len(X) # if all 1s then PR=1. 
 
 	def sample_False_Positive_Rate(self,model,theta,X,Y):
 		"""
 		Calculate false positive rate
 		for the whole sample.
-		This happens when prediction = 1
-		and label = 0.
+		
+		The is the sum of the probability of each 
+		sample being in the positive class when in fact it was in 
+		the negative class.
+
 		Outputs a value between 0 and 1
 		"""
 		prediction = self.predict(theta,X)
-		X_FP = X.loc[np.logical_and(Y!=1,prediction==1)]
-		return len(X_FP)/len(X)
+		# Sum the probability of being in positive class
+		# subject to the truth being the other class
+		neg_mask = Y!=1.0 # this includes false positives and true negatives
+		return np.sum(prediction[neg_mask])/len(X[neg_mask])
 
 	def sample_False_Negative_Rate(self,model,theta,X,Y):
 		"""
 		Calculate false negative rate
 		for the whole sample.
-		This happens when prediction = 0
-		and label = 1.
+		
+		The is the sum of the probability of each 
+		sample being in the negative class when in fact it was in 
+		the positive class.
+
 		Outputs a value between 0 and 1
 		"""
 		prediction = self.predict(theta,X)
-		X_FN = X.loc[np.logical_and(Y==1,prediction!=1)]
-		return len(X_FN)/len(X) 
+		# Sum the probability of being in negative class
+		# subject to the truth being the positive class
+		pos_mask = Y==1.0 # this includes false positives and true negatives
+		return np.sum(1.0-prediction[pos_mask])/len(X[pos_mask])
 
 	def Vector_Positive_Rate(self,model,theta,X):
 		"""
 		Calculate positive rate
 		for each observation.
-		This happens when prediction = 1
-		Outputs a value between 0 and 1
+		
+		This is the probability of being positive
+
+		Outputs a vector of values between 0 and 1
 		"""
 		# prediction = self.predict(theta,X)
 		# P_mask = prediction==1.0
 		# res = 1.0*P_mask
 		# return 1.0*P_mask
-		prediction = self.predict_proba(theta,X) # probability of class 1 for each observation
+		prediction = self.predict(theta,X) # probability of class 1 for each observation
 		return prediction 
 
 	def Vector_Negative_Rate(self,model,theta,X,Y):
 		"""
 		Calculate negative rate
 		for each observation.
-		This happens when prediction = -1
-		Outputs a value between 0 and 1
+
+		This is the probability of being negative
+
+		Outputs a vector of values between 0 and 1
 		"""
 		prediction = self.predict(theta,X)
-		N_mask = prediction!=1
-		return 1.0*N_mask
+
+		return 1.0 - prediction
 
 	def Vector_False_Positive_Rate(self,model,theta,X,Y):
 		"""
 		Calculate false positive rate
 		for each observation
+
 		This happens when prediction = 1
 		and label = -1.
 		Outputs a value between 0 and 1
 		for each observation
 		"""
 		prediction = self.predict(theta,X)
-		FP_mask = np.logical_and(Y!=1,prediction==1)
-		return 1.0*FP_mask
+		# The probability of being in positive class
+		# subject to the truth being the other class
+		neg_mask = Y!=1.0 # this includes false positives and true negatives
+		return prediction[neg_mask]
 
 	def Vector_False_Negative_Rate(self,model,theta,X,Y):
 		"""
@@ -233,8 +258,10 @@ class ClassificationModel(SupervisedModel):
 		"""
 
 		prediction = self.predict(theta,X)
-		FN_mask = np.logical_and(Y==1,prediction!=1)
-		return 1.0*FN_mask
+		# The probability of being in positive class
+		# subject to the truth being the other class
+		pos_mask = Y==1.0 # this includes false positives and true negatives
+		return 1.0-prediction[pos_mask]
 
 	def Vector_True_Positive_Rate(self,model,theta,X,Y):
 		"""
@@ -246,8 +273,8 @@ class ClassificationModel(SupervisedModel):
 		for each observation
 		"""
 		prediction = self.predict(theta,X)
-		TP_mask = np.logical_and(Y==1,prediction==1)
-		return 1.0*TP_mask
+		pos_mask = Y==1.0 # this includes false positives and true negatives
+		return prediction[pos_mask]
 
 
 class LinearClassifierModel(ClassificationModel):
@@ -294,25 +321,17 @@ class LogisticRegressionModel(ClassificationModel):
 		self.model_class = LogisticRegression
 
 	def predict(self,theta,X):
-		""" Given a model class instance predict the class label 
-		given features X"""
-
-		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
-
-		prediction = h>=0.5
-		return prediction
-
-	def predict_proba(self,theta,X):
-		""" Given a model class instance predict the class label 
-		given features X"""
+		""" Given a model class instance predict the probability of 
+		having the positive class label 
+		given features X
+		"""
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 
 		return h
 
-	def fit(self,model,X,Y):
-		reg = model.model_class().fit(X, Y)
+	def fit(self,X,Y):
+		reg = self.model_class().fit(X, Y)
 		return reg.coef_[0]
-
 
 class RLModel(SeldonianModel):
 	def __init__(self):
@@ -444,12 +463,6 @@ class LinearSoftmaxModel(RLModel):
 	def get_p(self, x):
 		u = np.exp(np.clip(np.dot(x, 
 			self.theta.reshape(self.environment.policy.n_inputs, self.environment.policy.n_actions)), -32, 32)) 
-		# print(x,self.theta)
-		# u = np.exp(np.dot(x, 
-		# 	self.theta.reshape(self.environment.policy.n_inputs, self.environment.policy.n_actions)))
-		# u = self.theta.reshape(self.environment.policy.n_inputs, self.environment.policy.n_actions)
-		# u = self.theta[0:3]
-		# u = np.array([1.0,1.0,1.0])
 		u /= u.sum()
 
 		return u
