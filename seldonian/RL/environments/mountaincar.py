@@ -227,6 +227,11 @@ class Mountaincar():
 		v += self._ucoef * u - self._g * np.cos(self._h * x)
 		v = np.clip(v, self.observation_space.low[1], self.observation_space.high[1])
 		x += v
+		# If x gets pushed off left boundary then put back on
+		# boundary and set velocity to zero
+		if x <= self.observation_space.low[0]:
+			x = self.observation_space.low[0]
+			v = 0.0
 
 		return np.array([x, v])
 
@@ -298,7 +303,7 @@ class Environment(Mountaincar):
 		self.policy = Linear_Softmax(self.basis, self.num_actions)
 		self.num_params = self.policy.get_num_params()
 		self.initial_weights = np.ones(self.num_params)
-		self.initial_weights = np.zeros(self.num_params)
+		# self.initial_weights = np.zeros(self.num_params)
 
 		
 	@property
