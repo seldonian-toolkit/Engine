@@ -383,7 +383,7 @@ class ParseTree(object):
 
 		if isinstance(node,BaseNode): # captures all child classes of BaseNode as well
 			if weight_method == 'equal':
-				node.delta = self.delta/self.n_base_nodes
+				node.delta = self.delta/len(self.base_node_dict)
 
 		self._assign_deltas_helper(node.left,weight_method)
 		self._assign_deltas_helper(node.right,weight_method)

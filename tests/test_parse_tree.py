@@ -539,8 +539,28 @@ def test_deltas_assigned_equally():
 	assert len(pt.base_node_dict) == 2  
 	assert isinstance(pt.root,InternalNode)
 	assert pt.root.name == 'sub'  
-	assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
-	assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
+	assert pt.root.left.left.left.delta == delta/len(pt.base_node_dict)
+	assert pt.root.left.left.right.delta == delta/len(pt.base_node_dict)
+
+def test_deltas_assigned_once_per_unique_basenode():
+	""" Make sure that the delta assigned to each base node 
+	is delta/number_of_unique_base_nodes, such that if a base
+	node appears more than once it doesn't further dilute delta 
+	"""
+	constraint_str = '0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'
+	delta = 0.05 
+
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	assert pt.n_nodes == 9
+	assert pt.n_base_nodes == 4
+	assert len(pt.base_node_dict) == 2  
+	# assert isinstance(pt.root,InternalNode)
+	# assert pt.root.name == 'sub'  
+	# assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
+	# assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
+
 
 def test_bounds_needed_assigned_correctly():
 	delta = 0.05 # use for all trees below
