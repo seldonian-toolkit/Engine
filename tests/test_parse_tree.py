@@ -785,43 +785,6 @@ def test_evaluate_constraint(generate_data):
 	# assert pt.root.lower == float('-inf') # not bound_computed 
 	# assert pt.root.upper == pytest.approx(-0.995242)
 
-def test_evaluate_demographic_parity():
-	# Evaluate constraint mean, not the bound
-	np.random.seed(0)
-	from seldonian.model import LogisticRegressionModel
-
-	model_instance = LinearRegressionModel()
-	X,Y = generate_data(
-		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
-
-	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
-	
-	df = pd.DataFrame(rows,columns=['feature1','label'])
-	
-	dataset = DataSet(df,meta_information=['feature1','label'],
-		regime='supervised',label_column='label',
-		include_sensitive_columns=False,
-		include_intercept_term=True)
-	
-	constraint_str = 'Mean_Squared_Error - 2.0'
-	delta = 0.05 
-
-	pt = ParseTree(delta)
-	pt.create_from_ast(constraint_str)
-
-	pt.assign_deltas(weight_method='equal')
-	pt.assign_bounds_needed()
-	assert pt.n_nodes == 3
-	assert pt.n_base_nodes == 1
-	assert len(pt.base_node_dict) == 1
-	
-	theta = np.array([0,1])
-	pt.evaluate_constraint(theta=theta,dataset=dataset,
-		model=model_instance,regime='supervised',
-		branch='safety_test')
-	print(pt.root.value)
-	assert pt.root.value == pytest.approx(-1.06248)
-
 def test_reset_parse_tree():
 	
 	constraint_str = '(FPR + FNR) - 0.5'
