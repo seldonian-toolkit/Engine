@@ -142,6 +142,28 @@ class BaseNode(Node):
 		"""
 		return super().__repr__() + ', ' + u'\u03B4' + f'={self.delta:g}'
 	
+	def calculate_value(self,
+		**kwargs):
+		"""
+		Calculate the value of the node 
+		given model weights, etc...
+
+		This is not the confidence bound, 
+		but the mean value 
+		
+		""" 
+	
+		model = kwargs['model']
+		theta = kwargs['theta']
+		data_dict = kwargs['data_dict']
+		value = model.evaluate_statistic(
+			statistic_name=self.measure_function_name,
+			model=model,
+			theta=theta,
+			data_dict=data_dict)
+		return value
+
+
 	def mask_dataframe(self,dataset,conditional_columns):
 		"""
 		"""
@@ -199,7 +221,6 @@ class BaseNode(Node):
 				features = np.insert(features,0,np.ones(len(dataframe)),axis=1)
 
 			data_dict = {'features':features,'labels':labels}  
-			# print(f"data_dict: {data_dict}")
 			
 		elif regime == 'RL':
 			dataframe = dataset.df

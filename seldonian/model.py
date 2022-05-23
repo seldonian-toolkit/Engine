@@ -22,6 +22,19 @@ class RegressionModel(SupervisedModel):
 	def __init__(self):
 		super().__init__()
 
+	def evaluate_statistic(self,
+		statistic_name,model,theta,data_dict):
+		
+		if statistic_name == 'Mean_Squared_Error':
+			return model.sample_Mean_Squared_Error(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		if statistic_name == 'Mean_Error':
+			return model.sample_Mean_Error(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		raise NotImplementedError(f"Statistic: {statistic_name} is not implemented")
+
 	def sample_from_statistic(self,
 		statistic_name,model,theta,data_dict):
 		
@@ -88,6 +101,34 @@ class ClassificationModel(SupervisedModel):
 	def __init__(self):
 		super().__init__()
 
+	def evaluate_statistic(self,
+		statistic_name,model,theta,data_dict):
+		if statistic_name == 'PR':
+			return model.sample_Positive_Rate(model,
+				theta,data_dict['features'])
+
+		if statistic_name == 'NR':
+			return model.sample_Negative_Rate(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		if statistic_name == 'FPR':
+			return model.sample_False_Positive_Rate(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		if statistic_name == 'FNR':
+			return model.sample_False_Negative_Rate(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		if statistic_name == 'TPR':
+			return model.sample_True_Positive_Rate(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		if statistic_name == 'logistic_loss':
+			return model.sample_logistic_loss(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		raise NotImplementedError(f"Statistic: {statistic_name} is not implemented")
+
 	def sample_from_statistic(self,
 		statistic_name,model,theta,data_dict):
 		if statistic_name == 'PR':
@@ -121,17 +162,17 @@ class ClassificationModel(SupervisedModel):
 		acc = np.mean(1.0*predict_class==Y)
 		return acc
 
-	def perceptron_loss(self,model,theta,X,Y):
+	def sample_perceptron_loss(self,model,theta,X,Y):
 		prediction = model.predict(theta,X)
 		res = np.mean(prediction!=Y) # 0 if all correct, 1 if all incorrect
 		return res
 
-	def logistic_loss(self,model,theta,X,Y):
+	def sample_logistic_loss(self,model,theta,X,Y):
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 		res = np.mean(-Y*np.log(h) - (1.0-Y)*np.log(1.0-h))
 		return res
 
-	def gradient_logistic_loss(self,theta,X,Y):
+	def gradient_sample_logistic_loss(self,theta,X,Y):
 		# gradient of logistic loss w.r.t. theta
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 		return (1/len(X))*np.dot(X.T, (h - Y))
@@ -141,7 +182,7 @@ class ClassificationModel(SupervisedModel):
 		res = -Y*np.log(h) - (1.0-Y)*np.log(1.0-h)
 		return res		
 
-	def sample_Positive_Rate(self,model,theta,X,Y):
+	def sample_Positive_Rate(self,model,theta,X):
 		"""
 		Calculate positive rate
 		for the whole sample.
@@ -151,11 +192,12 @@ class ClassificationModel(SupervisedModel):
 
 		Outputs a value between 0 and 1
 		"""
-
 		prediction = self.predict(theta,X)
+		print(len(prediction))
+		print(f"Prediction (parse tree): {prediction}")
 		return np.sum(prediction)/len(X) # if all 1s then PR=1. 
 
-	def sample_Negative_Rate(self,model,theta,X,Y):
+	def sample_Negative_Rate(self,model,theta,X):
 		"""
 		Calculate negative rate
 		for the whole sample.
@@ -218,7 +260,7 @@ class ClassificationModel(SupervisedModel):
 		prediction = self.predict(theta,X) # probability of class 1 for each observation
 		return prediction 
 
-	def Vector_Negative_Rate(self,model,theta,X,Y):
+	def Vector_Negative_Rate(self,model,theta,X):
 		"""
 		Calculate negative rate
 		for each observation.
@@ -236,8 +278,9 @@ class ClassificationModel(SupervisedModel):
 		Calculate false positive rate
 		for each observation
 
-		This happens when prediction = 1
-		and label = -1.
+		This is the probability of predicting positive
+		subject to the label actually being negative
+		
 		Outputs a value between 0 and 1
 		for each observation
 		"""
@@ -251,8 +294,10 @@ class ClassificationModel(SupervisedModel):
 		"""
 		Calculate false negative rate
 		for each observation
-		This happens when prediction = -1
-		and label = 1.
+		
+		This is the probability of predicting negative
+		subject to the label actually being positive
+
 		Outputs a value between 0 and 1
 		for each observation
 		"""
@@ -265,16 +310,27 @@ class ClassificationModel(SupervisedModel):
 
 	def Vector_True_Positive_Rate(self,model,theta,X,Y):
 		"""
-		Calculate true positive rate
-		for each observation
-		This happens when prediction = 1
-		and label = 1.
+		This is the probability of predicting positive
+		subject to the label actually being positive
+
 		Outputs a value between 0 and 1
 		for each observation
 		"""
 		prediction = self.predict(theta,X)
 		pos_mask = Y==1.0 # this includes false positives and true negatives
 		return prediction[pos_mask]
+
+	def Vector_True_Negative_Rate(self,model,theta,X,Y):
+		"""
+		This is the probability of predicting negative
+		subject to the label actually being negative
+
+		Outputs a value between 0 and 1
+		for each observation
+		"""
+		prediction = self.predict(theta,X)
+		pos_mask = Y!=1.0 # this includes false positives and true negatives
+		return 1.0 - prediction[pos_mask]
 
 
 class LinearClassifierModel(ClassificationModel):

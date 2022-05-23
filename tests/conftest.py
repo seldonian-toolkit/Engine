@@ -21,14 +21,14 @@ def stump():
         pt.n_base_nodes = 2
         pt.base_node_dict = {
             'a':{
-                'computed':False,
+                'bound_computed':False,
                 'lower':float("-inf"),
                 'upper':float("inf"),
                 'data':None,
                 'datasize':0
                 },
             'b':{
-                'computed':False,
+                'bound_computed':False,
                 'lower':float("-inf"),
                 'upper':float("inf"),
                 'data':None,
@@ -53,7 +53,7 @@ def edge():
         pt.n_base_nodes = 1
         pt.base_node_dict = {
             'a':{
-                'computed':False,
+                'bound_computed':False,
                 'lower':float("-inf"),
                 'upper':float("inf"),
                 'data':None,

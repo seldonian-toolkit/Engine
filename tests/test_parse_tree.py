@@ -177,8 +177,8 @@ def test_add_bounds(interval_index,stump):
 	pt.propagate_bounds(bound_method='manual')
 	assert pt.root.lower == answer[0]
 	assert pt.root.upper == answer[1]
-	assert pt.base_node_dict['a']['computed'] == True
-	assert pt.base_node_dict['b']['computed'] == True
+	assert pt.base_node_dict['a']['bound_computed'] == True
+	assert pt.base_node_dict['b']['bound_computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
 def test_subtract_bounds(interval_index,stump):
@@ -191,8 +191,8 @@ def test_subtract_bounds(interval_index,stump):
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
-	assert pt.base_node_dict['a']['computed'] == True
-	assert pt.base_node_dict['b']['computed'] == True
+	assert pt.base_node_dict['a']['bound_computed'] == True
+	assert pt.base_node_dict['b']['bound_computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
 def test_multiply_bounds(interval_index,stump):
@@ -205,8 +205,8 @@ def test_multiply_bounds(interval_index,stump):
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
-	assert pt.base_node_dict['a']['computed'] == True
-	assert pt.base_node_dict['b']['computed'] == True
+	assert pt.base_node_dict['a']['bound_computed'] == True
+	assert pt.base_node_dict['b']['bound_computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
 def test_divide_bounds(interval_index,stump):
@@ -219,8 +219,8 @@ def test_divide_bounds(interval_index,stump):
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
-	assert pt.base_node_dict['a']['computed'] == True
-	assert pt.base_node_dict['b']['computed'] == True
+	assert pt.base_node_dict['a']['bound_computed'] == True
+	assert pt.base_node_dict['b']['bound_computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
 def test_power_bounds(interval_index,stump):
@@ -256,8 +256,8 @@ def test_power_bounds(interval_index,stump):
 		# Use approx due to floating point imprecision
 		assert pt.root.lower == pytest.approx(answer[0])
 		assert pt.root.upper == pytest.approx(answer[1])
-		assert pt.base_node_dict['a']['computed'] == True
-		assert pt.base_node_dict['b']['computed'] == True
+		assert pt.base_node_dict['a']['bound_computed'] == True
+		assert pt.base_node_dict['b']['bound_computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
 def test_min_bounds(interval_index,stump):
@@ -273,8 +273,8 @@ def test_min_bounds(interval_index,stump):
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
-	assert pt.base_node_dict['a']['computed'] == True
-	assert pt.base_node_dict['b']['computed'] == True
+	assert pt.base_node_dict['a']['bound_computed'] == True
+	assert pt.base_node_dict['b']['bound_computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(two_interval_options)))
 def test_max_bounds(interval_index,stump):
@@ -290,9 +290,8 @@ def test_max_bounds(interval_index,stump):
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
-	assert pt.base_node_dict['a']['computed'] == True
-	assert pt.base_node_dict['b']['computed'] == True
-
+	assert pt.base_node_dict['a']['bound_computed'] == True
+	assert pt.base_node_dict['b']['bound_computed'] == True
 
 @pytest.mark.parametrize('interval_index',range(len(single_interval_options)))
 def test_abs_bounds(interval_index,edge):
@@ -305,7 +304,7 @@ def test_abs_bounds(interval_index,edge):
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
-	assert pt.base_node_dict['a']['computed'] == True
+	assert pt.base_node_dict['a']['bound_computed'] == True
 
 ########################
 ### Parse tree tests ###
@@ -561,7 +560,6 @@ def test_deltas_assigned_once_per_unique_basenode():
 	# assert pt.root.left.left.left.delta == delta/pt.n_base_nodes
 	# assert pt.root.left.left.right.delta == delta/pt.n_base_nodes
 
-
 def test_bounds_needed_assigned_correctly():
 	delta = 0.05 # use for all trees below
 
@@ -697,9 +695,9 @@ def test_duplicate_base_nodes():
 	pt.create_from_ast(constraint_str)
 	assert pt.n_base_nodes == 2 
 	assert len(pt.base_node_dict) == 1 
-	assert pt.base_node_dict['FPR']['computed'] == False
+	assert pt.base_node_dict['FPR']['bound_computed'] == False
 	pt.propagate_bounds(bound_method='random')
-	assert pt.base_node_dict['FPR']['computed'] == True
+	assert pt.base_node_dict['FPR']['bound_computed'] == True
 
 def test_ttest_bound(generate_data):
 	# dummy data for linear regression
@@ -736,8 +734,93 @@ def test_ttest_bound(generate_data):
 		branch='safety_test',
 		bound_method='ttest',
 		regime='supervised')
-	assert pt.root.lower == float('-inf') # not computed 
+	assert pt.root.lower == float('-inf') # not bound_computed 
 	assert pt.root.upper == pytest.approx(-0.995242)
+
+def test_evaluate_constraint(generate_data):
+	# Evaluate constraint mean, not the bound
+	np.random.seed(0)
+	numPoints=1000
+	from seldonian.model import LinearRegressionModel
+
+	model_instance = LinearRegressionModel()
+	X,Y = generate_data(
+		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+
+	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
+	
+	df = pd.DataFrame(rows,columns=['feature1','label'])
+	
+	dataset = DataSet(df,meta_information=['feature1','label'],
+		regime='supervised',label_column='label',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
+	
+	constraint_str = 'Mean_Squared_Error - 2.0'
+	delta = 0.05 
+
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	assert pt.n_nodes == 3
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+	
+	theta = np.array([0,1])
+	pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model_instance,regime='supervised',
+		branch='safety_test')
+	print(pt.root.value)
+	assert pt.root.value == pytest.approx(-1.06248)
+	# assert pt.root.name == 'sub'  
+	# assert pt.root.left.will_lower_bound == False
+	# assert pt.root.left.will_upper_bound == True
+	# pt.propagate_bounds(theta=theta,dataset=dataset,
+	# 	model=model_instance,
+	# 	branch='safety_test',
+	# 	bound_method='ttest',
+	# 	regime='supervised')
+	# assert pt.root.lower == float('-inf') # not bound_computed 
+	# assert pt.root.upper == pytest.approx(-0.995242)
+
+def test_evaluate_demographic_parity():
+	# Evaluate constraint mean, not the bound
+	np.random.seed(0)
+	from seldonian.model import LogisticRegressionModel
+
+	model_instance = LinearRegressionModel()
+	X,Y = generate_data(
+		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+
+	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
+	
+	df = pd.DataFrame(rows,columns=['feature1','label'])
+	
+	dataset = DataSet(df,meta_information=['feature1','label'],
+		regime='supervised',label_column='label',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
+	
+	constraint_str = 'Mean_Squared_Error - 2.0'
+	delta = 0.05 
+
+	pt = ParseTree(delta)
+	pt.create_from_ast(constraint_str)
+
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	assert pt.n_nodes == 3
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+	
+	theta = np.array([0,1])
+	pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model_instance,regime='supervised',
+		branch='safety_test')
+	print(pt.root.value)
+	assert pt.root.value == pytest.approx(-1.06248)
 
 def test_reset_parse_tree():
 	
@@ -749,18 +832,18 @@ def test_reset_parse_tree():
 	pt.assign_deltas(weight_method='equal')
 	assert pt.n_base_nodes == 2
 	assert len(pt.base_node_dict) == 2
-	assert pt.base_node_dict['FPR']['computed'] == False
+	assert pt.base_node_dict['FPR']['bound_computed'] == False
 	assert pt.base_node_dict['FPR']['lower'] == float('-inf')
 	assert pt.base_node_dict['FPR']['upper'] == float('inf')
 	assert pt.base_node_dict['FNR']['lower'] == float('-inf')
 	assert pt.base_node_dict['FNR']['upper'] == float('inf')
-	assert pt.base_node_dict['FNR']['computed'] == False
+	assert pt.base_node_dict['FNR']['bound_computed'] == False
 
 	# propagate bounds
 	pt.propagate_bounds(bound_method='random')
 	assert len(pt.base_node_dict) == 2
-	assert pt.base_node_dict['FPR']['computed'] == True
-	assert pt.base_node_dict['FNR']['computed'] == True
+	assert pt.base_node_dict['FPR']['bound_computed'] == True
+	assert pt.base_node_dict['FNR']['bound_computed'] == True
 	assert pt.base_node_dict['FPR']['lower'] >= 0
 	assert pt.base_node_dict['FPR']['upper'] > 0
 	assert pt.base_node_dict['FNR']['lower'] >= 0
@@ -769,8 +852,8 @@ def test_reset_parse_tree():
 	# reset the node dict 
 	pt.reset_base_node_dict()
 	assert len(pt.base_node_dict) == 2
-	assert pt.base_node_dict['FPR']['computed'] == False
-	assert pt.base_node_dict['FNR']['computed'] == False
+	assert pt.base_node_dict['FPR']['bound_computed'] == False
+	assert pt.base_node_dict['FNR']['bound_computed'] == False
 	assert pt.base_node_dict['FPR']['lower'] == float('-inf')
 	assert pt.base_node_dict['FPR']['upper'] == float('inf')
 	assert pt.base_node_dict['FNR']['lower'] == float('-inf')

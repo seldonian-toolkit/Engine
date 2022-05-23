@@ -205,7 +205,8 @@ class ParseTree(object):
 			# then make a new entry 
 			if new_node.name not in self.base_node_dict: 
 				self.base_node_dict[new_node.name] = {
-					'computed':False,
+					'bound_computed':False,
+					'value_computed':False,
 					'lower':float('-inf'),
 					'upper':float('inf'),
 					'data_dict':None,
@@ -541,7 +542,7 @@ class ParseTree(object):
 		if isinstance(node,BaseNode):
 			# Check if bound has already been calculated for this node name
 			# If so, use precalculated bound
-			if self.base_node_dict[node.name]['computed'] == True:
+			if self.base_node_dict[node.name]['bound_computed'] == True:
 				node.lower = self.base_node_dict[node.name]['lower']
 				node.upper = self.base_node_dict[node.name]['upper'] 
 				return
@@ -563,7 +564,7 @@ class ParseTree(object):
 
 				bound_result = node.calculate_bounds(
 					**kwargs)
-				self.base_node_dict[node.name]['computed'] = True
+				self.base_node_dict[node.name]['bound_computed'] = True
 				
 				if node.will_lower_bound:
 					node.lower = bound_result['lower']
@@ -584,6 +585,123 @@ class ParseTree(object):
 		# Here we must be at an internal node and therefore need to propagate
 		node.lower,node.upper = self._propagate(node)
 	
+	def evaluate_constraint(self,
+		**kwargs):
+		""" 
+		Evaluate the constraint itself (not bounds_)
+		Postorder traverse (left, right, root)
+		through the tree and calculate the values
+		of the base nodes 
+		then propagate bounds using propagation logic
+
+		"""
+		if not self.root:
+			return []
+
+		self._evaluator_helper(self.root,
+			**kwargs)
+	
+
+	def _evaluator_helper(self,node,
+		**kwargs):
+		""" 
+		Helper function for traversing 
+		through the tree to evaluate the constraint
+
+		"""
+
+		# if we hit a constant node or run past the end of the tree
+		# return because we don't need to calculate anything
+		if not node or isinstance(node,ConstantNode):
+			return 
+
+		# if we hit a BaseNode,
+		# then calculate the value and return 
+		if isinstance(node,BaseNode):
+			# Check if value has already been calculated for this node name
+			# If so, use precalculated value
+			if self.base_node_dict[node.name]['value_computed'] == True:
+				node.value = self.base_node_dict[node.name]['value']
+				return
+			else:
+				if 'dataset' in kwargs:
+					# Check if data has already been prepared
+					# for this node name. If so, use precalculated data
+					if self.base_node_dict[node.name]['data_dict']!=None:
+						data_dict = self.base_node_dict[node.name]['data_dict']
+						datasize = self.base_node_dict[node.name]['datasize']
+					else:
+						data_dict,datasize = node.calculate_data_forbound(
+							**kwargs)
+						self.base_node_dict[node.name]['data_dict'] = data_dict
+						self.base_node_dict[node.name]['datasize'] = datasize
+
+					kwargs['data_dict'] = data_dict
+					kwargs['datasize'] = datasize
+				value = node.calculate_value(
+					**kwargs)
+				node.value = value
+				self.base_node_dict[node.name]['value_computed'] = True	
+				self.base_node_dict[node.name]['value'] = node.value
+				
+			return 
+		
+		# traverse to children first
+		self._evaluator_helper(node.left,
+			**kwargs)
+		self._evaluator_helper(node.right,
+			**kwargs)
+		
+		# Here we must be at an internal node and therefore need to propagate
+		node.value = self._propagate_value(node)
+	
+
+	def _propagate_value(self,node):
+		"""
+		Helper function for propagating values
+
+		Parameters
+		----------
+		node : Node() class instance
+		"""
+		a = node.left.value
+		if node.right:
+			b = node.right.value
+
+		if node.name == 'add':	
+			return a+b
+			
+		if node.name == 'sub':
+			return a-b
+			
+		if node.name == 'mult':
+			return a*b
+
+		if node.name == 'div':
+			return a/b 
+		
+		if node.name == 'pow':
+			warning_msg = ("Warning: Power operation "
+				"is an experimental feature. Use with caution.")
+			return pow(a,b)
+
+		if node.name == 'min':
+			return min(a,b)
+
+		if node.name == 'max':
+			return max(a,b)
+
+		if node.name == 'abs':
+			# takes one node
+			return abs(a)
+		
+		if node.name == 'exp':
+			# takes one node
+			return np.exp(a)
+
+		else:
+			raise NotImplementedError("Encountered an operation we do not yet support", node.name)
+
 	def _protect_nan(self,bound,bound_type):
 		""" 
 		Handle nan as negative infinity if in lower bound
@@ -861,7 +979,8 @@ class ParseTree(object):
 
 		"""
 		for node_name in self.base_node_dict:
-			self.base_node_dict[node_name]['computed'] = False
+			self.base_node_dict[node_name]['bound_computed'] = False
+			self.base_node_dict[node_name]['value_computed'] = False
 			self.base_node_dict[node_name]['lower'] = float('-inf')
 			self.base_node_dict[node_name]['upper'] = float('inf')
 			if reset_data:
