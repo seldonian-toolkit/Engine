@@ -180,7 +180,7 @@ class ParseTree(object):
 	_exp(a)
 		Calculate e raised to the interval a.
 
-	reset_base_node_dict(reset_data)
+	reset_base_node_dict(reset_data=False)
 
 	make_viz(title)
 		Make a graphviz graph object of 
