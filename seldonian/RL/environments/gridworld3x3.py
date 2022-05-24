@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 import multiprocessing as mp
 from tqdm import tqdm
 
-from seldonian.stats_utils import weighted_sum_gamma
+from seldonian.utils.stats_utils import weighted_sum_gamma
 
 class Environment():
 	def __init__(self):

@@ -3,7 +3,7 @@ from functools import reduce,partial
 import pandas as pd
 import autograd.numpy as np
 
-from ..stats_utils import *
+from seldonian.utils.stats_utils import *
 
 
 class Node(object):

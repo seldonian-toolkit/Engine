@@ -9,7 +9,7 @@ from typing import List, Union, Tuple, Dict
 from gym import spaces
 
 
-from seldonian.stats_utils import weighted_sum_gamma
+from seldonian.utils.stats_utils import weighted_sum_gamma
 
 
 class Basis(object):

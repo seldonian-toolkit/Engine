@@ -1,7 +1,7 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from sklearn.linear_model import (LinearRegression,
 	LogisticRegression, SGDClassifier)
-from seldonian.stats_utils import weighted_sum_gamma
+from seldonian.utils.stats_utils import weighted_sum_gamma
 from functools import partial, lru_cache
 
 class SeldonianModel(object):
