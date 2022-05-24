@@ -5,8 +5,8 @@ import graphviz
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 from seldonian.warnings.custom_warnings import *
-from seldonian.nodes import *
-from seldonian.constraints.constraints import *
+from .nodes import *
+from .constraints import *
 
 
 """

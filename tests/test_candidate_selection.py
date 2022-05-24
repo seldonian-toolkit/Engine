@@ -1,4 +1,4 @@
-from seldonian.parse_tree import *
+from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
 from seldonian.candidate_selection import CandidateSelection
 from sklearn.model_selection import train_test_split

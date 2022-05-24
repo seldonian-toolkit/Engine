@@ -56,7 +56,7 @@ class CandidateSelection(object):
 	def run(self,**kwargs):
 
 		if self.optimization_technique == 'gradient_descent':
-			from seldonian.gradient_descent import gradient_descent_adam
+			from seldonian.optimizers.gradient_descent import gradient_descent_adam
 
 			gd_kwargs = dict(
 				primary_objective=self.evaluate_primary_objective,

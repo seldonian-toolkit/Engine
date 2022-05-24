@@ -1,7 +1,7 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pytest
 
-from seldonian.parse_tree import *
+from seldonian.parse_tree.parse_tree import *
 
 
 @pytest.fixture

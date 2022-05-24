@@ -1,9 +1,9 @@
 from operator import itemgetter
 from functools import reduce,partial
 import pandas as pd
-
-from .stats_utils import *
 import autograd.numpy as np
+
+from ..stats_utils import *
 
 
 class Node(object):

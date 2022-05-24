@@ -1,4 +1,4 @@
-from seldonian.parse_tree import *
+from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
 from seldonian.safety_test import SafetyTest
 import pytest

@@ -2,7 +2,7 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
 import ast
 
-from seldonian.nodes import *
+from .nodes import *
 
 measure_functions = [
 	'Mean_Error',
