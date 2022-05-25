@@ -96,6 +96,9 @@ class LinearRegressionModel(RegressionModel):
 		make prediction using the model """
 		return np.dot(X,theta)
 
+	def default_objective(self,model,theta,X,Y):
+		return self.sample_Mean_Squared_Error(model,theta,X,Y)
+
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):
@@ -193,8 +196,6 @@ class ClassificationModel(SupervisedModel):
 		Outputs a value between 0 and 1
 		"""
 		prediction = self.predict(theta,X)
-		print(len(prediction))
-		print(f"Prediction (parse tree): {prediction}")
 		return np.sum(prediction)/len(X) # if all 1s then PR=1. 
 
 	def sample_Negative_Rate(self,model,theta,X):
@@ -349,15 +350,14 @@ class LinearClassifierModel(ClassificationModel):
 	def default_objective(self,model,theta,X,Y):
 		return self.perceptron_loss(model,theta,X,Y)
 
-
 class SGDClassifierModel(ClassificationModel):
 	def __init__(self):
 		super().__init__()
 		# self.model_class = LinearRegression
 		self.model_class = SGDClassifier
 
-	def fit(self,model,X,Y):
-		reg = model.model_class().fit(X, Y)
+	def fit(self,X,Y):
+		reg = self.model_class().fit(X, Y)
 		return reg.coef_[0]
 
 	def predict(self,theta,X):
@@ -369,7 +369,6 @@ class SGDClassifierModel(ClassificationModel):
 		# map -1 to 0
 		prediction[prediction==-1]=0
 		return prediction
-
 
 class LogisticRegressionModel(ClassificationModel):
 	def __init__(self):
@@ -388,6 +387,9 @@ class LogisticRegressionModel(ClassificationModel):
 	def fit(self,X,Y):
 		reg = self.model_class().fit(X, Y)
 		return reg.coef_[0]
+
+	def default_objective(self,model,theta,X,Y):
+		return self.sample_logistic_loss(model,theta,X,Y)
 
 class RLModel(SeldonianModel):
 	def __init__(self):

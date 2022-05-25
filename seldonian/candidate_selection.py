@@ -4,6 +4,68 @@ import pandas as pd
 from functools import partial
 
 class CandidateSelection(object):
+	""" 
+	Object for running candidate selection
+	
+	Attributes
+	----------
+	model : models.SeldonianModel class instance
+		The Seldonian model object 
+	candidate_dataset : dataset.Dataset class instance
+		The dataset object containing candidate data
+	n_safety: int
+		The length of the safety dataset, used 
+		when calculating confidence bounds
+
+	parse_trees: List(parse_tree.ParseTree objects)
+		List of parse tree objects containing the 
+		behavioral constraints
+
+	primary_objective: models.SeldonianModel method
+		The objective function that would be solely optimized 
+		in the absence of behavioral constraints, i.e. the
+		loss function
+
+	optimization_technique: str
+		The method for optimization during candidate
+		selection. E.g. 'gradient_descent', 'barrier_function'
+
+	optimizer: str
+		The string name of the optimizer used 
+		during candidate selection
+	
+	initial_solution: numpy ndarray
+		The model weights used to initialize the optimizer
+
+	regime
+		The type of machine learning algorithm,
+		e.g. supervised or RL
+
+	write_logfile: bool
+		Whether to write outputs of candidate selection 
+		to disk
+
+	Methods
+	-------
+	run()
+		Run candidate selection
+
+	objective_with_barrier(theta)
+		The objective function to be optimized if 
+		minimization_technique == 'barrier'
+		given model weights, theta
+	
+	evaluate_primary_objective(theta)
+		Get value of the primary objective given model weights,
+		theta. Wrapper for self.primary_objective where 
+		data is fixed. Used as input to gradient descent
+
+	get_constraint_upper_bound(theta)
+		Get value of the upper bound of the constraint function. 
+		Used as input to gradient descent.
+
+
+	"""
 	def __init__(self,
 		model,
 		candidate_dataset,
@@ -61,23 +123,16 @@ class CandidateSelection(object):
 			gd_kwargs = dict(
 				primary_objective=self.evaluate_primary_objective,
 				upper_bound_function=self.get_constraint_upper_bound,
-				alpha_theta=0.005,
-			    alpha_lamb=0.005,
-			    beta_velocity=0.9,
-			    beta_rmsprop=0.95,
+				alpha_theta=kwargs['alpha_theta'],
+			    alpha_lamb=kwargs['alpha_lamb'],
+			    beta_velocity=kwargs['beta_velocity'],
+			    beta_rmsprop=kwargs['beta_rmsprop'],
+			    num_iters=kwargs['num_iters'],
 				theta_init=self.initial_solution,
 				store_values=self.write_logfile,
 				verbose=kwargs['verbose'],
 				parse_trees=self.parse_trees,
 			)
-
-			minimizer_options = kwargs['minimizer_options']
-			if 'maxiter' in minimizer_options:
-				num_iters = minimizer_options['maxiter']
-			else:
-				num_iters=300
-			
-			gd_kwargs['num_iters']=num_iters
 
 			# If user specified the gradient of the primary
 			# objective, then pass it here
@@ -134,7 +189,7 @@ class CandidateSelection(object):
 				
 				from scipy.optimize import minimize 
 				res = minimize(
-					self.candidate_objective,
+					self.objective_with_barrier,
 					x0=self.initial_solution,
 					method=self.optimizer,
 					options=kwargs['minimizer_options'], 
@@ -148,19 +203,10 @@ class CandidateSelection(object):
 
 				es = cma.CMAEvolutionStrategy(self.initial_solution, 0.2,
 					kwargs['minimizer_options'])
-				# es = cma.CMAEvolutionStrategy(np.zeros_like(initial_solution), 0.5,options)
 				
-				es.optimize(self.candidate_objective)
+				es.optimize(self.objective_with_barrier)
 				candidate_solution=es.result.xbest
-				# 
-				# N=self.features.shape[1]
-				# N = len(self.initial_solution)
-				# candidate_solution = minimize(N=N,
-				# 	# lamb=int(4+np.floor(3*np.log(N))),
-				# 	lamb=20,
-				# 	initial_solution=np.zeros_like(self.initial_solution),
-				# 	objective=self.candidate_objective)
-			else:
+				
 				raise NotImplementedError(
 					f"Optimizer {self.optimizer} is not supported")
 		else:
@@ -175,7 +221,7 @@ class CandidateSelection(object):
 		# Return the candidate solution we believe will pass the safety test
 		return candidate_solution
 		
-	def candidate_objective(self,theta):
+	def objective_with_barrier(self,theta):
 
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
