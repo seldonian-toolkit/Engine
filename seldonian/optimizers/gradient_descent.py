@@ -44,8 +44,8 @@ def gradient_descent_adam(
 
     for i in range(num_iters):
         if verbose:
-            # if i % 50 == 0:
-            print(f"Iteration {i}")
+            if i % 50 == 0:
+                print(f"Iteration {i}")
 
         primary_val = primary_objective(theta)
         g_val = upper_bound_function(theta)
@@ -118,12 +118,7 @@ def gradient_descent_adam(
     solution_found = True
     if np.isinf(best_feasible_primary):
         solution_found = False
-        if verbose:
-            print("NSF")
-    else:
-        if verbose:
-            print("Solution found")
-    
+    else:    
         # solution['candidate_solution'] = candidate_solution.tolist()
         solution['candidate_solution'] = candidate_solution
         solution['best_index'] = best_index

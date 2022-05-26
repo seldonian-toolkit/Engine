@@ -178,10 +178,8 @@ class CandidateSelection(object):
 					print(f"Wrote {filename} with candidate selection log info")
 
 			if res['solution_found']:
-				print("Found solution to gradient descent")
 				candidate_solution = res['candidate_solution']
 			else:
-				print("No solution found!")
 				candidate_solution = 'NSF'
 
 		elif self.optimization_technique == 'barrier_function':
@@ -280,7 +278,6 @@ class CandidateSelection(object):
 					# that we think will fail the safety test 
 					# will have a large cost associated with it
 					if self.optimization_technique == 'barrier_function':
-						# print("here")
 						result = 100000.0    
 				# Add a shaping to the objective function that will 
 				# push the search toward solutions that will pass 
