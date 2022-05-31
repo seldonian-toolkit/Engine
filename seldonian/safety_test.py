@@ -28,8 +28,12 @@ class SafetyTest(object):
 
 		if self.regime == 'RL':
 			self.gamma = kwargs['gamma']
-			self.min_return = kwargs['min_return']
-			self.max_return = kwargs['max_return']
+			if kwargs['normalize_returns']==True:
+				self.normalize_returns=True
+				self.min_return = kwargs['min_return']
+				self.max_return = kwargs['max_return']
+			else:
+				self.normalize_returns=False
 
 	def run(self,candidate_solution,bound_method='ttest',**kwargs):
 		# Loop over parse trees and propagate
@@ -49,8 +53,10 @@ class SafetyTest(object):
 			
 			if self.regime == 'RL':
 				bounds_kwargs['gamma'] = self.gamma
-				bounds_kwargs['min_return'] = self.min_return
-				bounds_kwargs['max_return'] = self.max_return
+				bounds_kwargs['normalize_returns'] = self.normalize_returns
+				if self.normalize_returns:
+					bounds_kwargs['min_return'] = self.min_return
+					bounds_kwargs['max_return'] = self.max_return
 
 			pt.propagate_bounds(**bounds_kwargs)
 

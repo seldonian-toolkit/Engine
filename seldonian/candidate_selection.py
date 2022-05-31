@@ -83,8 +83,8 @@ class CandidateSelection(object):
 		self.candidate_dataset = candidate_dataset
 		self.n_safety = n_safety
 		if self.regime == 'supervised':
-			# To get the initial solution we may need to do a model fit
-			# For that reason we need the data in fittable form
+			# To evaluate the primary objective we will need
+			# features and labels separated and in the proper form
 
 			# Separate features from label
 			label_column = candidate_dataset.label_column
@@ -100,6 +100,7 @@ class CandidateSelection(object):
 				self.features.insert(0,'offset',1.0) # inserts a column of 1's
 		
 		self.parse_trees = parse_trees
+		
 		self.primary_objective = primary_objective # must accept theta, features, labels
 		self.optimization_technique = optimization_technique
 		self.optimizer = optimizer
@@ -112,8 +113,12 @@ class CandidateSelection(object):
 
 		if self.regime == 'RL':
 			self.gamma = kwargs['gamma']
-			self.min_return = kwargs['min_return']
-			self.max_return = kwargs['max_return']
+			if kwargs['normalize_returns']==True:
+				self.normalize_returns=True
+				self.min_return = kwargs['min_return']
+				self.max_return = kwargs['max_return']
+			else:
+				self.normalize_returns=False
 
 	def run(self,**kwargs):
 
@@ -257,9 +262,11 @@ class CandidateSelection(object):
 
 			if self.regime == 'RL':
 				bounds_kwargs['gamma'] = self.gamma
-				bounds_kwargs['min_return'] = self.min_return
-				bounds_kwargs['max_return'] = self.max_return
-
+				bounds_kwargs['normalize_returns'] = self.normalize_returns
+				if self.normalize_returns:
+					bounds_kwargs['min_return'] = self.min_return
+					bounds_kwargs['max_return'] = self.max_return
+				
 
 			pt.propagate_bounds(**bounds_kwargs)
 			
@@ -326,8 +333,10 @@ class CandidateSelection(object):
 
 		if self.regime == 'RL':
 			bounds_kwargs['gamma'] = self.gamma
-			bounds_kwargs['min_return'] = self.min_return
-			bounds_kwargs['max_return'] = self.max_return
+			bounds_kwargs['normalize_returns'] = self.normalize_returns
+			if self.normalize_returns:
+				bounds_kwargs['min_return'] = self.min_return
+				bounds_kwargs['max_return'] = self.max_return
 
 		pt.propagate_bounds(**bounds_kwargs)
 

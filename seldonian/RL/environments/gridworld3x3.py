@@ -11,6 +11,9 @@ from seldonian.utils.stats_utils import weighted_sum_gamma
 class Environment():
 	def __init__(self):
 		self.gamma = 0.9 # the discount factor when calculating sum of rewards
+		self.timeout = 50 # the number of timesteps after which we stop the episode
+		# self.min_return = -2
+		# self.max_return = 0.729
 		self.states = np.arange(9,dtype='int') # 0-8
 		self.actions = np.array([0,1,2,3]) # U,D,L,R
 		self.reward_dict = {x:0 for x in self.states} # initialize
@@ -71,15 +74,15 @@ class Environment():
 		# Then draw from that distribution
 		
 		# episode_entry = np.zeros(4)
-		episode_entry = [0,0,0,0]
+		step_entry = [0,0,0,0]
 			
-		episode_entry[0] = self.current_state
+		step_entry[0] = self.current_state
 		
 		probs = [self.pi(
 			self.current_state,a) for a in self.actions]
 		action = np.random.choice(self.actions,p=probs)
 		
-		episode_entry[1] = action
+		step_entry[1] = action
 
 		# Figure out what the actual probability of selecting that action was
 		# action_index = self.actions.index(action)
@@ -92,13 +95,13 @@ class Environment():
 		# Calculate reward for taking that action
 		reward = self.reward_dict[next_state]
 		# add to episode entry
-		episode_entry[2] = reward
+		step_entry[2] = reward
 		
-		episode_entry[3] = prob_thisaction
+		step_entry[3] = prob_thisaction
 			
 		# update current state to new state
 		self.current_state = next_state
-		return episode_entry
+		return step_entry
 
    
 	def reset(self):
@@ -107,34 +110,39 @@ class Environment():
 		
 	def generate_episode(self,return_index=False):
 		episode = []
-		index = 0
+		timestep = 0
 		while self.current_state != self.terminal_state:
+			if timestep == self.timeout:
+				break
 			
 			entry = self.take_step()
 			if return_index:
-				entry = np.hstack([index,entry])
+				entry = np.hstack([timestep,entry])
 				episode.append([entry])
-				index+=1
 			else:
 				episode.append(entry)
+			timestep+=1
 
 		self.reset()
 		return episode
 
 	def generate_episodes_par(self,n_episodes=1,return_index=False):
+		np.random.seed()
 		episodes = []
 		for _ in range(n_episodes):
 			episode = []
-			index = 0
+			timestep = 0
 			while self.current_state != self.terminal_state:
-				
+				if timestep == self.timeout:
+					break
+
 				entry = self.take_step()
 				if return_index:
-					entry = np.hstack([index,entry])
+					entry = np.hstack([timestep,entry])
 					episode.append([entry])
-					index+=1
 				else:
 					episode.append(entry)
+				timestep+=1
 			episodes.append(episode)
 			self.reset()
 		return episodes 
@@ -153,13 +161,11 @@ class Environment():
 					episodes_per_worker.append(n_episodes-cumulative_episodes)
 
 			helper = partial(self.generate_episodes_par,return_index=False)
-			episodes = []
-			for n_episodes_this_worker in episodes_per_worker:
-			    episodes_this_worker = helper(n_episodes_this_worker)
-			    episodes.append(episodes_this_worker)
-			# with ProcessPoolExecutor(max_workers=8,mp_context=mp.get_context('fork')) as executor:
-			# 	episodes = tqdm(executor.map(helper, episodes_per_worker),
-			# 		total=n_workers)
+
+			with ProcessPoolExecutor(max_workers=n_workers,
+				mp_context=mp.get_context('fork')) as executor:
+				episodes = tqdm(executor.map(helper, episodes_per_worker),
+					total=n_workers)
 
 			data = []
 			episode_index = 0
@@ -173,7 +179,6 @@ class Environment():
 					print(e)
 		else:
 			episodes = [self.generate_episode(return_index=False) for ii in range(n_episodes)]
-			print("done generating episodes")
 			data = []
 			for episode_i,episode in enumerate(episodes):
 				for step in episode:

@@ -58,7 +58,6 @@ class RegressionModel(SupervisedModel):
 		res = sum(pow(prediction-Y,2))/n
 		return res
 
-
 	def sample_Mean_Error(self,model,theta,X,Y):
 		"""
 		Calculate sample mean error given a solution and 
@@ -401,6 +400,37 @@ class RLModel(SeldonianModel):
 			return model.vector_IS_estimate(model,
 				theta,data_dict)
 
+	def evaluate_statistic(self,
+		statistic_name,model,theta,data_dict):
+		
+		if statistic_name == 'J_pi_new':
+			return model.sample_IS_estimate(model,
+				theta,data_dict['dataframe'])
+		else:
+			raise NotImplementedError(f"Statistic: {statistic_name} is not implemented")
+
+
+	def sample_IS_estimate(self,model,theta,dataframe):
+		model.theta = theta
+		pi_ratios = list(map(model.apply_policy,
+					dataframe['O'].values,
+					dataframe['A'].values))/dataframe['pi'].values
+		model.theta = None
+		model.denom.cache_clear()
+		model.arg.cache_clear()
+		split_indices_by_episode = np.unique(dataframe['episode_index'].values,
+			return_index=True)[1][1:]
+		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
+		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
+		
+		# Weighted rewards
+		gamma = self.environment.gamma
+		rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
+		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,
+			rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
+		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
+		return result 
+
 	def IS_estimate(self,model,theta,dataset):
 		model.theta = theta
 		pi_ratios = list(map(model.apply_policy,
@@ -490,6 +520,7 @@ class LinearSoftmaxModel(RLModel):
 		rewards_by_episode = np.split(dataset.df['R'].values,split_indices_by_episode)
 		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,
 			rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
+		
 		# normalize to [0,1]
 		min_return = self.environment.min_return
 		max_return = self.environment.max_return

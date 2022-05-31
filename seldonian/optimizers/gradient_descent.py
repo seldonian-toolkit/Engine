@@ -44,12 +44,12 @@ def gradient_descent_adam(
 
     for i in range(num_iters):
         if verbose:
-            if i % 50 == 0:
+            if i % 10 == 0:
                 print(f"Iteration {i}")
 
         primary_val = primary_objective(theta)
         g_val = upper_bound_function(theta)
-        # print(primary_val,g_val)
+        # print(theta,primary_val,g_val)
         # if 'parse_trees' in kwargs:
         #     pt = kwargs['parse_trees'][0]
         #     graph = pt.make_viz(pt.constraint_str)

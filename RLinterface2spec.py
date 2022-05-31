@@ -3,11 +3,15 @@ import sys
 import json
 import argparse
 import pickle
+import importlib
+
+
+from seldonian.utils.io_utils import dir_path
 from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
-from seldonian.utils.io_utils import dir_path
-from seldonian.spec import Spec
+from seldonian.spec import RLSpec
 from seldonian.models.model import *
+
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -18,10 +22,6 @@ if __name__ == '__main__':
 		help='Path to metadata file')
 	
 	# Optional args
-	parser.add_argument('--include_sensitive_columns',  action='store_true',
-		help="Whether to include sensitive columns as predictive features")
-	parser.add_argument('--include_intercept_term',  action='store_true',
-		help="Whether to add columns of ones in leftmost column")
 	parser.add_argument('--save_dir',  type=dir_path, default='.',
 		help="Folder in which to save interface outputs")
 
@@ -34,39 +34,27 @@ if __name__ == '__main__':
 
 	regime = metadata_dict['regime']
 	columns = metadata_dict['columns']
-	sensitive_columns = metadata_dict['sensitive_columns']
+	RL_environment_name = metadata_dict['RL_environment_name']
+	RL_environment_module = importlib.import_module(
+		f'seldonian.RL.environments.{RL_environment_name}')
+	RL_environment_obj = RL_environment_module.Environment()	
+	
+	model_class = TabularSoftmaxModel
+	model_instance = model_class(RL_environment_obj)
 
-	if regime == 'supervised':
-		sub_regime = metadata_dict['sub_regime']
-		label_column = metadata_dict['label_column']
-		
-		# Default model for supervised learning
-		if sub_regime == 'classification':
-			model_class = LogisticRegressionModel
-		elif sub_regime == 'regression':
-			model_class = LinearRegressionModel
-		else:
-			raise NotImplementedError(f"{sub_regime} is not a supported "
-				"sub regime of supervised learning")
-	elif regime == 'RL':
-		# Default model for RL
-		model_class = LinearSoftmaxModel
-
-	primary_objective = model_class().default_objective
+	primary_objective = model_instance.default_objective 
 
 	# Load dataset from file
 	loader = DataSetLoader(
 		column_names=columns,
-		sensitive_column_names=sensitive_columns,
-		include_sensitive_columns=args.include_sensitive_columns,
-		include_intercept_term=args.include_intercept_term,
-		label_column=label_column,
+		sensitive_column_names=[],
+		label_column='',
 		regime=regime)
 
 	dataset = loader.from_csv(args.data_pth)
 	
-	constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.15'] 
-	constraint_names = ['demographic_parity']
+	constraint_strs = ['-0.25 - J_pi_new'] 
+	constraint_names = ['main_reward']
 	
 	deltas = [0.05]
 
@@ -92,13 +80,14 @@ if __name__ == '__main__':
 		parse_trees.append(parse_tree)
 
 	# Save spec object, using defaults where necessary
-	spec = Spec(
+	spec = RLSpec(
 		dataset=dataset,
 		model_class=model_class,
 		frac_data_in_safety=0.6,
 		primary_objective=primary_objective,
 		parse_trees=parse_trees,
-		initial_solution_fn=model_class().fit,
+		RL_environment_obj=RL_environment_obj,
+		initial_solution_fn=None,
 		assign_delta_weight_method='equal',
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
@@ -112,7 +101,9 @@ if __name__ == '__main__':
 		    'num_iters'     : 200,
 		    'hyper_search'  : None,
 		    'verbose'       : True,
-		}
+		},
+		regularization_hyperparams={},
+		normalize_returns=False,
 	)
 
 	spec_save_name = os.path.join(args.save_dir,'spec.pkl')
