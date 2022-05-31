@@ -823,7 +823,7 @@ def test_reset_parse_tree():
 
 def test_single_conditional_columns_propagated():
 	np.random.seed(0)
-	csv_file = '../datasets/GPA/data_phil_modified.csv'
+	csv_file = 'static/datasets/GPA/data_phil_modified.csv'
 	columns = ["M","F","SAT_Physics",
 		   "SAT_Biology","SAT_History",
 		   "SAT_Second_Language","SAT_Geography",
