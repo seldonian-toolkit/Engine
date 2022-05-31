@@ -1,6 +1,7 @@
 from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
 from seldonian.safety_test import SafetyTest
+from seldonian.models.model import LinearRegressionModel
 import pytest
 import time
 
@@ -703,7 +704,6 @@ def test_ttest_bound(generate_data):
 	# dummy data for linear regression
 	np.random.seed(0)
 	numPoints=1000
-	from seldonian.model import LinearRegressionModel
 
 	model_instance = LinearRegressionModel()
 	X,Y = generate_data(
@@ -741,7 +741,6 @@ def test_evaluate_constraint(generate_data):
 	# Evaluate constraint mean, not the bound
 	np.random.seed(0)
 	numPoints=1000
-	from seldonian.model import LinearRegressionModel
 
 	model_instance = LinearRegressionModel()
 	X,Y = generate_data(
@@ -838,7 +837,6 @@ def test_single_conditional_columns_propagated():
 		include_intercept_term=True)
 	dataset = loader.from_csv(csv_file)
 
-	from seldonian.model import LinearRegressionModel
 	model_instance = LinearRegressionModel()
 
 	constraint_str = 'abs(Mean_Error|[M]) - 0.1'

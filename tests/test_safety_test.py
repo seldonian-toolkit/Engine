@@ -34,7 +34,7 @@ def test_safety_test(generate_data):
         include_intercept_term=include_intercept_term)
 
     # Linear regression model
-    from seldonian.model import LinearRegressionModel
+    from seldonian.models.model import LinearRegressionModel
     model_instance = LinearRegressionModel()
     
     # One constraint, so one parse tree
