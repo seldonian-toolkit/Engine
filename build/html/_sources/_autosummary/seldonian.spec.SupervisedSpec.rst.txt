@@ -1,0 +1,25 @@
+seldonian.spec.SupervisedSpec
+=============================
+
+.. currentmodule:: seldonian.spec
+
+.. autoclass:: SupervisedSpec
+   :members:                                    
+   :show-inheritance:                           
+   :inherited-members:                          
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SupervisedSpec.__init__
+   
+   
+
+   
+   
+   
