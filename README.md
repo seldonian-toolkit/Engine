@@ -1,21 +1,23 @@
-# Seldonian
+## Disclaimer: This repository is under active development and is not yet suitable for public use. We are currently working on an alpha release and will remove this disclaimer at the time of release. 
+
+# Engine
 
 This is the source code repository for a framework for creating and running [Seldonian](http://aisafety.cs.umass.edu/) algorithms. 
 
 ## Installation
-To run this code as a developer, you will need Anaconda: https://www.anaconda.com/products/individual
+To run this code as a developer, create a virtual environment. Then install the package locally, e.g. 
 
-Once Anaconda is installed, create the conda environment for this library from the command line using: 
-``` bash
-conda env create -f environment_linux.yml
+```
+python setup.py develop
 ```
 
-This will create a virtual python environment called `seldo` which you need to activate before running the code in this repository. Activate it via:
+or 
+
 ```
-conda activate seldo
+pip install -e .
 ```
 
-If you want to view the parse tree graphs using the built-in tools this library provides, install [graphviz](https://graphviz.org/download/). The Seldonian library uses a Python API for graphviz, and the API requires that graphviz be installed system-wide. This should resolve mysterious error messages like "dot" not found. "dot" is a command line program included with graphviz for rendering the graphs from code. 
+If you want to view the parse tree graphs using the built-in tools this library provides, install [graphviz](https://graphviz.org/download/) onto your system. The Seldonian library uses a Python API for graphviz, and the API requires that graphviz be installed system-wide. This should resolve mysterious error messages like "dot" not found. "dot" is a command line program included with graphviz for rendering the graphs from code. 
 
 ## Interface
 
