@@ -1,24 +1,24 @@
-class Spec(object):
-	""" 
+""" Module for building the specification object needed to run the Seldonian algorithm """
 
-	Specification object for running Seldonian algorithms 
+class Spec(object):
+	"""Specification object for running Seldonian algorithms 
 
 	:param model_class: The model class for the Seldonian model,
-		not an instance of the model
+		not an instance of the model	
 	
 	:param use_builtin_primary_gradient_fn: Whether to use the built-in
 		function for the gradient of the primary objective, 
 		if one exists. If False, uses autograd
-    :type use_builtin_primary_gradient_fn: bool
+	:type use_builtin_primary_gradient_fn: bool
 
-    :param custom_primary_gradient_fn: A function for computing 
-    	the gradient of the primary objective. If None,
-    	falls back on builtin function or autograd
-    :type custom_primary_gradient_fn: function taking data 
-    	and model weights and outputting the derivative of
-    	the primary objective w.r.t model weights as a scalar 
-
+	:param custom_primary_gradient_fn: A function for computing 
+		the gradient of the primary objective. If None,
+		falls back on builtin function or autograd
+	:type custom_primary_gradient_fn: function taking data 
+		and model weights and outputting the derivative of
+		the primary objective w.r.t model weights as a scalar 
 	"""
+
 	def __init__(
 		self,
 		dataset,
@@ -74,14 +74,14 @@ class SupervisedSpec(Spec):
 	:param use_builtin_primary_gradient_fn: Whether to use the built-in
 		function for the gradient of the primary objective, 
 		if one exists. If False, uses autograd
-    :type use_builtin_primary_gradient_fn: bool
+	:type use_builtin_primary_gradient_fn: bool
 
-    :param custom_primary_gradient_fn: A function for computing 
-    	the gradient of the primary objective. If None,
-    	falls back on builtin function or autograd
-    :type custom_primary_gradient_fn: function taking data 
-    	and model weights and outputting the derivative of
-    	the primary objective w.r.t model weights as a scalar 
+	:param custom_primary_gradient_fn: A function for computing 
+		the gradient of the primary objective. If None,
+		falls back on builtin function or autograd
+	:type custom_primary_gradient_fn: function taking data 
+		and model weights and outputting the derivative of
+		the primary objective w.r.t model weights as a scalar 
 
 	"""
 	def __init__(self,
@@ -126,14 +126,14 @@ class RLSpec(Spec):
 	:param use_builtin_primary_gradient_fn: Whether to use the built-in
 		function for the gradient of the primary objective, 
 		if one exists. If False, uses autograd
-    :type use_builtin_primary_gradient_fn: bool
+	:type use_builtin_primary_gradient_fn: bool
 
-    :param custom_primary_gradient_fn: A function for computing 
-    	the gradient of the primary objective. If None,
-    	falls back on builtin function or autograd
-    :type custom_primary_gradient_fn: function taking data 
-    	and model weights and outputting the derivative of
-    	the primary objective w.r.t model weights as a scalar 
+	:param custom_primary_gradient_fn: A function for computing 
+		the gradient of the primary objective. If None,
+		falls back on builtin function or autograd
+	:type custom_primary_gradient_fn: function taking data 
+		and model weights and outputting the derivative of
+		the primary objective w.r.t model weights as a scalar 
 
 	"""
 	def __init__(

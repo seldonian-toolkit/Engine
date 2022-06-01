@@ -1,7 +1,7 @@
 import os,sys
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
-from seldonian import seldonian_algorithm
+from seldonian.seldonian_algorithm import seldonian_algorithm
 from seldonian.utils.io_utils import load_pickle
 
 if __name__ == '__main__':

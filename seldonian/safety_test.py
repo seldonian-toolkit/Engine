@@ -1,3 +1,5 @@
+""" Safety test module """
+
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 class SafetyTest(object):

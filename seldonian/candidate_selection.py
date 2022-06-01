@@ -1,70 +1,52 @@
+""" Candidate selection module """
+
 import os, pickle
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
 from functools import partial
 
 class CandidateSelection(object):
-	""" 
-	Object for running candidate selection
+	""" Object for running candidate selection
 	
-	Attributes
-	----------
-	model : models.SeldonianModel class instance
-		The Seldonian model object 
-	candidate_dataset : dataset.Dataset class instance
-		The dataset object containing candidate data
-	n_safety: int
-		The length of the safety dataset, used 
-		when calculating confidence bounds
-
-	parse_trees: List(parse_tree.ParseTree objects)
-		List of parse tree objects containing the 
+	:param model: The Seldonian model object 
+	:type model: models.model.SeldonianModel object
+	
+	:param candidate_dataset: The dataset object containing candidate data
+	:type candidate_dataset: dataset.Dataset object
+		
+	:param n_safety: The length of the safety dataset, used 
+		when predicting confidence bounds during candidate selection
+	:type n_safety: int
+		
+	:type parse_trees: List of parse tree objects containing the 
 		behavioral constraints
+	:type parse_trees: List(parse_tree.ParseTree objects)
+		
+	:param primary_objective: The objective function that would
+		be solely optimized in the absence of behavioral constraints,
+		i.e. the loss function
+	:type primary_objective: function or class method
+		
+	:param optimization_technique: The method for optimization during 
+		candidate selection. E.g. 'gradient_descent', 'barrier_function'
+	:type optimization_technique: str
 
-	primary_objective: models.SeldonianModel method
-		The objective function that would be solely optimized 
-		in the absence of behavioral constraints, i.e. the
-		loss function
-
-	optimization_technique: str
-		The method for optimization during candidate
-		selection. E.g. 'gradient_descent', 'barrier_function'
-
-	optimizer: str
-		The string name of the optimizer used 
+	:param optimizer: The string name of the optimizer used 
 		during candidate selection
-	
-	initial_solution: numpy ndarray
-		The model weights used to initialize the optimizer
-
-	regime
-		The type of machine learning algorithm,
+	:type optimizer: str
+		
+	:param initial_solution: The model weights used to initialize 
+		the optimizer
+	:type initial_solution: numpy ndarray
+		
+	:param regime: The type of machine learning algorithm,
 		e.g. supervised or RL
-
-	write_logfile: bool
-		Whether to write outputs of candidate selection 
+	:type regime: str
+		
+	:param write_logfile: Whether to write outputs of candidate selection 
 		to disk
-
-	Methods
-	-------
-	run()
-		Run candidate selection
-
-	objective_with_barrier(theta)
-		The objective function to be optimized if 
-		minimization_technique == 'barrier'
-		given model weights, theta
-	
-	evaluate_primary_objective(theta)
-		Get value of the primary objective given model weights,
-		theta. Wrapper for self.primary_objective where 
-		data is fixed. Used as input to gradient descent
-
-	get_constraint_upper_bound(theta)
-		Get value of the upper bound of the constraint function. 
-		Used as input to gradient descent.
-
-
+	:type write_logfile: bool
+		
 	"""
 	def __init__(self,
 		model,
@@ -121,6 +103,7 @@ class CandidateSelection(object):
 				self.normalize_returns=False
 
 	def run(self,**kwargs):
+		""" Run candidate selection """
 
 		if self.optimization_technique == 'gradient_descent':
 			from seldonian.optimizers.gradient_descent import gradient_descent_adam
@@ -225,6 +208,13 @@ class CandidateSelection(object):
 		return candidate_solution
 		
 	def objective_with_barrier(self,theta):
+		""" The objective function to be optimized if 
+		minimization_technique == 'barrier'. Adds in a
+		large penalty when any of the constraints are violated.
+
+		:param theta: model weights
+		:type theta: numpy.ndarray
+		"""
 
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
@@ -299,6 +289,13 @@ class CandidateSelection(object):
 		return result
 
 	def evaluate_primary_objective(self,theta):
+		""" Get value of the primary objective given model weights,
+		theta. Wrapper for self.primary_objective where 
+		data is fixed. Used as input to gradient descent
+
+		:param theta: model weights
+		:type theta: numpy.ndarray
+		"""
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised':
 			result = self.primary_objective(self.model, theta, 
@@ -318,6 +315,12 @@ class CandidateSelection(object):
 			return result
 
 	def get_constraint_upper_bound(self,theta):
+		"""Get value of the upper bound of the constraint function
+		given model weights, theta. Used as input to gradient descent.
+
+		:param theta: model weights
+		:type theta: numpy.ndarray
+		"""
 		pt = self.parse_trees[0]
 		pt.reset_base_node_dict()
 

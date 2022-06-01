@@ -1,1 +1,1 @@
-from .seldonian_algorithm import seldonian_algorithm
+""" Seldonian Engine package """

@@ -1,3 +1,5 @@
+""" Module for running the Seldonian algorithm """
+
 from sklearn.model_selection import train_test_split
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from seldonian.dataset import DataSet
@@ -7,6 +9,9 @@ from seldonian.safety_test import SafetyTest
 def seldonian_algorithm(spec):
 	"""
 	Takes a spec object and run seldonian algorithm
+
+	:param spec: Seldonian specification obect
+	:type spec: spec.Spec object
 	"""
 
 	dataset = spec.dataset
