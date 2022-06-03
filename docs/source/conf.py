@@ -33,6 +33,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinxarg.ext',
 ]
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 

@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Overview &#8212; Seldonian Engine pre-release documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="getting_started.html" />
+    <link rel="prev" title="Seldonian Engine documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>This overview will focus on the implementation of <a class="reference internal" href="glossary.html#term-Seldonian-algorithm"><span class="xref std std-term">Seldonian algorithms</span></a> (SAs) in this library, rather than a description of what they are. For a detailed description of SAs see <a class="reference external" href="http://aisafety.cs.umass.edu/paper.html">the UMass AI Safety page</a>, specifically <a class="reference external" href="http://aisafety.cs.umass.edu/paper.html">the Science paper</a>.</p>
+<p>A SA is implemented by enforcing high probability constraints in a machine learning (ML) problem. This paradigm is extremely general, but often these constraints are safety or fairness constraints. Below, terms that have special significance in SAs and throughout this library have glossary links upon their first appearance.</p>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>As a concrete example, consider a supervised ML problem designed to predict student grade point averages (GPAs) given a set of features about the students, such as standardized test scores.</p>
+<p>Let’s say we want to use linear regression with a mean squared error loss function as our model to predict the GPAs, a float between 0.0 and 4.0. It is possible that this model will be biased against a particular gender class, <em>even if we did not use gender as a feature in the model</em>. For example, it could over predict GPAs for men and under predict GPAs for women. A constraint we might want to enforce to mitigate this bias is that the absolute difference in the prediction error between men and women may not exceed some constant, e.g. 0.2 GPA points.</p>
+<p>To interpret this example problem in the language of this library, the <a class="reference internal" href="glossary.html#term-Regime"><span class="xref std std-term">regime</span></a> is supervised learning, the <a class="reference internal" href="glossary.html#term-Sub-regime"><span class="xref std std-term">sub-regime</span></a> is regression, linear regression is the <a class="reference internal" href="glossary.html#term-Machine-learning-model"><span class="xref std std-term">machine learning model</span></a>, mean squared error is the <a class="reference internal" href="glossary.html#term-Primary-objective-function"><span class="xref std std-term">primary objective function</span></a>, gender is the <a class="reference internal" href="glossary.html#term-Sensitive-attribute"><span class="xref std std-term">sensitive attribute</span></a>. In general, there can be multiple sensitive attributes. It is the job of the user of the SA to provide the <a class="reference internal" href="glossary.html#term-Behavioral-Constraint"><span class="xref std std-term">constraint</span></a>. We provide several <a class="reference internal" href="glossary.html#term-Interface"><span class="xref std std-term">interfaces</span></a> (see below) for interpreting constraints mathematically so that they can be used in the library. It is not possible to satisfy the constraint 100% of the time. Instead, we must provide some <a class="reference internal" href="glossary.html#term-Confidence-threshold"><span class="xref std std-term">confidence threshold</span></a>, delta, such that the constraint will be enforced with probability <code class="code docutils literal notranslate"><span class="pre">1-delta</span></code>.</p>
+<p>Often in a normal ML problem, data are split into training, testing (and sometimes validation) sets. SAs split data into <a class="reference internal" href="glossary.html#term-Candidate-Selection"><span class="xref std std-term">candidate selection</span></a> data and <a class="reference internal" href="glossary.html#term-Safety-test"><span class="xref std std-term">safety test</span></a> data. SAs consist of three main parts: the interface, candidate selection, and the safety test, which are described below.</p>
+</section>
+<section id="interface">
+<h2>Interface<a class="headerlink" href="#interface" title="Permalink to this headline">¶</a></h2>
+<p>In the interface, the user provides the data, metadata, the constraints that it wants the SA to enforce, and the confidence thresholds for each constraint. The interface creates a  <a class="reference internal" href="_autosummary/seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object containing the data and metadata. The interface also creates <a class="reference internal" href="_autosummary/seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects from the interpreted constraints. Finally, the interface generates a <a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object which consists of a complete specification that can used to run the seldonian algorithm in its entirety. The Spec object that the interface creates has many default parameters that the user may modify with their own custom script.</p>
+<section id="dataset">
+<h3>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline">¶</a></h3>
+<p>The dataset object  See the <a class="reference internal" href="_autosummary/seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> objects API reference for a full description.</p>
+</section>
+<section id="parse-trees">
+<h3>Parse Trees<a class="headerlink" href="#parse-trees" title="Permalink to this headline">¶</a></h3>
+<p>Explain parse trees.</p>
+</section>
+<section id="specification-spec-object">
+<h3>Specification (Spec) object<a class="headerlink" href="#specification-spec-object" title="Permalink to this headline">¶</a></h3>
+<p>Explain spec object</p>
+</section>
+</section>
+<section id="candidate-selection">
+<h2>Candidate Selection<a class="headerlink" href="#candidate-selection" title="Permalink to this headline">¶</a></h2>
+<p>Explain candidate selection</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Seldonian Engine</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface">Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dataset">Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parse-trees">Parse Trees</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specification-spec-object">Specification (Spec) object</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#candidate-selection">Candidate Selection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Seldonian Engine documentation</a></li>
+      <li>Next: <a href="getting_started.html" title="next chapter">Getting Started</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, University of Massachusetts, Amherst.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
