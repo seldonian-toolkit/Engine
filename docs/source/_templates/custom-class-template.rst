@@ -9,6 +9,7 @@
 
    {% block methods %}
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    {% if methods %}
    .. rubric:: {{ _('Methods') }}

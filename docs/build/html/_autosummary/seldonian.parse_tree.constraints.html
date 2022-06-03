@@ -35,6 +35,42 @@
             
   <section id="module-seldonian.parse_tree.constraints">
 <span id="seldonian-parse-tree-constraints"></span><h1>seldonian.parse_tree.constraints<a class="headerlink" href="#module-seldonian.parse_tree.constraints" title="Permalink to this headline">¶</a></h1>
+<p>Module containing global variables used 
+during the construction of parse trees</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="seldonian.parse_tree.constraints.measure_functions">
+<span class="sig-name descname"><span class="pre">measure_functions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List(str)</span></em><a class="headerlink" href="#seldonian.parse_tree.constraints.measure_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of short-hand 
+function names that will be recognized to
+have a specific statistical meaning in 
+a constraint string provided in the interface.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="seldonian.parse_tree.constraints.custom_base_node_dict">
+<span class="sig-name descname"><span class="pre">custom_base_node_dict</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#seldonian.parse_tree.constraints.custom_base_node_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary mapping the name of a custom 
+base node as it would appear in the 
+constraint string to the class representing it 
+in <a class="reference internal" href="seldonian.parse_tree.nodes.html#module-seldonian.parse_tree.nodes" title="seldonian.parse_tree.nodes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nodes</span></code></a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="seldonian.parse_tree.constraints.op_mapper">
+<span class="sig-name descname"><span class="pre">op_mapper</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#seldonian.parse_tree.constraints.op_mapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps the supported ast operators
+to string representations of those operators
+as they appear in behavioral constraint strings</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="seldonian.parse_tree.constraints.not_supported_op_mapper">
+<span class="sig-name descname"><span class="pre">not_supported_op_mapper</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#seldonian.parse_tree.constraints.not_supported_op_mapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not supported ast operators, mapped to 
+string representations of those operators
+as they appear in behavioral constraint strings</p>
+</dd></dl>
+
 </section>
 
 

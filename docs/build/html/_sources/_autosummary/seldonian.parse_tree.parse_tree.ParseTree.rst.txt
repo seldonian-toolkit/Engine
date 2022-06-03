@@ -10,6 +10,7 @@ seldonian.parse\_tree.parse\_tree.ParseTree
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods

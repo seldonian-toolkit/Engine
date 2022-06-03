@@ -10,6 +10,7 @@ seldonian.models.model.SupervisedModel
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods

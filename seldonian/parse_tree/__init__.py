@@ -1,1 +1,1 @@
-""" Module for building parse trees from safety and fairness constraints """ 
+""" Module for building parse trees from behavioral constraints """ 

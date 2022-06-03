@@ -10,6 +10,7 @@ seldonian.parse\_tree.nodes.ConstantNode
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods

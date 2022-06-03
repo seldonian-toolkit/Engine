@@ -37,81 +37,41 @@
 <h1>seldonian.parse_tree.nodes.BaseNode<a class="headerlink" href="#seldonian-parse-tree-nodes-basenode" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">seldonian.parse_tree.nodes.</span></span><span class="sig-name descname"><span class="pre">BaseNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaseNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">seldonian.parse_tree.nodes.Node</span></code></a></p>
-<p>Class for base variable leaf nodes
-in the parse tree.</p>
-<p>Inherits all attributes and methods from Node class</p>
-<dl class="simple">
-<dt>name<span class="classifier">str</span></dt><dd><p>The name of the node</p>
-</dd>
-<dt>lower<span class="classifier">float</span></dt><dd><p>Lower confidence bound</p>
-</dd>
-<dt>upper<span class="classifier">float</span></dt><dd><p>Upper confidence bound</p>
-</dd>
-<dt>conditional_columns: List(str)</dt><dd><p>When calculating confidence bounds on a measure 
-function, condition on these columns being == 1</p>
-</dd>
-<dt>node_type<span class="classifier">str</span></dt><dd><p>equal to ‘base_node’</p>
-</dd>
-<dt>delta<span class="classifier">float</span></dt><dd><p>The share of the confidence put into this node</p>
-</dd>
-<dt>measure_function_name<span class="classifier">str</span></dt><dd><p>The name of the statistical measurement
-that this node represents, e.g. “FPR”. 
-Must be contained in measure_functions
-list in constraints.py</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>calculate_value()</dt><dd><p>Calculate the value of the base node 
-given data and a model</p>
-</dd>
-<dt>mask_dataframe(dataset,conditional_columns)</dt><dd><p>Mask dataset’s dataframe using 
-a compound mask where each of the
-conditional columns is True</p>
-</dd>
-<dt>calculate_data_forbound()</dt><dd><p>Prepare data inputs
-for confidence bound calculation.</p>
-</dd>
-<dt>zhat(model,theta,data_dict)</dt><dd><p>Calculate an unbiased estimate of the 
-base variable node.</p>
-</dd>
-<dt>calculate_bounds()</dt><dd><p>Calculate confidence bounds given a method, 
-such as t-test</p>
-</dd>
-<dt>predict_HC_lowerbound(data,datasize,delta)</dt><dd><p>Calculate high confidence lower bound
-that we expect to pass the safety test.
-Used in candidate selection</p>
-</dd>
-<dt>predict_HC_upperbound(data,datasize,delta)</dt><dd><p>Calculate high confidence upper bound
-that we expect to pass the safety test.
-Used in candidate selection</p>
-</dd>
-<dt>predict_HC_upper_and_lowerbound(data,datasize,delta)</dt><dd><p>Calculate high confidence upper and lower bounds
-that we expect to pass the safety test.
-Used in candidate selection.</p>
-</dd>
-<dt>compute_HC_lowerbound(data,datasize,delta)</dt><dd><p>Calculate high confidence lower bound. 
-Used in safety test</p>
-</dd>
-<dt>compute_HC_upperbound(data,datasize,delta)</dt><dd><p>Calculate high confidence upper bound.
-Used in safety test</p>
-</dd>
-<dt>compute_HC_upper_and_lowerbound(data,datasize,delta)</dt><dd><p>Calculate high confidence upper and lower bounds.
-Used in safety test.</p>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>name<span class="classifier">str</span></dt><dd><p>The name of the node</p>
+<dd><p>Class for base variable leaf nodes
+in the parse tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the node</p></li>
+<li><p><strong>lower</strong> (<em>float</em>) – Lower confidence bound</p></li>
+<li><p><strong>upper</strong> (<em>float</em>) – Upper confidence bound</p></li>
+<li><p><strong>conditional_columns</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – When calculating confidence bounds on a measure 
+function, condition on these columns being == 1</p></li>
+</ul>
 </dd>
-<dt>lower<span class="classifier">float</span></dt><dd><p>The lower bound, default -infinity</p>
-</dd>
-<dt>upper<span class="classifier">float</span></dt><dd><p>The upper bound, default infinity</p>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>node_type</strong> (<em>str</em>) – equal to ‘base_node’</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – The share of the confidence put into this node</p></li>
+<li><p><strong>measure_function_name</strong> (<em>str</em>) – str
+The name of the statistical measurement
+function that this node represents, e.g. “FPR”. 
+Must be contained in measure_functions
+list in <a class="reference internal" href="seldonian.parse_tree.constraints.html#module-seldonian.parse_tree.constraints" title="seldonian.parse_tree.constraints"><code class="xref py py-mod docutils literal notranslate"><span class="pre">constraints</span></code></a></p></li>
+</ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides Node.__repr__()</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -122,34 +82,16 @@ Used in safety test.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.__init__" title="seldonian.parse_tree.nodes.BaseNode.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name[, lower, upper, ...])</p></td>
-<td><p>Parameters
-
-name
-
-str
-
-The name of the node
-
-lower
-
-float
-
-The lower bound, default -infinity
-
-upper
-
-float
-
-The upper bound, default infinity</p></td>
+<td><p>Class for base variable leaf nodes in the parse tree.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.calculate_bounds" title="seldonian.parse_tree.nodes.BaseNode.calculate_bounds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_bounds</span></code></a>(**kwargs)</p></td>
-<td><p>Calculate confidence bounds given a bound_method,  such as t-test</p></td>
+<td><p>Calculate confidence bounds given a bound_method,  such as t-test.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.calculate_data_forbound" title="seldonian.parse_tree.nodes.BaseNode.calculate_data_forbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_data_forbound</span></code></a>(**kwargs)</p></td>
 <td><p>Prepare data inputs for confidence bound calculation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.calculate_value" title="seldonian.parse_tree.nodes.BaseNode.calculate_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_value</span></code></a>(**kwargs)</p></td>
-<td><p>Calculate the value of the node  given model weights, etc...</p></td>
+<td><p>Calculate the value of the node  given model weights, etc.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.compute_HC_lowerbound" title="seldonian.parse_tree.nodes.BaseNode.compute_HC_lowerbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_HC_lowerbound</span></code></a>(data, datasize, delta, ...)</p></td>
 <td><p>Calculate high confidence lower bound Used in safety test</p></td>
@@ -181,7 +123,7 @@ The upper bound, default infinity</p></td>
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode.calculate_bounds">
 <span class="sig-name descname"><span class="pre">calculate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.calculate_bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate confidence bounds given a bound_method, 
-such as t-test</p>
+such as t-test.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -195,9 +137,9 @@ for confidence bound calculation.</p>
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode.calculate_value">
 <span class="sig-name descname"><span class="pre">calculate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.calculate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the value of the node 
-given model weights, etc…</p>
-<p>This is the expected value (mean)
-of the base variable, not the bound.</p>
+given model weights, etc. This is
+the expected value of the base variable,
+not the bound.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -258,12 +200,19 @@ evaluated at each observation in dataset</p>
 <dd><p>Mask dataset’s dataframe using 
 a joint AND mask where each of the
 conditional columns is True.</p>
-<p>Return the masked dataframe as a numpy ndarray</p>
-<dl class="simple">
-<dt>dataset<span class="classifier">dataset.Dataset object</span></dt><dd><p>The candidate or safety dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>dataset.Dataset object</em>) – The candidate or safety dataset</p></li>
+<li><p><strong>conditional_columns</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – List of columns for which to create
+the joint AND mask on the dataset</p></li>
+</ul>
 </dd>
-<dt>conditional_columns: List(str)</dt><dd><p>List of columns for which to create
-the joint AND mask on the dataset</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The masked dataframe</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -328,14 +277,14 @@ evaluated at each observation in dataset</p>
 <span class="sig-name descname"><span class="pre">zhat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.zhat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate an unbiased estimate of the 
 base variable node.</p>
-<p>model : models.SeldonianModel class instance
-theta : numpy ndarray</p>
-<blockquote>
-<div><p>model weights</p>
-</div></blockquote>
-<dl class="simple">
-<dt>data_dict<span class="classifier">dictionary</span></dt><dd><p>contains inputs to model, 
-such as features and labels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>models.SeldonianModel object</em>) – The machine learning model</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – model weights</p></li>
+<li><p><strong>data_dict</strong> (<em>dict</em>) – Contains inputs to model, 
+such as features and labels</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

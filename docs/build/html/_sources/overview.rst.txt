@@ -3,7 +3,7 @@ Overview
 
 This overview will focus on the implementation of :term:`Seldonian algorithms<Seldonian Algorithm>` (SAs) in this library, rather than a description of what they are. For a detailed description of SAs see `the UMass AI Safety page <http://aisafety.cs.umass.edu/paper.html>`_, specifically `the Science paper <http://aisafety.cs.umass.edu/paper.html>`_. 
 
-A SA is implemented by enforcing high probability constraints in a machine learning (ML) problem. This paradigm is extremely general, but often these constraints are safety or fairness constraints. Below, terms that have special significance in SAs and throughout this library have glossary links upon their first appearance. 
+A SA is implemented by enforcing high probability constraints in a machine learning (ML) problem. This paradigm is extremely general, but often these constraints are safety or fairness constraints. Below, terms that have special significance in SAs and throughout this library have hyperlinks to the  glossary upon their first appearance. 
 
 Example
 -------

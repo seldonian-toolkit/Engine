@@ -10,6 +10,7 @@ seldonian.parse\_tree.nodes.MEDCustomBaseNode
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods

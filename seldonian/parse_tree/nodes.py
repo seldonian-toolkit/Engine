@@ -7,38 +7,41 @@ from seldonian.utils.stats_utils import *
 
 
 class Node(object):
-	""" 
-	The base class for all parse tree nodes
-	
-	Attributes
-	----------
-	name : str
-		The name of the node
-	index : int
-		The index of the node in the tree, root index is 0
-		Index precedes in post-order 
-	left : Node object or None
-		Left child node
-	right : Node object or None
-		Right child node
-	lower : float
-		Lower confidence bound
-	upper : float
-		Upper confidence bound
-	will_lower_bound : bool
-		Whether this node needs a lower bound
-	will_upper_bound : bool
-		Whether this node needs an upper bound
-
-	Methods
-	-------
-	__repr__()
-		String representation of the object. 
-		Also, what is shown when the parse tree is 
-		visualized.
-
-	"""
 	def __init__(self,name,lower,upper):
+		"""The base class for all parse tree nodes
+		:param name: 
+			The name of the node
+		:type name: str
+
+		:param lower: 
+			Lower confidence bound
+		:type lower: float
+
+		:param upper: 
+			Upper confidence bound
+		:type upper: float
+		
+		:ivar index: 
+			The index of the node in the tree
+		:vartype index: int
+
+		:ivar left: 
+			Left child node
+		:vartype left: Node object, defaults to None
+
+		:ivar right: 
+			Right child node
+		:vartype right: Node object, defaults to None
+		
+		:ivar will_lower_bound: 
+			Whether this node needs a lower bound
+		:vartype will_lower_bound: bool
+		
+		:ivar will_upper_bound: 
+			Whether this node needs an upper bound
+		:vartype will_upper_bound: bool
+
+		"""
 		self.name = name
 		self.index = None 
 		self.left  = None 
@@ -49,6 +52,10 @@ class Node(object):
 		self.will_upper_bound = True
 
 	def __repr__(self):
+		""" The string representation of the node. 
+		Also, what is displayed inside the node box 
+		in the visual graph 
+		"""
 		lower_bracket = '(' if np.isinf(self.lower) else '[' 
 		upper_bracket = ')' if np.isinf(self.upper) else ']'
 
@@ -56,7 +63,8 @@ class Node(object):
 		upper_str = f'{self.upper:g}' if self.will_upper_bound else '_'
 
 
-		bounds_str = f'{lower_bracket}{lower_str}, {upper_str}{upper_bracket}' \
+		bounds_str = \
+			f'{lower_bracket}{lower_str}, {upper_str}{upper_bracket}' \
 			if (self.lower!= None or self.upper!=None) else '()'
 
 		return '\n'.join(
@@ -68,102 +76,47 @@ class Node(object):
 		) 
   
 class BaseNode(Node):
-	""" 
-	Class for base variable leaf nodes
-	in the parse tree.
-	
-	Inherits all attributes and methods from Node class
-
-	
-	Attributes
-	----------
-	name : str
-		The name of the node
-	lower : float
-		Lower confidence bound
-	upper : float
-		Upper confidence bound
-	conditional_columns: List(str)
-		When calculating confidence bounds on a measure 
-		function, condition on these columns being == 1
-	node_type : str
-		equal to 'base_node'
-	delta : float
-		The share of the confidence put into this node
-	measure_function_name : str
-		The name of the statistical measurement
-		that this node represents, e.g. "FPR". 
-		Must be contained in measure_functions
-		list in constraints.py 
-
-	Methods
-	-------
-	calculate_value()
-		Calculate the value of the base node 
-		given data and a model
-
-	mask_dataframe(dataset,conditional_columns)
-		Mask dataset's dataframe using 
-		a compound mask where each of the
-		conditional columns is True
-
-	calculate_data_forbound()
-		Prepare data inputs
-		for confidence bound calculation.
-
-	zhat(model,theta,data_dict)
-		Calculate an unbiased estimate of the 
-		base variable node.
-
-	calculate_bounds()
-		Calculate confidence bounds given a method, 
-		such as t-test
-	
-	predict_HC_lowerbound(data,datasize,delta)
-		Calculate high confidence lower bound
-		that we expect to pass the safety test.
-		Used in candidate selection
-
-	predict_HC_upperbound(data,datasize,delta)
-		Calculate high confidence upper bound
-		that we expect to pass the safety test.
-		Used in candidate selection
-	
-	predict_HC_upper_and_lowerbound(data,datasize,delta)
-		Calculate high confidence upper and lower bounds
-		that we expect to pass the safety test.
-		Used in candidate selection.
-
-	compute_HC_lowerbound(data,datasize,delta)
-		Calculate high confidence lower bound. 
-		Used in safety test
-
-	compute_HC_upperbound(data,datasize,delta)
-		Calculate high confidence upper bound.
-		Used in safety test
-	
-	compute_HC_upper_and_lowerbound(data,datasize,delta)
-		Calculate high confidence upper and lower bounds.
-		Used in safety test.
-
-	"""
 	def __init__(self,
 		name,
 		lower=float('-inf'),
 		upper=float('inf'),
 		conditional_columns=[],
 		**kwargs):
-		"""
-		Parameters
-		----------
-		name : str
-			The name of the node
-		lower : float
-			The lower bound, default -infinity
-		upper : float
-			The upper bound, default infinity
-		"""
+		""" Class for base variable leaf nodes
+		in the parse tree.
 
+		:param name: 
+			The name of the node
+		:type name: str
+		
+		:param lower: 
+			Lower confidence bound
+		:type lower: float
+
+		:param upper: 
+			Upper confidence bound
+		:type upper: float
+
+		:param conditional_columns: 
+			When calculating confidence bounds on a measure 
+			function, condition on these columns being == 1
+		:type conditional_columns: List(str)
+
+		:ivar node_type: 
+			equal to 'base_node'
+		:vartype node_type: str
+
+		:ivar delta: 
+			The share of the confidence put into this node
+		:vartype delta: float
+
+		:ivar measure_function_name: str
+			The name of the statistical measurement
+			function that this node represents, e.g. "FPR". 
+			Must be contained in measure_functions
+			list in :py:mod:`.constraints`
+		:vartype measure_function_name: str
+		"""
 		super().__init__(name,lower,upper,**kwargs)
 		self.conditional_columns = conditional_columns
 		
@@ -172,8 +125,7 @@ class BaseNode(Node):
 		self.measure_function_name = '' 
 
 	def __repr__(self):
-		""" 
-		Overrides Node.__repr__()
+		""" Overrides Node.__repr__()
 		"""
 		return super().__repr__() + ', ' + u'\u03B4' + f'={self.delta:g}'
 	
@@ -181,10 +133,9 @@ class BaseNode(Node):
 		**kwargs):
 		"""
 		Calculate the value of the node 
-		given model weights, etc...
-
-		This is the expected value (mean)
-		of the base variable, not the bound.
+		given model weights, etc. This is
+		the expected value of the base variable,
+		not the bound.
 		""" 
 	
 		model = kwargs['model']
@@ -200,20 +151,21 @@ class BaseNode(Node):
 	def mask_dataframe(self,
 		dataset,
 		conditional_columns):
-		"""
-		Mask dataset's dataframe using 
+		"""Mask dataset's dataframe using 
 		a joint AND mask where each of the
 		conditional columns is True.
 
-		Return the masked dataframe as a numpy ndarray
-
-		Parameters
-		----------
-		dataset : dataset.Dataset object
+		:param dataset: 
 			The candidate or safety dataset
-		conditional_columns: List(str)
+		:type dataset: dataset.Dataset object
+		
+		:param conditional_columns: 
 			List of columns for which to create
 			the joint AND mask on the dataset
+		:type conditional_columns: List(str)
+
+		:return: The masked dataframe 
+		:rtype: numpy ndarray
 		"""
 		col_indices=[0 if conditional_columns[0]=='M' else 1]
 		masks = reduce(np.logical_and,(dataset.df.values[:,col_index]==1 for col_index in col_indices))
@@ -308,14 +260,17 @@ class BaseNode(Node):
 		Calculate an unbiased estimate of the 
 		base variable node.
 	
-		Parameters
-		----------
-		model : models.SeldonianModel class instance
-		theta : numpy ndarray
+		:param model: The machine learning model
+		:type model: models.SeldonianModel object
+	
+		:param theta: 
 			model weights
-		data_dict : dictionary
-			contains inputs to model, 
+		:type theta: numpy ndarray
+		
+		:param data_dict: 
+			Contains inputs to model, 
 			such as features and labels
+		:type data_dict: dict
 		"""
 
 		return model.sample_from_statistic(
@@ -324,9 +279,8 @@ class BaseNode(Node):
 					
 	def calculate_bounds(self,
 		**kwargs):
-		"""
-		Calculate confidence bounds given a bound_method, 
-		such as t-test
+		"""Calculate confidence bounds given a bound_method, 
+		such as t-test.
 		""" 
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']

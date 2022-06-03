@@ -10,6 +10,7 @@ seldonian.candidate\_selection.CandidateSelection
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods

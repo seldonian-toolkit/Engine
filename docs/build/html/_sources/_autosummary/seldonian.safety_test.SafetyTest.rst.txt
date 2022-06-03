@@ -10,6 +10,7 @@ seldonian.safety\_test.SafetyTest
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods
