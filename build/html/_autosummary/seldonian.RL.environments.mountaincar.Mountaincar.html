@@ -107,9 +107,8 @@ Barrowed from Phil Thomas’s RL course Fall 2019. Written by Blossom Metevier a
 <dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.terminal">
 <span class="sig-name descname"><span class="pre">terminal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.terminal" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
-<dt>terminates the episode if:</dt><dd><p>time is greater that 20 seconds
-pole falls <a href="#id1"><span class="problematic" id="id2">|theta|</span></a> &gt; (pi/12.0)
-cart hits the sides <a href="#id3"><span class="problematic" id="id4">|x|</span></a> &gt;= 3</p>
+<dt>terminates the episode if:</dt><dd><p>time is greater than max timesteps
+position passes finish line</p>
 </dd>
 </dl>
 </dd></dl>

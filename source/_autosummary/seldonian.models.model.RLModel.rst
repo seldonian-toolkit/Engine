@@ -18,8 +18,6 @@ seldonian.models.model.RLModel
 
    .. autosummary::
    .. 
-   ..    ~RLModel.IS_estimate
-   ..
    ..    ~RLModel.__init__
    ..
    ..    ~RLModel.evaluate_statistic

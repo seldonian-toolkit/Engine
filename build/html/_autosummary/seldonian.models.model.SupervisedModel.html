@@ -43,8 +43,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.model.SupervisedModel.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.SupervisedModel.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parent class for all machine learning models
-used in this library.</p>
+<dd><p>Parent class for all supervised machine learning 
+models used in this library</p>
 </dd></dl>
 
 <dl class="py method">
@@ -58,6 +58,26 @@ used in this library.</p>
 <tbody>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.SupervisedModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.SupervisedModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model using the feature,label pairs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>Nx1 numpy ndarray</em>) – features</p></li>
+<li><p><strong>X</strong> – labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>weights from the fitted model</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
