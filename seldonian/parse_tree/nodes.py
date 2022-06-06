@@ -9,6 +9,7 @@ from seldonian.utils.stats_utils import *
 class Node(object):
 	def __init__(self,name,lower,upper):
 		"""The base class for all parse tree nodes
+		
 		:param name: 
 			The name of the node
 		:type name: str
@@ -114,7 +115,7 @@ class BaseNode(Node):
 			The name of the statistical measurement
 			function that this node represents, e.g. "FPR". 
 			Must be contained in measure_functions
-			list in :py:mod:`.constraints`
+			list in :py:mod:`.operators`
 		:vartype measure_function_name: str
 		"""
 		super().__init__(name,lower,upper,**kwargs)
@@ -362,15 +363,18 @@ class BaseNode(Node):
 		that we expect to pass the safety test.
 		Used in candidate selection
 
-		Parameters
-		----------
-		data : numpy ndarray 
+		:param data: 
 			Vector containing base variable  
 			evaluated at each observation in dataset
-		datasize : int
+		:type data: numpy ndarray 
+
+		:param datasize: 
 			The number of observations in the safety dataset
-		delta : float
+		:type datasize: int
+		
+		:param delta: 
 			Confidence level, e.g. 0.05
+		:type delta: float
 		""" 
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -392,15 +396,18 @@ class BaseNode(Node):
 		that we expect to pass the safety test.
 		Used in candidate selection
 
-		Parameters
-		----------
-		data : numpy ndarray 
+		:param data: 
 			Vector containing base variable  
 			evaluated at each observation in dataset
-		datasize : int
+		:type data: numpy ndarray 
+
+		:param datasize: 
 			The number of observations in the safety dataset
-		delta : float
+		:type datasize: int
+		
+		:param delta: 
 			Confidence level, e.g. 0.05
+		:type delta: float
 		"""  
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -426,15 +433,18 @@ class BaseNode(Node):
 		to calling predict_HC_lowerbound() and 
 		predict_HC_upperbound() independently.
 
-		Parameters
-		----------
-		data : numpy ndarray 
+		:param data: 
 			Vector containing base variable  
 			evaluated at each observation in dataset
-		datasize : int
+		:type data: numpy ndarray 
+
+		:param datasize: 
 			The number of observations in the safety dataset
-		delta : float
+		:type datasize: int
+		
+		:param delta: 
 			Confidence level, e.g. 0.05
+		:type delta: float
 		""" 
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -463,15 +473,18 @@ class BaseNode(Node):
 		Calculate high confidence lower bound
 		Used in safety test
 
-		Parameters
-		----------
-		data : numpy ndarray 
+		:param data: 
 			Vector containing base variable  
 			evaluated at each observation in dataset
-		datasize : int
+		:type data: numpy ndarray 
+
+		:param datasize: 
 			The number of observations in the safety dataset
-		delta : float
+		:type datasize: int
+		
+		:param delta: 
 			Confidence level, e.g. 0.05
+		:type delta: float
 		"""  
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -490,15 +503,18 @@ class BaseNode(Node):
 		Calculate high confidence upper bound
 		Used in safety test
 
-		Parameters
-		----------
-		data : numpy ndarray 
+		:param data: 
 			Vector containing base variable  
 			evaluated at each observation in dataset
-		datasize : int
+		:type data: numpy ndarray 
+
+		:param datasize: 
 			The number of observations in the safety dataset
-		delta : float
+		:type datasize: int
+		
+		:param delta: 
 			Confidence level, e.g. 0.05
+		:type delta: float
 		"""
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -525,15 +541,18 @@ class BaseNode(Node):
 		to calling compute_HC_lowerbound() and 
 		compute_HC_upperbound() independently.
 
-		Parameters
-		----------
-		data : numpy ndarray 
+		:param data: 
 			Vector containing base variable  
 			evaluated at each observation in dataset
-		datasize : int
+		:type data: numpy ndarray 
+
+		:param datasize: 
 			The number of observations in the safety dataset
-		delta : float
+		:type datasize: int
+		
+		:param delta: 
 			Confidence level, e.g. 0.05
+		:type delta: float
 		"""
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -557,45 +576,43 @@ class BaseNode(Node):
 		return lower,upper
   
 class MEDCustomBaseNode(BaseNode):
-	""" 
-	Custom base node that calculates pair-wise
-	mean error differences between male and female
-	points. This was used in the Seldonian regression algorithm 
-	in the Thomas et al. 2019 Science paper (see Figure 2).
-
-	Inherits all attributes and methods from BaseNode class. 
-	Overrides several of these methods for custom functionality
-	
-	Attributes
-	----------
-	name : str
-		The name of the node
-	lower : float
-		Lower confidence bound
-	upper : float
-		Upper confidence bound
-
-	"""
 	def __init__(self,
 		name,
 		lower=float('-inf'),
 		upper=float('inf'),
 		**kwargs):
-		"""
-		Parameters
-		----------
-		name : str
+		""" 
+		Custom base node that calculates pair-wise
+		mean error differences between male and female
+		points. This was used in the Seldonian regression algorithm 
+		in the Thomas et al. 2019 Science paper (see Figure 2).
+
+		Overrides several parent class methods 
+		
+		
+		:param name: 
 			The name of the node
-		lower : float
-			The lower bound, default -infinity
-		upper : float
-			The upper bound, default infinity
+		:type name: str
+		
+		:param lower: 
+			Lower confidence bound
+		:type lower: float
+		
+		:param upper: 
+			Upper confidence bound
+		:type upper: float
+
+		:ivar delta: 
+			The share of the confidence put into this node
+		:vartype delta: float
 		"""
 		super().__init__(name,lower,upper,**kwargs)
 		self.delta = 0  
 		
 	def calculate_data_forbound(self,**kwargs):
-		""" Overrides parent Node method """
+		""" 
+		Overrides same method from parent class, :py:class:`.BaseNode`
+		"""
 		dataset = kwargs['dataset']
 		dataframe = dataset.df
 		
@@ -623,6 +640,12 @@ class MEDCustomBaseNode(BaseNode):
 		Preconfigure dataset for candidate selection or 
 		safety test so that it does not need to be 
 		recalculated on each iteration through the parse tree
+
+		:param X: features
+		:type X: pandas dataframe
+
+		:param Y: labels
+		:type Y: pandas dataframe		
 		"""
 		dataset = kwargs['dataset']
 
@@ -659,19 +682,22 @@ class MEDCustomBaseNode(BaseNode):
 
 	def zhat(self,model,theta,data_dict):
 		"""
-		pPair up male and female columns and compute a vector of:
-		(y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon
+		Pair up male and female columns and compute a vector of:
+		(y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon.
 		There may not be the same number of male and female rows
 		so the number of pairs is min(N_male,N_female)
 
-		Parameters
-		----------
-		model : models.SeldonianModel class instance
-		theta : numpy ndarray
+		:param model: machine learning model
+		:type model: models.SeldonianModel object
+
+		:param theta: 
 			model weights
-		data_dict : dictionary
+		:type theta: numpy ndarray
+		
+		:param data_dict: 
 			contains inputs to model, 
 			such as features and labels
+		:type data_dict: dict
 		"""
 		X_male = data_dict['X_male'].values
 		Y_male = data_dict['Y_male'].values
@@ -687,32 +713,23 @@ class MEDCustomBaseNode(BaseNode):
 		return mean_error_male - mean_error_female
 
 class ConstantNode(Node):
-	""" 
-	Class for constant leaf nodes 
-	in the parse tree. 
-	Inherits all attributes from Node class
-
-	Attributes
-	----------
-	name : str
-		The name of the node
-	value: float
-		The value of the constant the node represents
-	node_type : str
-		'constant_node'
-
-	"""
 	def __init__(self,name,value,**kwargs):
-		"""
-		Sets lower and upper bound as the value of 
-		the constant
+		""" 
+		Class for constant leaf nodes 
+		in the parse tree. Sets lower and upper
+		bound as the value of the constant.
 
-		Parameters
-		----------
-		name : str
+		:param name: 
 			The name of the node
-		value: float
-			The value of the constant 
+		:type name: str
+
+		:param value: 
+			The value of the constant the node represents
+		:type value: float
+
+		:ivar node_type: 
+			'constant_node'
+		:vartype node_type: str
 		"""
 		super().__init__(name=name,
 			lower=value,upper=value,**kwargs)
@@ -720,20 +737,18 @@ class ConstantNode(Node):
 		self.node_type = 'constant_node'
   
 class InternalNode(Node):
-	""" 
-	Class for internal (non-leaf) nodes 
-	in the parse tree.
-	These represent operators, such as +,-,*,/ etc.
-	Inherits all attributes from Node class
-
-	Attributes
-	----------
-	name : str
-		The name of the node, which is the 
-		string representation of the operation 
-		the node performs
-	"""
 	def __init__(self,name,
 		lower=float('-inf'),upper=float('inf'),**kwargs):
+		""" 
+		Class for internal (non-leaf) nodes 
+		in the parse tree.
+		These represent operators, such as +,-,*,/ etc.
+
+		:param name: 
+			The name of the node, which is the 
+			string representation of the operation 
+			the node performs
+		:type name: str
+		"""
 		super().__init__(name,lower,upper,**kwargs)
 		self.node_type = 'internal_node'

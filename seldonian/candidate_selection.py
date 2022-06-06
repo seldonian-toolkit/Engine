@@ -18,7 +18,7 @@ class CandidateSelection(object):
 		when predicting confidence bounds during candidate selection
 	:type n_safety: int
 		
-	:type parse_trees: List of parse tree objects containing the 
+	:param parse_trees: List of parse tree objects containing the 
 		behavioral constraints
 	:type parse_trees: List(parse_tree.ParseTree objects)
 		
@@ -39,8 +39,8 @@ class CandidateSelection(object):
 		the optimizer
 	:type initial_solution: numpy ndarray
 		
-	:param regime: The type of machine learning algorithm,
-		e.g. supervised or RL
+	:param regime: The category of the machine learning algorithm,
+			e.g. supervised or RL
 	:type regime: str
 		
 	:param write_logfile: Whether to write outputs of candidate selection 

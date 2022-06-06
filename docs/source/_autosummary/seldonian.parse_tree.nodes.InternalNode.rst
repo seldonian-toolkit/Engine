@@ -4,9 +4,10 @@ seldonian.parse\_tree.nodes.InternalNode
 .. currentmodule:: seldonian.parse_tree.nodes
 
 .. autoclass:: InternalNode
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
@@ -16,8 +17,9 @@ seldonian.parse\_tree.nodes.InternalNode
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~InternalNode.__init__
+   .. 
+   ..    ~InternalNode.__init__
+   ..
    
    
 

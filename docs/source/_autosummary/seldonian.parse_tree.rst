@@ -29,7 +29,7 @@ seldonian.parse\_tree
    :recursive:
 
 
-   seldonian.parse_tree.constraints
    seldonian.parse_tree.nodes
+   seldonian.parse_tree.operators
    seldonian.parse_tree.parse_tree
 

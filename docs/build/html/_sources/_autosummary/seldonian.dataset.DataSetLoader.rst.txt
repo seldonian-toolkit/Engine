@@ -4,9 +4,10 @@ seldonian.dataset.DataSetLoader
 .. currentmodule:: seldonian.dataset
 
 .. autoclass:: DataSetLoader
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
@@ -16,10 +17,13 @@ seldonian.dataset.DataSetLoader
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~DataSetLoader.__init__
-      ~DataSetLoader.from_csv
-      ~DataSetLoader.from_pickle
+   .. 
+   ..    ~DataSetLoader.__init__
+   ..
+   ..    ~DataSetLoader.from_csv
+   ..
+   ..    ~DataSetLoader.from_pickle
+   ..
    
    
 

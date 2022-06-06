@@ -1,3 +1,7 @@
+"""
+Main module for building parse trees from behavioral constraints
+"""
+
 import ast
 import warnings
 
@@ -6,194 +10,60 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 from seldonian.warnings.custom_warnings import *
 from .nodes import *
-from .constraints import *
-
-
-"""
-Define a map containing which child bounds are required for each operator
-
-If an operator has two children, A and B then
-arrays are boolean of length 4, like: 
-[need_A_lower,need_A_upper,need_B_lower,need_B_upper]
-
-If an operator has one child, A, then
-arrays are boolean:
-[need_A_lower, need_A_upper]
-"""
-bounds_required_dict = {
-	'add':{
-	'lower':[1,0,1,0],
-	'upper':[0,1,0,1],
-	},
-	'sub':{
-	'lower':[1,0,0,1],
-	'upper':[0,1,1,0],
-	},
-	'mult':{
-	'lower':[1,1,1,1],
-	'upper':[1,1,1,1],
-	},
-	'div':{
-	'lower':[1,1,1,1],
-	'upper':[1,1,1,1],
-	},
-	'pow':{
-	'lower':[1,1,1,1],
-	'upper':[1,1,1,1],
-	},
-	'min':{
-	'lower':[1,0,1,0],
-	'upper':[0,1,0,1],
-	},
-	'max':{
-	'lower':[1,0,1,0],
-	'upper':[0,1,0,1],
-	},
-	'abs':{
-	'lower':[1,1],
-	'upper':[1,1],
-	},
-	'exp':{
-	'lower':[1,0],
-	'upper':[0,1],
-	},
-}
-
+from .operators import *
 
 class ParseTree(object):
-	""" 
-	Class to represent a parse tree for a single behavioral constraint
-
-	Attributes
-	----------
-	root : nodes.Node class instance
-		Root node which contains the whole tree 
-		via left and right child attributes.
-		Gets assigned when tree is built
-	constraint_str: str
-		The string expression for the behavioral
-		constraint
-	delta: float
-		Confidence level. Specifies the maximum probability 
-		that the algorithm can return a solution violat the
-		behavioral constraint.
-	n_nodes: int
-		Total number of nodes in the parse tree
-	n_base_nodes: int
-		Number of base variable nodes in the parse tree.
-		Does not include constants. If a base variable,
-		such as PR | [M] appears more than once in the 
-		constraint_str each appearance contributes 
-		to n_base_nodes
-	base_node_dict: dict
-		Keeps track of unique base variable nodes,
-		their confidence bounds and whether 
-		the bounds have been calculated
-		for a given base node already.
-		Helpful for handling case where we have 
-		duplicate base nodes 
-	node_fontsize: int
-		Fontsize used for graphviz visualizations
-
-	Methods
-	-------
-	create_from_ast(s)
-		Create the node structure of the tree
-		given a mathematical string expression
-		for the behavioral constraint, s
-
-	_ast_tree_helper(ast_node)
-		Helper function for create_from_ast()
-
-	_ast2pt_node(ast_node)
-		Mapper between python's ast library's
-		node objects to this library's Node objects
-
-	assign_deltas(weight_method)
-		Assign the delta values to the base nodes in the tree
-
-	_assign_deltas_helper(node,weight_method)
-		Helper function for assign_deltas()
-	
-	assign_bounds_needed()
-		Assign whether lower, upper or both bounds
-		need to be calculated for each node.
-
-	_assign_bounds_helper()
-		Helper function for assign_bounds_needed
-
-	propagate_bounds()
-		Traverse the parse tree, calculate confidence
-		bounds on base nodes and 
-		then propagate bounds using propagation logic
-
-	_propagator_helper(node)
-		Helper function for propagate_bounds()
-
-	evaluate_constraint()
-		Get the mean value of the constraint,
-		given a dataset and model
-
-	_evaluator_helper(node)
-		Helper function for evaluate_constraint()
-
-	_propagate_value(node)
-		Given an internal node, calculate the 
-		propagated node value from its children 
-		using the node's operator type
-
-	_protect_nan(bound,bound_type)
-		Handle nan as negative infinity if in lower bound
-		and postitive infinity if in upper bound 
-
-	_propagate(node)
-		Given an internal node, calculate 
-		the propagated confidence interval
-		from its children using the 
-		node's operator type
-
-	_add(a,b)
-		Add intervals a and b
-
-	_sub(a,b)
-		Subtract intervals a and b
-
-	_mult(a,b)
-		Multiply intervals a and b
-
-	_div(a,b)
-		Divide intervals a and b  
-
-	_pow(a,b)
-		Raise interval a to the power of interval b 
-		(experimental feature)
-	
-	_min(a,b)
-		Get the minimum interval from intervals a and b
-
-	_max(a,b)
-		Get the maximum interval from intervals a and b
-
-	_abs(a)
-		Take the absolute value of interval a 
-
-	_exp(a)
-		Calculate e raised to the interval a.
-
-	reset_base_node_dict(reset_data=False)
-
-	make_viz(title)
-		Make a graphviz graph object of 
-		the parse tree and give it a title
-
-	make_viz_helper(root,graph)
-		Helper function for make_viz()
-
-	"""
 	def __init__(self,delta):
+		""" 
+		Class to represent a parse tree for a single behavioral constraint
+
+
+		:param delta: 
+			Confidence level. Specifies the maximum probability 
+			that the algorithm can return a solution violat the
+			behavioral constraint.
+		:type delta: float
+
+		:ivar root: 
+			Root node which contains the whole tree 
+			via left and right child attributes.
+			Gets assigned when tree is built
+		:vartype root: nodes.Node object
+		
+		:ivar constraint_str: 
+			The string expression for the behavioral
+			constraint
+		:vartype constraint_str: str
+		
+		:ivar n_nodes: 
+			Total number of nodes in the parse tree
+		:vartype n_nodes: int
+		
+		:ivar n_base_nodes: 
+			Number of base variable nodes in the parse tree.
+			Does not include constants. If a base variable,
+			such as PR | [M] appears more than once in the 
+			constraint_str each appearance contributes 
+			to n_base_nodes
+		:vartype n_base_nodes: int
+		
+		:ivar base_node_dict: 
+			Keeps track of unique base variable nodes,
+			their confidence bounds and whether 
+			the bounds have been calculated
+			for a given base node already.
+			Helpful for handling case where we have 
+			duplicate base nodes 
+		:vartype base_node_dict: dict
+		
+		:ivar node_fontsize: 
+			Fontsize used for graphviz visualizations
+		:vartype node_fontsize: int
+		"""
+		self.delta = delta
+
 		self.root = None 
 		self.constraint_str = ''
-		self.delta = delta
 		self.n_nodes = 0
 		self.n_base_nodes = 0
 		self.base_node_dict = {} 
@@ -204,11 +74,10 @@ class ParseTree(object):
 		Create the node structure of the tree
 		given a mathematical string expression, s
 
-		Parameters
-		----------
-		s : str
+		:param s: 
 			mathematical expression written in Python syntax
 			from which we build the parse tree
+		:type s: str
 		"""
 		self.constraint_str = s
 		self.node_index = 0
@@ -226,12 +95,11 @@ class ParseTree(object):
 	def _ast_tree_helper(self,ast_node):
 		""" 
 		From a given node in the ast tree,
-		make a node in our tree and recurse
+		make a node in the tree and recurse
 		to children of this node.
 
-		Parameters
-		----------
-		node : ast.AST node class instance 
+		:param ast_node: node in the ast tree
+		:type ast_node: ast.AST node object
 			
 		"""
 		# base case
@@ -337,12 +205,11 @@ class ParseTree(object):
 
 	def _ast2pt_node(self,ast_node):
 		""" 
-		Mapper to convert ast.AST node objects
-		to our Node objects
-
-		Parameters
-		----------
-		ast_node : ast.AST node class instance
+		From ast.AST node object, create
+		one of the node objects from :py:mod:`.Nodes`
+		
+		:param ast_node: node in the ast tree
+		:type ast_node: ast.AST node object	
 		"""
 		is_leaf = False
 		kwargs = {}
@@ -441,11 +308,11 @@ class ParseTree(object):
 		""" 
 		Assign the delta values to the base nodes in the tree.
 
-		Parameters
-		----------
-		weight_method : str
-			How you want to assign the deltas to the base nodes
-			'equal' : split up delta equally among base nodes 
+		:param weight_method: str, defaults to 'equal'
+			How you want to assign the deltas to the base nodes.
+			The default 'equal' splits up delta equally
+			among unique base nodes 
+		:type weight_method: str
 		"""
 		assert self.n_base_nodes > 0, (
 			"Number of base nodes must be > 0."
@@ -456,18 +323,13 @@ class ParseTree(object):
 		""" 
 		Helper function to traverse the parse tree 
 		and assign delta values to base nodes.
-		--TODO-- 
-		Currently uses preorder, but there is likely
-		a faster way to do this because if you get 
-		to a base node, you know none 
-		of its parents are possible base nodes
 
-		Parameters
-		----------
-		node : nodes.Node class instance
-		weight_method : str
+		:param node: node in the parse tree
+		:type node: :py:class:`.Node` object
+		
+		:param weight_method: 
 			How you want to assign the deltas to the base nodes
-				'equal' : split up delta equally among base nodes 
+		:type weight_method: str
 		"""
 		
 		if not node:
@@ -483,14 +345,13 @@ class ParseTree(object):
 
 	def assign_bounds_needed(self,**kwargs):
 		""" 
-		BFS through the tree and decide which bounds
-		are required to compute on each child node.
-		Eventually we get to base nodes 
+		Breadth first search through the tree and 
+		decide which bounds are required to compute
+		on each child node. Eventually we get to base nodes. 
 		There are cases where it is not always 
 		necessary to compute both lower and upper 
 		bounds because at the end all we care about
 		is the upper bound of the root node. 
-
 		"""
 		assert self.n_nodes > 0, "Number of nodes must be > 0"
 		# initialize needed bounds for root
@@ -506,19 +367,17 @@ class ParseTree(object):
 		Helper function to traverse the parse tree 
 		and assign which bounds we need to calculate 
 		on the base nodes.
-		--TODO-- 
-		Currently uses preorder, but there is likely
-		a faster way to do this because if you get 
-		to a base node, you know none 
-		of its parents are possible base nodes
 
-		Parameters
-		----------
-		node : nodes.Node class instance
-		lower_needed : bool
+		:param node: node in the parse tree
+		:type node: :py:class:`.Node` object
+		
+		:param lower_needed: 
 			Whether lower bound needs to be calculated
-		upper_needed : bool
+		:type lower_needed: bool
+		
+		:param upper_needed: 
 			Whether upper bound needs to be calculated
+		:type upper_needed: bool
 		"""
 
 		# if we go off the end return
@@ -597,7 +456,6 @@ class ParseTree(object):
 		through the tree and calculate confidence
 		bounds on base nodes,
 		then propagate bounds using propagation logic
-
 		"""
 		if not self.root:
 			return []
@@ -611,9 +469,8 @@ class ParseTree(object):
 		Helper function for traversing 
 		through the tree and propagating confidence bounds
 
-		Parameters
-		----------
-		node : nodes.Node class instance	
+		:param node: node in the parse tree
+		:type node: :py:class:`.Node` object
 		"""
 
 		# if we hit a constant node or run past the end of the tree
@@ -667,12 +524,12 @@ class ParseTree(object):
 			**kwargs)
 		
 		# Here we must be at an internal node and therefore need to propagate
-		node.lower,node.upper = self._propagate(node)
+		node.lower,node.upper = self.propagate(node)
 	
 	def evaluate_constraint(self,
 		**kwargs):
 		""" 
-		Evaluate the constraint itself (not bounds_)
+		Evaluate the constraint itself (not bounds)
 		Postorder traverse (left, right, root)
 		through the tree and calculate the values
 		of the base nodes 
@@ -690,9 +547,8 @@ class ParseTree(object):
 		Helper function for traversing 
 		through the tree to evaluate the constraint
 
-		Parameters
-		----------
-		node : nodes.Node class instance
+		:param node: node in the parse tree
+		:type node: :py:class:`.Node` object
 		"""
 
 		# if we hit a constant node or run past the end of the tree
@@ -744,9 +600,8 @@ class ParseTree(object):
 		"""
 		Helper function for propagating values
 
-		Parameters
-		----------
-		node : nodes.Node class instance
+		:param node: node in the parse tree
+		:type node: :py:class:`.Node` object
 		"""
 		a = node.left.value
 		if node.right:
@@ -791,12 +646,12 @@ class ParseTree(object):
 		Handle nan as negative infinity if in lower bound
 		and postitive infinity if in upper bound 
 
-		Parameters
-		----------
-		bound : float
+		:param bound: 
 			The value of the upper or lower bound 
-		bound_type : str
+		:type bound: float
+		:param bound_type: 
 			'lower' or 'upper'
+		:type bound_type: str
 		"""
 		if np.isnan(bound):
 			if bound_type == 'lower':
@@ -806,13 +661,12 @@ class ParseTree(object):
 		else:
 			return bound
 
-	def _propagate(self,node):
+	def propagate(self,node):
 		"""
 		Helper function for propagating confidence bounds
 
-		Parameters
-		----------
-		node : nodes.Node class instance
+		:param node: node in the parse tree
+		:type node: :py:class:`.Node` object
 		"""
 		if node.name == 'add':
 			a = (node.left.lower,node.left.upper)
@@ -869,12 +723,13 @@ class ParseTree(object):
 		"""
 		Add two confidence intervals
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
-		b : tuple
+		:type a: tuple
+		
+		:param b: 
 			Confidence interval like: (lower,upper)
+		:type b: tuple
 		"""
 		lower = self._protect_nan(
 			a[0] + b[0],
@@ -890,12 +745,13 @@ class ParseTree(object):
 		"""
 		Subract two confidence intervals
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
-		b : tuple
+		:type a: tuple
+		
+		:param b: 
 			Confidence interval like: (lower,upper)
+		:type b: tuple
 		"""
 		lower = self._protect_nan(
 				a[0] - b[1],
@@ -911,12 +767,13 @@ class ParseTree(object):
 		"""
 		Multiply two confidence intervals
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
-		b : tuple
+		:type a: tuple
+		
+		:param b: 
 			Confidence interval like: (lower,upper)
+		:type b: tuple
 		"""        
 		lower = self._protect_nan(
 			min(a[0]*b[0],a[0]*b[1],a[1]*b[0],a[1]*b[1]),
@@ -932,12 +789,13 @@ class ParseTree(object):
 		"""
 		Divide two confidence intervals
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
-		b : tuple
+		:type a: tuple
+		
+		:param b: 
 			Confidence interval like: (lower,upper)
+		:type b: tuple
 		"""
 
 		if b[0] < 0 < b[1]:
@@ -968,12 +826,13 @@ class ParseTree(object):
 		pow(a,b) where 
 		b and b are both be intervals 
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
-		b : tuple
+		:type a: tuple
+		
+		:param b: 
 			Confidence interval like: (lower,upper)
+		:type b: tuple
 		"""
 
 		# First, cases that are not allowed
@@ -1004,12 +863,13 @@ class ParseTree(object):
 		"""
 		Get the minimum of two confidence intervals
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
-		b : tuple
+		:type a: tuple
+		
+		:param b: 
 			Confidence interval like: (lower,upper)
+		:type b: tuple
 		"""        
 		lower = min(a[0],b[0])
 		upper = min(a[1],b[1])
@@ -1019,12 +879,13 @@ class ParseTree(object):
 		"""
 		Get the maximum of two confidence intervals
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
-		b : tuple
+		:type a: tuple
+		
+		:param b: 
 			Confidence interval like: (lower,upper)
+		:type b: tuple
 		"""        
 		lower = max(a[0],b[0])
 		upper = max(a[1],b[1])
@@ -1034,10 +895,9 @@ class ParseTree(object):
 		"""
 		Absolute value of a confidence interval
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
+		:type a: tuple
 		"""
 		abs_a0 = abs(a[0])
 		abs_a1 = abs(a[1])
@@ -1057,10 +917,9 @@ class ParseTree(object):
 		"""
 		Exponentiate a confidence interval
 
-		Parameters
-		----------
-		a : tuple
+		:param a: 
 			Confidence interval like: (lower,upper)
+		:type a: tuple
 		"""
 		
 		
@@ -1078,13 +937,11 @@ class ParseTree(object):
 		""" 
 		Reset base node dict to initial state 
 		
-
-		Parameters
-		----------
-		reset_data : bool
+		:param reset_data: 
 			Whether to reset the cached data 
 			for each base node. This is needed less frequently
 			than one needs to reset the bounds.
+		:type reset_data: bool
 		"""
 		for node_name in self.base_node_dict:
 			self.base_node_dict[node_name]['bound_computed'] = False
@@ -1102,11 +959,10 @@ class ParseTree(object):
 		""" 
 		Make a graphviz diagram from a root node
 
-		Parameters
-		----------
-		title : str
+		:param title: 
 			The title you want to display at the top
 			of the graph
+		:type title: str
 		"""
 		graph=graphviz.Digraph()
 		graph.attr(label=title+'\n\n')
@@ -1123,12 +979,13 @@ class ParseTree(object):
 		Recurses through the parse tree
 		and adds nodes and edges to the graph
 
-		Parameters
-		----------
-		root : nodes.Node class instance
+		:param root: 
 			root of the parse tree
-		graph: graphviz.Digraph class instance
+		:type root: :py:class:`.Node` object
+		
+		:param graph: 
 			The graphviz graph object
+		:type graph: graphviz.Digraph object
 		"""
 		if root.left:
 			if root.left.node_type == 'base_node':

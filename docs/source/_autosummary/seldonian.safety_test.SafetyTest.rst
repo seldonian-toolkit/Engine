@@ -4,9 +4,10 @@ seldonian.safety\_test.SafetyTest
 .. currentmodule:: seldonian.safety_test
 
 .. autoclass:: SafetyTest
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
@@ -16,9 +17,11 @@ seldonian.safety\_test.SafetyTest
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~SafetyTest.__init__
-      ~SafetyTest.run
+   .. 
+   ..    ~SafetyTest.__init__
+   ..
+   ..    ~SafetyTest.run
+   ..
    
    
 

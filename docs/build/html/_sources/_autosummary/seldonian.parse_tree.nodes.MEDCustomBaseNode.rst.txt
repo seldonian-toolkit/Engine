@@ -4,9 +4,10 @@ seldonian.parse\_tree.nodes.MEDCustomBaseNode
 .. currentmodule:: seldonian.parse_tree.nodes
 
 .. autoclass:: MEDCustomBaseNode
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
@@ -16,20 +17,33 @@ seldonian.parse\_tree.nodes.MEDCustomBaseNode
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~MEDCustomBaseNode.__init__
-      ~MEDCustomBaseNode.calculate_bounds
-      ~MEDCustomBaseNode.calculate_data_forbound
-      ~MEDCustomBaseNode.calculate_value
-      ~MEDCustomBaseNode.compute_HC_lowerbound
-      ~MEDCustomBaseNode.compute_HC_upper_and_lowerbound
-      ~MEDCustomBaseNode.compute_HC_upperbound
-      ~MEDCustomBaseNode.mask_dataframe
-      ~MEDCustomBaseNode.precalculate_data
-      ~MEDCustomBaseNode.predict_HC_lowerbound
-      ~MEDCustomBaseNode.predict_HC_upper_and_lowerbound
-      ~MEDCustomBaseNode.predict_HC_upperbound
-      ~MEDCustomBaseNode.zhat
+   .. 
+   ..    ~MEDCustomBaseNode.__init__
+   ..
+   ..    ~MEDCustomBaseNode.calculate_bounds
+   ..
+   ..    ~MEDCustomBaseNode.calculate_data_forbound
+   ..
+   ..    ~MEDCustomBaseNode.calculate_value
+   ..
+   ..    ~MEDCustomBaseNode.compute_HC_lowerbound
+   ..
+   ..    ~MEDCustomBaseNode.compute_HC_upper_and_lowerbound
+   ..
+   ..    ~MEDCustomBaseNode.compute_HC_upperbound
+   ..
+   ..    ~MEDCustomBaseNode.mask_dataframe
+   ..
+   ..    ~MEDCustomBaseNode.precalculate_data
+   ..
+   ..    ~MEDCustomBaseNode.predict_HC_lowerbound
+   ..
+   ..    ~MEDCustomBaseNode.predict_HC_upper_and_lowerbound
+   ..
+   ..    ~MEDCustomBaseNode.predict_HC_upperbound
+   ..
+   ..    ~MEDCustomBaseNode.zhat
+   ..
    
    
 

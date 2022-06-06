@@ -1,28 +1,43 @@
-""" Safety test module """
+""" Module for running safety test """
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 class SafetyTest(object):
-	""" 
-	Class for the safety test
-	
-	Attributes
-	----------
-	dataset : src.dataset.DataSet instance
-		Object representing the safety dataset
-	model   : src.model.SeldonianModel (or child) instance
-		Object representing the model
-	parse_trees : List(src.parse_tree.Parse_Tree)
-		List of parse trees containing the behavioral consraints
-
-	Methods
-	-------
-	run(candidate_solution,bound_method)
-		Run the safety test given a candidate solution
-		and a method for computing the confidence bounds
-
-	"""
 	def __init__(self,dataset,model,parse_trees,regime='supervised',**kwargs):
+		""" 
+		Object for running safety test
+		
+		:param dataset: The dataset object containing safety data
+		:type dataset: :py:class:`.DataSet` object
+
+		:param model: The Seldonian model object 
+		:type model: :py:class:`.SeldonianModel` object
+
+		:param parse_trees: List of parse tree objects containing the 
+			behavioral constraints
+		:type parse_trees: List(:py:class:`.ParseTree` objects)
+
+		:param regime: The category of the machine learning algorithm,
+			e.g. supervised or RL
+		:type regime: str
+
+		:ivar gamma: The discount factor used to calculate returns.
+			Only relevant for the RL regime. 
+		:vartype gamma: float
+
+		:ivar normalize_returns: Whether to normalize returns to be
+			in the interval [0,1]. Only relevant for the RL regime
+		:vartype normalize_returns: bool
+
+		:ivar min_return: The minimum possible return. Used 
+			if normalize returns==True. Only relevant for the RL regime
+		:vartype min_return: float
+
+		:ivar max_return: The maximum possible return. Used 
+			if normalize returns==True. Only relevant for the RL regime
+		:vartype max_return: float
+
+		"""
 		self.dataset = dataset
 		self.model = model
 		self.parse_trees = parse_trees
@@ -38,7 +53,18 @@ class SafetyTest(object):
 				self.normalize_returns=False
 
 	def run(self,candidate_solution,bound_method='ttest',**kwargs):
-		# Loop over parse trees and propagate
+		""" Loop over parse trees, calculate the bounds on leaf nodes
+		and propagate to the root node. The safety test passes if
+		the upper bounds of all parse tree root nodes are >=0. 
+
+		:param candidate_solution: 
+			The solution found by candidate selection
+		:type candidate_solution: numpy ndarray
+
+		:param bound_method: 
+			The statistical method for calculating the confidence bounds
+		:type bound_method: str, defaults to 'ttest'
+		"""
 		passed = True
 		for tree_i,pt in enumerate(self.parse_trees): 
 			# before we propagate reset the tree

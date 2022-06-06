@@ -6,6 +6,8 @@ from functools import partial, lru_cache
 
 class SeldonianModel(object):
 	def __init__(self):
+		""" Parent class for all machine learning models
+		used in this library. """
 		pass
 
 

@@ -1,3 +1,9 @@
+""" 3x3 gridworld environment (states: 0-8) with a reward function of 0 everywhere
+except in r=-1 in cell 7 (bottom middle) and r=1 in cell 8 (bottom right).
+An episode starts in cell 0 (top left) and terminates in cell 8
+or if timeout occurs. 
+"""
+
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pickle
 import pandas as pd
@@ -10,12 +16,50 @@ from seldonian.utils.stats_utils import weighted_sum_gamma
 
 class Environment():
 	def __init__(self):
+		""" Environment class for 3x3 gridworld
+		
+		:ivar gamma: Discount factor when calculating returns
+		:vartype gamma: float
+
+		:ivar timeout: The number of timesteps after which we 
+			terminate the agent regardless of state
+		:vartype timeout: int
+
+		:ivar states: The possible states 
+		:vartype states: numpy ndarray(int)
+
+		:ivar actions: The possible actions
+		:vartype actions: numpy ndarray(int)
+
+		:ivar reward_dict: Maps state, action pair to reward
+		:vartype reward_dict: dict
+
+		:ivar environ_dict: Maps state, action pair to next state
+		:vartype environ_dict: dict
+
+		:ivar initial_state: Where the agent starts each episode
+		:vartype initial_state: int
+
+		:ivar terminal_state: The terminal state 
+		:vartype terminal_state: int
+
+		:ivar current_state: The current state of the agent
+		:vartype current_state: int
+
+		:ivar initial_weights: The initial parameter weights 
+			of the agent's policy model
+		:vartype initial_weights: numpy ndarray
+
+		:ivar param_weights: The current parameter weights 
+			of the agent's policy model
+		:vartype param_weights: numpy ndarray		
+		"""
 		self.gamma = 0.9 # the discount factor when calculating sum of rewards
 		self.timeout = 50 # the number of timesteps after which we stop the episode
-		# self.min_return = -2
-		# self.max_return = 0.729
+
 		self.states = np.arange(9,dtype='int') # 0-8
 		self.actions = np.array([0,1,2,3]) # U,D,L,R
+		
 		self.reward_dict = {x:0 for x in self.states} # initialize
 		self.reward_dict[7]=-1
 		self.reward_dict[8]=1
@@ -36,44 +80,40 @@ class Environment():
 
 		self.current_state = self.initial_state
 
-		# initialize parameter weights to all zeros
-		# self.initial_weights = np.random.uniform(-1,1,
-		#     ((len(self.states)-1)*len(self.actions)
-		#     ))
 		self.initial_weights = np.zeros(
 			(len(self.states)-1)*len(self.actions))
 		self.param_weights = self.initial_weights
 
-		# self.param_weights = np.random.uniform(-1,1,
-		#     ((len(self.states)-1)*len(self.actions)
-		#     ))
-		# epsilon=0.5
-		# self.param_weights[8] = epsilon
 
 	# @lru_cache
-	def denom(self,state):
+	def _denom(self,state):
+		"""Helper function for pi()"""
 		return np.sum(np.exp(self.param_weights[state*4+self.actions]))
 
 	# @lru_cache
-	def arg(self,state,action):
+	def _arg(self,state,action):
+		"""Helper function for pi()"""
 		return self.param_weights[state*4+action]
 
 	def pi(self,state,action):
-		""" Apply the softmax policy to get action probability
-		given a state and action 
-		param_weights is a flattened parameter vector """
+		""" Apply the tabular softmax policy
+		to get action probability at a given state
+
+		:param state: a position on the gridworld between 0-8
+		:type state: int
+
+		:param action: 0,1,2, or 3 corresponding to up,down,left,right
+		:type action: int
+		"""
 		state = int(state)
 		action = int(action)
 		
-		return np.exp(self.arg(state,action))/self.denom(state)
-
+		return np.exp(self._arg(state,action))/self._denom(state)
 
 	def take_step(self):
-		# Decide on the action using a policy
-		# Need to determine the probability of each action
-		# Then draw from that distribution
+		"""Take an action using the policy and change the state
+		"""
 		
-		# episode_entry = np.zeros(4)
 		step_entry = [0,0,0,0]
 			
 		step_entry[0] = self.current_state
@@ -103,12 +143,19 @@ class Environment():
 		self.current_state = next_state
 		return step_entry
 
-   
 	def reset(self):
+		""" Resets the agent to the initial state. """
 		self.current_state = self.initial_state
 		return
 		
 	def generate_episode(self,return_index=False):
+		""" Generate an entire episode using the current policy
+
+		:param return_index: Whether to return the timestep 
+			as part of the episode
+		:type return_index: bool
+
+		"""
 		episode = []
 		timestep = 0
 		while self.current_state != self.terminal_state:
@@ -127,6 +174,17 @@ class Environment():
 		return episode
 
 	def generate_episodes_par(self,n_episodes=1,return_index=False):
+		""" Generate n_episodes episodes using the current policy.
+		This is the function to use for multiprocessing   
+
+		:param n_episodes: The number of episodes to return
+		:type n_episodes: int
+		
+		:param return_index: Whether to return the timestep 
+			as part of each episode
+		:type return_index: bool
+
+		"""
 		np.random.seed()
 		episodes = []
 		for _ in range(n_episodes):
@@ -147,8 +205,31 @@ class Environment():
 			self.reset()
 		return episodes 
 
-	def generate_data(self,n_episodes,parallel=True,n_workers=8,savename=False,header=False):
+	def generate_data(self,n_episodes,parallel=True,
+		n_workers=8,savename=None,header=False):
+		""" Generate a pandas dataframe consisting of columns:
+		episode_index,state,action,reward,probability_of_action
+		for n_episodes episodes using the current policy.
 
+		:param n_episodes: The number of episodes to return
+		:type n_episodes: int
+		
+		:param parallel: Whether to use multiple workers 
+			to generate the data
+		:type parallel: bool
+
+		:param n_workers: The number of workers to use if
+			using multiprocessing
+		:type n_workers: int
+
+		:param savename: The name of the file in which to 
+			save the dataframe  
+		:type savename: str, defaults to None
+
+		:param header: Whether to include the column names 
+			in the saved dataframe
+		:type header: bool, defaults to False
+		"""
 		if parallel:
 			chunk_size = n_episodes//n_workers
 			episodes_per_worker = []
@@ -206,11 +287,17 @@ class Environment():
 			print(f"Saved {savename}")
 		return df 
 
-	def calc_J_from_df(self,df,gamma=0.9):
+	def calc_J_from_df(self,df):
 		""" Given a dataset and gamma 
 		calculate the expected return of the sum 
-		of discounted rewards."""
-		ws_helper = partial(weighted_sum_gamma,gamma=gamma)
+		of discounted rewards.
+
+
+		:param df: The dataframe from which to calculate 
+			the expected return
+		:type df: pandas dataframe
+		"""
+		ws_helper = partial(weighted_sum_gamma,gamma=self.gamma)
 		discounted_sum_rewards_episodes=df.groupby(
 			'episode_index')['R'].apply(ws_helper)
 		return np.mean(discounted_sum_rewards_episodes)

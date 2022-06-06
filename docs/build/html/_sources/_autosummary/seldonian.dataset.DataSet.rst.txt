@@ -4,9 +4,10 @@ seldonian.dataset.DataSet
 .. currentmodule:: seldonian.dataset
 
 .. autoclass:: DataSet
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
@@ -16,8 +17,9 @@ seldonian.dataset.DataSet
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~DataSet.__init__
+   .. 
+   ..    ~DataSet.__init__
+   ..
    
    
 

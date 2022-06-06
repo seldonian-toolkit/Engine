@@ -29,6 +29,7 @@
    :recursive:
 
 
+   seldonian.RL
    seldonian.candidate_selection
    seldonian.dataset
    seldonian.models

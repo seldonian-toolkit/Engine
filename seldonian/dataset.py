@@ -12,6 +12,30 @@ class DataSetLoader(object):
 		include_sensitive_columns=False,
 		include_intercept_term=False,
 		**kwargs):
+		""" Object for loading datasets from disk into DataSet objects
+		
+		:param regime: The category of the machine learning algorithm,
+			e.g. supervised or RL
+		:type regime: str
+
+		:param column_names: list of all column names in the dataset.
+		:type column_names: List(str)
+
+		:param sensitive_column_names: The names of the columns that 
+			contain the :term:`sensitive attributes<Sensitive attribute>`.
+		:type sensitive_column_names: List(str)
+
+		:param include_sensitive_columns: Whether to include 
+			sensitive columns during training/prediction
+			(supervised learning).
+		:param include_intercept_term: Whether to add 
+			a column of ones as the first column in the dataset
+			(supervised learning).
+
+		:ivar label_column: The column with the target labels 
+			(supervised learning)
+		:vartype label_column: str
+		"""
 		self.column_names = column_names
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns
@@ -21,6 +45,12 @@ class DataSetLoader(object):
 			self.label_column = kwargs['label_column']
 
 	def from_csv(self,csv_file):
+		""" Create DataSet object from csv file
+
+		:param csv_file: The filename of the csv file 
+			containing the data you want to load
+		:type csv_file: str
+		"""
 		df = pd.read_csv(csv_file,names=self.column_names)
 		if self.regime == 'supervised':
 			return DataSet(
@@ -38,6 +68,12 @@ class DataSetLoader(object):
 				regime=self.regime)
 
 	def from_pickle(self,pkl_file):
+		""" Create DataSet object from pickle file
+
+		:param pkl_file: The filename of the pickle file 
+			containing the data you want to load
+		:type pkl_file: str
+		"""
 		import pickle
 		with open(pkl_file,'rb') as infile:
 			df = pickle.load(infile) # will include the header if it is present
@@ -63,9 +99,35 @@ class DataSet(object):
 		include_sensitive_columns=False,
 		include_intercept_term=False,
 		**kwargs):
+		""" Object for holding dataframe and dataset metadata
+	
+		:param df: dataframe containing the full dataset 
+		:type df: pandas dataframe
+
+		:param meta_information: list of all column names in the dataframe
+		:type meta_information: List(str)
+
+		:param regime: The category of the machine learning algorithm,
+			e.g. supervised or RL
+		:type regime: str
+
+		:param label_column: The column with the target labels 
+			(supervised learning)
+		:type label_column: str
+
+		:param sensitive_column_names: The names of the columns that 
+			contain the :term:`sensitive attributes<Sensitive attribute>`
+		:type sensitive_column_names: List(str)
+
+		:param include_sensitive_columns: Whether to include 
+			sensitive columns during training/prediction
+
+		:param include_intercept_term: Whether to add 
+			a column of ones as the first column in the dataset.
+		"""
 		self.df = df
 		self.meta_information = meta_information
-		self.regime = regime # supervised or RL
+		self.regime = regime 
 		self.label_column = label_column
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns

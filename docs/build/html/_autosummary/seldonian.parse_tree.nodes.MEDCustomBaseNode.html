@@ -39,29 +39,24 @@
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MEDCustomBaseNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MEDCustomBaseNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html#seldonian.parse_tree.nodes.BaseNode" title="seldonian.parse_tree.nodes.BaseNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">seldonian.parse_tree.nodes.BaseNode</span></code></a></p>
-<p>Custom base node that calculates pair-wise
-mean error differences between male and female
-points. This was used in the Seldonian regression algorithm 
-in the Thomas et al. 2019 Science paper (see Figure 2).</p>
-<p>Inherits all attributes and methods from BaseNode class. 
-Overrides several of these methods for custom functionality</p>
-<dl class="simple">
-<dt>name<span class="classifier">str</span></dt><dd><p>The name of the node</p>
-</dd>
-<dt>lower<span class="classifier">float</span></dt><dd><p>Lower confidence bound</p>
-</dd>
-<dt>upper<span class="classifier">float</span></dt><dd><p>Upper confidence bound</p>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MEDCustomBaseNode.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>name<span class="classifier">str</span></dt><dd><p>The name of the node</p>
+<dd><p>Custom base node that calculates pair-wise
+mean error differences between male and female
+points. This was used in the Seldonian regression algorithm 
+in the Thomas et al. 2019 Science paper (see Figure 2).</p>
+<p>Overrides several parent class methods</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the node</p></li>
+<li><p><strong>lower</strong> (<em>float</em>) – Lower confidence bound</p></li>
+<li><p><strong>upper</strong> (<em>float</em>) – Upper confidence bound</p></li>
+</ul>
 </dd>
-<dt>lower<span class="classifier">float</span></dt><dd><p>The lower bound, default -infinity</p>
-</dd>
-<dt>upper<span class="classifier">float</span></dt><dd><p>The upper bound, default infinity</p>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><p><strong>delta</strong> (<em>float</em>) – The share of the confidence put into this node</p>
 </dd>
 </dl>
 </dd></dl>
@@ -79,63 +74,6 @@ Overrides several of these methods for custom functionality</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.__init__" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name[, lower, upper])</p></td>
-<td><p>Parameters
-
-name
-
-str
-
-The name of the node
-
-lower
-
-float
-
-The lower bound, default -infinity
-
-upper
-
-float
-
-The upper bound, default infinity</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_bounds" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_bounds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_bounds</span></code></a>(**kwargs)</p></td>
-<td><p>Calculate confidence bounds given a bound_method,  such as t-test.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_data_forbound" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_data_forbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_data_forbound</span></code></a>(**kwargs)</p></td>
-<td><p>Overrides parent Node method</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_value" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_value</span></code></a>(**kwargs)</p></td>
-<td><p>Calculate the value of the node  given model weights, etc.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_lowerbound" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_lowerbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_HC_lowerbound</span></code></a>(data, datasize, delta, ...)</p></td>
-<td><p>Calculate high confidence lower bound Used in safety test</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_upper_and_lowerbound" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_upper_and_lowerbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_HC_upper_and_lowerbound</span></code></a>(data, ...)</p></td>
-<td><p>Calculate high confidence lower and upper bounds Used in safety test.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_upperbound" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_upperbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_HC_upperbound</span></code></a>(data, datasize, delta, ...)</p></td>
-<td><p>Calculate high confidence upper bound Used in safety test</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.mask_dataframe" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.mask_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_dataframe</span></code></a>(dataset, conditional_columns)</p></td>
-<td><p>Mask dataset's dataframe using  a joint AND mask where each of the conditional columns is True.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.precalculate_data" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.precalculate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precalculate_data</span></code></a>(X, Y, **kwargs)</p></td>
-<td><p>Preconfigure dataset for candidate selection or  safety test so that it does not need to be  recalculated on each iteration through the parse tree</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_lowerbound" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_lowerbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_HC_lowerbound</span></code></a>(data, datasize, delta, ...)</p></td>
-<td><p>Calculate high confidence lower bound that we expect to pass the safety test.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_upper_and_lowerbound" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_upper_and_lowerbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_HC_upper_and_lowerbound</span></code></a>(data, ...)</p></td>
-<td><p>Calculate high confidence lower and upper bounds that we expect to pass the safety test.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_upperbound" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_upperbound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_HC_upperbound</span></code></a>(data, datasize, delta, ...)</p></td>
-<td><p>Calculate high confidence upper bound that we expect to pass the safety test.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.zhat" title="seldonian.parse_tree.nodes.MEDCustomBaseNode.zhat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zhat</span></code></a>(model, theta, data_dict)</p></td>
-<td><p>pPair up male and female columns and compute a vector of: (y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon There may not be the same number of male and female rows so the number of pairs is min(N_male,N_female)</p></td>
-</tr>
 </tbody>
 </table>
 <dl class="py method">
@@ -148,7 +86,7 @@ such as t-test.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_data_forbound">
 <span class="sig-name descname"><span class="pre">calculate_data_forbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_data_forbound" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overrides parent Node method</p>
+<dd><p>Overrides same method from parent class, <a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html#seldonian.parse_tree.nodes.BaseNode" title="seldonian.parse_tree.nodes.BaseNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseNode</span></code></a></p>
 </dd></dl>
 
 <dl class="py method">
@@ -165,13 +103,14 @@ not the bound.</p>
 <span class="sig-name descname"><span class="pre">compute_HC_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower bound
 Used in safety test</p>
-<dl class="simple">
-<dt>data<span class="classifier">numpy ndarray </span></dt><dd><p>Vector containing base variable  
-evaluated at each observation in dataset</p>
-</dd>
-<dt>datasize<span class="classifier">int</span></dt><dd><p>The number of observations in the safety dataset</p>
-</dd>
-<dt>delta<span class="classifier">float</span></dt><dd><p>Confidence level, e.g. 0.05</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -185,13 +124,14 @@ Used in safety test.</p>
 this is not always equivalent
 to calling compute_HC_lowerbound() and 
 compute_HC_upperbound() independently.</p>
-<dl class="simple">
-<dt>data<span class="classifier">numpy ndarray </span></dt><dd><p>Vector containing base variable  
-evaluated at each observation in dataset</p>
-</dd>
-<dt>datasize<span class="classifier">int</span></dt><dd><p>The number of observations in the safety dataset</p>
-</dd>
-<dt>delta<span class="classifier">float</span></dt><dd><p>Confidence level, e.g. 0.05</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -201,13 +141,14 @@ evaluated at each observation in dataset</p>
 <span class="sig-name descname"><span class="pre">compute_HC_upperbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_upperbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence upper bound
 Used in safety test</p>
-<dl class="simple">
-<dt>data<span class="classifier">numpy ndarray </span></dt><dd><p>Vector containing base variable  
-evaluated at each observation in dataset</p>
-</dd>
-<dt>datasize<span class="classifier">int</span></dt><dd><p>The number of observations in the safety dataset</p>
-</dd>
-<dt>delta<span class="classifier">float</span></dt><dd><p>Confidence level, e.g. 0.05</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -241,6 +182,14 @@ the joint AND mask on the dataset</p></li>
 <dd><p>Preconfigure dataset for candidate selection or 
 safety test so that it does not need to be 
 recalculated on each iteration through the parse tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>pandas dataframe</em>) – features</p></li>
+<li><p><strong>Y</strong> (<em>pandas dataframe</em>) – labels</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -249,13 +198,14 @@ recalculated on each iteration through the parse tree</p>
 <dd><p>Calculate high confidence lower bound
 that we expect to pass the safety test.
 Used in candidate selection</p>
-<dl class="simple">
-<dt>data<span class="classifier">numpy ndarray </span></dt><dd><p>Vector containing base variable  
-evaluated at each observation in dataset</p>
-</dd>
-<dt>datasize<span class="classifier">int</span></dt><dd><p>The number of observations in the safety dataset</p>
-</dd>
-<dt>delta<span class="classifier">float</span></dt><dd><p>Confidence level, e.g. 0.05</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -270,13 +220,14 @@ Used in candidate selection.</p>
 this is not always equivalent
 to calling predict_HC_lowerbound() and 
 predict_HC_upperbound() independently.</p>
-<dl class="simple">
-<dt>data<span class="classifier">numpy ndarray </span></dt><dd><p>Vector containing base variable  
-evaluated at each observation in dataset</p>
-</dd>
-<dt>datasize<span class="classifier">int</span></dt><dd><p>The number of observations in the safety dataset</p>
-</dd>
-<dt>delta<span class="classifier">float</span></dt><dd><p>Confidence level, e.g. 0.05</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -287,13 +238,14 @@ evaluated at each observation in dataset</p>
 <dd><p>Calculate high confidence upper bound
 that we expect to pass the safety test.
 Used in candidate selection</p>
-<dl class="simple">
-<dt>data<span class="classifier">numpy ndarray </span></dt><dd><p>Vector containing base variable  
-evaluated at each observation in dataset</p>
-</dd>
-<dt>datasize<span class="classifier">int</span></dt><dd><p>The number of observations in the safety dataset</p>
-</dd>
-<dt>delta<span class="classifier">float</span></dt><dd><p>Confidence level, e.g. 0.05</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -301,18 +253,18 @@ evaluated at each observation in dataset</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MEDCustomBaseNode.zhat">
 <span class="sig-name descname"><span class="pre">zhat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.zhat" title="Permalink to this definition">¶</a></dt>
-<dd><p>pPair up male and female columns and compute a vector of:
-(y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon
+<dd><p>Pair up male and female columns and compute a vector of:
+(y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon.
 There may not be the same number of male and female rows
 so the number of pairs is min(N_male,N_female)</p>
-<p>model : models.SeldonianModel class instance
-theta : numpy ndarray</p>
-<blockquote>
-<div><p>model weights</p>
-</div></blockquote>
-<dl class="simple">
-<dt>data_dict<span class="classifier">dictionary</span></dt><dd><p>contains inputs to model, 
-such as features and labels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>models.SeldonianModel object</em>) – machine learning model</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – model weights</p></li>
+<li><p><strong>data_dict</strong> (<em>dict</em>) – contains inputs to model, 
+such as features and labels</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -343,12 +295,12 @@ such as features and labels</p>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.constraints.html">seldonian.parse_tree.constraints</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html">seldonian.parse_tree.nodes.BaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.ConstantNode.html">seldonian.parse_tree.nodes.ConstantNode</a></li>
@@ -357,6 +309,7 @@ such as features and labels</p>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.Node.html">seldonian.parse_tree.nodes.Node</a></li>
 </ul>
 </li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a></li>
 </ul>
 </li>

@@ -4,9 +4,10 @@ seldonian.spec.Spec
 .. currentmodule:: seldonian.spec
 
 .. autoclass:: Spec
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
@@ -16,8 +17,9 @@ seldonian.spec.Spec
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~Spec.__init__
+   .. 
+   ..    ~Spec.__init__
+   ..
    
    
 
