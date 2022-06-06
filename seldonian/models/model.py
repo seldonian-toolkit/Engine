@@ -965,8 +965,8 @@ class TabularSoftmaxModel(RLModel):
 		environment
 
 		:param environment: the RL environment object
-		:type environment: Environment() object from a module in 
-		:py:mod:`seldonian.RL.environments` 
+		:type environment: Environment object from RL 
+			environment module
 
 		:ivar theta: The model weights
 		:vartype theta: numpy ndarray
@@ -1032,8 +1032,8 @@ class LinearSoftmaxModel(RLModel):
 		environment
 
 		:param environment: the RL environment object
-		:type environment: Environment() object from a module in 
-		:py:mod:`seldonian.RL.environments` 
+		:type environment: Environment object from 
+			the RL environment module  
 
 		:ivar theta: The model weights
 		:vartype theta: numpy ndarray

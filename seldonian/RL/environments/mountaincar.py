@@ -269,9 +269,8 @@ class Mountaincar():
 	def terminal(self) -> bool:
 		"""
 		terminates the episode if:
-			time is greater that 20 seconds
-			pole falls |theta| > (pi/12.0)
-			cart hits the sides |x| >= 3
+			time is greater than max timesteps
+			position passes finish line
 		"""
 		if self._t >= self.max_timesteps:
 			return True

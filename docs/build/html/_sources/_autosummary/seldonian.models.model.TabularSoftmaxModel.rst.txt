@@ -18,17 +18,11 @@ seldonian.models.model.TabularSoftmaxModel
 
    .. autosummary::
    .. 
-   ..    ~TabularSoftmaxModel.IS_estimate
-   ..
    ..    ~TabularSoftmaxModel.__init__
    ..
    ..    ~TabularSoftmaxModel.apply_policy
    ..
-   ..    ~TabularSoftmaxModel.arg
-   ..
    ..    ~TabularSoftmaxModel.default_objective
-   ..
-   ..    ~TabularSoftmaxModel.denom
    ..
    ..    ~TabularSoftmaxModel.evaluate_statistic
    ..

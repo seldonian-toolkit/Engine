@@ -42,7 +42,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Environment class for 3x3 gridworld</p>
+<dd><p>3x3 gridworld environment (states: 0-8) with a 
+reward function of 0 everywhere except 
+r=-1 in cell 7 (bottom middle) and
+r=1 in cell 8 (bottom right). 
+Actions are 0,1,2,3 for up,down,left,right respectively. 
+An episode starts in cell 0 (top left) and terminates in cell 8
+or if timeout occurs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
@@ -51,8 +57,8 @@
 terminate the agent regardless of state</p></li>
 <li><p><strong>states</strong> (<em>numpy ndarray</em><em>(</em><em>int</em><em>)</em>) – The possible states</p></li>
 <li><p><strong>actions</strong> (<em>numpy ndarray</em><em>(</em><em>int</em><em>)</em>) – The possible actions</p></li>
-<li><p><strong>reward_dict</strong> (<em>dict</em>) – Maps state,action pair to reward</p></li>
-<li><p><strong>environ_dict</strong> (<em>dict</em>) – Maps state,action pair to next state</p></li>
+<li><p><strong>reward_dict</strong> (<em>dict</em>) – Maps state, action pair to reward</p></li>
+<li><p><strong>environ_dict</strong> (<em>dict</em>) – Maps state, action pair to next state</p></li>
 <li><p><strong>initial_state</strong> (<em>int</em>) – Where the agent starts each episode</p></li>
 <li><p><strong>terminal_state</strong> (<em>int</em>) – The terminal state</p></li>
 <li><p><strong>current_state</strong> (<em>int</em>) – The current state of the agent</p></li>

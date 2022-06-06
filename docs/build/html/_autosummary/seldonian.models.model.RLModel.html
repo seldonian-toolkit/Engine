@@ -42,8 +42,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.model.RLModel.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.RLModel.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parent class for all machine learning models
-used in this library.</p>
+<dd><p>The base class for all RL Seldonian models</p>
 </dd></dl>
 
 <dl class="py method">
@@ -61,6 +60,95 @@ used in this library.</p>
 <tbody>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.RLModel.evaluate_statistic">
+<span class="sig-name descname"><span class="pre">evaluate_statistic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.RLModel.evaluate_statistic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate a provided statistic for the whole sample provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statistic_name</strong> (<em>str</em><em>, </em><em>e.g. 'J_pi_new'</em>) – The name of the statistic to evaluate</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>data_dict</strong> (<em>dict</em>) – Contains the dataframe</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The evaluated statistic over the whole sample</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.RLModel.sample_IS_estimate">
+<span class="sig-name descname"><span class="pre">sample_IS_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.RLModel.sample_IS_estimate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the unweighted importance sampling estimate
+on all episodes in the dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>dataframe</strong> (<em>pandas dataframe</em>) – Contains the episodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The IS estimate calculated over all episodes</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.RLModel.sample_from_statistic">
+<span class="sig-name descname"><span class="pre">sample_from_statistic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.RLModel.sample_from_statistic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate a provided statistic for each episode 
+in the sample</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statistic_name</strong> (<em>str</em><em>, </em><em>e.g. 'J_pi_new'</em>) – The name of the statistic to evaluate</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>data_dict</strong> (<em>dict</em>) – Contains the dataframe</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The evaluated statistic for each episode in the dataset</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.RLModel.vector_IS_estimate">
+<span class="sig-name descname"><span class="pre">vector_IS_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.RLModel.vector_IS_estimate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the unweighted importance sampling estimate
+on each episodes in the dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>dataframe</strong> (<em>pandas dataframe</em>) – Contains the episodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A vector of IS estimates calculated for each episode</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

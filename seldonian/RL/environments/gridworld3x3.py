@@ -1,5 +1,6 @@
 """ 3x3 gridworld environment (states: 0-8) with a reward function of 0 everywhere
 except in r=-1 in cell 7 (bottom middle) and r=1 in cell 8 (bottom right).
+Actions are 0,1,2,3 for up,down,left,right respectively. 
 An episode starts in cell 0 (top left) and terminates in cell 8
 or if timeout occurs. 
 """
@@ -16,7 +17,13 @@ from seldonian.utils.stats_utils import weighted_sum_gamma
 
 class Environment():
 	def __init__(self):
-		""" Environment class for 3x3 gridworld
+		""" 3x3 gridworld environment (states: 0-8) with a 
+		reward function of 0 everywhere except 
+		r=-1 in cell 7 (bottom middle) and
+		r=1 in cell 8 (bottom right). 
+		Actions are 0,1,2,3 for up,down,left,right respectively. 
+		An episode starts in cell 0 (top left) and terminates in cell 8
+		or if timeout occurs. 
 		
 		:ivar gamma: Discount factor when calculating returns
 		:vartype gamma: float
