@@ -4,19 +4,22 @@ seldonian.spec.RLSpec
 .. currentmodule:: seldonian.spec
 
 .. autoclass:: RLSpec
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~RLSpec.__init__
+   .. 
+   ..    ~RLSpec.__init__
+   ..
    
    
 

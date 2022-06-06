@@ -4,19 +4,22 @@ seldonian.models.model.SeldonianModel
 .. currentmodule:: seldonian.models.model
 
 .. autoclass:: SeldonianModel
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~SeldonianModel.__init__
+   .. 
+   ..    ~SeldonianModel.__init__
+   ..
    
    
 

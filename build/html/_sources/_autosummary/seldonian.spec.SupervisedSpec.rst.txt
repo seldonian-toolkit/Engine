@@ -4,19 +4,22 @@ seldonian.spec.SupervisedSpec
 .. currentmodule:: seldonian.spec
 
 .. autoclass:: SupervisedSpec
-   :members:                                    
+   :members:       
+   :private-members:                                                 
    :show-inheritance:                           
-   :inherited-members:                          
+   :inherited-members: 
 
    
    .. automethod:: __init__
+   .. automethod:: __repr__
 
    
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~SupervisedSpec.__init__
+   .. 
+   ..    ~SupervisedSpec.__init__
+   ..
    
    
 

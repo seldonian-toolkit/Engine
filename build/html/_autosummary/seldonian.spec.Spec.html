@@ -38,23 +38,47 @@
 <h1>seldonian.spec.Spec<a class="headerlink" href="#seldonian-spec-spec" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.spec.Spec">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">seldonian.spec.</span></span><span class="sig-name descname"><span class="pre">Spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_builtin_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assign_delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ttest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gradient_descent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.spec.Spec" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_builtin_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assign_delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ttest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gradient_descent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.spec.Spec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Specification object for running Seldonian algorithms</p>
+<p>Base class for specification object required to
+run the Seldonian algorithm</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_class</strong> – The model class for the Seldonian model,
-not an instance of the model</p></li>
-<li><p><strong>use_builtin_primary_gradient_fn</strong> (<em>bool</em>) – Whether to use the built-in
+<li><p><strong>dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – The dataset object containing safety data</p></li>
+<li><p><strong>model_class</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> or child class) – The model class for the Seldonian model,
+not an instance of the model.</p></li>
+<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – Fraction of data used in safety test.
+The remaining fraction will be used in candidate selection</p></li>
+<li><p><strong>primary_objective</strong> (<em>function</em><em> or </em><em>class method</em>) – The objective function that would
+be solely optimized in the absence of behavioral constraints,
+i.e. the loss function</p></li>
+<li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide 
+initial model weights in candidate selection</p></li>
+<li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
+behavioral constraints</p></li>
+<li><p><strong>use_builtin_primary_gradient_fn</strong> (<em>bool</em><em>, </em><em>defaults to True</em>) – Whether to use the built-in
 function for the gradient of the primary objective, 
 if one exists. If False, uses autograd</p></li>
-<li><p><strong>custom_primary_gradient_fn</strong> (<em>function taking data 
-and model weights and outputting the derivative of
-the primary objective w.r.t model weights as a scalar</em>) – A function for computing 
+<li><p><strong>custom_primary_gradient_fn</strong> (<em>function</em><em>, </em><em>defaults to None</em>) – A function for computing 
 the gradient of the primary objective. If None,
 falls back on builtin function or autograd</p></li>
+<li><p><strong>assign_delta_weight_method</strong> (<em>str</em><em>, </em><em>defaults to 'equal'</em>) – The method for assigning 
+deltas to the base variables (leaf nodes) in the parse tree</p></li>
+<li><p><strong>bound_method</strong> (<em>str</em><em>, </em><em>defaults to 'ttest'</em>) – The statistical method for calculating the confidence bounds</p></li>
+<li><p><strong>optimization_technique</strong> (<em>str</em><em>, </em><em>defaults to 'gradient_descent'</em>) – The method for optimization during 
+candidate selection. E.g. ‘gradient_descent’, ‘barrier_function’</p></li>
+<li><p><strong>optimizer</strong> (<em>str</em><em>, </em><em>defaults to 'adam'</em>) – The string name of the optimizer used 
+during candidate selection</p></li>
+<li><p><strong>optimization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for 
+optimization during candidate selection. See <a class="reference internal" href="../overview.html#candidate-selection"><span class="std std-ref">Candidate Selection</span></a>.</p></li>
+<li><p><strong>regularization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for 
+regularization during candidate selection. See <a class="reference internal" href="../overview.html#candidate-selection"><span class="std std-ref">Candidate Selection</span></a>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>usable_opt_dict</strong> (<em>dict</em>) – Shows which optimizers are acceptable
+for a given optimization technique</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -62,12 +86,15 @@ falls back on builtin function or autograd</p></li>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_builtin_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assign_delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ttest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gradient_descent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.spec.Spec.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.spec.Spec.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.spec.Spec.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return repr(self).</p>
+</dd></dl>
+
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.spec.Spec.__init__" title="seldonian.spec.Spec.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dataset, model_class, ...[, ...])</p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -96,6 +123,7 @@ falls back on builtin function or autograd</p></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>

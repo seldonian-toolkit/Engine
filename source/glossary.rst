@@ -13,7 +13,6 @@ Glossary
     Confidence threshold
       Often simply called delta. Provided by the user, the probability (1-delta) with which the behavioral constraints are to be enforced by the seldonian algorithm.  
 
-
     Delta
       See :term:`Confidence threshold`
 

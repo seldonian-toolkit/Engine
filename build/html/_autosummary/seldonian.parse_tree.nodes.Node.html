@@ -16,7 +16,7 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.parse_tree.parse_tree" href="seldonian.parse_tree.parse_tree.html" />
+    <link rel="next" title="seldonian.parse_tree.operators" href="seldonian.parse_tree.operators.html" />
     <link rel="prev" title="seldonian.parse_tree.nodes.MEDCustomBaseNode" href="seldonian.parse_tree.nodes.MEDCustomBaseNode.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -38,45 +38,43 @@
 <h1>seldonian.parse_tree.nodes.Node<a class="headerlink" href="#seldonian-parse-tree-nodes-node" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.Node">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">seldonian.parse_tree.nodes.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.Node" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.Node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>The base class for all parse tree nodes</p>
-<dl class="simple">
-<dt>name<span class="classifier">str</span></dt><dd><p>The name of the node</p>
-</dd>
-<dt>index<span class="classifier">int</span></dt><dd><p>The index of the node in the tree, root index is 0
-Index precedes in post-order</p>
-</dd>
-<dt>left<span class="classifier">Node object or None</span></dt><dd><p>Left child node</p>
-</dd>
-<dt>right<span class="classifier">Node object or None</span></dt><dd><p>Right child node</p>
-</dd>
-<dt>lower<span class="classifier">float</span></dt><dd><p>Lower confidence bound</p>
-</dd>
-<dt>upper<span class="classifier">float</span></dt><dd><p>Upper confidence bound</p>
-</dd>
-<dt>will_lower_bound<span class="classifier">bool</span></dt><dd><p>Whether this node needs a lower bound</p>
-</dd>
-<dt>will_upper_bound<span class="classifier">bool</span></dt><dd><p>Whether this node needs an upper bound</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>__repr__()</dt><dd><p>String representation of the object. 
-Also, what is shown when the parse tree is 
-visualized.</p>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.Node.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.Node.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The base class for all parse tree nodes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the node</p></li>
+<li><p><strong>lower</strong> (<em>float</em>) – Lower confidence bound</p></li>
+<li><p><strong>upper</strong> (<em>float</em>) – Upper confidence bound</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – The index of the node in the tree</p></li>
+<li><p><strong>left</strong> (<em>Node object</em><em>, </em><em>defaults to None</em>) – Left child node</p></li>
+<li><p><strong>right</strong> (<em>Node object</em><em>, </em><em>defaults to None</em>) – Right child node</p></li>
+<li><p><strong>will_lower_bound</strong> (<em>bool</em>) – Whether this node needs a lower bound</p></li>
+<li><p><strong>will_upper_bound</strong> (<em>bool</em>) – Whether this node needs an upper bound</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.Node.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.Node.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>The string representation of the node. 
+Also, what is displayed inside the node box 
+in the visual graph</p>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.parse_tree.nodes.Node.__init__" title="seldonian.parse_tree.nodes.Node.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name, lower, upper)</p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -105,12 +103,12 @@ visualized.</p>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.constraints.html">seldonian.parse_tree.constraints</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html">seldonian.parse_tree.nodes.BaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.ConstantNode.html">seldonian.parse_tree.nodes.ConstantNode</a></li>
@@ -119,6 +117,7 @@ visualized.</p>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.Node</a></li>
 </ul>
 </li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a></li>
 </ul>
 </li>
@@ -143,7 +142,7 @@ visualized.</p>
   <li><a href="seldonian.parse_tree.html">seldonian.parse_tree</a><ul>
   <li><a href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a><ul>
       <li>Previous: <a href="seldonian.parse_tree.nodes.MEDCustomBaseNode.html" title="previous chapter">seldonian.parse_tree.nodes.MEDCustomBaseNode</a></li>
-      <li>Next: <a href="seldonian.parse_tree.parse_tree.html" title="next chapter">seldonian.parse_tree.parse_tree</a></li>
+      <li>Next: <a href="seldonian.parse_tree.operators.html" title="next chapter">seldonian.parse_tree.operators</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

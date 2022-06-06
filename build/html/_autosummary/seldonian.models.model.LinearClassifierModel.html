@@ -38,79 +38,24 @@
 <h1>seldonian.models.model.LinearClassifierModel<a class="headerlink" href="#seldonian-models-model-linearclassifiermodel" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">seldonian.models.model.</span></span><span class="sig-name descname"><span class="pre">LinearClassifierModel</span></span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearClassifierModel</span></span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="seldonian.models.model.ClassificationModel.html#seldonian.models.model.ClassificationModel" title="seldonian.models.model.ClassificationModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassificationModel</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parent class for all machine learning models
+used in this library.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return repr(self).</p>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.Vector_False_Negative_Rate" title="seldonian.models.model.LinearClassifierModel.Vector_False_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Vector_False_Negative_Rate</span></code></a>(model, theta, X, Y)</p></td>
-<td><p>Calculate false negative rate for each observation</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.Vector_False_Positive_Rate" title="seldonian.models.model.LinearClassifierModel.Vector_False_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Vector_False_Positive_Rate</span></code></a>(model, theta, X, Y)</p></td>
-<td><p>Calculate false positive rate for each observation</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.Vector_Negative_Rate" title="seldonian.models.model.LinearClassifierModel.Vector_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Vector_Negative_Rate</span></code></a>(model, theta, X)</p></td>
-<td><p>Calculate negative rate for each observation.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.Vector_Positive_Rate" title="seldonian.models.model.LinearClassifierModel.Vector_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Vector_Positive_Rate</span></code></a>(model, theta, X)</p></td>
-<td><p>Calculate positive rate for each observation.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.Vector_True_Negative_Rate" title="seldonian.models.model.LinearClassifierModel.Vector_True_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Vector_True_Negative_Rate</span></code></a>(model, theta, X, Y)</p></td>
-<td><p>This is the probability of predicting negative subject to the label actually being negative</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.Vector_True_Positive_Rate" title="seldonian.models.model.LinearClassifierModel.Vector_True_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Vector_True_Positive_Rate</span></code></a>(model, theta, X, Y)</p></td>
-<td><p>This is the probability of predicting positive subject to the label actually being positive</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Vector_logistic_loss</span></code>(model, theta, X, Y)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.__init__" title="seldonian.models.model.LinearClassifierModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">accuracy</span></code>(model, theta, X, Y)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_objective</span></code>(model, theta, X, Y)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_statistic</span></code>(statistic_name, model, ...)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X, Y)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_sample_logistic_loss</span></code>(theta, X, Y)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.predict" title="seldonian.models.model.LinearClassifierModel.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(theta, X)</p></td>
-<td><p>Given a set of weights, theta, and an array of feature vectors, X, which include offsets in the first column, make prediction using the model</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.sample_False_Negative_Rate" title="seldonian.models.model.LinearClassifierModel.sample_False_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_False_Negative_Rate</span></code></a>(model, theta, X, Y)</p></td>
-<td><p>Calculate false negative rate for the whole sample.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.sample_False_Positive_Rate" title="seldonian.models.model.LinearClassifierModel.sample_False_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_False_Positive_Rate</span></code></a>(model, theta, X, Y)</p></td>
-<td><p>Calculate false positive rate for the whole sample.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.sample_Negative_Rate" title="seldonian.models.model.LinearClassifierModel.sample_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_Negative_Rate</span></code></a>(model, theta, X)</p></td>
-<td><p>Calculate negative rate for the whole sample.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#seldonian.models.model.LinearClassifierModel.sample_Positive_Rate" title="seldonian.models.model.LinearClassifierModel.sample_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_Positive_Rate</span></code></a>(model, theta, X)</p></td>
-<td><p>Calculate positive rate for the whole sample.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_from_statistic</span></code>(statistic_name, model, ...)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_logistic_loss</span></code>(model, theta, X, Y)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_perceptron_loss</span></code>(model, theta, X, Y)</p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 <dl class="py method">
@@ -250,6 +195,7 @@ normalized to the number of predictions</p>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.models.html">seldonian.models</a><ul class="current">
