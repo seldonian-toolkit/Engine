@@ -414,11 +414,11 @@ class Environment(Mountaincar):
 		return df 
 
 
-	def calc_J_from_df(self,df,gamma=0.9):
+	def calc_J_from_df(self,df):
 		""" Given a dataset and gamma 
 		calculate the expected return of the sum 
 		of discounted rewards."""
-		ws_helper = partial(weighted_sum_gamma,gamma=gamma)
+		ws_helper = partial(weighted_sum_gamma,gamma=self.gamma)
 
 		discounted_sum_rewards_episodes=df.groupby(
 			'episode_index')['R'].apply(ws_helper)

@@ -54,7 +54,6 @@ if __name__ == '__main__':
 	dataset = loader.from_csv(args.data_pth)
 	
 	constraint_strs = ['-0.25 - J_pi_new'] 
-	constraint_names = ['main_reward']
 	
 	deltas = [0.05]
 
@@ -62,7 +61,6 @@ if __name__ == '__main__':
 	parse_trees = []
 	for ii in range(len(constraint_strs)):
 		constraint_str = constraint_strs[ii]
-		constraint_name = constraint_names[ii]
 
 		delta = deltas[ii]
 		# Create parse tree object
