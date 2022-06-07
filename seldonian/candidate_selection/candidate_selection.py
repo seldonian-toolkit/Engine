@@ -122,7 +122,6 @@ class CandidateSelection(object):
 				parse_trees=self.parse_trees,
 			)
 
-			
 			# Option to use builtin primary gradient (could be faster than autograd)
 			if 'use_builtin_primary_gradient_fn' in kwargs:
 				if kwargs['use_builtin_primary_gradient_fn']==True:
@@ -131,12 +130,17 @@ class CandidateSelection(object):
 						primary_objective_name = self.primary_objective.__name__
 						grad_primary_objective = getattr(self.model,
 							f'gradient_{primary_objective_name}')
+
 						# Now fix the features and labels so that the function 
 						# is only a function of theta
 						
-						grad_primary_objective_theta = partial(
-							grad_primary_objective,
-							X=self.features.values,Y=self.labels.values)
+						def grad_primary_objective_theta(theta):
+							return grad_primary_objective(
+								model=self.model,
+								theta=theta,
+								X=self.features.values,
+								Y=self.labels.values)
+							
 						gd_kwargs['primary_gradient'] = grad_primary_objective_theta
 					else:
 						raise NotImplementedError(
@@ -148,23 +152,24 @@ class CandidateSelection(object):
 			# If user specified the gradient of the primary
 			# objective, then pass it here
 			if 'custom_primary_gradient_fn' in kwargs:
-				if self.regime == 'supervised':
-					# need to know name of primary objective first
-					grad_primary_objective = kwargs['custom_primary_gradient_fn']
+				if kwargs['custom_primary_gradient_fn']==True:
+					if self.regime == 'supervised':
+						# need to know name of primary objective first
+						grad_primary_objective = kwargs['custom_primary_gradient_fn']
 
-					def grad_primary_objective_theta(theta):
-						return grad_primary_objective(
-							model=self.model,
-							theta=theta,
-							X=self.features.values,
-							Y=self.labels.values)
+						def grad_primary_objective_theta(theta):
+							return grad_primary_objective(
+								model=self.model,
+								theta=theta,
+								X=self.features.values,
+								Y=self.labels.values)
 
-					gd_kwargs['primary_gradient'] = grad_primary_objective_theta
-				else:
-					raise NotImplementedError(
-						"Using a provided primary objective gradient"
-						" is not yet supported for regimes other"
-						" than supervised learning")
+						gd_kwargs['primary_gradient'] = grad_primary_objective_theta
+					else:
+						raise NotImplementedError(
+							"Using a provided primary objective gradient"
+							" is not yet supported for regimes other"
+							" than supervised learning")
 
 			res = gradient_descent_adam(**gd_kwargs
 				)
