@@ -124,7 +124,7 @@ class RegressionModel(SupervisedModel):
 		res = sum(pow(prediction-Y,2))/n
 		return res
 
-	def gradient_Mean_Squared_Error(self,model,theta,X,Y):
+	def gradient_sample_Mean_Squared_Error(self,model,theta,X,Y):
 	    n = len(X)
 	    prediction = model.predict(theta,X) # vector of values
 	    err = prediction-Y
@@ -316,26 +316,26 @@ class ClassificationModel(SupervisedModel):
 		:rtype: numpy ndarray(float)
 		"""
 		if statistic_name == 'PR':
-			return model.Vector_Positive_Rate(model,
+			return model.vector_Positive_Rate(model,
 				theta,data_dict['features'])
 
 		if statistic_name == 'NR':
-			return model.Vector_Negative_Rate(model,
+			return model.vector_Negative_Rate(model,
 				theta,data_dict['features'],data_dict['labels'])
 
 		if statistic_name == 'FPR':
-			return model.Vector_False_Positive_Rate(model,
+			return model.vector_False_Positive_Rate(model,
 				theta,data_dict['features'],data_dict['labels'])
 
 		if statistic_name == 'FNR':
-			return model.Vector_False_Negative_Rate(model,
+			return model.vector_False_Negative_Rate(model,
 				theta,data_dict['features'],data_dict['labels'])
 
 		if statistic_name == 'TPR':
-			return model.Vector_True_Positive_Rate(model,
+			return model.vector_True_Positive_Rate(model,
 				theta,data_dict['features'],data_dict['labels'])
 		if statistic_name == 'logistic_loss':
-			return model.Vector_logistic_loss(model,
+			return model.vector_logistic_loss(model,
 				theta,data_dict['features'],data_dict['labels'])
 
 		raise NotImplementedError(f"Statistic: {statistic_name} is not implemented")
@@ -428,7 +428,7 @@ class ClassificationModel(SupervisedModel):
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 		return (1/len(X))*np.dot(X.T, (h - Y))
 
-	def Vector_logistic_loss(self,model,theta,X,Y):
+	def vector_logistic_loss(self,model,theta,X,Y):
 		""" Calculate logistic loss 
 		on each observation in sample
 
@@ -551,7 +551,7 @@ class ClassificationModel(SupervisedModel):
 		pos_mask = Y==1.0 # this includes false positives and true negatives
 		return np.sum(1.0-prediction[pos_mask])/len(X[pos_mask])
 
-	def Vector_Positive_Rate(self,model,theta,X):
+	def vector_Positive_Rate(self,model,theta,X):
 		"""
 		Calculate positive rate
 		for each observation.
@@ -577,7 +577,7 @@ class ClassificationModel(SupervisedModel):
 		prediction = self.predict(theta,X) # probability of class 1 for each observation
 		return prediction 
 
-	def Vector_Negative_Rate(self,model,theta,X):
+	def vector_Negative_Rate(self,model,theta,X):
 		"""
 		Calculate negative rate
 		for each observation.
@@ -600,7 +600,7 @@ class ClassificationModel(SupervisedModel):
 
 		return 1.0 - prediction
 
-	def Vector_False_Positive_Rate(self,model,theta,X,Y):
+	def vector_False_Positive_Rate(self,model,theta,X,Y):
 		"""
 		Calculate false positive rate
 		for each observation
@@ -626,7 +626,7 @@ class ClassificationModel(SupervisedModel):
 		neg_mask = Y!=1.0 # this includes false positives and true negatives
 		return prediction[neg_mask]
 
-	def Vector_False_Negative_Rate(self,model,theta,X,Y):
+	def vector_False_Negative_Rate(self,model,theta,X,Y):
 		"""
 		Calculate false negative rate
 		for each observation
@@ -653,7 +653,7 @@ class ClassificationModel(SupervisedModel):
 		pos_mask = Y==1.0 # this includes false positives and true negatives
 		return 1.0-prediction[pos_mask]
 
-	def Vector_True_Positive_Rate(self,model,theta,X,Y):
+	def vector_True_Positive_Rate(self,model,theta,X,Y):
 		"""
 		This is the probability of predicting positive
 		subject to the label actually being positive
@@ -674,7 +674,7 @@ class ClassificationModel(SupervisedModel):
 		pos_mask = Y==1.0 # this includes false positives and true negatives
 		return prediction[pos_mask]
 
-	def Vector_True_Negative_Rate(self,model,theta,X,Y):
+	def vector_True_Negative_Rate(self,model,theta,X,Y):
 		"""
 		This is the probability of predicting negative
 		subject to the label actually being negative
@@ -964,6 +964,7 @@ class RLModel(SeldonianModel):
 			products_by_episode*data_dict['reward_sums_by_episode']
 			)
 		return result
+
 
 class TabularSoftmaxModel(RLModel):
 	def __init__(self,environment):
