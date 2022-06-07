@@ -122,13 +122,11 @@ class CandidateSelection(object):
 				parse_trees=self.parse_trees,
 			)
 
-			# If user specified the gradient of the primary
-			# objective, then pass it here
-
-			if 'use_primary_gradient' in kwargs:
-				if kwargs['use_primary_gradient']==True:
+			
+			# Option to use builtin primary gradient (could be faster than autograd)
+			if 'use_builtin_primary_gradient_fn' in kwargs:
+				if kwargs['use_builtin_primary_gradient_fn']==True:
 					if self.regime == 'supervised':
-
 						# need to know name of primary objective first
 						primary_objective_name = self.primary_objective.__name__
 						grad_primary_objective = getattr(self.model,
@@ -145,6 +143,28 @@ class CandidateSelection(object):
 							"Using a provided primary objective gradient"
 							" is not yet supported for regimes other"
 							" than supervised learning")
+
+
+			# If user specified the gradient of the primary
+			# objective, then pass it here
+			if 'custom_primary_gradient_fn' in kwargs:
+				if self.regime == 'supervised':
+					# need to know name of primary objective first
+					grad_primary_objective = kwargs['custom_primary_gradient_fn']
+
+					def grad_primary_objective_theta(theta):
+						return grad_primary_objective(
+							model=self.model,
+							theta=theta,
+							X=self.features.values,
+							Y=self.labels.values)
+
+					gd_kwargs['primary_gradient'] = grad_primary_objective_theta
+				else:
+					raise NotImplementedError(
+						"Using a provided primary objective gradient"
+						" is not yet supported for regimes other"
+						" than supervised learning")
 
 			res = gradient_descent_adam(**gd_kwargs
 				)

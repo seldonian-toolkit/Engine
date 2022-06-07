@@ -3,8 +3,8 @@
 from sklearn.model_selection import train_test_split
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from seldonian.dataset import DataSet
-from seldonian.candidate_selection import CandidateSelection
-from seldonian.safety_test import SafetyTest
+from seldonian.candidate_selection.candidate_selection import CandidateSelection
+from seldonian.safety_test.safety_test import SafetyTest
 
 def seldonian_algorithm(spec):
 	"""
@@ -149,7 +149,9 @@ def seldonian_algorithm(spec):
 		write_logfile=True)
 
 	candidate_solution = cs.run(**spec.optimization_hyperparams,
-		**spec.regularization_hyperparams)
+		**spec.regularization_hyperparams,
+		use_builtin_primary_gradient_fn=spec.use_builtin_primary_gradient_fn,
+		custom_primary_gradient_fn=spec.custom_primary_gradient_fn)
 	# candidate_solution = np.array([ 1.57886344, -1.57224782,  1.58788506,  1.55295861,  1.58501672, -1.58765016,
  # -1.590077,    1.58926174,  1.56557285, -1.55049646, -1.61179002,  1.61905064,
  #  1.578605,   -1.57800341,  1.56918053, -1.54473231,  1.57883498, -1.57466679,

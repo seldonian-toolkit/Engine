@@ -124,6 +124,12 @@ class RegressionModel(SupervisedModel):
 		res = sum(pow(prediction-Y,2))/n
 		return res
 
+	def gradient_Mean_Squared_Error(self,model,theta,X,Y):
+	    n = len(X)
+	    prediction = model.predict(theta,X) # vector of values
+	    err = prediction-Y
+	    return 2/n*np.dot(err,X)
+	    
 	def sample_Mean_Error(self,model,theta,X,Y):
 		"""
 		Calculate sample mean error 
@@ -1023,7 +1029,7 @@ class TabularSoftmaxModel(RLModel):
 		:param dataset: The object containing data and metadata
 		:type dataset: dataset.Dataset object
 		"""
-		return self.IS_estimate(model,theta,dataset)
+		return self.sample_IS_estimate(model,theta,dataset)
 
 
 class LinearSoftmaxModel(RLModel):
