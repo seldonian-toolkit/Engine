@@ -38,10 +38,6 @@ class Spec(object):
 		falls back on builtin function or autograd
 	:type custom_primary_gradient_fn: function, defaults to None 
 
-	:param assign_delta_weight_method: The method for assigning 
-		deltas to the base variables (leaf nodes) in the parse tree
-	:type assign_delta_weight_method: str, defaults to 'equal'
-
 	:param bound_method: 
 		The statistical method for calculating the confidence bounds
 	:type bound_method: str, defaults to 'ttest'
@@ -77,7 +73,6 @@ class Spec(object):
 		parse_trees,
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
-		assign_delta_weight_method='equal',
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
@@ -90,7 +85,6 @@ class Spec(object):
 		self.primary_objective = primary_objective
 		self.initial_solution_fn = initial_solution_fn
 		self.parse_trees = parse_trees
-		self.assign_delta_weight_method = assign_delta_weight_method
 		self.bound_method = bound_method
 		self.optimization_technique = optimization_technique
 		self.optimizer = optimizer
@@ -148,10 +142,6 @@ class SupervisedSpec(Spec):
 		falls back on builtin function or autograd
 	:type custom_primary_gradient_fn: function, defaults to None 
 
-	:param assign_delta_weight_method: The method for assigning 
-		deltas to the base variables (leaf nodes) in the parse tree
-	:type assign_delta_weight_method: str, defaults to 'equal'
-
 	:param bound_method: 
 		The statistical method for calculating the confidence bounds
 	:type bound_method: str, defaults to 'ttest'
@@ -186,7 +176,6 @@ class SupervisedSpec(Spec):
 		parse_trees,
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
-		assign_delta_weight_method='equal',
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
@@ -200,7 +189,6 @@ class SupervisedSpec(Spec):
 			parse_trees,
 			use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn,
-			assign_delta_weight_method,
 			bound_method,
 			optimization_technique,
 			optimizer,
@@ -247,10 +235,6 @@ class RLSpec(Spec):
 		falls back on builtin function or autograd
 	:type custom_primary_gradient_fn: function, defaults to None 
 
-	:param assign_delta_weight_method: The method for assigning 
-		deltas to the base variables (leaf nodes) in the parse tree
-	:type assign_delta_weight_method: str, defaults to 'equal'
-
 	:param bound_method: 
 		The statistical method for calculating the confidence bounds
 	:type bound_method: str, defaults to 'ttest'
@@ -292,7 +276,6 @@ class RLSpec(Spec):
 		RL_environment_obj,
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
-		assign_delta_weight_method='equal',
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
@@ -307,7 +290,6 @@ class RLSpec(Spec):
 			parse_trees,
 			use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn,
-			assign_delta_weight_method,
 			bound_method,
 			optimization_technique,
 			optimizer,

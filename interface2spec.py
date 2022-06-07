@@ -99,7 +99,6 @@ if __name__ == '__main__':
 		primary_objective=primary_objective,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		assign_delta_weight_method='equal',
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
