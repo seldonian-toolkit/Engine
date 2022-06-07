@@ -84,6 +84,8 @@ class Spec(object):
 		self.frac_data_in_safety = frac_data_in_safety
 		self.primary_objective = primary_objective
 		self.initial_solution_fn = initial_solution_fn
+		self.use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn
+		self.custom_primary_gradient_fn = custom_primary_gradient_fn
 		self.parse_trees = parse_trees
 		self.bound_method = bound_method
 		self.optimization_technique = optimization_technique
