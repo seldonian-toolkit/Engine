@@ -91,7 +91,6 @@ class Environment():
 			(len(self.states)-1)*len(self.actions))
 		self.param_weights = self.initial_weights
 
-
 	# @lru_cache
 	def _denom(self,state):
 		"""Helper function for pi()"""
@@ -294,17 +293,33 @@ class Environment():
 			print(f"Saved {savename}")
 		return df 
 
-	def calc_J_from_df(self,df):
-		""" Given a dataset and gamma 
-		calculate the expected return of the sum 
-		of discounted rewards.
+	def calc_J(self,n_episodes,parallel=True,n_workers=8):
+		""" Calculate the expected return of the sum 
+		of discounted rewards by generating episodes
 
+		:param n_episodes: The number of episodes to use for 
+			calculating the performance
+		:type n_episodes: int
 
-		:param df: The dataframe from which to calculate 
-			the expected return
-		:type df: pandas dataframe
+		:param parallel: Whether to use multiple workers 
+			to generate the data
+		:type parallel: bool
+
+		:param n_workers: The number of workers to use if
+			using multiprocessing
+		:type n_workers: int
+
+		:return: J, the expected return of the sum 
+			of discounted rewards
+		:rtype: float
 		"""
+		df = self.generate_data(
+			n_episodes=n_episodes,
+			parallel=parallel,
+			n_workers=n_workers)
+
 		ws_helper = partial(weighted_sum_gamma,gamma=self.gamma)
 		discounted_sum_rewards_episodes=df.groupby(
 			'episode_index')['R'].apply(ws_helper)
+
 		return np.mean(discounted_sum_rewards_episodes)
