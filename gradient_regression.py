@@ -1,7 +1,8 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
 from seldonian.parse_tree import ParseTree
-from seldonian.dataset import DataSetLoader, DataSet
+from seldonian.dataset import (DataSetLoader,
+ 	SupervisedDataSet)
 from seldonian.candidate_selection import CandidateSelection
 from seldonian.utils.stats_utils import generate_data
 from sklearn.model_selection import train_test_split
@@ -19,9 +20,9 @@ if __name__ == "__main__":
 	include_sensitive_columns=False
 	include_intercept_term=False
 
-	candidate_dataset = DataSet(
+	candidate_dataset = SupervisedDataSet(
 		candidate_df,meta_information=['feature1','label'],
-		regime='supervised',label_column=label_column,
+		label_column=label_column,
 		include_sensitive_columns=include_sensitive_columns,
 		include_intercept_term=include_intercept_term)
 
@@ -35,9 +36,9 @@ if __name__ == "__main__":
 	if include_intercept_term:
 		candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
-	safety_dataset = DataSet(
+	safety_dataset = SupervisedDataSet(
 		safety_df,meta_information=['feature1','label'],
-		regime='supervised',label_column='label',
+		label_column='label',
 		include_sensitive_columns=include_sensitive_columns,
 		include_intercept_term=include_intercept_term)
 

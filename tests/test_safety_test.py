@@ -6,7 +6,7 @@ import pytest
 
 ### Begin tests
 
-def test_safety_test(generate_data):
+def test_linear_regression(generate_data):
     # dummy data for linear regression
     np.random.seed(0)
     numPoints=1000
@@ -19,15 +19,15 @@ def test_safety_test(generate_data):
     regime = 'supervised'
     include_sensitive_columns=False
     include_intercept_term=True
-    dataset = DataSet(df,meta_information=columns,
-        regime=regime,label_column='label',
+    dataset = SupervisedDataSet(df,meta_information=columns,
+        label_column='label',
         include_sensitive_columns=include_sensitive_columns,
         include_intercept_term=include_intercept_term)
 
     candidate_df, safety_df = train_test_split(
             df, test_size=0.5, shuffle=False)
 
-    safety_dataset = DataSet(
+    safety_dataset = SupervisedDataSet(
         safety_df,meta_information=columns,
         regime=regime,label_column='label',
         include_sensitive_columns=include_sensitive_columns,

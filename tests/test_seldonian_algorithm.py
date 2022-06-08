@@ -3,7 +3,8 @@ import autograd.numpy as np
 
 from seldonian.utils.io_utils import load_json
 from seldonian.parse_tree.parse_tree import ParseTree
-from seldonian.dataset import DataSetLoader
+from seldonian.dataset import (DataSetLoader,
+    SupervisedDataSet,RLDataSet)
 from seldonian.models.model import (LinearRegressionModel,
     TabularSoftmaxModel)
 from seldonian.spec import RLSpec, SupervisedSpec
@@ -33,6 +34,7 @@ def test_gpa_data_regression():
     include_sensitive_columns = False
     include_intercept_term = True
     frac_data_in_safety = 0.6
+    regime='supervised'
 
     model_class = LinearRegressionModel
 

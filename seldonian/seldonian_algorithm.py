@@ -2,7 +2,7 @@
 
 from sklearn.model_selection import train_test_split
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
-from seldonian.dataset import DataSet
+from seldonian.dataset import (SupervisedDataSet, RLDataSet)
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
 
@@ -29,19 +29,19 @@ def seldonian_algorithm(spec):
 		sensitive_column_names = dataset.sensitive_column_names
 
 		# Create candidate and safety datasets
-		candidate_dataset = DataSet(
+		candidate_dataset = SupervisedDataSet(
 			candidate_df,meta_information=column_names,
 			sensitive_column_names=sensitive_column_names,
 			include_sensitive_columns=include_sensitive_columns,
 			include_intercept_term=include_intercept_term,
-			regime='supervised',label_column=label_column)
+			label_column=label_column)
 
-		safety_dataset = DataSet(
+		safety_dataset = SupervisedDataSet(
 			safety_df,meta_information=column_names,
 			sensitive_column_names=sensitive_column_names,
 			include_sensitive_columns=include_sensitive_columns,
 			include_intercept_term=include_intercept_term,
-			regime='supervised',label_column=label_column)
+			label_column=label_column)
 	
 		n_safety = len(safety_df)
 
@@ -99,13 +99,11 @@ def seldonian_algorithm(spec):
 		candidate_df = df.copy().loc[
 			df['episode_index'].isin(candidate_episodes)]	
 
-		candidate_dataset = DataSet(
-			candidate_df,meta_information=df.columns,
-			regime=regime)
+		candidate_dataset = RLDataSet(
+			candidate_df,meta_information=df.columns)
 
-		safety_dataset = DataSet(
-			safety_df,meta_information=df.columns,
-			regime=regime)
+		safety_dataset = RLDataSet(
+			safety_df,meta_information=df.columns)
 
 		n_safety = safety_df['episode_index'].nunique()
 		n_candidate = candidate_df['episode_index'].nunique()

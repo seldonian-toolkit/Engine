@@ -53,7 +53,7 @@ class DataSetLoader(object):
 		"""
 		df = pd.read_csv(csv_file,names=self.column_names)
 		if self.regime == 'supervised':
-			return DataSet(
+			return SupervisedDataSet(
 				df=df,
 				meta_information=self.column_names,
 				sensitive_column_names=self.sensitive_column_names,
@@ -62,7 +62,7 @@ class DataSetLoader(object):
 				regime=self.regime,
 				label_column=self.label_column)
 		elif self.regime == 'RL':
-			return DataSet(
+			return RLDataSet(
 				df=df,
 				meta_information=self.column_names,
 				regime=self.regime)
@@ -94,12 +94,32 @@ class DataSetLoader(object):
 
 class DataSet(object):
 	def __init__(self,df,meta_information,
-		regime,label_column='',
+		regime,
+		**kwargs):
+		""" Object for holding dataframe and dataset metadata
+	
+		:param df: dataframe containing the full dataset 
+		:type df: pandas dataframe
+
+		:param meta_information: list of all column names in the dataframe
+		:type meta_information: List(str)
+
+		:param regime: The category of the machine learning algorithm,
+			e.g. supervised or RL
+		:type regime: str
+		"""
+		self.df = df
+		self.meta_information = meta_information
+		self.regime = regime 
+
+class SupervisedDataSet(DataSet):
+	def __init__(self,df,meta_information,
+		label_column,
 		sensitive_column_names=[],
 		include_sensitive_columns=False,
 		include_intercept_term=False,
 		**kwargs):
-		""" Object for holding dataframe and dataset metadata
+		""" Object for holding Supervised dataframe and dataset metadata
 	
 		:param df: dataframe containing the full dataset 
 		:type df: pandas dataframe
@@ -125,15 +145,28 @@ class DataSet(object):
 		:param include_intercept_term: Whether to add 
 			a column of ones as the first column in the dataset.
 		"""
-		self.df = df
-		self.meta_information = meta_information
-		self.regime = regime 
+		super().__init__(df=df,
+			meta_information=meta_information,
+			regime='supervised')
+
 		self.label_column = label_column
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns
 		self.include_intercept_term = include_intercept_term
 	
 	
+class RLDataSet(DataSet):
+	def __init__(self,df,meta_information,
+		**kwargs):
+		""" Object for holding RL dataframe and dataset metadata
 	
+		:param df: dataframe containing the full dataset 
+		:type df: pandas dataframe
 
+		:param meta_information: list of all column names in the dataframe
+		:type meta_information: List(str)
+		"""
+		super().__init__(df=df,
+			meta_information=meta_information,
+			regime='RL')
 

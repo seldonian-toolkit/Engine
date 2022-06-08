@@ -1,5 +1,6 @@
 from seldonian.parse_tree.parse_tree import *
-from seldonian.dataset import *
+from seldonian.dataset import (DataSetLoader,
+	SupervisedDataSet)
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models.model import LinearRegressionModel
 import pytest
@@ -710,7 +711,7 @@ def test_ttest_bound(generate_data):
 		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
 	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
 	df = pd.DataFrame(rows,columns=['feature1','label'])
-	dataset = DataSet(df,meta_information=['feature1','label'],
+	dataset = SupervisedDataSet(df,meta_information=['feature1','label'],
 		regime='supervised',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
@@ -750,7 +751,7 @@ def test_evaluate_constraint(generate_data):
 	
 	df = pd.DataFrame(rows,columns=['feature1','label'])
 	
-	dataset = DataSet(df,meta_information=['feature1','label'],
+	dataset = SupervisedDataSet(df,meta_information=['feature1','label'],
 		regime='supervised',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
@@ -773,16 +774,6 @@ def test_evaluate_constraint(generate_data):
 		branch='safety_test')
 	print(pt.root.value)
 	assert pt.root.value == pytest.approx(-1.06248)
-	# assert pt.root.name == 'sub'  
-	# assert pt.root.left.will_lower_bound == False
-	# assert pt.root.left.will_upper_bound == True
-	# pt.propagate_bounds(theta=theta,dataset=dataset,
-	# 	model=model_instance,
-	# 	branch='safety_test',
-	# 	bound_method='ttest',
-	# 	regime='supervised')
-	# assert pt.root.lower == float('-inf') # not bound_computed 
-	# assert pt.root.upper == pytest.approx(-0.995242)
 
 def test_reset_parse_tree():
 	

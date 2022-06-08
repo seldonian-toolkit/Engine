@@ -28,7 +28,7 @@ def test_barrier_function_regression(generate_data):
     label_column = 'label'
     include_sensitive_columns=False
     include_intercept_term=True,
-    candidate_dataset = DataSet(
+    candidate_dataset = SupervisedDataSet(
         candidate_df,meta_information=['feature1','label'],
         regime='supervised',label_column=label_column,
         include_sensitive_columns=include_sensitive_columns,
@@ -43,7 +43,7 @@ def test_barrier_function_regression(generate_data):
     if include_intercept_term:
         candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
-    safety_dataset = DataSet(
+    safety_dataset = SupervisedDataSet(
         safety_df,meta_information=['feature1','label'],
         regime='supervised',label_column='label',
         include_sensitive_columns=include_sensitive_columns,
