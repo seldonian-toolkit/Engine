@@ -8,3 +8,4 @@ regression_plots/
 **/.DS_Store
 qsa*
 **/logs
+**/.coverage
