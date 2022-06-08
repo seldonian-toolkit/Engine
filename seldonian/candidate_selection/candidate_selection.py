@@ -331,8 +331,9 @@ class CandidateSelection(object):
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
+			data_dict = {'dataframe':self.candidate_dataset.df}
 			result = -1.0*self.primary_objective(self.model,theta,
-				self.candidate_dataset)
+				data_dict)
 
 			if hasattr(self,'reg_coef'):
 				# reg_term = self.reg_coef*np.linalg.norm(theta)

@@ -873,14 +873,15 @@ class RLModel(SeldonianModel):
 		:return: The evaluated statistic over the whole sample
 		:rtype: float
 		"""
+		print()
 		if statistic_name == 'J_pi_new':
 			return model.sample_IS_estimate(model,
-				theta,data_dict['dataframe'])
+				theta,data_dict)
 		else:
 			raise NotImplementedError(
 				f"Statistic: {statistic_name} is not implemented")
 
-	def sample_IS_estimate(self,model,theta,dataset):
+	def sample_IS_estimate(self,model,theta,data_dict):
 		""" Calculate the unweighted importance sampling estimate
 		on all episodes in the dataframe
 
@@ -901,7 +902,7 @@ class RLModel(SeldonianModel):
 		does this so a cache can be used 
 		to accelerate the apply_policy() computation 
 		on all state,action pairs """
-		dataframe = dataset.df
+		dataframe = data_dict['dataframe']
 		model.theta = theta
 		pi_ratios = list(map(model.apply_policy,
 					dataframe['O'].values,
@@ -973,7 +974,7 @@ class TabularSoftmaxModel(RLModel):
 		self.environment = environment
 		self.theta = None
 
-	def sample_IS_estimate(self,model,theta,dataset):
+	def sample_IS_estimate(self,model,theta,data_dict):
 		""" Calculate the unweighted importance sampling estimate
 		on all episodes in the dataframe
 
@@ -994,7 +995,7 @@ class TabularSoftmaxModel(RLModel):
 		does this so a cache can be used 
 		to accelerate the apply_policy() computation 
 		on all state,action pairs """
-		dataframe = dataset.df
+		dataframe = data_dict['dataframe']
 		model.theta = theta
 		pi_ratios = list(map(model.apply_policy,
 					dataframe['O'].values,
@@ -1094,7 +1095,7 @@ class TabularSoftmaxModel(RLModel):
 		
 		return np.exp(self._arg(state,action))/self._denom(state)
 
-	def default_objective(self,model,theta,dataset):
+	def default_objective(self,model,theta,data_dict):
 		""" The default primary objective to use, the 
 		unweighted IS estimate
 
@@ -1107,7 +1108,7 @@ class TabularSoftmaxModel(RLModel):
 		:param dataset: The object containing data and metadata
 		:type dataset: dataset.Dataset object
 		"""
-		return self.sample_IS_estimate(model,theta,dataset)
+		return self.sample_IS_estimate(model,theta,data_dict)
 
 
 class LinearSoftmaxModel(RLModel):
@@ -1230,7 +1231,7 @@ class LinearSoftmaxModel(RLModel):
 
 		return u
 
-	def default_objective(self,model,theta,dataset):
+	def default_objective(self,model,theta,data_dict):
 		""" The default primary objective to use, the 
 		IS estimate defined in this class
 
@@ -1246,4 +1247,4 @@ class LinearSoftmaxModel(RLModel):
 		:return: IS estimate for whole sample
 		:rtype: float
 		"""
-		return self.IS_estimate(model,theta,dataset)
+		return self.IS_estimate(model,theta,data_dict)
