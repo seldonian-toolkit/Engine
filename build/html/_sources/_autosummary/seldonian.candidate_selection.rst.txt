@@ -1,4 +1,4 @@
-seldonian.candidate\_selection
+﻿seldonian.candidate\_selection
 ==============================
 
 .. automodule:: seldonian.candidate_selection 
@@ -13,14 +13,6 @@ seldonian.candidate\_selection
 
    
    
-   .. rubric:: Classes
-
-   .. autosummary::
-      :toctree:                                         
-      :template: custom-class-template.rst              
-   
-      CandidateSelection
-   
    
 
    
@@ -28,4 +20,14 @@ seldonian.candidate\_selection
    
 
 
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst                
+   :recursive:
+
+
+   seldonian.candidate_selection.candidate_selection
 

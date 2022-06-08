@@ -174,7 +174,7 @@ possible action in given encoded state</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.model.LinearSoftmaxModel.sample_IS_estimate">
-<span class="sig-name descname"><span class="pre">sample_IS_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataframe</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearSoftmaxModel.sample_IS_estimate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sample_IS_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearSoftmaxModel.sample_IS_estimate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the unweighted importance sampling estimate
 on all episodes in the dataframe</p>
 <dl class="field-list simple">
@@ -182,7 +182,7 @@ on all episodes in the dataframe</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
 <li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>dataframe</strong> (<em>pandas dataframe</em>) – Contains the episodes</p></li>
+<li><p><strong>dataset</strong> (<em>dataset.Dataset object</em>) – The object containing data and metadata</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

@@ -1,4 +1,4 @@
-seldonian.models.model.SGDClassifierModel
+﻿seldonian.models.model.SGDClassifierModel
 =========================================
 
 .. currentmodule:: seldonian.models.model
@@ -18,20 +18,6 @@ seldonian.models.model.SGDClassifierModel
 
    .. autosummary::
    .. 
-   ..    ~SGDClassifierModel.Vector_False_Negative_Rate
-   ..
-   ..    ~SGDClassifierModel.Vector_False_Positive_Rate
-   ..
-   ..    ~SGDClassifierModel.Vector_Negative_Rate
-   ..
-   ..    ~SGDClassifierModel.Vector_Positive_Rate
-   ..
-   ..    ~SGDClassifierModel.Vector_True_Negative_Rate
-   ..
-   ..    ~SGDClassifierModel.Vector_True_Positive_Rate
-   ..
-   ..    ~SGDClassifierModel.Vector_logistic_loss
-   ..
    ..    ~SGDClassifierModel.__init__
    ..
    ..    ~SGDClassifierModel.accuracy
@@ -57,6 +43,20 @@ seldonian.models.model.SGDClassifierModel
    ..    ~SGDClassifierModel.sample_logistic_loss
    ..
    ..    ~SGDClassifierModel.sample_perceptron_loss
+   ..
+   ..    ~SGDClassifierModel.vector_False_Negative_Rate
+   ..
+   ..    ~SGDClassifierModel.vector_False_Positive_Rate
+   ..
+   ..    ~SGDClassifierModel.vector_Negative_Rate
+   ..
+   ..    ~SGDClassifierModel.vector_Positive_Rate
+   ..
+   ..    ~SGDClassifierModel.vector_True_Negative_Rate
+   ..
+   ..    ~SGDClassifierModel.vector_True_Positive_Rate
+   ..
+   ..    ~SGDClassifierModel.vector_logistic_loss
    ..
    
    

@@ -1,4 +1,4 @@
-seldonian.models.model.RegressionModel
+﻿seldonian.models.model.RegressionModel
 ======================================
 
 .. currentmodule:: seldonian.models.model
@@ -23,6 +23,8 @@ seldonian.models.model.RegressionModel
    ..    ~RegressionModel.evaluate_statistic
    ..
    ..    ~RegressionModel.fit
+   ..
+   ..    ~RegressionModel.gradient_sample_Mean_Squared_Error
    ..
    ..    ~RegressionModel.sample_Mean_Error
    ..

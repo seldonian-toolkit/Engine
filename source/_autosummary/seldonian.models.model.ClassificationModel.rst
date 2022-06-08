@@ -1,4 +1,4 @@
-seldonian.models.model.ClassificationModel
+﻿seldonian.models.model.ClassificationModel
 ==========================================
 
 .. currentmodule:: seldonian.models.model
@@ -18,20 +18,6 @@ seldonian.models.model.ClassificationModel
 
    .. autosummary::
    .. 
-   ..    ~ClassificationModel.Vector_False_Negative_Rate
-   ..
-   ..    ~ClassificationModel.Vector_False_Positive_Rate
-   ..
-   ..    ~ClassificationModel.Vector_Negative_Rate
-   ..
-   ..    ~ClassificationModel.Vector_Positive_Rate
-   ..
-   ..    ~ClassificationModel.Vector_True_Negative_Rate
-   ..
-   ..    ~ClassificationModel.Vector_True_Positive_Rate
-   ..
-   ..    ~ClassificationModel.Vector_logistic_loss
-   ..
    ..    ~ClassificationModel.__init__
    ..
    ..    ~ClassificationModel.accuracy
@@ -55,6 +41,20 @@ seldonian.models.model.ClassificationModel
    ..    ~ClassificationModel.sample_logistic_loss
    ..
    ..    ~ClassificationModel.sample_perceptron_loss
+   ..
+   ..    ~ClassificationModel.vector_False_Negative_Rate
+   ..
+   ..    ~ClassificationModel.vector_False_Positive_Rate
+   ..
+   ..    ~ClassificationModel.vector_Negative_Rate
+   ..
+   ..    ~ClassificationModel.vector_Positive_Rate
+   ..
+   ..    ~ClassificationModel.vector_True_Negative_Rate
+   ..
+   ..    ~ClassificationModel.vector_True_Positive_Rate
+   ..
+   ..    ~ClassificationModel.vector_logistic_loss
    ..
    
    

@@ -1,4 +1,4 @@
-seldonian.RL.environments.gridworld3x3.Environment
+﻿seldonian.RL.environments.gridworld3x3.Environment
 ==================================================
 
 .. currentmodule:: seldonian.RL.environments.gridworld3x3
@@ -20,7 +20,7 @@ seldonian.RL.environments.gridworld3x3.Environment
    .. 
    ..    ~Environment.__init__
    ..
-   ..    ~Environment.calc_J_from_df
+   ..    ~Environment.calc_J
    ..
    ..    ~Environment.generate_data
    ..

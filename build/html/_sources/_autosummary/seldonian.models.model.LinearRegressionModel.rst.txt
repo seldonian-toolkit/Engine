@@ -1,4 +1,4 @@
-seldonian.models.model.LinearRegressionModel
+﻿seldonian.models.model.LinearRegressionModel
 ============================================
 
 .. currentmodule:: seldonian.models.model
@@ -25,6 +25,8 @@ seldonian.models.model.LinearRegressionModel
    ..    ~LinearRegressionModel.evaluate_statistic
    ..
    ..    ~LinearRegressionModel.fit
+   ..
+   ..    ~LinearRegressionModel.gradient_sample_Mean_Squared_Error
    ..
    ..    ~LinearRegressionModel.predict
    ..
