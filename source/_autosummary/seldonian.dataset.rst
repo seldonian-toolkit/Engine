@@ -1,4 +1,4 @@
-seldonian.dataset
+﻿seldonian.dataset
 =================
 
 .. automodule:: seldonian.dataset 
@@ -21,6 +21,8 @@ seldonian.dataset
    
       DataSet
       DataSetLoader
+      RLDataSet
+      SupervisedDataSet
    
    
 
