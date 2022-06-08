@@ -1,4 +1,4 @@
-""" Build and load Datasets for running Seldonian algorithms """
+""" Build and load datasets for running Seldonian algorithms """
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd

@@ -1,4 +1,4 @@
-""" Module for running the Seldonian algorithm """
+""" Module for running Seldonian algorithms """
 
 from sklearn.model_selection import train_test_split
 import autograd.numpy as np   # Thinly-wrapped version of Numpy

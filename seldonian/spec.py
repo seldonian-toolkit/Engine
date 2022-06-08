@@ -1,4 +1,4 @@
-""" Module for building the specification object needed to run the Seldonian algorithm """
+""" Module for building the specification object needed to run Seldonian algorithms """
 
 class Spec(object):
 	"""Base class for specification object required to
