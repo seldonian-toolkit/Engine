@@ -276,7 +276,7 @@ class RLSpec(Spec):
 		initial_solution_fn,
 		parse_trees,
 		RL_environment_obj,
-		use_builtin_primary_gradient_fn=True,
+		use_builtin_primary_gradient_fn=False,
 		custom_primary_gradient_fn=None,
 		bound_method='ttest',
 		optimization_technique='gradient_descent',

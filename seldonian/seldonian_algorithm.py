@@ -114,6 +114,7 @@ def seldonian_algorithm(spec):
 		
 		# initial solution
 		initial_solution = RL_environment_obj.initial_weights
+
 		cs_kwargs = dict(
 			model=model_instance,
 			candidate_dataset=candidate_dataset,
@@ -145,22 +146,13 @@ def seldonian_algorithm(spec):
 			st_kwargs['max_return']=RL_environment_obj.max_return
 			
 	# Candidate selection
-	cs = CandidateSelection(**cs_kwargs,
+	print(cs_kwargs)
+	cs = CandidateSelection(**cs_kwargs,**spec.regularization_hyperparams,
 		write_logfile=True)
 
 	candidate_solution = cs.run(**spec.optimization_hyperparams,
-		**spec.regularization_hyperparams,
 		use_builtin_primary_gradient_fn=spec.use_builtin_primary_gradient_fn,
 		custom_primary_gradient_fn=spec.custom_primary_gradient_fn)
-	# candidate_solution = np.array([ 1.57886344, -1.57224782,  1.58788506,  1.55295861,  1.58501672, -1.58765016,
- # -1.590077,    1.58926174,  1.56557285, -1.55049646, -1.61179002,  1.61905064,
- #  1.578605,   -1.57800341,  1.56918053, -1.54473231,  1.57883498, -1.57466679,
- # -1.56365391,  1.57781652,  1.48187932,  1.64122164, -1.59603775,  1.61112981,
- #  1.58580154,  1.56346047,  1.624256,   -1.57061631, -1.58188818, -1.58334667,
- # -1.54778041,  1.56841265])
-	print("candidate solution:")
-	print(candidate_solution) # array-like or "NSF"
-
 	
 	NSF=False
 	if type(candidate_solution) == str and candidate_solution == 'NSF':

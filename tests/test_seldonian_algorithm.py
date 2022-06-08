@@ -108,6 +108,110 @@ def test_gpa_data_regression():
         1.51706564e-04])
     assert np.allclose(candidate_solution,array_to_compare)
 
+def test_use_custom_primary_gradient():
+    """ Test that the gpa regression example runs 
+    when using a custom primary gradient function.
+    It is the same as the built-in but passed as 
+    a custom function. Make
+    sure safety test passes and solution is correct.
+    """
+    # Load metadata
+    np.random.seed(0) 
+    data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
+    metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+
+    metadata_dict = load_json(metadata_pth)
+    regime = metadata_dict['regime']
+    sub_regime = metadata_dict['sub_regime']
+    columns = metadata_dict['columns']
+    sensitive_columns = metadata_dict['sensitive_columns']
+    label_column = metadata_dict['label_column']
+                
+    include_sensitive_columns = False
+    include_intercept_term = True
+    frac_data_in_safety = 0.6
+
+    model_class = LinearRegressionModel
+
+    # Mean squared error
+    primary_objective = model_class().sample_Mean_Squared_Error
+
+    def gradient_MSE(model,theta,X,Y):
+        n = len(X)
+        prediction = model.predict(theta,X) # vector of values
+        err = prediction-Y
+        return 2/n*np.dot(err,X)
+
+    # Load dataset from file
+    loader = DataSetLoader(
+        column_names=columns,
+        sensitive_column_names=sensitive_columns,
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term,
+        label_column=label_column,
+        regime=regime)
+
+    dataset = loader.from_csv(data_pth)
+    
+    constraint_strs = ['Mean_Squared_Error - 2.0'] 
+    
+    deltas = [0.05]
+
+    # For each constraint, make a parse tree
+    parse_trees = []
+    for ii in range(len(constraint_strs)):
+        constraint_str = constraint_strs[ii]
+
+        delta = deltas[ii]
+        # Create parse tree object
+        parse_tree = ParseTree(delta=delta)
+
+        # Fill out tree
+        parse_tree.create_from_ast(constraint_str)
+        # assign deltas for each base node
+        # use equal weighting for each base node
+        parse_tree.assign_deltas(weight_method='equal')
+
+        # Assign bounds needed on the base nodes
+        parse_tree.assign_bounds_needed()
+        
+        parse_trees.append(parse_tree)
+
+    # Create spec object
+    spec = SupervisedSpec(
+        dataset=dataset,
+        model_class=model_class,
+        frac_data_in_safety=frac_data_in_safety,
+        primary_objective=primary_objective,
+        use_builtin_primary_gradient_fn=False,
+        custom_primary_gradient_fn=gradient_MSE,
+        parse_trees=parse_trees,
+        initial_solution_fn=model_class().fit,
+        bound_method='ttest',
+        optimization_technique='gradient_descent',
+        optimizer='adam',
+        optimization_hyperparams={
+            'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.005,
+            'alpha_lamb'    : 0.005,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 200,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        }
+    )
+
+    # Run seldonian algorithm
+    passed_safety,candidate_solution = seldonian_algorithm(spec)
+    assert passed_safety == True
+    array_to_compare = np.array(
+        [4.17863795e-01,-2.38988670e-04,  5.62655484e-04,
+        2.02541591e-04, 2.53897770e-04,  4.11365885e-05,
+        1.81167007e-03,1.23389238e-03,-4.58006355e-04,
+        1.51706564e-04])
+    assert np.allclose(candidate_solution,array_to_compare)
+
 def test_RL_gridworld():
     """ Test that the RL gridworld example runs 
     with a simple performance improvement constraint. Make

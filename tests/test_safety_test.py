@@ -1,6 +1,6 @@
 from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
-from seldonian.safety_test import SafetyTest
+from seldonian.safety_test.safety_test import SafetyTest
 from sklearn.model_selection import train_test_split
 import pytest
 

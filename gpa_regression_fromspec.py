@@ -8,10 +8,16 @@ from seldonian.seldonian_algorithm import seldonian_algorithm
 from seldonian.models.model import LinearRegressionModel
 from seldonian.spec import SupervisedSpec
 
+def gradient_MSE(model,theta,X,Y):
+    n = len(X)
+    prediction = model.predict(theta,X) # vector of values
+    err = prediction-Y
+    return 2/n*np.dot(err,X)
+
 if __name__ == '__main__':
 	# gpa dataset
 	# Load metadata 
-    data_pth = 'static/datasets/GPA/data_phil_modified.csv'
+    data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
     metadata_pth = 'static/datasets/GPA/metadata_regression.json'
 
     metadata_dict = load_json(metadata_pth)
@@ -71,7 +77,8 @@ if __name__ == '__main__':
         model_class=model_class,
         frac_data_in_safety=frac_data_in_safety,
         primary_objective=primary_objective,
-        use_builtin_primary_gradient_fn=True,
+        use_builtin_primary_gradient_fn=False,
+        custom_primary_gradient_fn=gradient_MSE,
         parse_trees=parse_trees,
         initial_solution_fn=model_class().fit,
         bound_method='ttest',

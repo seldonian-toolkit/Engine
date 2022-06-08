@@ -1,13 +1,21 @@
+from seldonian.utils.io_utils import load_json
 from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
-from seldonian.candidate_selection import CandidateSelection
+from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from sklearn.model_selection import train_test_split
 from seldonian.models.model import LinearRegressionModel
+from seldonian.spec import SupervisedSpec
+from seldonian.seldonian_algorithm import seldonian_algorithm
 import pytest
 
 ### Begin tests
 
-def test_simulated_data(generate_data):
+def test_barrier_function_regression(generate_data):
+    """ Test that the candidate selection runs 
+    using the barrier function + black box optimization method
+    with simple linear regression with one constraint
+    """
+
     # dummy data for linear regression
     np.random.seed(0)
     numPoints=1000
@@ -70,5 +78,3 @@ def test_simulated_data(generate_data):
     candidate_solution = cs.run(minimizer_options=minimizer_options)
     assert candidate_solution[0] == pytest.approx(0.0280619)
     assert candidate_solution[1] == pytest.approx(0.95523116)
-
-

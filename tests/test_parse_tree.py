@@ -1,6 +1,6 @@
 from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
-from seldonian.safety_test import SafetyTest
+from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models.model import LinearRegressionModel
 import pytest
 import time
@@ -823,7 +823,7 @@ def test_reset_parse_tree():
 
 def test_single_conditional_columns_propagated():
 	np.random.seed(0)
-	csv_file = 'static/datasets/GPA/data_phil_modified.csv'
+	csv_file = 'static/datasets/GPA/gpa_regression_dataset.csv'
 	columns = ["M","F","SAT_Physics",
 		   "SAT_Biology","SAT_History",
 		   "SAT_Second_Language","SAT_Geography",
