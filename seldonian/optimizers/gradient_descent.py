@@ -14,6 +14,46 @@ def gradient_descent_adam(
     store_values=False,
     verbose=False,
     **kwargs):
+    """ Implements gradient descent with "adam" optimizer
+
+    :param primary_objective: The objective function that would
+        be solely optimized in the absence of behavioral constraints,
+        i.e. the loss function
+    :type primary_objective: function or class method
+
+    :param upper_bound_function: The function that calculates
+        the upper bound on the constraint
+    :type upper_bound_function: function or class method
+
+    :param theta_init: Initial model weights 
+    :type theta_init: numpy ndarray
+
+    :param lambda_init: Initial values for Lagrange multiplier terms 
+    :type theta_init: float
+
+    :param alpha_theta: Initial learning rate for theta
+    :type alpha_theta: float
+
+    :param alpha_lamb: Learning rate for lambda
+    :type alpha_lamb: float
+
+    :param beta_velocity: Exponential decay rate for velocity term
+    :type beta_velocity: float
+
+    :param beta_rmsprop: Exponential decay rate for rmsprop term
+    :type beta_rmsprop: float
+
+    :param num_iters: The number of iterations of gradient descent to run
+    :type num_iters: int
+
+    :param store_values: Whether to include evaluations of various 
+        quantities in the solution dictionary
+    :type store_values: bool
+
+    :return: solution, a dictionary containing the solution and metadata 
+        about the gradient descent run, if store_values==True
+    :rtype: dict
+    """
     
     # initialize modeling parameters
     theta = theta_init
