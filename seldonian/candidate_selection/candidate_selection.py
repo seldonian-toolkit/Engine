@@ -144,7 +144,7 @@ class CandidateSelection(object):
 						gd_kwargs['primary_gradient'] = grad_primary_objective_theta
 					else:
 						raise NotImplementedError(
-							"Using a provided primary objective gradient"
+							"Using a builtin primary objective gradient"
 							" is not yet supported for regimes other"
 							" than supervised learning")
 
@@ -335,8 +335,11 @@ class CandidateSelection(object):
 				self.candidate_dataset)
 
 			if hasattr(self,'reg_coef'):
-				reg_term = self.reg_coef*np.linalg.norm(theta)
-				result += reg_term
+				# reg_term = self.reg_coef*np.linalg.norm(theta)
+				reg_term = self.reg_coef*np.sum(pow(theta,2))
+			else:
+				reg_term = 0
+			result += reg_term
 			return result
 
 	def get_constraint_upper_bound(self,theta):
@@ -365,7 +368,6 @@ class CandidateSelection(object):
 			if self.normalize_returns:
 				bounds_kwargs['min_return'] = self.min_return
 				bounds_kwargs['max_return'] = self.max_return
-
 		pt.propagate_bounds(**bounds_kwargs)
 
 		return pt.root.upper

@@ -240,9 +240,7 @@ class BaseNode(Node):
 			
 			# Precalculate expected return from behavioral policy
 			rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
-			returns = np.array(list(map(weighted_sum_gamma,
-				rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
-			
+			returns = [weighted_sum_gamma(r,gamma) for r in rewards_by_episode]
 			if kwargs['normalize_returns']==True:
 				# normalize returns 
 				min_return = kwargs['min_return']
