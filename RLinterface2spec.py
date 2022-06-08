@@ -86,7 +86,6 @@ if __name__ == '__main__':
 		parse_trees=parse_trees,
 		RL_environment_obj=RL_environment_obj,
 		initial_solution_fn=None,
-		assign_delta_weight_method='equal',
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
