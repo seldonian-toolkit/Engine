@@ -1,3 +1,5 @@
+![GitHub CI](https://github.com/seldonian-framework/Engine/actions/workflows/test-action.yml/badge.svg)
+
 ## Disclaimer: This repository is under active development and is not yet suitable for public use. We are currently working on an alpha release and will remove this disclaimer at the time of release. 
 
 # Engine
