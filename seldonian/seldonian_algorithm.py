@@ -166,7 +166,6 @@ def seldonian_algorithm(spec):
 		return passed_safety,candidate_solution	
 
 	# Candidate selection
-	print(cs_kwargs)
 	cs = CandidateSelection(**cs_kwargs,**spec.regularization_hyperparams,
 		write_logfile=True)
 

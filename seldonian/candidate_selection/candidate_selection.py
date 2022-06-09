@@ -104,8 +104,6 @@ class CandidateSelection(object):
 
 	def run(self,**kwargs):
 		""" Run candidate selection """
-		print("kwargs of run:")
-		print(kwargs)
 		if self.optimization_technique == 'gradient_descent':
 			from seldonian.optimizers.gradient_descent import gradient_descent_adam
 
@@ -148,7 +146,6 @@ class CandidateSelection(object):
 							"Using a builtin primary objective gradient"
 							" is not yet supported for regimes other"
 							" than supervised learning")
-
 
 			# If user specified the gradient of the primary
 			# objective, then pass it here
@@ -196,28 +193,33 @@ class CandidateSelection(object):
 				candidate_solution = 'NSF'
 
 		elif self.optimization_technique == 'barrier_function':
+			opts = {}
 			if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS']:
-				
+				if 'maxiter' in kwargs:
+					opts['maxiter'] = kwargs['maxiter']
+
 				from scipy.optimize import minimize 
 				res = minimize(
 					self.objective_with_barrier,
 					x0=self.initial_solution,
 					method=self.optimizer,
-					options=kwargs['minimizer_options'], 
+					options=opts, 
 					args=())
 				
 				candidate_solution=res.x
 
 			elif self.optimizer == 'CMA-ES':
-				# from seldonian.cmaes import minimize
 				import cma
 
-				es = cma.CMAEvolutionStrategy(self.initial_solution, 0.2,
-					kwargs['minimizer_options'])
+				if 'seed' in kwargs:
+					opts['seed'] = kwargs['seed']
+
+				es = cma.CMAEvolutionStrategy(self.initial_solution,
+					0.2,opts)
 				
 				es.optimize(self.objective_with_barrier)
 				candidate_solution=es.result.xbest
-				
+			else:
 				raise NotImplementedError(
 					f"Optimizer {self.optimizer} is not supported")
 		else:
@@ -306,11 +308,7 @@ class CandidateSelection(object):
 				# the prediction of the safety test
 
 				result = result + upper_bound
-		
-		# graph = pt.make_viz(title)
-		# graph.attr(fontsize='12')
-		# graph.view() # to open it as a pdf
-		# input("End of optimzer iteration")
+
 		return result
 
 	def evaluate_primary_objective(self,theta):

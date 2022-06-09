@@ -2,6 +2,9 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pytest
 
 from seldonian.parse_tree.parse_tree import *
+from seldonian.utils.io_utils import load_json
+from seldonian.models.model import LinearRegressionModel
+from seldonian.dataset import DataSetLoader
 
 
 @pytest.fixture
@@ -71,4 +74,63 @@ def generate_data():
         return (X,Y)
     
     return generate_data_function
+
+
+@pytest.fixture
+def gpa_regression_dataset():
+    def generate_dataset(constraint_strs,deltas,rseed=0):
+        np.random.seed(rseed) 
+        data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
+        metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+
+        metadata_dict = load_json(metadata_pth)
+        regime = metadata_dict['regime']
+        sub_regime = metadata_dict['sub_regime']
+        columns = metadata_dict['columns']
+        sensitive_columns = metadata_dict['sensitive_columns']
+        label_column = metadata_dict['label_column']
+                    
+        include_sensitive_columns = False
+        include_intercept_term = True
+        regime='supervised'
+
+        model_class = LinearRegressionModel
+
+        # Mean squared error
+        primary_objective = model_class().sample_Mean_Squared_Error
+
+        # Load dataset from file
+        loader = DataSetLoader(
+            column_names=columns,
+            sensitive_column_names=sensitive_columns,
+            include_sensitive_columns=include_sensitive_columns,
+            include_intercept_term=include_intercept_term,
+            label_column=label_column,
+            regime=regime)
+
+        dataset = loader.from_csv(data_pth)
+
+        # For each constraint, make a parse tree
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(delta=delta)
+
+            # Fill out tree
+            parse_tree.create_from_ast(constraint_str)
+            # assign deltas for each base node
+            # use equal weighting for each base node
+            parse_tree.assign_deltas(weight_method='equal')
+
+            # Assign bounds needed on the base nodes
+            parse_tree.assign_bounds_needed()
+            
+            parse_trees.append(parse_tree)
+
+        return dataset,model_class,primary_objective,parse_trees
+    
+    return generate_dataset
 

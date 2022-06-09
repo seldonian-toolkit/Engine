@@ -1,3 +1,4 @@
+import pytest
 import importlib
 import autograd.numpy as np
 
@@ -109,6 +110,257 @@ def test_gpa_data_regression():
         1.81167007e-03,1.23389238e-03,-4.58006355e-04,
         1.51706564e-04])
     assert np.allclose(candidate_solution,array_to_compare)
+
+def test_NSF():
+    """ Test that no solution is found for a constraint
+    that is impossible to satisfy, e.g. negative mean squared error 
+    """
+    # Load metadata
+    np.random.seed(0) 
+    data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
+    metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+
+    metadata_dict = load_json(metadata_pth)
+    regime = metadata_dict['regime']
+    sub_regime = metadata_dict['sub_regime']
+    columns = metadata_dict['columns']
+    sensitive_columns = metadata_dict['sensitive_columns']
+    label_column = metadata_dict['label_column']
+                
+    include_sensitive_columns = False
+    include_intercept_term = True
+    frac_data_in_safety = 0.6
+    regime='supervised'
+
+    model_class = LinearRegressionModel
+
+    # Mean squared error
+    primary_objective = model_class().sample_Mean_Squared_Error
+
+    # Load dataset from file
+    loader = DataSetLoader(
+        column_names=columns,
+        sensitive_column_names=sensitive_columns,
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term,
+        label_column=label_column,
+        regime=regime)
+
+    dataset = loader.from_csv(data_pth)
+    
+    constraint_strs = ['Mean_Squared_Error + 2.0'] 
+    
+    deltas = [0.05]
+
+    # For each constraint, make a parse tree
+    parse_trees = []
+    for ii in range(len(constraint_strs)):
+        constraint_str = constraint_strs[ii]
+
+        delta = deltas[ii]
+        # Create parse tree object
+        parse_tree = ParseTree(delta=delta)
+
+        # Fill out tree
+        parse_tree.create_from_ast(constraint_str)
+        # assign deltas for each base node
+        # use equal weighting for each base node
+        parse_tree.assign_deltas(weight_method='equal')
+
+        # Assign bounds needed on the base nodes
+        parse_tree.assign_bounds_needed()
+        
+        parse_trees.append(parse_tree)
+
+    # Create spec object
+    spec = SupervisedSpec(
+        dataset=dataset,
+        model_class=model_class,
+        frac_data_in_safety=frac_data_in_safety,
+        primary_objective=primary_objective,
+        use_builtin_primary_gradient_fn=True,
+        parse_trees=parse_trees,
+        initial_solution_fn=model_class().fit,
+        bound_method='ttest',
+        optimization_technique='gradient_descent',
+        optimizer='adam',
+        optimization_hyperparams={
+            'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.005,
+            'alpha_lamb'    : 0.005,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 200,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        },
+    )
+
+    # Run seldonian algorithm
+    passed_safety,candidate_solution = seldonian_algorithm(spec)
+    assert passed_safety == False
+    assert candidate_solution == 'NSF'
+
+def test_black_box_optimizers(gpa_regression_dataset):
+    """ Test that the black box optimizers successfully optimize the GPA 
+    regression problem with a simple non-conflicting constraint
+    """
+    rseed=0
+    constraint_strs = ['Mean_Squared_Error - 2.0']
+    deltas = [0.5]
+    (dataset,model_class,
+        primary_objective,parse_trees) = gpa_regression_dataset(
+        constraint_strs=constraint_strs,
+        deltas=deltas,rseed=rseed)
+
+    frac_data_in_safety=0.6
+
+    for optimizer in ['Powell','CG','Nelder-Mead','BFGS']:
+        spec = SupervisedSpec(
+            dataset=dataset,
+            model_class=model_class,
+            frac_data_in_safety=frac_data_in_safety,
+            primary_objective=primary_objective,
+            use_builtin_primary_gradient_fn=False,
+            parse_trees=parse_trees,
+            initial_solution_fn=model_class().fit,
+            bound_method='ttest',
+            optimization_technique='barrier_function',
+            optimizer=optimizer,
+            optimization_hyperparams={
+                'maxiter'   : 1000,
+                'seed':rseed,
+                'hyper_search'  : None,
+                'verbose'       : True,
+            },
+        )
+
+        # Run seldonian algorithm
+        passed_safety,candidate_solution = seldonian_algorithm(spec)
+        assert passed_safety == True
+        array_to_compare = np.array([
+            4.17882264e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
+            3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098726e-03,
+            -3.82405534e-04,  2.29938169e-04])
+        assert np.allclose(candidate_solution,array_to_compare)
+
+    # Test that a bad string for the optimizer raises an exception
+    bad_optimizer = 'bad-optimizer'
+    with pytest.raises(NotImplementedError) as excinfo:
+        bad_spec = SupervisedSpec(
+                dataset=dataset,
+                model_class=model_class,
+                frac_data_in_safety=frac_data_in_safety,
+                primary_objective=primary_objective,
+                use_builtin_primary_gradient_fn=False,
+                parse_trees=parse_trees,
+                initial_solution_fn=model_class().fit,
+                bound_method='ttest',
+                optimization_technique='barrier_function',
+                optimizer=bad_optimizer,
+                optimization_hyperparams={
+                    'maxiter'   : 1000,
+                    'seed':rseed,
+                    'hyper_search'  : None,
+                    'verbose'       : True,
+                },
+            )
+
+    # Run seldonian algorithm
+    error_str = "Optimizer: bad-optimizer is not an acceptable optimizer"
+    assert error_str in str(excinfo.value)
+
+def test_cmaes():
+    """ Test that CMA-ES successfully optimizes the GPA 
+    regression problem with a simple non-conflicting constraint
+    """
+    # Load metadata
+    np.random.seed(0) 
+    data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
+    metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+
+    metadata_dict = load_json(metadata_pth)
+    regime = metadata_dict['regime']
+    sub_regime = metadata_dict['sub_regime']
+    columns = metadata_dict['columns']
+    sensitive_columns = metadata_dict['sensitive_columns']
+    label_column = metadata_dict['label_column']
+                
+    include_sensitive_columns = False
+    include_intercept_term = True
+    frac_data_in_safety = 0.6
+    regime='supervised'
+
+    model_class = LinearRegressionModel
+
+    # Mean squared error
+    primary_objective = model_class().sample_Mean_Squared_Error
+
+    # Load dataset from file
+    loader = DataSetLoader(
+        column_names=columns,
+        sensitive_column_names=sensitive_columns,
+        include_sensitive_columns=include_sensitive_columns,
+        include_intercept_term=include_intercept_term,
+        label_column=label_column,
+        regime=regime)
+
+    dataset = loader.from_csv(data_pth)
+    
+    constraint_strs = ['Mean_Squared_Error - 2.0'] 
+    
+    deltas = [0.05]
+
+    # For each constraint, make a parse tree
+    parse_trees = []
+    for ii in range(len(constraint_strs)):
+        constraint_str = constraint_strs[ii]
+
+        delta = deltas[ii]
+        # Create parse tree object
+        parse_tree = ParseTree(delta=delta)
+
+        # Fill out tree
+        parse_tree.create_from_ast(constraint_str)
+        # assign deltas for each base node
+        # use equal weighting for each base node
+        parse_tree.assign_deltas(weight_method='equal')
+
+        # Assign bounds needed on the base nodes
+        parse_tree.assign_bounds_needed()
+        
+        parse_trees.append(parse_tree)
+
+    # Create spec object
+    spec = SupervisedSpec(
+        dataset=dataset,
+        model_class=model_class,
+        frac_data_in_safety=frac_data_in_safety,
+        primary_objective=primary_objective,
+        use_builtin_primary_gradient_fn=False,
+        parse_trees=parse_trees,
+        initial_solution_fn=model_class().fit,
+        bound_method='ttest',
+        optimization_technique='barrier_function',
+        optimizer='CMA-ES',
+        optimization_hyperparams={
+            'maxiter'   : 100,
+            'seed':99,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        },
+    )
+
+    # Run seldonian algorithm
+    passed_safety,candidate_solution = seldonian_algorithm(spec)
+    assert passed_safety == True
+    print(candidate_solution)
+    array_to_compare = np.array(
+        [ 6.52701631e-01, -1.97996985e-05,  3.36423400e-03, -2.81519897e-03,
+        -8.95797021e-06,  1.35152280e-03,  2.42020939e-03,  5.64587643e-04,
+        1.05303910e-03, -1.95087344e-03])
+    assert np.allclose(candidate_solution,array_to_compare)
+
 
 def test_use_custom_primary_gradient():
     """ Test that the gpa regression example runs 
@@ -319,3 +571,140 @@ def test_RL_gridworld():
          -0.16127811,  0.1607053,   0.16499328,  0.16099007, -0.16009257, -0.15898218,
           0.15874795,  0.1595269 ])
     assert np.allclose(candidate_solution,array_to_compare)
+
+def test_RL_builtin_or_custom_gradient_not_supported():
+    """ Test that an error is raised if user tries to 
+    use built-in gradient or a custom gradient 
+    when doing RL
+    """
+    # Load data and metadata
+    np.random.seed(0) 
+    data_pth = 'static/datasets/RL/gridworld/gridworld3x3_50episodes.csv'
+    metadata_pth = 'static/datasets/RL/gridworld/gridworld3x3_metadata.json'
+
+    metadata_dict = load_json(metadata_pth)
+    regime = metadata_dict['regime']
+    columns = metadata_dict['columns']
+                
+    include_sensitive_columns = False
+    include_intercept_term = False
+    frac_data_in_safety = 0.6
+
+    # Model
+    model_class = TabularSoftmaxModel
+
+    # RL environment
+    RL_environment_name = metadata_dict['RL_environment_name']
+    RL_environment_module = importlib.import_module(
+        f'seldonian.RL.environments.{RL_environment_name}')
+    RL_environment_obj = RL_environment_module.Environment()    
+
+    # Primary objective
+    model_instance = model_class(RL_environment_obj)
+
+    primary_objective = model_instance.default_objective
+    # Load dataset from file
+    loader = DataSetLoader(
+        column_names=columns,
+        regime=regime)
+
+    dataset = loader.from_csv(data_pth)
+    
+    constraint_strs = ['-0.25 - J_pi_new'] 
+    
+    deltas = [0.05]
+
+    # For each constraint, make a parse tree
+    parse_trees = []
+    for ii in range(len(constraint_strs)):
+        constraint_str = constraint_strs[ii]
+
+        delta = deltas[ii]
+        # Create parse tree object
+        parse_tree = ParseTree(delta=delta)
+
+        # Fill out tree
+        parse_tree.create_from_ast(constraint_str)
+        # assign deltas for each base node
+        # use equal weighting for each base node
+        parse_tree.assign_deltas(weight_method='equal')
+
+        # Assign bounds needed on the base nodes
+        parse_tree.assign_bounds_needed()
+        
+        parse_trees.append(parse_tree)
+
+    # # Create spec object
+    spec = RLSpec(
+        dataset=dataset,
+        model_class=model_class,
+        frac_data_in_safety=0.8,
+        use_builtin_primary_gradient_fn=True,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        RL_environment_obj=RL_environment_obj,
+        initial_solution_fn=None,
+        bound_method='ttest',
+        optimization_technique='gradient_descent',
+        optimizer='adam',
+        optimization_hyperparams={
+            'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.005,
+            'alpha_lamb'    : 0.005,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 20,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        },
+        regularization_hyperparams={'reg_coef':0.1},
+        normalize_returns=False,
+    )
+
+    # Run seldonian algorithm, making sure we capture error
+    error_str = ("Using a builtin primary objective gradient"
+                " is not yet supported for regimes other"
+                " than supervised learning")
+    with pytest.raises(NotImplementedError) as excinfo:
+        passed_safety,candidate_solution = seldonian_algorithm(spec)
+        
+    assert error_str in str(excinfo.value)
+
+    # # Create spec object
+    spec2 = RLSpec(
+        dataset=dataset,
+        model_class=model_class,
+        frac_data_in_safety=0.8,
+        use_builtin_primary_gradient_fn=False,
+        custom_primary_gradient_fn=lambda x: x,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        RL_environment_obj=RL_environment_obj,
+        initial_solution_fn=None,
+        bound_method='ttest',
+        optimization_technique='gradient_descent',
+        optimizer='adam',
+        optimization_hyperparams={
+            'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.005,
+            'alpha_lamb'    : 0.005,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 20,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        },
+        regularization_hyperparams={'reg_coef':0.1},
+        normalize_returns=False,
+    )
+
+    # Run seldonian algorithm, making sure we capture error
+    error_str2 = ("Using a provided primary objective gradient"
+                " is not yet supported for regimes other"
+                " than supervised learning")
+    with pytest.raises(NotImplementedError) as excinfo2:
+        passed_safety,candidate_solution = seldonian_algorithm(spec2)
+        
+    assert error_str2 in str(excinfo2.value)
+    
+

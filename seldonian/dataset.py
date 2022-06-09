@@ -8,7 +8,7 @@ class DataSetLoader(object):
 	def __init__(self,
 		regime,
 		column_names,
-		sensitive_column_names,
+		sensitive_column_names=[],
 		include_sensitive_columns=False,
 		include_intercept_term=False,
 		**kwargs):
