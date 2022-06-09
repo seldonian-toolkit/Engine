@@ -39,4 +39,5 @@
    seldonian.seldonian_algorithm
    seldonian.spec
    seldonian.utils
+   seldonian.warnings
 

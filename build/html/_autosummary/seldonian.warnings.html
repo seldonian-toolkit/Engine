@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>seldonian.dataset.DataSet &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.warnings &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.dataset.DataSetLoader" href="seldonian.dataset.DataSetLoader.html" />
-    <link rel="prev" title="seldonian.dataset" href="seldonian.dataset.html" />
+    <link rel="next" title="seldonian.warnings.custom_warnings" href="seldonian.warnings.custom_warnings.html" />
+    <link rel="prev" title="seldonian.utils.stats_utils.weighted_sum_gamma" href="seldonian.utils.stats_utils.weighted_sum_gamma.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,41 +34,16 @@
 
           <div class="body" role="main">
             
-  <section id="seldonian-dataset-dataset">
-<h1>seldonian.dataset.DataSet<a class="headerlink" href="#seldonian-dataset-dataset" title="Permalink to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSet.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSet.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object for holding dataframe and dataset metadata</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pandas dataframe</em>) – dataframe containing the full dataset</p></li>
-<li><p><strong>meta_information</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – list of all column names in the dataframe</p></li>
-<li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
-e.g. supervised or RL</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSet.__repr__">
-<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSet.__repr__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return repr(self).</p>
-</dd></dl>
-
-<p class="rubric">Methods</p>
+  <section id="module-seldonian.warnings">
+<span id="seldonian-warnings"></span><h1>seldonian.warnings<a class="headerlink" href="#module-seldonian.warnings" title="Permalink to this heading">¶</a></h1>
+<p class="rubric">Modules</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.warnings.custom_warnings.html#module-seldonian.warnings.custom_warnings" title="seldonian.warnings.custom_warnings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seldonian.warnings.custom_warnings</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
-</dd></dl>
-
 </section>
 
 
@@ -95,13 +70,7 @@ e.g. supervised or RL</p></li>
 <li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.DataSet</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.SupervisedDataSet.html">seldonian.dataset.SupervisedDataSet</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a></li>
@@ -109,7 +78,10 @@ e.g. supervised or RL</p></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">seldonian.warnings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.warnings.custom_warnings.html">seldonian.warnings.custom_warnings</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>
@@ -125,10 +97,8 @@ e.g. supervised or RL</p></li>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../api.html">API</a><ul>
   <li><a href="seldonian.html">seldonian</a><ul>
-  <li><a href="seldonian.dataset.html">seldonian.dataset</a><ul>
-      <li>Previous: <a href="seldonian.dataset.html" title="previous chapter">seldonian.dataset</a></li>
-      <li>Next: <a href="seldonian.dataset.DataSetLoader.html" title="next chapter">seldonian.dataset.DataSetLoader</a></li>
-  </ul></li>
+      <li>Previous: <a href="seldonian.utils.stats_utils.weighted_sum_gamma.html" title="previous chapter">seldonian.utils.stats_utils.weighted_sum_gamma</a></li>
+      <li>Next: <a href="seldonian.warnings.custom_warnings.html" title="next chapter">seldonian.warnings.custom_warnings</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -164,7 +134,7 @@ e.g. supervised or RL</p></li>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.dataset.DataSet.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.warnings.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
