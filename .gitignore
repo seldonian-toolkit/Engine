@@ -10,3 +10,5 @@ setup.py
 qsa*
 **/logs
 **/.coverage
+build
+dist
