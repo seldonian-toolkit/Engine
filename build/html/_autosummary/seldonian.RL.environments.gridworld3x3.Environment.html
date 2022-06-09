@@ -97,12 +97,14 @@ of the agent’s policy model</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.calc_J">
-<span class="sig-name descname"><span class="pre">calc_J</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.calc_J" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calc_J</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.calc_J" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the expected return of the sum 
 of discounted rewards by generating episodes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>param_weights</strong> (<em>numpy ndarray</em>) – The parameter weights to use
+when generating new episodes</p></li>
 <li><p><strong>n_episodes</strong> (<em>int</em>) – The number of episodes to use for 
 calculating the performance</p></li>
 <li><p><strong>parallel</strong> (<em>bool</em>) – Whether to use multiple workers 
@@ -244,6 +246,7 @@ to get action probability at a given state</p>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>

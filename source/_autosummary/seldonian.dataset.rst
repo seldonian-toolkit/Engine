@@ -1,4 +1,4 @@
-﻿seldonian.dataset
+seldonian.dataset
 =================
 
 .. automodule:: seldonian.dataset 

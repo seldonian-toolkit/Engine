@@ -1,4 +1,4 @@
-﻿seldonian.candidate\_selection
+seldonian.candidate\_selection
 ==============================
 
 .. automodule:: seldonian.candidate_selection 

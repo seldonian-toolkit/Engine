@@ -1,4 +1,4 @@
-﻿seldonian.safety\_test
+seldonian.safety\_test
 ======================
 
 .. automodule:: seldonian.safety_test 

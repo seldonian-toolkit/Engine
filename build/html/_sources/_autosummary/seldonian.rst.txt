@@ -38,4 +38,5 @@
    seldonian.safety_test
    seldonian.seldonian_algorithm
    seldonian.spec
+   seldonian.utils
 
