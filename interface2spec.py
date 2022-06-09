@@ -6,7 +6,7 @@ import pickle
 from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import dir_path
-from seldonian.spec import Spec
+from seldonian.spec import SupervisedSpec
 from seldonian.models.model import *
 
 if __name__ == '__main__':
@@ -92,13 +92,16 @@ if __name__ == '__main__':
 		parse_trees.append(parse_tree)
 
 	# Save spec object, using defaults where necessary
-	spec = Spec(
+
+	
+	spec = SupervisedSpec(
 		dataset=dataset,
 		model_class=model_class,
 		frac_data_in_safety=0.6,
 		primary_objective=primary_objective,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
+		use_builtin_primary_gradient_fn=True,
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',

@@ -410,7 +410,7 @@ class ClassificationModel(SupervisedModel):
 		res = np.mean(-Y*np.log(h) - (1.0-Y)*np.log(1.0-h))
 		return res
 
-	def gradient_sample_logistic_loss(self,theta,X,Y):
+	def gradient_sample_logistic_loss(self,model,theta,X,Y):
 		""" Gradient of logistic loss w.r.t. theta
 
 		:param theta: The parameter weights
