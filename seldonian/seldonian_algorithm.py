@@ -3,6 +3,9 @@ import copy
 
 from sklearn.model_selection import train_test_split
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+
+import warnings
+from seldonian.warnings.custom_warnings import *
 from seldonian.dataset import (SupervisedDataSet, RLDataSet)
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
@@ -43,7 +46,7 @@ def seldonian_algorithm(spec):
 			include_sensitive_columns=include_sensitive_columns,
 			include_intercept_term=include_intercept_term,
 			label_column=label_column)
-	
+		n_candidate = len(candidate_df)
 		n_safety = len(safety_df)
 
 		# Set up initial solution
@@ -77,6 +80,7 @@ def seldonian_algorithm(spec):
 			model=model_instance,parse_trees=spec.parse_trees,
 			regime=regime,
 			)
+
 
 	elif regime == 'RL':
 		RL_environment_obj = spec.RL_environment_obj
@@ -144,7 +148,7 @@ def seldonian_algorithm(spec):
 			st_kwargs['min_return']=RL_environment_obj.min_return
 			st_kwargs['max_return']=RL_environment_obj.max_return
 	
-	if len(candidate_df) < 2 or n_safety < 2:
+	if n_candidate < 2 or n_safety < 2:
 		# --TODO-- Raise warning
 		passed_safety=False
 		candidate_solution = "NSF"
