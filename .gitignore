@@ -3,7 +3,8 @@ Digraph*
 **/prof
 regression_plots/
 **/*.egg-info/
-**/setup.py
+setup.py
+**/pyproject.toml
 **/outcmaes
 **/.DS_Store
 qsa*
