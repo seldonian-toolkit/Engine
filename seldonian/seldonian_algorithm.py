@@ -1,4 +1,5 @@
 """ Module for running Seldonian algorithms """
+import copy
 
 from sklearn.model_selection import train_test_split
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
@@ -142,7 +143,13 @@ def seldonian_algorithm(spec):
 		if normalize_returns:
 			st_kwargs['min_return']=RL_environment_obj.min_return
 			st_kwargs['max_return']=RL_environment_obj.max_return
-			
+	
+	if len(candidate_df) < 2 or n_safety < 2:
+		# --TODO-- Raise warning
+		passed_safety=False
+		candidate_solution = "NSF"
+		return passed_safety,candidate_solution	
+
 	# Candidate selection
 	print(cs_kwargs)
 	cs = CandidateSelection(**cs_kwargs,**spec.regularization_hyperparams,
@@ -155,6 +162,7 @@ def seldonian_algorithm(spec):
 	NSF=False
 	if type(candidate_solution) == str and candidate_solution == 'NSF':
 		NSF = True
+
 	
 	if NSF:
 		passed_safety=False
