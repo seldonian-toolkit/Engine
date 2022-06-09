@@ -62,8 +62,17 @@ def seldonian_algorithm(spec):
 		if include_intercept_term:
 			candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
-		initial_solution = initial_solution_fn(candidate_features,candidate_labels)
-		
+
+		try: 
+			initial_solution = initial_solution_fn(candidate_features,candidate_labels)
+		except ValueError:
+			warning_msg = ("Warning: not enough data to run the algorithm.  "
+    				"Returning NSF and failing safety test.")
+			warnings.warn(warning_msg)
+			passed_safety=False
+			candidate_solution = "NSF"
+			return passed_safety,candidate_solution	
+			
 		cs_kwargs = dict(
 			model=model_instance,
 			candidate_dataset=candidate_dataset,
@@ -149,7 +158,9 @@ def seldonian_algorithm(spec):
 			st_kwargs['max_return']=RL_environment_obj.max_return
 	
 	if n_candidate < 2 or n_safety < 2:
-		# --TODO-- Raise warning
+		warning_msg = ("Warning: not enough data to run the algorithm.  "
+    				"Returning NSF and failing safety test.")
+		warnings.warn(warning_msg)
 		passed_safety=False
 		candidate_solution = "NSF"
 		return passed_safety,candidate_solution	
