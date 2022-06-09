@@ -293,9 +293,15 @@ class Environment():
 			print(f"Saved {savename}")
 		return df 
 
-	def calc_J(self,n_episodes,parallel=True,n_workers=8):
+	def calc_J(self,param_weights,
+		n_episodes,parallel=True,n_workers=8):
 		""" Calculate the expected return of the sum 
 		of discounted rewards by generating episodes
+
+		:param param_weights: The parameter weights to use
+			when generating new episodes
+		:type param_weights: numpy ndarray 
+
 
 		:param n_episodes: The number of episodes to use for 
 			calculating the performance
@@ -313,6 +319,8 @@ class Environment():
 			of discounted rewards
 		:rtype: float
 		"""
+		self.param_weights = param_weights
+
 		df = self.generate_data(
 			n_episodes=n_episodes,
 			parallel=parallel,
