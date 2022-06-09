@@ -1,4 +1,6 @@
-[![Testing](https://github.com/seldonian-framework/Engine/actions/workflows/test-action.yaml/badge.svg)](https://github.com/seldonian-framework/Engine/actions/workflows/test-action.yaml)
+[![Tests](https://github.com/seldonian-framework/Engine/actions/workflows/test-action.yaml/badge.svg)](https://github.com/seldonian-framework/Engine/actions/workflows/test-action.yaml)
+
+[![Docs](https://github.com/seldonian-framework/Engine/actions/workflows/gh-pages.yaml/badge.svg)](https://github.com/seldonian-framework/Engine/actions/workflows/gh-pages.yaml)
 
 ## Disclaimer: This repository is under active development and is not yet suitable for public use. We are currently working on an alpha release and will remove this disclaimer at the time of release. 
 
