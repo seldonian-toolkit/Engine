@@ -1,16 +1,12 @@
 """ Build and load datasets for running Seldonian algorithms """
 
-import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
+import pickle
+from seldonian.utils.io_utils import load_json,load_pickle
 
-
-class DataSetLoader(object):
+class DataSetLoader():
 	def __init__(self,
 		regime,
-		column_names,
-		sensitive_column_names,
-		include_sensitive_columns=False,
-		include_intercept_term=False,
 		**kwargs):
 		""" Object for loading datasets from disk into DataSet objects
 		
@@ -18,80 +14,89 @@ class DataSetLoader(object):
 			e.g. supervised or RL
 		:type regime: str
 
-		:param column_names: list of all column names in the dataset.
-		:type column_names: List(str)
-
-		:param sensitive_column_names: The names of the columns that 
-			contain the :term:`sensitive attributes<Sensitive attribute>`.
-		:type sensitive_column_names: List(str)
-
-		:param include_sensitive_columns: Whether to include 
-			sensitive columns during training/prediction
-			(supervised learning).
-		:param include_intercept_term: Whether to add 
-			a column of ones as the first column in the dataset
-			(supervised learning).
-
-		:ivar label_column: The column with the target labels 
-			(supervised learning)
-		:vartype label_column: str
 		"""
-		self.column_names = column_names
-		self.sensitive_column_names = sensitive_column_names
-		self.include_sensitive_columns = include_sensitive_columns
-		self.include_intercept_term = include_intercept_term
 		self.regime = regime
-		if self.regime == 'supervised':
-			self.label_column = kwargs['label_column']
 
-	def from_csv(self,csv_file):
-		""" Create DataSet object from csv file
+	def load_supervised_dataset(self,
+		filename,
+		metadata_filename,
+		include_sensitive_columns=False,
+		include_intercept_term=False,
+		file_type='csv'):
+		""" Create SupervisedDataSet object from file
 
-		:param csv_file: The filename of the csv file 
+		:param filename: The file
 			containing the data you want to load
-		:type csv_file: str
+		:type filename: str
+
+		:param metadata_filename: The file
+			containing the metadata describing the data in filename
+		:type metadata_filename: str
+
+		:param file_type: the file extension of filename
+		:type file_type: str, defaults to 'csv'
 		"""
-		df = pd.read_csv(csv_file,names=self.column_names)
-		if self.regime == 'supervised':
-			return SupervisedDataSet(
-				df=df,
-				meta_information=self.column_names,
-				sensitive_column_names=self.sensitive_column_names,
-				include_sensitive_columns=self.include_sensitive_columns,
-				include_intercept_term=self.include_intercept_term,
-				regime=self.regime,
-				label_column=self.label_column)
-		elif self.regime == 'RL':
-			return RLDataSet(
-				df=df,
-				meta_information=self.column_names,
-				regime=self.regime)
+		if file_type.lower() == 'csv':
+			df = pd.read_csv(filename)
+		
+		elif file_type.lower() == 'pkl' or file_type.lower() == 'pickle':
+			df = load_pickle(filename)
+		else:
+			raise NotImplementedError(f"File type: {file_type} not supported")
 
-	def from_pickle(self,pkl_file):
-		""" Create DataSet object from pickle file
+		# Load metadata
+		metadata_dict = load_json(metadata_filename)
 
-		:param pkl_file: The filename of the pickle file 
+		label_column = metadata_dict['label_column']
+		columns = metadata_dict['columns']
+		sensitive_column_names = metadata_dict['sensitive_columns']
+		return SupervisedDataSet(
+			df=df,
+			meta_information=columns,
+			label_column=label_column,
+			sensitive_column_names=sensitive_column_names,
+			include_sensitive_columns=include_sensitive_columns,
+			include_intercept_term=include_intercept_term)
+
+	def load_RL_dataset(self,
+		filename,
+		metadata_filename,
+		file_type='csv'):
+		""" Create RLDataSet object from file
+
+		:param filename: The file
 			containing the data you want to load
-		:type pkl_file: str
-		"""
-		import pickle
-		with open(pkl_file,'rb') as infile:
-			df = pickle.load(infile) # will include the header if it is present
-		if self.regime == 'supervised':
-			return DataSet(
-				df=df,
-				meta_information=self.column_names,
-				sensitive_column_names=self.sensitive_column_names,
-				include_sensitive_columns=self.include_sensitive_columns,
-				include_intercept_term=self.include_intercept_term,
-				regime=self.regime,
-				label_column=self.label_column)
-		elif self.regime == 'RL':
-			return DataSet(
-				df=df,
-				meta_information=self.column_names,
-				regime=self.regime)
+		:type filename: str
 
+		:param metadata_filename: The file
+			containing the metadata describing the data in filename
+		:type metadata_filename: str
+
+		:param file_type: the file extension of filename
+		:type file_type: str, defaults to 'csv'
+		"""
+		if file_type.lower() == 'csv':
+			df = pd.read_csv(filename)
+		
+		elif file_type.lower() == 'pkl' or file_type.lower() == 'pickle':
+			df = load_pickle(filename)
+		else:
+			raise NotImplementedError(f"File type: {file_type} not supported")
+
+		# Load metadata
+		metadata_dict = load_json(metadata_filename)
+
+		column_scheme = metadata_dict['column_scheme']
+		max_episode_length = metadata_dict['max_episode_length']
+		columns = []
+		for ii in range(max_eplen//len(column_scheme)):
+			column_list = [f'{name}_{ii}' for name in column_scheme]
+			columns.extend(column_list)
+
+		return RLDataSet(
+			df=df,
+			meta_information=columns)
+		
 class DataSet(object):
 	def __init__(self,df,meta_information,
 		regime,
@@ -167,6 +172,5 @@ class RLDataSet(DataSet):
 		:type meta_information: List(str)
 		"""
 		super().__init__(df=df,
-			meta_information=meta_information,
-			regime='RL')
+			meta_information=meta_information)
 
