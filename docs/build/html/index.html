@@ -43,7 +43,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#interface">Interface</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="overview.html#dataset">Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#data-file">Data file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#metadata-file">Metadata file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#behavioral-constraints">Behavioral constraints</a></li>
 <li class="toctree-l3"><a class="reference internal" href="overview.html#parse-trees">Parse Trees</a></li>
 <li class="toctree-l3"><a class="reference internal" href="overview.html#specification-spec-object">Specification (Spec) object</a></li>
 </ul>
@@ -75,12 +77,17 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.html">seldonian.candidate_selection</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.CandidateSelection.html">seldonian.candidate_selection.CandidateSelection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.html">seldonian.candidate_selection.candidate_selection</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html">seldonian.candidate_selection.candidate_selection.CandidateSelection</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.dataset.html">seldonian.dataset</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.dataset.DataSet.html">seldonian.dataset.DataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.dataset.SupervisedDataSet.html">seldonian.dataset.SupervisedDataSet</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.models.html">seldonian.models</a><ul>
@@ -124,7 +131,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.safety_test.html">seldonian.safety_test</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.safety_test.SafetyTest.html">seldonian.safety_test.SafetyTest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.safety_test.safety_test.html">seldonian.safety_test.safety_test</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.safety_test.safety_test.SafetyTest.html">seldonian.safety_test.safety_test.SafetyTest</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a><ul>
@@ -137,11 +147,40 @@
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html">seldonian.spec.SupervisedSpec</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.utils.html">seldonian.utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.utils.io_utils.html">seldonian.utils.io_utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.io_utils.dir_path.html">seldonian.utils.io_utils.dir_path</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.io_utils.load_json.html">seldonian.utils.io_utils.load_json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.io_utils.load_pickle.html">seldonian.utils.io_utils.load_pickle</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.io_utils.save_pickle.html">seldonian.utils.io_utils.save_pickle</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.io_utils.yes_or_no_input.html">seldonian.utils.io_utils.yes_or_no_input</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.utils.stats_utils.html">seldonian.utils.stats_utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.stats_utils.generate_data.html">seldonian.utils.stats_utils.generate_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.stats_utils.stddev.html">seldonian.utils.stats_utils.stddev</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.stats_utils.tinv.html">seldonian.utils.stats_utils.tinv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.stats_utils.weighted_sum_gamma.html">seldonian.utils.stats_utils.weighted_sum_gamma</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.warnings.html">seldonian.warnings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.warnings.custom_warnings.html">seldonian.warnings.custom_warnings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.warnings.custom_warnings.custom_formatwarning.html">seldonian.warnings.custom_warnings.custom_formatwarning</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/interface.html">interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/interface.cli_supervised.html">interface.cli_supervised</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/interface.cli_supervised.run_interface.html">interface.cli_supervised.run_interface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/interface.command_line_interface.html">interface.command_line_interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/interface.command_line_interface.run_interface.html">interface.command_line_interface.run_interface</a></li>
 </ul>
 </li>
 </ul>

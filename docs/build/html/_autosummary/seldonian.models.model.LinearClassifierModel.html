@@ -61,167 +61,6 @@
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.Vector_False_Negative_Rate">
-<span class="sig-name descname"><span class="pre">Vector_False_Negative_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.Vector_False_Negative_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate false negative rate
-for each observation</p>
-<p>This is the probability of predicting negative
-subject to the label actually being positive</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>False negative rate for each observation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.Vector_False_Positive_Rate">
-<span class="sig-name descname"><span class="pre">Vector_False_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.Vector_False_Positive_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate false positive rate
-for each observation</p>
-<p>This is the probability of predicting positive
-subject to the label actually being negative</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>False positive rate for each observation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.Vector_Negative_Rate">
-<span class="sig-name descname"><span class="pre">Vector_Negative_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.Vector_Negative_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate negative rate
-for each observation.</p>
-<p>This is the probability of being negative</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Positive rate for each observation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.Vector_Positive_Rate">
-<span class="sig-name descname"><span class="pre">Vector_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.Vector_Positive_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate positive rate
-for each observation.</p>
-<p>This is the probability of being positive</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Positive rate for each observation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.Vector_True_Negative_Rate">
-<span class="sig-name descname"><span class="pre">Vector_True_Negative_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.Vector_True_Negative_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the probability of predicting negative
-subject to the label actually being negative</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True negative rate for each observation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.Vector_True_Positive_Rate">
-<span class="sig-name descname"><span class="pre">Vector_True_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.Vector_True_Positive_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the probability of predicting positive
-subject to the label actually being positive</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True positive rate for each observation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.Vector_logistic_loss">
-<span class="sig-name descname"><span class="pre">Vector_logistic_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.Vector_logistic_loss" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate logistic loss 
-on each observation in sample</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
-<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>array of logistic losses for each observation</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.accuracy">
 <span class="sig-name descname"><span class="pre">accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.accuracy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the accuracy of the 
@@ -311,7 +150,7 @@ perceptron loss</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.gradient_sample_logistic_loss">
-<span class="sig-name descname"><span class="pre">gradient_sample_logistic_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.gradient_sample_logistic_loss" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gradient_sample_logistic_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.gradient_sample_logistic_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gradient of logistic loss w.r.t. theta</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -519,6 +358,167 @@ on whole sample</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.vector_False_Negative_Rate">
+<span class="sig-name descname"><span class="pre">vector_False_Negative_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.vector_False_Negative_Rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate false negative rate
+for each observation</p>
+<p>This is the probability of predicting negative
+subject to the label actually being positive</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>False negative rate for each observation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.vector_False_Positive_Rate">
+<span class="sig-name descname"><span class="pre">vector_False_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.vector_False_Positive_Rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate false positive rate
+for each observation</p>
+<p>This is the probability of predicting positive
+subject to the label actually being negative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>False positive rate for each observation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.vector_Negative_Rate">
+<span class="sig-name descname"><span class="pre">vector_Negative_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.vector_Negative_Rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate negative rate
+for each observation.</p>
+<p>This is the probability of being negative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Positive rate for each observation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.vector_Positive_Rate">
+<span class="sig-name descname"><span class="pre">vector_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.vector_Positive_Rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate positive rate
+for each observation.</p>
+<p>This is the probability of being positive</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Positive rate for each observation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.vector_True_Negative_Rate">
+<span class="sig-name descname"><span class="pre">vector_True_Negative_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.vector_True_Negative_Rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the probability of predicting negative
+subject to the label actually being negative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True negative rate for each observation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.vector_True_Positive_Rate">
+<span class="sig-name descname"><span class="pre">vector_True_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.vector_True_Positive_Rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the probability of predicting positive
+subject to the label actually being positive</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True positive rate for each observation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearClassifierModel.vector_logistic_loss">
+<span class="sig-name descname"><span class="pre">vector_logistic_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearClassifierModel.vector_logistic_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate logistic loss 
+on each observation in sample</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>array of logistic losses for each observation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -570,6 +570,8 @@ on whole sample</p>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>

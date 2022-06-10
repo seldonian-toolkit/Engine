@@ -4,17 +4,17 @@ Glossary
 .. glossary::
     :sorted: 
 
-    Behavioral Constraint
+    Behavioral constraint
       Criteria for fairness or safety provided by the user. The Seldonian algorithm ensures that constraints are met while simultaneously optimizing the primary objective function.
 
     Candidate Selection
       TBD
 
-    Confidence threshold
-      Often simply called delta. Provided by the user, the probability (1-delta) with which the behavioral constraints are to be enforced by the seldonian algorithm.  
+    Confidence level
+      Often simply called delta. Provided by the user, the probability (1-delta) with which the behavioral constraints are to be satisfied by the seldonian algorithm.  
 
     Delta
-      See :term:`Confidence threshold`
+      See :term:`Confidence level`
 
     Interface
       The system with which the user interacts to provide the behavioral constraints and other inputs to the Seldonian algorithm.
@@ -30,7 +30,6 @@ Glossary
 
     Safety test
       TBD
-
 
     Seldonian algorithm
       An algorithm designed to enforce high probability constraints in a machine learning problem

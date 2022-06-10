@@ -1,7 +1,7 @@
-seldonian.safety\_test.SafetyTest
-=================================
+seldonian.safety\_test.safety\_test.SafetyTest
+==============================================
 
-.. currentmodule:: seldonian.safety_test
+.. currentmodule:: seldonian.safety_test.safety_test
 
 .. autoclass:: SafetyTest
    :members:       

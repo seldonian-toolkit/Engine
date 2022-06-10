@@ -37,11 +37,11 @@
 <h1>seldonian.dataset.DataSet<a class="headerlink" href="#seldonian-dataset-dataset" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.dataset.DataSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_sensitive_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSet" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.DataSet.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_sensitive_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSet.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSet.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object for holding dataframe and dataset metadata</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -50,14 +50,6 @@
 <li><p><strong>meta_information</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – list of all column names in the dataframe</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
 e.g. supervised or RL</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column with the target labels 
-(supervised learning)</p></li>
-<li><p><strong>sensitive_column_names</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – The names of the columns that 
-contain the <a class="reference internal" href="../glossary.html#term-Sensitive-attribute"><span class="xref std std-term">sensitive attributes</span></a></p></li>
-<li><p><strong>include_sensitive_columns</strong> – Whether to include 
-sensitive columns during training/prediction</p></li>
-<li><p><strong>include_intercept_term</strong> – Whether to add 
-a column of ones as the first column in the dataset.</p></li>
 </ul>
 </dd>
 </dl>
@@ -109,6 +101,8 @@ a column of ones as the first column in the dataset.</p></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.DataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.SupervisedDataSet.html">seldonian.dataset.SupervisedDataSet</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>
@@ -117,6 +111,8 @@ a column of ones as the first column in the dataset.</p></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>

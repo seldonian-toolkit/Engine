@@ -21,6 +21,8 @@ seldonian.dataset
    
       DataSet
       DataSetLoader
+      RLDataSet
+      SupervisedDataSet
    
    
 

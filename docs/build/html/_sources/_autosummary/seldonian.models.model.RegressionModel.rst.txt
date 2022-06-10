@@ -24,6 +24,8 @@ seldonian.models.model.RegressionModel
    ..
    ..    ~RegressionModel.fit
    ..
+   ..    ~RegressionModel.gradient_sample_Mean_Squared_Error
+   ..
    ..    ~RegressionModel.sample_Mean_Error
    ..
    ..    ~RegressionModel.sample_Mean_Squared_Error

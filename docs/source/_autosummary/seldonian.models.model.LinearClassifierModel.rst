@@ -18,20 +18,6 @@ seldonian.models.model.LinearClassifierModel
 
    .. autosummary::
    .. 
-   ..    ~LinearClassifierModel.Vector_False_Negative_Rate
-   ..
-   ..    ~LinearClassifierModel.Vector_False_Positive_Rate
-   ..
-   ..    ~LinearClassifierModel.Vector_Negative_Rate
-   ..
-   ..    ~LinearClassifierModel.Vector_Positive_Rate
-   ..
-   ..    ~LinearClassifierModel.Vector_True_Negative_Rate
-   ..
-   ..    ~LinearClassifierModel.Vector_True_Positive_Rate
-   ..
-   ..    ~LinearClassifierModel.Vector_logistic_loss
-   ..
    ..    ~LinearClassifierModel.__init__
    ..
    ..    ~LinearClassifierModel.accuracy
@@ -59,6 +45,20 @@ seldonian.models.model.LinearClassifierModel
    ..    ~LinearClassifierModel.sample_logistic_loss
    ..
    ..    ~LinearClassifierModel.sample_perceptron_loss
+   ..
+   ..    ~LinearClassifierModel.vector_False_Negative_Rate
+   ..
+   ..    ~LinearClassifierModel.vector_False_Positive_Rate
+   ..
+   ..    ~LinearClassifierModel.vector_Negative_Rate
+   ..
+   ..    ~LinearClassifierModel.vector_Positive_Rate
+   ..
+   ..    ~LinearClassifierModel.vector_True_Negative_Rate
+   ..
+   ..    ~LinearClassifierModel.vector_True_Positive_Rate
+   ..
+   ..    ~LinearClassifierModel.vector_logistic_loss
    ..
    
    

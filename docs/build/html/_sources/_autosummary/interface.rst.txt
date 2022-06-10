@@ -30,4 +30,5 @@
 
 
    interface.cli_supervised
+   interface.command_line_interface
 
