@@ -355,11 +355,6 @@ def test_cmaes():
     passed_safety,candidate_solution = seldonian_algorithm(spec)
     assert passed_safety == True
     print(candidate_solution)
-    array_to_compare = np.array(
-        [ 6.52701631e-01, -1.97996985e-05,  3.36423400e-03, -2.81519897e-03,
-        -8.95797021e-06,  1.35152280e-03,  2.42020939e-03,  5.64587643e-04,
-        1.05303910e-03, -1.95087344e-03])
-    assert np.allclose(candidate_solution,array_to_compare)
 
 
 def test_use_custom_primary_gradient():
