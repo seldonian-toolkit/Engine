@@ -76,7 +76,9 @@ def run_interface(
 			default_val=False)
 
 		dataset_kwargs['include_intercept_term'] = include_intercept_term
-
+	elif regime == 'RL':
+		sub_regime = 'all'
+		
 	loader = DataSetLoader(**dataset_kwargs
 		)
 
@@ -104,7 +106,8 @@ def run_interface(
 		# Validate their entry by creating a parse tree from it
 
 		# Instantiate parse tree object
-		parse_tree = ParseTree(delta=delta)
+		parse_tree = ParseTree(delta=delta,regime=regime,
+			sub_regime=sub_regime)
 
 		# Fill out tree
 		parse_tree.create_from_ast(constraint_str)

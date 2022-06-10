@@ -58,7 +58,8 @@ if __name__ == '__main__':
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta)
+        parse_tree = ParseTree(delta=delta,regime='supervised',
+        sub_regime='regression')
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)

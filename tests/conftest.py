@@ -9,12 +9,13 @@ from seldonian.dataset import DataSetLoader
 
 @pytest.fixture
 def stump():
-    def stump_function(operator_type,left_bounds,right_bounds):
+    def stump_function(operator_type,left_bounds,right_bounds,
+        regime='supervised',sub_regime='classification'):
         # A parse tree with a root node and left and right children only
         root = InternalNode(operator_type)
         root.left = BaseNode('a')
         root.right = BaseNode('b')
-        pt = ParseTree(delta=0.05)
+        pt = ParseTree(delta=0.05,regime=regime,sub_regime=sub_regime)
         pt.root = root
         pt.root.left.lower  = left_bounds[0]
         pt.root.left.upper  = left_bounds[1]
@@ -43,12 +44,13 @@ def stump():
 
 @pytest.fixture
 def edge():
-    def edge_function(operator_type,left_bounds):
+    def edge_function(operator_type,left_bounds,
+        regime='supervised',sub_regime='classification'):
         # A parse tree with a single edge
         assert operator_type in ['abs','exp']
         root = InternalNode(operator_type)
         root.left = BaseNode('a')
-        pt = ParseTree(delta=0.05)
+        pt = ParseTree(delta=0.05,regime=regime,sub_regime=sub_regime)
         pt.root = root
         pt.root.left.lower  = left_bounds[0]
         pt.root.left.upper  = left_bounds[1]
@@ -78,7 +80,7 @@ def generate_data():
 
 @pytest.fixture
 def gpa_regression_dataset():
-    def generate_dataset(constraint_strs,deltas,rseed=0):
+    def generate_dataset(constraint_strs,deltas,rseed=0,):
         np.random.seed(rseed) 
         data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
         metadata_pth = 'static/datasets/GPA/metadata_regression.json'
@@ -117,7 +119,8 @@ def gpa_regression_dataset():
 
             delta = deltas[ii]
             # Create parse tree object
-            parse_tree = ParseTree(delta=delta)
+            parse_tree = ParseTree(delta=delta,
+                regime='supervised',sub_regime='regression')
 
             # Fill out tree
             parse_tree.create_from_ast(constraint_str)

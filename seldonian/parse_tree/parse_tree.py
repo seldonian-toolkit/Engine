@@ -13,16 +13,23 @@ from .nodes import *
 from .operators import *
 
 class ParseTree(object):
-	def __init__(self,delta):
+	def __init__(self,delta,regime,sub_regime):
 		""" 
 		Class to represent a parse tree for a single behavioral constraint
-
 
 		:param delta: 
 			Confidence level. Specifies the maximum probability 
 			that the algorithm can return a solution violat the
 			behavioral constraint.
 		:type delta: float
+
+		:param regime: The category of the machine learning algorithm,
+			e.g. supervised or RL
+		:type regime: str
+
+		:param regime: The sub-category of ml algorithm, e.g. 
+			classification or regression. Use 'all' for RL
+		:type regime: str
 
 		:ivar root: 
 			Root node which contains the whole tree 
@@ -61,13 +68,16 @@ class ParseTree(object):
 		:vartype node_fontsize: int
 		"""
 		self.delta = delta
-
+		self.regime = regime
+		self.sub_regime = sub_regime
 		self.root = None 
 		self.constraint_str = ''
 		self.n_nodes = 0
 		self.n_base_nodes = 0
 		self.base_node_dict = {} 
 		self.node_fontsize = 12
+		self.available_measure_functions = measure_functions_dict[
+			self.regime][self.sub_regime]
 
 	def create_from_ast(self,s):
 		""" 
@@ -155,7 +165,7 @@ class ParseTree(object):
 			# does not fail if none are present
 			node_name_isolated = new_node.name.split(
 				"|")[0].strip().strip('(').strip()
-			if node_name_isolated in measure_functions:
+			if node_name_isolated in self.available_measure_functions:
 				new_node.measure_function_name = node_name_isolated		
 
 			# if node with this name not already in self.base_node_dict
@@ -187,7 +197,9 @@ class ParseTree(object):
 			new_node.right = self._ast_tree_helper(ast_node.right)
 		
 		# Handle functions like min(), abs(), etc...
-		if hasattr(ast_node,'args') and ast_node.func.id not in measure_functions:
+		if hasattr(ast_node,'args') and (
+				ast_node.func.id not in self.available_measure_functions
+				):
 			if len(ast_node.args) == 0 or len(ast_node.args) > 2: 
 				readable_args = [x.id for x in ast_node.args]
 				raise NotImplementedError(
@@ -239,7 +251,7 @@ class ParseTree(object):
 						" missing/mismatched parentheses or square brackets"
 						" in a conditional expression involving '|'.")
 				
-				if left_id not in measure_functions:
+				if left_id not in self.available_measure_functions:
 					raise NotImplementedError("Error parsing your expression."
 						" A variable name was used which we do not recognize: "
 					   f"{ast_node.left.id}")
@@ -276,7 +288,7 @@ class ParseTree(object):
 					node_class = custom_base_node_dict[ast_node.id]
 					node_name = ast_node.id
 
-				elif ast_node.id not in measure_functions:
+				elif ast_node.id not in self.available_measure_functions:
 					raise NotImplementedError("Error parsing your expression."
 						" A variable name was used which we do not recognize: "
 					   f"{ast_node.id}")

@@ -64,7 +64,8 @@ def test_gpa_data_regression():
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta)
+        parse_tree = ParseTree(delta=delta,regime='supervised',
+        sub_regime='regression')
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)
@@ -159,7 +160,8 @@ def test_NSF():
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta)
+        parse_tree = ParseTree(delta=delta,regime='supervised',
+        sub_regime='regression')
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)
@@ -318,7 +320,8 @@ def test_cmaes():
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta)
+        parse_tree = ParseTree(delta=delta,regime='supervised',
+        sub_regime='regression')
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)
@@ -413,7 +416,8 @@ def test_use_custom_primary_gradient():
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta)
+        parse_tree = ParseTree(delta=delta,regime='supervised',
+        sub_regime='regression')
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)
@@ -515,7 +519,8 @@ def test_RL_gridworld():
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta)
+        parse_tree = ParseTree(delta=delta,regime='RL',
+        sub_regime='all')
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)
@@ -616,7 +621,8 @@ def test_RL_builtin_or_custom_gradient_not_supported():
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta)
+        parse_tree = ParseTree(delta=delta,regime='RL',
+        sub_regime='all')
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)

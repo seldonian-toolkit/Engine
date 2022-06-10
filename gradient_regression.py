@@ -51,7 +51,8 @@ if __name__ == "__main__":
 	constraint_str1 = '2.0 - Mean_Squared_Error'
 	delta = 0.05
 	parse_trees = []
-	pt = ParseTree(delta)
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
 	pt.create_from_ast(constraint_str1)
 	pt.assign_deltas(weight_method='equal')
 	parse_trees.append(pt)

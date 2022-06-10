@@ -51,19 +51,27 @@ import ast
 from .nodes import *
 
 
-measure_functions = [
-	'Mean_Error',
-	'Mean_Squared_Error',
-	'PR',
-	'NR',
-	'ER',
-	'FPR',
-	'TPR',
-	'FNR',
-	'TNR',
-	'J_pi_new',
-	'logistic_loss'
-]
+measure_functions_dict = {
+	'supervised': {
+		'classification':
+			[
+			'PR',
+			'NR',
+			'ER',
+			'FPR',
+			'TPR',
+			'FNR',
+			'TNR',
+			'logistic_loss'
+			],
+		'regression':
+			[
+			'Mean_Error',
+			'Mean_Squared_Error'
+			]
+		},
+	'RL': {'all':['J_pi_new']}
+}
 
 custom_base_node_dict = {
 	'MED_MF':MEDCustomBaseNode
