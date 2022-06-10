@@ -1,4 +1,4 @@
-﻿seldonian.models.model.ClassificationModel
+seldonian.models.model.ClassificationModel
 ==========================================
 
 .. currentmodule:: seldonian.models.model

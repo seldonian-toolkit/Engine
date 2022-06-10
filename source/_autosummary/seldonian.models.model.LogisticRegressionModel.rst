@@ -1,4 +1,4 @@
-﻿seldonian.models.model.LogisticRegressionModel
+seldonian.models.model.LogisticRegressionModel
 ==============================================
 
 .. currentmodule:: seldonian.models.model

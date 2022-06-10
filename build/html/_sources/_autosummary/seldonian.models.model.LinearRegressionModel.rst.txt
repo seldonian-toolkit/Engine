@@ -1,4 +1,4 @@
-﻿seldonian.models.model.LinearRegressionModel
+seldonian.models.model.LinearRegressionModel
 ============================================
 
 .. currentmodule:: seldonian.models.model

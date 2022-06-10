@@ -14,6 +14,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Getting Started" href="getting_started.html" />
@@ -36,14 +37,61 @@
             
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
-<p>This overview will focus on the implementation of <a class="reference internal" href="glossary.html#term-Seldonian-algorithm"><span class="xref std std-term">Seldonian algorithms</span></a> (SAs) in this library, rather than a description of what they are. For a detailed description of SAs see <a class="reference external" href="http://aisafety.cs.umass.edu/paper.html">the UMass AI Safety page</a>, specifically <a class="reference external" href="http://aisafety.cs.umass.edu/paper.html">the Science paper</a>.</p>
-<p>Often in a normal ML problem, data are split into training, testing (and sometimes validation) sets. SAs split data into <a class="reference internal" href="glossary.html#term-Candidate-Selection"><span class="xref std std-term">candidate selection</span></a> data and <a class="reference internal" href="glossary.html#term-Safety-test"><span class="xref std std-term">safety test</span></a> data. SAs consist of three main parts: the interface, candidate selection, and the safety test, which are described below.</p>
+<p>This document provides an overview of how <a class="reference internal" href="glossary.html#term-Seldonian-algorithm"><span class="xref std std-term">Seldonian algorithms</span></a> (SAs) are implemented using this library. For a detailed description of what SAs are, see <a class="reference external" href="http://aisafety.cs.umass.edu/overview.html">the UMass AI Safety page</a>, specifically <a class="reference external" href="http://aisafety.cs.umass.edu/paper.html">the Science paper</a>.</p>
+<p>At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact within each of these.</p>
 <section id="interface">
 <h2>Interface<a class="headerlink" href="#interface" title="Permalink to this heading">¶</a></h2>
-<p>In the interface, the user provides the data, metadata, the constraints that it wants the SA to enforce, and the confidence thresholds for each constraint. The interface creates a  <a class="reference internal" href="_autosummary/seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object containing the data and metadata. The interface also creates <a class="reference internal" href="_autosummary/seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects from the interpreted constraints. Finally, the interface generates a <a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object which consists of a complete specification that can used to run the seldonian algorithm in its entirety. The Spec object that the interface creates has many default parameters that the user may modify with their own custom script.</p>
-<section id="dataset">
-<h3>Dataset<a class="headerlink" href="#dataset" title="Permalink to this heading">¶</a></h3>
-<p>The dataset object  See the <a class="reference internal" href="_autosummary/seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> objects API reference for a full description.</p>
+<p>The interface is used to provide:</p>
+<ul class="simple">
+<li><p>The <a class="reference internal" href="#data-file">Data file</a></p></li>
+<li><p>The <a class="reference internal" href="#metadata-file">Metadata file</a></p></li>
+<li><p>The <a class="reference internal" href="#behavioral-constraints">Behavioral constraints</a> you want the SA to enforce</p></li>
+<li><p>The <a class="reference internal" href="glossary.html#term-Confidence-level"><span class="xref std std-term">Confidence level, delta</span></a> at which you want each constraint to be enforced</p></li>
+</ul>
+<p>There is currently one option for the interface, <a class="reference internal" href="_autosummary/interface.command_line_interface.html#module-interface.command_line_interface" title="interface.command_line_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">command_line_interface</span></code></a> (CLI). A graphical user interface (GUI) is currently in development.</p>
+<p>The interface generates a <a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object which consists of a complete specification that can used to run the seldonian algorithm in its entirety. The Spec object that the interface creates has many default parameters that the user may modify with their own custom script.</p>
+<section id="data-file">
+<h3>Data file<a class="headerlink" href="#data-file" title="Permalink to this heading">¶</a></h3>
+<p>The data that you provide to the interface must be comma-separated and have no header. For example, a supervised learning dataset might look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">622.6</span><span class="p">,</span><span class="mf">491.56</span><span class="p">,</span><span class="mf">439.93</span><span class="p">,</span><span class="mf">707.64</span><span class="p">,</span><span class="mf">663.65</span><span class="p">,</span><span class="mf">557.09</span><span class="p">,</span><span class="mf">711.37</span><span class="p">,</span><span class="mf">731.31</span><span class="p">,</span><span class="mf">509.8</span><span class="p">,</span><span class="mf">1.33333</span>
+<span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">538.0</span><span class="p">,</span><span class="mf">490.58</span><span class="p">,</span><span class="mf">406.59</span><span class="p">,</span><span class="mf">529.05</span><span class="p">,</span><span class="mf">532.28</span><span class="p">,</span><span class="mf">447.23</span><span class="p">,</span><span class="mf">527.58</span><span class="p">,</span><span class="mf">379.14</span><span class="p">,</span><span class="mf">488.64</span><span class="p">,</span><span class="mf">2.98333</span>
+<span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">455.18</span><span class="p">,</span><span class="mf">440.0</span><span class="p">,</span><span class="mf">570.86</span><span class="p">,</span><span class="mf">417.54</span><span class="p">,</span><span class="mf">453.53</span><span class="p">,</span><span class="mf">425.87</span><span class="p">,</span><span class="mf">475.63</span><span class="p">,</span><span class="mf">476.11</span><span class="p">,</span><span class="mf">407.15</span><span class="p">,</span><span class="mf">1.97333</span>
+<span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">756.91</span><span class="p">,</span><span class="mf">679.62</span><span class="p">,</span><span class="mf">531.28</span><span class="p">,</span><span class="mf">583.63</span><span class="p">,</span><span class="mf">534.42</span><span class="p">,</span><span class="mf">521.4</span><span class="p">,</span><span class="mf">592.41</span><span class="p">,</span><span class="mf">783.76</span><span class="p">,</span><span class="mf">588.26</span><span class="p">,</span><span class="mf">2.53333</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>This file should include <em>all</em> of the data you have, i.e. the data you have before splitting into train,test,validation splits. The Seldonian algorithm with partition your data for you. The column names are intentionally excluded from this file and are provided in the <a class="reference internal" href="#metadata-file">Metadata file</a>.</p>
+</section>
+<section id="metadata-file">
+<h3>Metadata file<a class="headerlink" href="#metadata-file" title="Permalink to this heading">¶</a></h3>
+<p>The metadata file is a JSON-formatted file containing important properties of your dataset. It has different required keys depending on the <a class="reference internal" href="glossary.html#term-Regime"><span class="xref std std-term">Regime</span></a> of your problem. For supervised learning, the required keys are:</p>
+<ul class="simple">
+<li><p>“regime”, which is set to ‘supervised’ in this case</p></li>
+<li><p>“sub_regime”, which is either ‘classification’ or ‘regression’</p></li>
+<li><p>“columns”, a list of the column names in your <a class="reference internal" href="#data-file">Data file</a>.</p></li>
+<li><p>“label_column”, the column that you are trying to predict</p></li>
+<li><p>“sensitive_columns”, a list of the column names of the <a class="reference internal" href="glossary.html#term-Sensitive-attribute"><span class="xref std std-term">sensitive attributes</span></a></p></li>
+</ul>
+<p>For reinforcement learning, the required keys are:</p>
+<ul class="simple">
+<li><p>“regime”, which is set to ‘RL’ in this case</p></li>
+<li><p>“columns”, a list of the column names in your <a class="reference internal" href="#data-file">Data file</a>.</p></li>
+<li><p>“RL_environment_name”, the name of the module in <a class="reference internal" href="_autosummary/seldonian.RL.environments.html#module-seldonian.RL.environments" title="seldonian.RL.environments"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RL.environments</span></code></a> package containing the RL Environment() class you want to use.</p></li>
+</ul>
+</section>
+<section id="behavioral-constraints">
+<h3>Behavioral constraints<a class="headerlink" href="#behavioral-constraints" title="Permalink to this heading">¶</a></h3>
+<p>In the <a class="reference external" href="http://aisafety.cs.umass.edu/tutorial1.html">definition of a Seldonian algorithm</a>, <a class="reference internal" href="glossary.html#term-Behavioral-constraint"><span class="xref std std-term">behavioral constraints</span></a>, <span class="math notranslate nohighlight">\((g_i,{\delta}_i)_{i=1}^n\)</span> are of a set of constraint functions, <span class="math notranslate nohighlight">\(g_i\)</span>, and confidence levels, <span class="math notranslate nohighlight">\({\delta}_i\)</span>. Constraint functions are not provided to the interface directly, but are built by the engine from <em>constraint strings</em> provided by the user.</p>
+<p>Constraint strings must contain the mathematical definition of the constraints, <span class="math notranslate nohighlight">\(g_i\)</span>. Certain statistical functions (called “measure functions”) have special strings associated with them so that they the engine recognizes them when they appear in the constraint string. For a list of these measure functions, see: <a class="reference internal" href="_autosummary/seldonian.parse_tree.operators.html#module-seldonian.parse_tree.operators" title="seldonian.parse_tree.operators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">parse_tree.operators</span></code></a>.</p>
+<p>Examples of valid basic <em>constraint strings</em> and their plain English definitions are below. If you find these definitions confusing, remember that we want <span class="math notranslate nohighlight">\(g_i&lt;=0\)</span> to be satisfied.</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">Mean_Squared_Error</span> <span class="pre">-</span> <span class="pre">2.0</span></code>: “Ensure that the mean squared error is less than 2.0”. Here, <code class="code docutils literal notranslate"><span class="pre">Mean_Squared_Error</span></code> is a special measure function.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">0.88</span> <span class="pre">-</span> <span class="pre">TPR</span></code>: “Ensure that the True Positive Rate is greater than 0.88”.</p></li>
+</ul>
+<p>These basic constraint strings cover a number of use cases, but they apply to the whole dataset. Often one desires a constraint that apply to a sensitive attribute of the dataset. Some examples for this use case include:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">abs((PR</span> <span class="pre">|</span> <span class="pre">[M])</span> <span class="pre">-</span> <span class="pre">(PR</span> <span class="pre">|</span> <span class="pre">[F]))</span> <span class="pre">-</span> <span class="pre">0.15</span></code>: “Ensure that the absolute difference between the positive rate for males (M) and the positive rate for females (F) is less than 0.15”. This constraint is called demographic parity (with a tolerance of 15%).</p></li>
+</ul>
 </section>
 <section id="parse-trees">
 <h3>Parse Trees<a class="headerlink" href="#parse-trees" title="Permalink to this heading">¶</a></h3>
@@ -81,7 +129,9 @@ Explain hyperparams</p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#interface">Interface</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#dataset">Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-file">Data file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metadata-file">Metadata file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#behavioral-constraints">Behavioral constraints</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parse-trees">Parse Trees</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#specification-spec-object">Specification (Spec) object</a></li>
 </ul>

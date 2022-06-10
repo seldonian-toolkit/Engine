@@ -1,4 +1,4 @@
-﻿seldonian.RL.environments.gridworld3x3.Environment
+seldonian.RL.environments.gridworld3x3.Environment
 ==================================================
 
 .. currentmodule:: seldonian.RL.environments.gridworld3x3

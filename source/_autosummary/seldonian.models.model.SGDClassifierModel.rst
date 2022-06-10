@@ -1,4 +1,4 @@
-﻿seldonian.models.model.SGDClassifierModel
+seldonian.models.model.SGDClassifierModel
 =========================================
 
 .. currentmodule:: seldonian.models.model
