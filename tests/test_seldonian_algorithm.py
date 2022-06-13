@@ -209,7 +209,7 @@ def test_black_box_optimizers(gpa_regression_dataset):
     """
     rseed=0
     constraint_strs = ['Mean_Squared_Error - 2.0']
-    deltas = [0.5]
+    deltas = [0.05]
     (dataset,model_class,
         primary_objective,parse_trees) = gpa_regression_dataset(
         constraint_strs=constraint_strs,
