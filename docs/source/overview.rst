@@ -109,7 +109,7 @@ Candidate selection is run inside of the :py:func:`.seldonian_algorithm.seldonia
 
 There are currently two supported optimization techniques for candidate selection: 
 
-1. Black box optimization with a barrier function. The barrier, which is shaped like the upper bound functions, is implemented when any of the constraints are violated. This forces the solutions toward the feasible set. 
+1. Black box optimization with a barrier function. The barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. 
 
 2. Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_:
 
@@ -119,7 +119,7 @@ There are currently two supported optimization techniques for candidate selectio
 
 where :math:`\mathbf{x}` is a vector of features, :math:`f(\mathbf{x})` is the primary objective function, :math:`g_i(\mathbf{x})` are the upper bound functions for the :math:`n` constraints, and :math:`\mathbf{\lambda}` is a vector of Lagrange multipliers, such that :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
 
-In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations in directions orthogonal to the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which contains a momentum term, and found that it mitigates the oscillations in our testing. 
+In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations in directions orthogonal to the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which contains a momentum term, and found that it mitigates the oscillations in all problems we have tested so far. 
 
 Safety Test
 -----------
