@@ -111,27 +111,14 @@ def gradient_descent_adam(
             L_val = primary_val + lamb*g_val 
             L_vals.append(L_val)
 
-        # Obtain gradients at current values of theta and lambda
-        # Gradient of sum is sum of gradients
-        # print(f"theta: {theta}")
+        # Obtain gradients of both terms in Lagrangian 
+        # at current values of theta and lambda
         grad_primary_theta_val = grad_primary_theta(theta)
-        # print(primary_val,g_val)
-        # print("calculating d upper_bound_function / dtheta")
-        # print("")
+        
         gu_theta = grad_upper_bound_theta(theta)
-        # print(f"d primary/d theta: {grad_primary_theta_val}")
-        # print(f"d upper_bound/d theta: {gu_theta}")
-        # # print("Done")
-        # input("Next")
-        # print(f"theta = {theta}")
-        # print(f"lambda = {lamb}")
-        # print
-        # print(f"primary = {primary_val}, g_val = {g_val}")
-        # print(f"g upper bound = {g_val}")
-        # print(f"d primary/d theta: {grad_primary_theta_val}")
-        # print(f"d upper bound/d theta: {gu_theta}")
-        # input("next")
         grad_secondary_theta_val = lamb*gu_theta
+
+        # Gradient of sum is sum of gradients
         gradient_theta = grad_primary_theta_val + grad_secondary_theta_val
         gradient_lamb = g_val
 

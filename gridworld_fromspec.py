@@ -10,8 +10,9 @@ if __name__ == '__main__':
 		'interface_outputs/gridworld_fromspec')
 	specfile = os.path.join(interface_output_dir,'spec.pkl')
 	spec = load_pickle(specfile)
-	spec.optimization_hyperparams['num_iters'] = 20
+	spec.optimization_hyperparams['num_iters'] = 5
 	spec.optimization_hyperparams['alpha_theta'] = 0.05
 	spec.optimization_hyperparams['alpha_lamb'] = 0.05
+	spec.regularization_hyperparams['reg_coef'] = 0.1
 	passed_safety,candidate_solution = seldonian_algorithm(spec)
 	print(passed_safety,candidate_solution)
