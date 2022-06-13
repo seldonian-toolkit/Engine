@@ -48,10 +48,10 @@
 <li><p>The <a class="reference internal" href="glossary.html#term-Confidence-level"><span class="xref std std-term">Confidence level, delta</span></a> at which you want each constraint to be enforced</p></li>
 </ul>
 <p>There is currently one option for the interface, <a class="reference internal" href="_autosummary/interface.command_line_interface.html#module-interface.command_line_interface" title="interface.command_line_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">command_line_interface</span></code></a> (CLI). A graphical user interface (GUI) is currently in development.</p>
-<p>The interface generates a <a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object which consists of a complete specification that can used to run the seldonian algorithm in its entirety. The Spec object that the interface creates has many default parameters that the user may modify with their own custom script.</p>
+<p>The interface generates a <a class="reference internal" href="#spec-object">Spec object</a> object which consists of a complete specification that can used to run the seldonian algorithm in its entirety. The Spec object that the interface creates has many default parameters that the user may modify with their own custom script.</p>
 <section id="data-file">
 <h3>Data file<a class="headerlink" href="#data-file" title="Permalink to this headline">¶</a></h3>
-<p>The data that you provide to the interface must be comma-separated and have no header. For example, a supervised learning dataset might look like:</p>
+<p>The data that you provide to the interface must be rows of numbers that are comma-separated and have no header. The rows are separated by newlines. For example, a supervised learning dataset might look like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">622.6</span><span class="p">,</span><span class="mf">491.56</span><span class="p">,</span><span class="mf">439.93</span><span class="p">,</span><span class="mf">707.64</span><span class="p">,</span><span class="mf">663.65</span><span class="p">,</span><span class="mf">557.09</span><span class="p">,</span><span class="mf">711.37</span><span class="p">,</span><span class="mf">731.31</span><span class="p">,</span><span class="mf">509.8</span><span class="p">,</span><span class="mf">1.33333</span>
 <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">538.0</span><span class="p">,</span><span class="mf">490.58</span><span class="p">,</span><span class="mf">406.59</span><span class="p">,</span><span class="mf">529.05</span><span class="p">,</span><span class="mf">532.28</span><span class="p">,</span><span class="mf">447.23</span><span class="p">,</span><span class="mf">527.58</span><span class="p">,</span><span class="mf">379.14</span><span class="p">,</span><span class="mf">488.64</span><span class="p">,</span><span class="mf">2.98333</span>
 <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">455.18</span><span class="p">,</span><span class="mf">440.0</span><span class="p">,</span><span class="mf">570.86</span><span class="p">,</span><span class="mf">417.54</span><span class="p">,</span><span class="mf">453.53</span><span class="p">,</span><span class="mf">425.87</span><span class="p">,</span><span class="mf">475.63</span><span class="p">,</span><span class="mf">476.11</span><span class="p">,</span><span class="mf">407.15</span><span class="p">,</span><span class="mf">1.97333</span>
@@ -59,11 +59,11 @@
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>This file should include <em>all</em> of the data you have, i.e. the data you have before splitting into train,test,validation splits. The Seldonian algorithm with partition your data for you. The column names are intentionally excluded from this file and are provided in the <a class="reference internal" href="#metadata-file">Metadata file</a>.</p>
+<p>This file should include <em>all</em> of the data you have, i.e. the data you have before splitting into train,test,validation splits. The Seldonian algorithm will partition your data for you. The column names are intentionally excluded from this file and are provided in the <a class="reference internal" href="#metadata-file">Metadata file</a>.</p>
 </section>
 <section id="metadata-file">
 <h3>Metadata file<a class="headerlink" href="#metadata-file" title="Permalink to this headline">¶</a></h3>
-<p>The metadata file is a JSON-formatted file containing important properties of your dataset. It has different required keys depending on the <a class="reference internal" href="glossary.html#term-Regime"><span class="xref std std-term">Regime</span></a> of your problem. For supervised learning, the required keys are:</p>
+<p>The metadata file is a JSON-formatted file containing important properties about your dataset. It has different required keys depending on the <a class="reference internal" href="glossary.html#term-Regime"><span class="xref std std-term">Regime</span></a> of your problem. For supervised learning, the required keys are:</p>
 <ul class="simple">
 <li><p>“regime”, which is set to ‘supervised’ in this case</p></li>
 <li><p>“sub_regime”, which is either ‘classification’ or ‘regression’</p></li>
@@ -81,30 +81,62 @@
 <section id="behavioral-constraints">
 <h3>Behavioral constraints<a class="headerlink" href="#behavioral-constraints" title="Permalink to this headline">¶</a></h3>
 <p>In the <a class="reference external" href="http://aisafety.cs.umass.edu/tutorial1.html">definition of a Seldonian algorithm</a>, <a class="reference internal" href="glossary.html#term-Behavioral-constraint"><span class="xref std std-term">behavioral constraints</span></a>, <span class="math notranslate nohighlight">\((g_i,{\delta}_i)_{i=1}^n\)</span> are of a set of constraint functions, <span class="math notranslate nohighlight">\(g_i\)</span>, and confidence levels, <span class="math notranslate nohighlight">\({\delta}_i\)</span>. Constraint functions are not provided to the interface directly, but are built by the engine from <em>constraint strings</em> provided by the user.</p>
-<p>Constraint strings must contain the mathematical definition of the constraints, <span class="math notranslate nohighlight">\(g_i\)</span>. Certain statistical functions (called “measure functions”) have special strings associated with them so that they the engine recognizes them when they appear in the constraint string. For a list of these measure functions, see: <a class="reference internal" href="_autosummary/seldonian.parse_tree.operators.html#module-seldonian.parse_tree.operators" title="seldonian.parse_tree.operators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">parse_tree.operators</span></code></a>.</p>
-<p>Examples of valid basic <em>constraint strings</em> and their plain English definitions are below. If you find these definitions confusing, remember that we want <span class="math notranslate nohighlight">\(g_i&lt;=0\)</span> to be satisfied.</p>
+<p>Constraint strings contain the mathematical definition of the constraint functions, <span class="math notranslate nohighlight">\(g_i\)</span>. These strings are written as Python strings and support the following mathematical operators:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">Mean_Squared_Error</span> <span class="pre">-</span> <span class="pre">2.0</span></code>: “Ensure that the mean squared error is less than 2.0”. Here, <code class="code docutils literal notranslate"><span class="pre">Mean_Squared_Error</span></code> is a special measure function.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">0.88</span> <span class="pre">-</span> <span class="pre">TPR</span></code>: “Ensure that the True Positive Rate is greater than 0.88”.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">+,-,*,/</span></code></p></li>
 </ul>
-<p>These basic constraint strings cover a number of use cases, but they apply to the whole dataset. Often one desires a constraint that apply to a sensitive attribute of the dataset. Some examples for this use case include:</p>
+<p>The following native Python mathematical functions are also supported:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">abs((PR</span> <span class="pre">|</span> <span class="pre">[M])</span> <span class="pre">-</span> <span class="pre">(PR</span> <span class="pre">|</span> <span class="pre">[F]))</span> <span class="pre">-</span> <span class="pre">0.15</span></code>: “Ensure that the absolute difference between the positive rate for males (M) and the positive rate for females (F) is less than 0.15”. This constraint is called demographic parity (with a tolerance of 15%).</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">min()</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">max()</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">abs()</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">exp()</span></code></p></li>
 </ul>
+<p>Certain statistical functions (called “measure functions”) have special strings associated with them so that the engine recognizes them when they appear in the constraint string. For example, if <code class="code docutils literal notranslate"><span class="pre">Mean_Squared_Error</span></code> appears in the string it will be interpreted correctly by the engine. For a full list of these measure functions, see: <a class="reference internal" href="_autosummary/seldonian.parse_tree.operators.html#module-seldonian.parse_tree.operators" title="seldonian.parse_tree.operators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">parse_tree.operators</span></code></a>.</p>
+<p>Examples of the most basic constraint strings and their plain English definitions are below. Remember that in the Seldonian framework we want <span class="math notranslate nohighlight">\(g_i{\leq}0\)</span> to be satisfied. The <span class="math notranslate nohighlight">\({\leq}0\)</span> is omitted from the constraint strings.</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">Mean_Squared_Error</span> <span class="pre">-</span> <span class="pre">2.0</span></code>: “Ensure that the mean squared error is less than or equal to 2.0”. Here, <code class="code docutils literal notranslate"><span class="pre">Mean_Squared_Error</span></code> is a special measure function for supervised regression problems.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">0.88</span> <span class="pre">-</span> <span class="pre">TPR</span></code>: “Ensure that the True Positive Rate (TPR) is greater than or equal to 0.88”. Here, <code class="code docutils literal notranslate"><span class="pre">TPR</span></code> is a measure function for supervised classification problems.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">-</span> <span class="pre">J_pi_new</span></code>: “Ensure that the performance of the new policy (<code class="code docutils literal notranslate"><span class="pre">J_pi_new</span></code>) is greater than or equal to 0.5”. Here, <code class="code docutils literal notranslate"><span class="pre">J_pi_new</span></code> is a measure function for RL problems.</p></li>
+</ul>
+<p>These basic constraint strings cover a number of use cases. However, they do not use information about the sensitive attributes (columns) in the dataset, which commonly appear in fairness definitions. The generic specification for including sensitive attributes in the constraint string is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">measure_function</span> <span class="o">|</span> <span class="p">[</span><span class="n">ATR1</span><span class="p">,</span><span class="n">ATR2</span><span class="p">,</span><span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>where <code class="code docutils literal notranslate"><span class="pre">measure_function</span></code> is a placeholder for the actual measure function in use and <code class="code docutils literal notranslate"><span class="pre">[ATR1,ATR2,...]</span></code> is a placeholder list of attributes (column names) from the dataset. The parentheses surrounding the statement are required in all cases.</p>
+<p>The following examples show valid constraint strings that use sensitive attributes of an example dataset with sensitive attributes: <code class="code docutils literal notranslate"><span class="pre">[M,F,R1,R2]</span></code>. These only apply for the supervised learning regime.</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">abs((PR</span> <span class="pre">|</span> <span class="pre">[M])</span> <span class="pre">-</span> <span class="pre">(PR</span> <span class="pre">|</span> <span class="pre">[F]))</span> <span class="pre">-</span> <span class="pre">0.15</span></code>: “Ensure that the absolute difference between the positive rate for males (M) and the positive rate (PR, a measure function) for females (F) is less than or equal to 0.15”. This constraint is called demographic parity (with a tolerance of 15%). Here, <code class="code docutils literal notranslate"><span class="pre">M</span></code> and :code`F` must be columns of the dataset, as specified in the <a class="reference internal" href="#metadata-file">Metadata file</a>. We also see the use of a native Python function, <code class="code docutils literal notranslate"><span class="pre">abs()</span></code> in this constraint string.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">0.8</span> <span class="pre">-</span> <span class="pre">min((PR</span> <span class="pre">|</span> <span class="pre">[M])/(PR</span> <span class="pre">|</span> <span class="pre">[F]),(PR</span> <span class="pre">|</span> <span class="pre">[F])/(PR</span> <span class="pre">|</span> <span class="pre">[M]))</span></code>: “Ensure that ratio of the positive rate for males (M) to the positive rate for females (F) or the inverse is at least 0.8.” This constraint is called disparate impact (with a tolerance of 0.8). We see the use of <code class="code docutils literal notranslate"><span class="pre">min()</span></code>, yet another native Python function in this constraint string.</p></li>
+</ul>
+<p>It is permitted to use more than one attribute for a given measure function. For example:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">(FPR</span> <span class="pre">|</span> <span class="pre">[F,R1])</span> <span class="pre">-</span> <span class="pre">0.2</span></code>: “Ensure that the false positive rate (FPR) for females (F) belonging to race class 1 (RL) is less than or equal to 0.2.</p></li>
+</ul>
+<p>Note that the user must also specify the values of <span class="math notranslate nohighlight">\({\delta}\)</span> for each provided constraint string.</p>
 </section>
-<section id="parse-trees">
-<h3>Parse Trees<a class="headerlink" href="#parse-trees" title="Permalink to this headline">¶</a></h3>
-<p>Explain parse trees.</p>
-</section>
-<section id="specification-spec-object">
-<h3>Specification (Spec) object<a class="headerlink" href="#specification-spec-object" title="Permalink to this headline">¶</a></h3>
-<p>Explain spec object</p>
+<section id="spec-object">
+<h3>Spec object<a class="headerlink" href="#spec-object" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object (short for specification object) contains all of the inputs needed to run the Seldonian algorithm. The interface creates a spec object from the user’s inputs. It is up to the designer of the interface to specify how the user will provide the information needed to complete the spec object. Because the spec object is editable, it may be practical to create a simple interface that generates a spec object with many default values and then require the user to modify the spec object in a custom script.</p>
 </section>
 </section>
 <section id="candidate-selection">
 <span id="id1"></span><h2>Candidate Selection<a class="headerlink" href="#candidate-selection" title="Permalink to this headline">¶</a></h2>
-<p>Explain candidate selection
-Explain hyperparams</p>
+<p>Candidate selection is run inside of the <a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.seldonian_algorithm.html#seldonian.seldonian_algorithm.seldonian_algorithm" title="seldonian.seldonian_algorithm.seldonian_algorithm"><code class="xref py py-func docutils literal notranslate"><span class="pre">seldonian_algorithm.seldonian_algorithm()</span></code></a> function. The inputs to candidate selection are assembled from the spec object provided to the function. First, a <a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection" title="seldonian.candidate_selection.candidate_selection.CandidateSelection"><code class="xref py py-class docutils literal notranslate"><span class="pre">CandidateSelection</span></code></a> object is created, then <a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.run" title="seldonian.candidate_selection.candidate_selection.CandidateSelection.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CandidateSelection.run()</span></code></a> is called to start candidate selection.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">run()</span></code> returns the <code class="code docutils literal notranslate"><span class="pre">candidate_solution</span></code>, the optimized model weights obtained during candidate selection, or <code class="code docutils literal notranslate"><span class="pre">'NSF'</span></code> if no solution was found.</p>
+<p>There are currently two supported optimization techniques for candidate selection:</p>
+<ol class="arabic simple">
+<li><p>Black box optimization with a barrier function. The barrier, which is shaped like the upper bound functions, is implemented when any of the constraints are violated. This forces the solutions toward the feasible set.</p></li>
+<li><p>Gradient descent on a <a class="reference external" href="https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).">Lagrangian</a>:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[{\mathcal{L(\mathbf{x,\lambda})}} = f(\mathbf{x}) + {\sum}_i^{n} {\lambda_i} g_i(\mathbf{x})\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is a vector of features, <span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span> is the primary objective function, <span class="math notranslate nohighlight">\(g_i(\mathbf{x})\)</span> are the upper bound functions for the <span class="math notranslate nohighlight">\(n\)</span> constraints, and <span class="math notranslate nohighlight">\(\mathbf{\lambda}\)</span> is a vector of Lagrange multipliers, such that <span class="math notranslate nohighlight">\({\lambda_i}\)</span> is the Lagrange multiplier for the ith constraint.</p>
+<p>In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations in directions orthogonal to the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which contains a momentum term, and found that it mitigates the oscillations in our testing.</p>
+</section>
+<section id="safety-test">
+<h2>Safety Test<a class="headerlink" href="#safety-test" title="Permalink to this headline">¶</a></h2>
+<p>The safety test is run on the candidate solution returned by candidate selection. Like candidate selection, the safety test is run inside of the <a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.seldonian_algorithm.html#seldonian.seldonian_algorithm.seldonian_algorithm" title="seldonian.seldonian_algorithm.seldonian_algorithm"><code class="xref py py-func docutils literal notranslate"><span class="pre">seldonian_algorithm.seldonian_algorithm()</span></code></a> function. The inputs to the safety test are assembled from the spec object provided to the function. First, a <a class="reference internal" href="_autosummary/seldonian.safety_test.safety_test.SafetyTest.html#seldonian.safety_test.safety_test.SafetyTest" title="seldonian.safety_test.safety_test.SafetyTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">SafetyTest</span></code></a> object is created, then <a class="reference internal" href="_autosummary/seldonian.safety_test.safety_test.SafetyTest.html#seldonian.safety_test.safety_test.SafetyTest.run" title="seldonian.safety_test.safety_test.SafetyTest.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SafetyTest.run()</span></code></a> is called to start the safety test.</p>
 </section>
 </section>
 
@@ -131,11 +163,11 @@ Explain hyperparams</p>
 <li class="toctree-l3"><a class="reference internal" href="#data-file">Data file</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#metadata-file">Metadata file</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#behavioral-constraints">Behavioral constraints</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#parse-trees">Parse Trees</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#specification-spec-object">Specification (Spec) object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spec-object">Spec object</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#candidate-selection">Candidate Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#safety-test">Safety Test</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>

@@ -103,7 +103,11 @@ class CandidateSelection(object):
 				self.normalize_returns=False
 
 	def run(self,**kwargs):
-		""" Run candidate selection """
+		""" Run candidate selection
+
+		:return: Optimized model weights or 'NSF'
+		:rtype: numpy ndarray or str 
+		"""
 		if self.optimization_technique == 'gradient_descent':
 			from seldonian.optimizers.gradient_descent import gradient_descent_adam
 

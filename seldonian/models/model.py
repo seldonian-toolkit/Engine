@@ -25,8 +25,8 @@ class SupervisedModel(SeldonianModel):
 		:param X: features 
 		:type X: NxM numpy ndarray 
 
-		:param X: labels 
-		:type X: Nx1 numpy ndarray 
+		:param Y: labels 
+		:type Y: Nx1 numpy ndarray 
 
 		:return: weights from the fitted model
 		:rtype: numpy ndarray
