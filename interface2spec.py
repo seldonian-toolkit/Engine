@@ -79,7 +79,7 @@ if __name__ == '__main__':
 		delta = deltas[ii]
 		# Create parse tree object
 		parse_tree = ParseTree(delta=delta,regime='supervised',
-		sub_regime='classification')
+		sub_regime='classification',columns=columns)
 
 		# Fill out tree
 		parse_tree.create_from_ast(constraint_str)
@@ -93,7 +93,6 @@ if __name__ == '__main__':
 		parse_trees.append(parse_tree)
 
 	# Save spec object, using defaults where necessary
-
 	
 	spec = SupervisedSpec(
 		dataset=dataset,

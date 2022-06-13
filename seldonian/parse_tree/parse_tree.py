@@ -13,7 +13,7 @@ from .nodes import *
 from .operators import *
 
 class ParseTree(object):
-	def __init__(self,delta,regime,sub_regime):
+	def __init__(self,delta,regime,sub_regime,columns=[]):
 		""" 
 		Class to represent a parse tree for a single behavioral constraint
 
@@ -27,9 +27,15 @@ class ParseTree(object):
 			e.g. supervised or RL
 		:type regime: str
 
-		:param regime: The sub-category of ml algorithm, e.g. 
-			classification or regression. Use 'all' for RL
-		:type regime: str
+		:param sub_regime: The sub-category of ml algorithm, e.g. 
+			classification or regression for supervised learning.
+			Use 'all' for RL.
+		:type sub_regime: str
+
+		:param columns: The names of the columns in the dataframe. 
+			Used to determine if conditional columns provided by user
+			are appropriate. 
+		:type columns: List(str)
 
 		:ivar root: 
 			Root node which contains the whole tree 
@@ -70,6 +76,7 @@ class ParseTree(object):
 		self.delta = delta
 		self.regime = regime
 		self.sub_regime = sub_regime
+		self.columns = columns
 		self.root = None 
 		self.constraint_str = ''
 		self.n_nodes = 0
@@ -255,6 +262,14 @@ class ParseTree(object):
 					raise NotImplementedError("Error parsing your expression."
 						" A variable name was used which we do not recognize: "
 					   f"{ast_node.left.id}")
+
+				# Make sure conditional columns provided are valid 
+				for col in conditional_columns:
+					if col not in self.columns:
+						raise RuntimeError(
+							"A column provided in your constraint str: "
+							f"{col} was not in the list of "
+							f" columns provided: {self.columns}")
 				node_name = ' | '.join(
 					[ast_node.left.id,conditional_columns_liststr])
 
