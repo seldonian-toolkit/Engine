@@ -233,7 +233,7 @@ def test_power_bounds(interval_index,stump):
 	warning_msg = ("Warning: Power operation "
 		"is an experimental feature. Use with caution.")
 	a,b=two_interval_options[interval_index]
-	print(a,b)
+
 	pt = stump('pow',a,b)
 	if a[0] < 0:
 		with pytest.warns(UserWarning,match=warning_msg):
@@ -251,7 +251,7 @@ def test_power_bounds(interval_index,stump):
 		assert "0.0 cannot be raised to a negative power" in str(excinfo.value)
 	else:
 		answer = answer_dict['pow'][interval_index]
-		print(answer)
+
 		with pytest.warns(UserWarning,match=warning_msg):
 			pt.propagate_bounds(bound_method='manual')
 		
@@ -266,11 +266,11 @@ def test_min_bounds(interval_index,stump):
 	### min ###
 
 	a,b=two_interval_options[interval_index]
-	print(a,b)
+
 	pt = stump('min',a,b)
 	
 	answer = answer_dict['min'][interval_index]
-	print(answer)
+
 	pt.propagate_bounds(bound_method='manual')
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
@@ -283,11 +283,11 @@ def test_max_bounds(interval_index,stump):
 	### min ###
 
 	a,b=two_interval_options[interval_index]
-	print(a,b)
+
 	pt = stump('max',a,b)
 	
 	answer = answer_dict['max'][interval_index]
-	print(answer)
+
 	pt.propagate_bounds(bound_method='manual')
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
@@ -400,6 +400,60 @@ def test_measure_function_with_conditional_bad_syntax_captured():
 			pt.create_from_ast(constraint_str)
 		
 		assert str(excinfo.value) == error_str
+ 
+def test_measure_function_from_wrong_regime():
+	""" Test that if a measure function from the incorrect 
+	regime or sub-regime is used in a constraint 
+	that the parse tree builder will raise an error """
+	delta = 0.05
+
+	constraint_str = 'Mean_Squared_Error - 2.0'
+
+	pt = ParseTree(delta,regime='supervised',sub_regime='classification')
+
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("NotImplementedError: Error parsing your expression. "
+		"A variable name was used which we do not recognize: "
+		"Mean_Squared_Error")
+	assert str(excinfo.value) in error_str
+
+	constraint_str = 'FPR - 0.2'
+
+	pt = ParseTree(delta,regime='supervised',sub_regime='regression')
+
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("NotImplementedError: Error parsing your expression. "
+		"A variable name was used which we do not recognize: "
+		"FPR")
+	assert str(excinfo.value) in error_str
+
+	constraint_str = 'Mean_Squared_Error - 2.0'
+
+	pt = ParseTree(delta,regime='RL',sub_regime='all')
+
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("NotImplementedError: Error parsing your expression. "
+		"A variable name was used which we do not recognize: "
+		"Mean_Squared_Error")
+	assert str(excinfo.value) in error_str
+
+	constraint_str = '(FPR | [M]) - 0.2'
+
+	pt = ParseTree(delta,regime='RL',sub_regime='all')
+
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("NotImplementedError: Error parsing your expression. "
+		"A variable name was used which we do not recognize: "
+		"FPR")
+	assert str(excinfo.value) in error_str
  
 def test_custom_base_node():
 	constraint_str = 'MED_MF - 0.1'
@@ -592,7 +646,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.n_nodes == 1
 	assert pt.n_base_nodes == 1  
 	assert isinstance(pt.root,BaseNode)
-	# print(pt.root.will_lower_bound)
+
 	assert pt.root.will_lower_bound == False
 	assert pt.root.will_upper_bound == True
 
@@ -797,7 +851,7 @@ def test_evaluate_constraint(generate_data):
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
 		model=model_instance,regime='supervised',
 		branch='safety_test')
-	print(pt.root.value)
+
 	assert pt.root.value == pytest.approx(-1.06248)
 
 def test_reset_parse_tree():
@@ -872,7 +926,7 @@ def test_single_conditional_columns_propagated():
 		regime='supervised')
 	assert pt.root.lower == pytest.approx(61.9001779655)
 	assert pt.root.upper == pytest.approx(62.1362236720)
-	print(pt.base_node_dict.keys())
+
 	assert len(pt.base_node_dict["Mean_Error | [M]"]['data_dict']['features']) == 22335
 	pt.reset_base_node_dict()
 	
