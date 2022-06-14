@@ -1,13 +1,13 @@
 """ Module containing global variables used 
 during the construction of parse trees 
 
-.. data:: measure_functions
-	:type: List(str)
+.. data:: measure_functions_dict
+	:type: dict[regime][sub_regime]
 
-	A list of short-hand 
-	function names that will be recognized to
-	have a specific statistical meaning in 
-	a constraint string provided in the interface.
+	Contains strings that, if appearing in 
+	a constraint string, will be recognized
+	by the engine as statistical functions with 
+	special meaning. Organized by regime and sub-regime. 
 
 .. data:: custom_base_node_dict
 	:type: dict

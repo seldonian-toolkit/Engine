@@ -16,6 +16,13 @@ def seldonian_algorithm(spec):
 
 	:param spec: Seldonian specification obect
 	:type spec: spec.Spec object
+
+	:return: (passed_safety, solution). passed_safety 
+		indicates whether solution found during candidate selection
+		passes the safety test. solution is the optimized
+		model weights found during candidate selection or 'NSF'.
+	:rtype: Tuple 
+		
 	"""
 
 	dataset = spec.dataset
@@ -67,7 +74,7 @@ def seldonian_algorithm(spec):
 			initial_solution = initial_solution_fn(candidate_features,candidate_labels)
 		except ValueError:
 			warning_msg = ("Warning: not enough data to run the algorithm.  "
-    				"Returning NSF and failing safety test.")
+					"Returning NSF and failing safety test.")
 			warnings.warn(warning_msg)
 			passed_safety=False
 			candidate_solution = "NSF"
@@ -162,7 +169,7 @@ def seldonian_algorithm(spec):
 	
 	if n_candidate < 2 or n_safety < 2:
 		warning_msg = ("Warning: not enough data to run the algorithm.  "
-    				"Returning NSF and failing safety test.")
+					"Returning NSF and failing safety test.")
 		warnings.warn(warning_msg)
 		passed_safety=False
 		candidate_solution = "NSF"
@@ -175,12 +182,11 @@ def seldonian_algorithm(spec):
 	candidate_solution = cs.run(**spec.optimization_hyperparams,
 		use_builtin_primary_gradient_fn=spec.use_builtin_primary_gradient_fn,
 		custom_primary_gradient_fn=spec.custom_primary_gradient_fn)
-	
+	print("Candidate solution: ", candidate_solution)
 	NSF=False
 	if type(candidate_solution) == str and candidate_solution == 'NSF':
 		NSF = True
 
-	
 	if NSF:
 		passed_safety=False
 	else:
@@ -191,5 +197,6 @@ def seldonian_algorithm(spec):
 			print("Passed safety test")
 		else:
 			print("Failed safety test")
-
-	return passed_safety, candidate_solution
+	# candidate_solution is no more. Call it solution.
+	solution = copy.deepcopy(candidate_solution)
+	return passed_safety, solution
