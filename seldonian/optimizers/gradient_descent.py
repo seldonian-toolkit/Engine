@@ -110,7 +110,7 @@ def gradient_descent_adam(
         # Obtain gradients of both terms in Lagrangian 
         # at current values of theta and lambda
         grad_primary_theta_val = grad_primary_theta(theta)
-        
+
         gu_theta_vec = grad_upper_bound_theta(theta)
         print(primary_val,g_vec)
         

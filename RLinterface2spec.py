@@ -34,6 +34,7 @@ if __name__ == '__main__':
 
 	regime = metadata_dict['regime']
 	columns = metadata_dict['columns']
+	
 	RL_environment_name = metadata_dict['RL_environment_name']
 	RL_environment_module = importlib.import_module(
 		f'seldonian.RL.environments.{RL_environment_name}')
@@ -46,12 +47,12 @@ if __name__ == '__main__':
 
 	# Load dataset from file
 	loader = DataSetLoader(
-		column_names=columns,
-		sensitive_column_names=[],
-		label_column='',
 		regime=regime)
 
-	dataset = loader.from_csv(args.data_pth)
+	dataset = loader.load_RL_dataset(
+		filename=args.data_pth,
+		metadata_filename=args.metadata_pth,
+		file_type='csv')
 	
 	constraint_strs = ['-0.25 - J_pi_new'] 
 	
@@ -96,7 +97,7 @@ if __name__ == '__main__':
 		    'alpha_lamb'    : 0.005,
 		    'beta_velocity' : 0.9,
 		    'beta_rmsprop'  : 0.95,
-		    'num_iters'     : 200,
+		    'num_iters'     : 20,
 		    'hyper_search'  : None,
 		    'verbose'       : True,
 		},

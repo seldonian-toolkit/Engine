@@ -227,20 +227,16 @@ class BaseNode(Node):
 			data_dict = {'features':features,'labels':labels}  
 			
 		elif regime == 'RL':
-			dataframe = dataset.df
 			gamma = kwargs['gamma']
-
-			split_indices_by_episode = np.unique(dataframe['episode_index'].values,
-				return_index=True)[1][1:]
+			episodes = dataset.episodes
 
 			if branch == 'candidate_selection':
 				datasize = n_safety
 			else:
-				datasize = len(dataframe)
+				datasize = len(episodes)
 			
 			# Precalculate expected return from behavioral policy
-			rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
-			returns = [weighted_sum_gamma(r,gamma) for r in rewards_by_episode]
+			returns = [weighted_sum_gamma(ep.rewards,gamma) for ep in episodes]
 			if kwargs['normalize_returns']==True:
 				# normalize returns 
 				min_return = kwargs['min_return']
@@ -248,7 +244,7 @@ class BaseNode(Node):
 				returns = (returns-min_return)/(max_return-min_return)
 
 			data_dict = {
-				'dataframe':dataframe,
+				'episodes':episodes,
 				'reward_sums_by_episode':returns
 			}
 

@@ -334,7 +334,7 @@ class CandidateSelection(object):
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
-			data_dict = {'dataframe':self.candidate_dataset.df}
+			data_dict = {'episodes':self.candidate_dataset.episodes}
 			result = -1.0*self.primary_objective(self.model,theta,
 				data_dict)
 
