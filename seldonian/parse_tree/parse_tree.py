@@ -72,6 +72,13 @@ class ParseTree(object):
 		:ivar node_fontsize: 
 			Fontsize used for graphviz visualizations
 		:vartype node_fontsize: int
+
+		:ivar available_measure_functions: 
+			A list of measure functions for the 
+			given regime and sub-regime, e.g. "Mean_Error"
+			for supervised regression or "PR", i.e. Positive Rate
+			for supervised classification.
+		:vartype available_measure_functions: int
 		"""
 		self.delta = delta
 		self.regime = regime
