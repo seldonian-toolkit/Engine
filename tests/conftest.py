@@ -77,7 +77,6 @@ def generate_data():
     
     return generate_data_function
 
-
 @pytest.fixture
 def gpa_regression_dataset():
     def generate_dataset(constraint_strs,deltas,rseed=0,):
@@ -89,8 +88,6 @@ def gpa_regression_dataset():
         regime = metadata_dict['regime']
         sub_regime = metadata_dict['sub_regime']
         columns = metadata_dict['columns']
-        sensitive_columns = metadata_dict['sensitive_columns']
-        label_column = metadata_dict['label_column']
                     
         include_sensitive_columns = False
         include_intercept_term = True
@@ -103,14 +100,14 @@ def gpa_regression_dataset():
 
         # Load dataset from file
         loader = DataSetLoader(
-            column_names=columns,
-            sensitive_column_names=sensitive_columns,
-            include_sensitive_columns=include_sensitive_columns,
-            include_intercept_term=include_intercept_term,
-            label_column=label_column,
             regime=regime)
 
-        dataset = loader.from_csv(data_pth)
+        dataset = loader.load_supervised_dataset(
+            filename=data_pth,
+            metadata_filename=metadata_pth,
+            include_sensitive_columns=include_sensitive_columns,
+            include_intercept_term=include_intercept_term,
+            file_type='csv')
 
         # For each constraint, make a parse tree
         parse_trees = []

@@ -154,7 +154,6 @@ class Environment():
 		self.current_state = self.initial_state
 		return
 		
-
 	def generate_episode_flat(self):
 		""" Generate an entire episode as a flattened array 
 		using the current policy
@@ -269,7 +268,6 @@ class Environment():
 					pickle.dump(df,outfile)
 			print(f"Saved {savename}")
 		return df 
-
 
 	def generate_episode(self,return_index=False):
 		""" Generate an entire episode using the current policy

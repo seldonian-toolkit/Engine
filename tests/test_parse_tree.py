@@ -2,6 +2,7 @@ from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet)
 from seldonian.safety_test.safety_test import SafetyTest
+from seldonian.utils.io_utils import load_json
 from seldonian.models.model import LinearRegressionModel
 import pytest
 import time
@@ -840,19 +841,20 @@ def test_reset_parse_tree():
 
 def test_single_conditional_columns_propagated():
 	np.random.seed(0)
-	csv_file = 'static/datasets/GPA/gpa_regression_dataset.csv'
-	columns = ["M","F","SAT_Physics",
-		   "SAT_Biology","SAT_History",
-		   "SAT_Second_Language","SAT_Geography",
-		   "SAT_Literature","SAT_Portuguese_and_Essay",
-		   "SAT_Math","SAT_Chemistry","GPA"]
-		   
-	loader = DataSetLoader(column_names=columns,
-		sensitive_column_names=['M','F'],
-		regime='supervised',label_column='GPA',
+	data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
+	metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+
+	metadata_dict = load_json(metadata_pth)
+
+	loader = DataSetLoader(
+		regime='supervised')
+
+	dataset = loader.load_supervised_dataset(
+		filename=data_pth,
+		metadata_filename=metadata_pth,
 		include_sensitive_columns=False,
-		include_intercept_term=True)
-	dataset = loader.from_csv(csv_file)
+		include_intercept_term=True,
+		file_type='csv')
 
 	model_instance = LinearRegressionModel()
 

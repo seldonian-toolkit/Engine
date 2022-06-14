@@ -49,6 +49,7 @@ class DataSetLoader():
 
 		label_column = metadata_dict['label_column']
 		columns = metadata_dict['columns']
+		df.columns = columns
 		sensitive_column_names = metadata_dict['sensitive_columns']
 		return SupervisedDataSet(
 			df=df,
@@ -75,6 +76,11 @@ class DataSetLoader():
 		:param file_type: the file extension of filename
 		:type file_type: str, defaults to 'csv'
 		"""
+
+		# Load metadata
+		metadata_dict = load_json(metadata_filename)
+		columns = metadata_dict['columns']
+
 		if file_type.lower() == 'csv':
 			df = pd.read_csv(filename)
 		
@@ -83,18 +89,20 @@ class DataSetLoader():
 		else:
 			raise NotImplementedError(f"File type: {file_type} not supported")
 
-		# Load metadata
-		metadata_dict = load_json(metadata_filename)
-
-		column_scheme = metadata_dict['column_scheme']
-		max_episode_length = metadata_dict['max_episode_length']
-		columns = []
-		for ii in range(max_eplen//len(column_scheme)):
-			column_list = [f'{name}_{ii}' for name in column_scheme]
-			columns.extend(column_list)
-
+		df.columns = columns
+		episodes=[]
+		
+		for episode_index in df.episode_index.unique():
+			df_ep = df.loc[df.episode_index==episode_index]
+			episode = Episode(states=df_ep.O.values,
+							  actions=df_ep.A.values,
+							  rewards=df_ep.R.values,
+							  pis=df_ep.pi.values)
+			episodes.append(episode)
+		
 		return RLDataSet(
 			df=df,
+			episodes=episodes,
 			meta_information=columns)
 		
 class DataSet(object):
@@ -116,6 +124,7 @@ class DataSet(object):
 		self.df = df
 		self.meta_information = meta_information
 		self.regime = regime 
+
 
 class SupervisedDataSet(DataSet):
 	def __init__(self,df,meta_information,
@@ -161,7 +170,7 @@ class SupervisedDataSet(DataSet):
 	
 	
 class RLDataSet(DataSet):
-	def __init__(self,df,meta_information,
+	def __init__(self,df,episodes,meta_information,
 		**kwargs):
 		""" Object for holding RL dataframe and dataset metadata
 	
@@ -172,5 +181,18 @@ class RLDataSet(DataSet):
 		:type meta_information: List(str)
 		"""
 		super().__init__(df=df,
-			meta_information=meta_information)
+			meta_information=meta_information,
+			regime='RL')
+		self.episodes = episodes
+
+class Episode(object):
+	def __init__(self,states,actions,rewards,pis):
+		""" Object for holding RL episodes
+		"""
+		self.states = states
+		self.actions = actions
+		self.rewards = rewards
+		self.pis = pis
+
+		
 

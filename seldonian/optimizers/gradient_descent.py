@@ -115,9 +115,7 @@ def gradient_descent_adam(
         # Gradient of sum is sum of gradients
         # print(f"theta: {theta}")
         grad_primary_theta_val = grad_primary_theta(theta)
-        # print(primary_val,g_val)
-        # print("calculating d upper_bound_function / dtheta")
-        # print("")
+        print(primary_val,g_val)
         gu_theta = grad_upper_bound_theta(theta)
         # print(f"d primary/d theta: {grad_primary_theta_val}")
         # print(f"d upper_bound/d theta: {gu_theta}")

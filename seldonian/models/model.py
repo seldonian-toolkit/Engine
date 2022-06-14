@@ -125,11 +125,11 @@ class RegressionModel(SupervisedModel):
 		return res
 
 	def gradient_sample_Mean_Squared_Error(self,model,theta,X,Y):
-	    n = len(X)
-	    prediction = model.predict(theta,X) # vector of values
-	    err = prediction-Y
-	    return 2/n*np.dot(err,X)
-	    
+		n = len(X)
+		prediction = model.predict(theta,X) # vector of values
+		err = prediction-Y
+		return 2/n*np.dot(err,X)
+		
 	def sample_Mean_Error(self,model,theta,X,Y):
 		"""
 		Calculate sample mean error 
@@ -991,30 +991,18 @@ class TabularSoftmaxModel(RLModel):
 		:rtype: float
 		"""
 
-		"""Set instance variable theta
-		does this so a cache can be used 
-		to accelerate the apply_policy() computation 
-		on all state,action pairs """
-		dataframe = data_dict['dataframe']
-		model.theta = theta
-		pi_ratios = list(map(model.apply_policy,
-					dataframe['O'].values,
-					dataframe['A'].values))/dataframe['pi'].values
-		# clear cache so it is safe to use for next time
-		model.theta = None 
-		model._denom.cache_clear()
-		model._arg.cache_clear()
-		split_indices_by_episode = np.unique(dataframe['episode_index'].values,
-			return_index=True)[1][1:]
-		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
-		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
+		episodes = data_dict['episodes']
+		IS_estimate = 0
+		for ii,ep in enumerate(episodes):
+			pi_news = model.apply_policy(theta,ep.states,ep.actions)
+			pi_ratio_prod = np.prod(pi_news/ep.pis)
+			weighted_return = weighted_sum_gamma(ep.rewards,
+				gamma=self.environment.gamma)
+			IS_estimate += pi_ratio_prod*weighted_return
+
+		IS_estimate/=len(episodes)
 		
-		# Weighted rewards
-		gamma = self.environment.gamma
-		rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
-		weighted_reward_sums = [weighted_sum_gamma(r,gamma) for r in rewards_by_episode]
-		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
-		return result 
+		return IS_estimate
 
 	def vector_IS_estimate(self,model,theta,data_dict):
 		""" Calculate the unweighted importance sampling estimate
@@ -1033,31 +1021,15 @@ class TabularSoftmaxModel(RLModel):
 		:rtype: numpy ndarray(float)
 		"""
 
-		"""set instance variable theta
-		does this so a cache can be used 
-		to accelerate the apply_policy() computation 
-		on all state,action pairs """
-		model.theta = theta
-		pi_ratios = list(map(
-			model.apply_policy,
-					data_dict['dataframe']['O'].values,
-					data_dict['dataframe']['A'].values
-					))/data_dict['dataframe']['pi'].values
-
-		# clear cache so it is safe to use for next time
-		model.theta = None
-		model._denom.cache_clear()
-		model._arg.cache_clear()
-
-		split_indices_by_episode = np.unique(
-			data_dict['dataframe']['episode_index'].values,
-			return_index=True)[1][1:]
-		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
-		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
-		result = (
-			products_by_episode*data_dict['reward_sums_by_episode']
-			)
-		return result
+		episodes = data_dict['episodes']
+		weighted_reward_sums_by_episode = data_dict['reward_sums_by_episode']
+		result = []
+		for ii,ep in enumerate(episodes):
+			pi_news = model.apply_policy(theta,ep.states,ep.actions)
+			pi_ratio_prod = np.prod(pi_news/ep.pis)
+			result.append(pi_ratio_prod*weighted_reward_sums_by_episode[ii])
+		
+		return np.array(result)
 
 	@lru_cache
 	def _denom(self,state):
@@ -1080,7 +1052,7 @@ class TabularSoftmaxModel(RLModel):
 		"""
 		return self.theta[state*4+action]
 
-	def apply_policy(self,state,action):
+	def apply_policy(self,theta,states,actions):
 		""" Apply the softmax policy given a state and action.
 		Uses self.theta for the policy parameters in helper functions
 
@@ -1090,10 +1062,15 @@ class TabularSoftmaxModel(RLModel):
 		:param action: A possible action at the given state
 		:type action: int
 		"""
-		state = int(state)
-		action = int(action)
+		arg = theta[states*4+actions]
+		num=np.exp(arg)
 		
-		return np.exp(self._arg(state,action))/self._denom(state)
+		result = []
+		for ii,state in enumerate(states):
+			denom = np.sum(np.exp(theta[state*4+self.environment.actions]))
+			result.append(num[ii]/denom)
+
+		return np.array(result)
 
 	def default_objective(self,model,theta,data_dict):
 		""" The default primary objective to use, the 

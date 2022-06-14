@@ -97,30 +97,33 @@ def seldonian_algorithm(spec):
 
 		model_instance = spec.model_class(RL_environment_obj)
 		df = spec.dataset.df
-		
+		episodes = spec.dataset.episodes
 		# Create candidate and safety datasets
-		# Cant train_test_split because we need to separate by episode
-		episodes = sorted(df.episode_index.unique())
 		n_episodes = len(episodes)
 		# For candidate take first 1.0-frac_data_in_safety fraction
 		# and for safety take remaining
 		n_candidate = int(round(n_episodes*(1.0-spec.frac_data_in_safety)))
+		n_safety = n_episodes - n_candidate
 		candidate_episodes = episodes[0:n_candidate]
 		safety_episodes = episodes[n_candidate:]
-		
-		safety_df = df.copy().loc[
-			df['episode_index'].isin(safety_episodes)]
+
+
 		candidate_df = df.copy().loc[
-			df['episode_index'].isin(candidate_episodes)]	
+			df['episode_index'].isin(range(0,n_candidate))]
 
 		candidate_dataset = RLDataSet(
-			candidate_df,meta_information=df.columns)
+			df=candidate_df,
+			episodes=candidate_episodes,
+			meta_information=df.columns)
+
+		safety_df = df.copy().loc[
+			df['episode_index'].isin(range(n_candidate,n_episodes))]
 
 		safety_dataset = RLDataSet(
-			safety_df,meta_information=df.columns)
-
-		n_safety = safety_df['episode_index'].nunique()
-		n_candidate = candidate_df['episode_index'].nunique()
+			df=safety_df,
+			episodes=safety_episodes,
+			meta_information=df.columns)
+		# assert len(safety_df) == n_safety
 		print(f"Safety dataset has {n_safety} episodes")
 		print(f"Candidate dataset has {n_candidate} episodes")
 		
