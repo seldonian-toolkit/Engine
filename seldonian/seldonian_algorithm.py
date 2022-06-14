@@ -27,7 +27,7 @@ def seldonian_algorithm(spec):
 
 	dataset = spec.dataset
 	regime = dataset.regime
-	column_names = dataset.df.columns
+	column_names = dataset.meta_information
 
 	if regime == 'supervised':
 		model_instance = spec.model_class()
@@ -55,12 +55,12 @@ def seldonian_algorithm(spec):
 			label_column=label_column)
 		n_candidate = len(candidate_df)
 		n_safety = len(safety_df)
-
 		# Set up initial solution
 		initial_solution_fn = spec.initial_solution_fn
-		candidate_labels = candidate_dataset.df[label_column]
-		candidate_features = candidate_dataset.df.loc[:,
-			column_names != label_column]
+
+		candidate_labels = candidate_df[label_column]
+		candidate_features = candidate_df.loc[:,
+			candidate_df.columns != label_column]
 
 		if not include_sensitive_columns:
 			candidate_features = candidate_features.drop(
@@ -103,7 +103,6 @@ def seldonian_algorithm(spec):
 		normalize_returns = spec.normalize_returns
 
 		model_instance = spec.model_class(RL_environment_obj)
-		df = spec.dataset.df
 		episodes = spec.dataset.episodes
 		# Create candidate and safety datasets
 		n_episodes = len(episodes)
@@ -115,21 +114,13 @@ def seldonian_algorithm(spec):
 		safety_episodes = episodes[n_candidate:]
 
 
-		candidate_df = df.copy().loc[
-			df['episode_index'].isin(range(0,n_candidate))]
-
 		candidate_dataset = RLDataSet(
-			df=candidate_df,
 			episodes=candidate_episodes,
-			meta_information=df.columns)
-
-		safety_df = df.copy().loc[
-			df['episode_index'].isin(range(n_candidate,n_episodes))]
+			meta_information=column_names)
 
 		safety_dataset = RLDataSet(
-			df=safety_df,
 			episodes=safety_episodes,
-			meta_information=df.columns)
+			meta_information=column_names)
 		# assert len(safety_df) == n_safety
 		print(f"Safety dataset has {n_safety} episodes")
 		print(f"Candidate dataset has {n_candidate} episodes")

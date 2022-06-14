@@ -1,7 +1,0 @@
-{
-	"column_scheme":["O","A","R","pi"],
-	"regime":"RL",
-	"RL_environment_name":"gridworld3x3",
-	"n_episodes":1000,
-	"max_episode_length":200
-}

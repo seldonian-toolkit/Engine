@@ -56,14 +56,14 @@ if __name__ == '__main__':
 
 	# Load dataset from file
 	loader = DataSetLoader(
-		column_names=columns,
-		sensitive_column_names=sensitive_columns,
-		include_sensitive_columns=args.include_sensitive_columns,
-		include_intercept_term=args.include_intercept_term,
-		label_column=label_column,
 		regime=regime)
 
-	dataset = loader.from_csv(args.data_pth)
+	dataset = loader.load_supervised_dataset(
+		filename=args.data_pth,
+		metadata_filename=args.metadata_pth,
+		include_sensitive_columns=args.include_sensitive_columns,
+		include_intercept_term=args.include_intercept_term,
+		file_type='csv')
 	
 	constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.15'] 
 	constraint_names = ['demographic_parity']

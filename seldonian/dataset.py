@@ -101,18 +101,14 @@ class DataSetLoader():
 			episodes.append(episode)
 		
 		return RLDataSet(
-			df=df,
 			episodes=episodes,
 			meta_information=columns)
 		
 class DataSet(object):
-	def __init__(self,df,meta_information,
+	def __init__(self,meta_information,
 		regime,
 		**kwargs):
 		""" Object for holding dataframe and dataset metadata
-	
-		:param df: dataframe containing the full dataset 
-		:type df: pandas dataframe
 
 		:param meta_information: list of all column names in the dataframe
 		:type meta_information: List(str)
@@ -121,7 +117,6 @@ class DataSet(object):
 			e.g. supervised or RL
 		:type regime: str
 		"""
-		self.df = df
 		self.meta_information = meta_information
 		self.regime = regime 
 
@@ -159,10 +154,10 @@ class SupervisedDataSet(DataSet):
 		:param include_intercept_term: Whether to add 
 			a column of ones as the first column in the dataset.
 		"""
-		super().__init__(df=df,
+		super().__init__(
 			meta_information=meta_information,
 			regime='supervised')
-
+		self.df = df
 		self.label_column = label_column
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns
@@ -170,7 +165,7 @@ class SupervisedDataSet(DataSet):
 	
 	
 class RLDataSet(DataSet):
-	def __init__(self,df,episodes,meta_information,
+	def __init__(self,episodes,meta_information,
 		**kwargs):
 		""" Object for holding RL dataframe and dataset metadata
 	
@@ -180,7 +175,7 @@ class RLDataSet(DataSet):
 		:param meta_information: list of all column names in the dataframe
 		:type meta_information: List(str)
 		"""
-		super().__init__(df=df,
+		super().__init__(
 			meta_information=meta_information,
 			regime='RL')
 		self.episodes = episodes

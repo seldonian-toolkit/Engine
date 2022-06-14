@@ -12,8 +12,10 @@ from functools import lru_cache, partial
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing as mp
 from tqdm import tqdm
+from seldonian.dataset import Episode
 
 from seldonian.utils.stats_utils import weighted_sum_gamma
+from seldonian.utils.io_utils import save_pickle
 
 class Environment():
 	def __init__(self):
@@ -154,122 +156,7 @@ class Environment():
 		self.current_state = self.initial_state
 		return
 		
-	def generate_episode_flat(self):
-		""" Generate an entire episode as a flattened array 
-		using the current policy
-
-		:param return_index: Whether to return the timestep 
-			as part of the episode
-		:type return_index: bool
-
-		"""
-		episode = []
-		timestep = 0
-		while self.current_state != self.terminal_state:
-			if timestep == self.timeout:
-				break
-			
-			entry = self.take_step()
-			
-			episode.extend(entry)
-			timestep+=1
-
-		self.reset()
-		return episode
-
-	def generate_episodes_flat_par(self,n_episodes):
-		""" Generate an entire episode as a flattened array 
-		using the current policy
-
-		"""
-		np.random.seed()
-		episodes = []
-		for _ in range(n_episodes):
-			episode = []
-			timestep = 0
-			while self.current_state != self.terminal_state:
-				if timestep == self.timeout:
-					break
-				
-				entry = self.take_step()
-
-				episode.extend(entry)
-				timestep+=1
-			episodes.append(episode)
-			self.reset()
-		return episodes
-
-	def generate_flat_data(self,n_episodes,parallel=True,
-		n_workers=8,savename=None,header=False):
-		""" Generate a pandas dataframe where each row is one episode
-		like: 
-		state_0,action_0,reward_0,probability_of_action_0,state_1,action_1,...
-		for n_episodes episodes using the current policy.
-
-		:param n_episodes: The number of episodes to return
-		:type n_episodes: int
-		
-		:param parallel: Whether to use multiple workers 
-			to generate the data
-		:type parallel: bool
-
-		:param n_workers: The number of workers to use if
-			using multiprocessing
-		:type n_workers: int
-
-		:param savename: The name of the file in which to 
-			save the dataframe  
-		:type savename: str, defaults to None
-
-		:param header: Whether to include the column names 
-			in the saved dataframe
-		:type header: bool, defaults to False
-		"""
-		if parallel:
-			chunk_size = n_episodes//n_workers
-			episodes_per_worker = []
-			cumulative_episodes = 0
-			for i in range(n_workers):
-				if i != n_workers - 1:
-					episodes_per_worker.append(chunk_size)
-					cumulative_episodes+=chunk_size
-				else:
-					episodes_per_worker.append(n_episodes-cumulative_episodes)
-	
-			episodes = []
-			with ProcessPoolExecutor(max_workers=n_workers,
-				mp_context=mp.get_context('fork')) as executor:
-				for episode_list in tqdm(executor.map(
-					self.generate_episodes_flat_par,
-					episodes_per_worker),total=n_workers):
-					episodes.extend(episode_list)
-		else:
-			episodes = [self.generate_episode_flat() for ii in range(n_episodes)]
-		
-		max_eplen = max([len(x) for x in episodes])
-		columns = []
-		for ii in range(max_eplen//4):
-		    columns.extend([f's_{ii}',f'a_{ii}',f'r_{ii}',f'pi_{ii}'])
-
-
-		df = pd.DataFrame(list(episodes),columns=columns)
-		# df = df.astype({
-		# 	"O": int,
-		# 	"A": int,
-		# 	"R": float,
-		# 	"pi": float
-		# 	})
-
-		if savename:
-			if savename.endswith('.csv'):
-				df.to_csv(savename,index=False,header=header)
-			elif savename.endswith('.pkl'):
-				with open(savename,'wb') as outfile:
-					pickle.dump(df,outfile)
-			print(f"Saved {savename}")
-		return df 
-
-	def generate_episode(self,return_index=False):
+	def generate_episode_old(self,return_index=False):
 		""" Generate an entire episode using the current policy
 
 		:param return_index: Whether to return the timestep 
@@ -294,7 +181,7 @@ class Environment():
 		self.reset()
 		return episode
 
-	def generate_episodes_par(self,n_episodes=1,return_index=False):
+	def generate_episodes_par_old(self,n_episodes=1,return_index=False):
 		""" Generate n_episodes episodes using the current policy.
 		This is the function to use for multiprocessing   
 
@@ -326,7 +213,7 @@ class Environment():
 			self.reset()
 		return episodes 
 
-	def generate_data(self,n_episodes,parallel=True,
+	def generate_data_old(self,n_episodes,parallel=True,
 		n_workers=8,savename=None,header=False):
 		""" Generate a pandas dataframe consisting of columns:
 		episode_index,state,action,reward,probability_of_action
@@ -407,6 +294,122 @@ class Environment():
 					pickle.dump(df,outfile)
 			print(f"Saved {savename}")
 		return df 
+
+	def generate_episode(self,return_index=False):
+		""" Generate an entire episode using the current policy
+
+		:param return_index: Whether to return the timestep 
+			as part of the episode
+		:type return_index: bool
+
+		"""
+		timestep = 0
+
+		states = []
+		actions = []
+		rewards = []
+		pis = []
+		while self.current_state != self.terminal_state:
+			if timestep == self.timeout:
+				break
+
+			o,a,r,pi = self.take_step()
+			states.append(o)
+			actions.append(a)
+			rewards.append(r)
+			pis.append(pi)
+			timestep+=1
+		episode = Episode(states=states,
+			actions=actions,rewards=rewards,pis=pis)
+		self.reset()
+		return episode
+
+	def generate_episodes_par(self,n_episodes=1,return_index=False):
+		""" Generate n_episodes episodes using the current policy.
+		This is the function to use for multiprocessing   
+
+		:param n_episodes: The number of episodes to return
+		:type n_episodes: int
+		
+		:param return_index: Whether to return the timestep 
+			as part of each episode
+		:type return_index: bool
+
+		"""
+		np.random.seed()
+		episodes = []
+		for _ in range(n_episodes):
+			timestep = 0
+			states = []
+			actions = []
+			rewards = []
+			pis = []
+			while self.current_state != self.terminal_state:
+				if timestep == self.timeout:
+					break
+
+				o,a,r,pi = self.take_step()
+				states.append(o)
+				actions.append(a)
+				rewards.append(r)
+				pis.append(pi)
+
+				timestep+=1
+			episode = Episode(states=states,
+				actions=actions,rewards=rewards,pis=pis)
+			episodes.append(episode)
+			self.reset()
+		return episodes 
+
+	def generate_data(self,n_episodes,parallel=True,
+		n_workers=8,savename=None):
+		""" Generate list of Episode objects
+		episode_index,state,action,reward,probability_of_action
+		for n_episodes episodes using the current policy.
+
+		:param n_episodes: The number of episodes to return
+		:type n_episodes: int
+		
+		:param parallel: Whether to use multiple workers 
+			to generate the data
+		:type parallel: bool
+
+		:param n_workers: The number of workers to use if
+			using multiprocessing
+		:type n_workers: int
+
+		:param savename: The name of the file in which to 
+			save the dataframe  
+		:type savename: str, defaults to None
+
+		"""
+		if parallel:
+			chunk_size = n_episodes//n_workers
+			episodes_per_worker = []
+			cumulative_episodes = 0
+			for i in range(n_workers):
+				if i != n_workers - 1:
+					episodes_per_worker.append(chunk_size)
+					cumulative_episodes+=chunk_size
+				else:
+					episodes_per_worker.append(n_episodes-cumulative_episodes)
+
+			helper = partial(self.generate_episodes_par,return_index=False)
+
+			with ProcessPoolExecutor(max_workers=n_workers,
+				mp_context=mp.get_context('fork')) as executor:
+				episodes = tqdm(executor.map(helper, episodes_per_worker),
+					total=n_workers)
+
+			data = [y for x in episodes for y in x]
+			
+		else:
+			data = [self.generate_episode(return_index=False) for ii in range(n_episodes)]
+
+		if savename:
+			save_pickle(savename,data)
+		return data
+
 
 	def calc_J(self,param_weights,
 		n_episodes,parallel=True,n_workers=8):
