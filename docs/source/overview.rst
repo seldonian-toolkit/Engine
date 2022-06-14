@@ -115,11 +115,20 @@ There are currently two supported optimization techniques for candidate selectio
 
 .. math::
 
-	{\mathcal{L(\mathbf{x,\lambda})}} = f(\mathbf{x}) + {\sum}_i^{n} {\lambda_i} g_i(\mathbf{x})
+	{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_i^{n} {\lambda_i} g_i(\mathbf{\theta})
 
-where :math:`\mathbf{x}` is a vector of features, :math:`f(\mathbf{x})` is the primary objective function, :math:`g_i(\mathbf{x})` are the upper bound functions for the :math:`n` constraints, and :math:`\mathbf{\lambda}` is a vector of Lagrange multipliers, such that :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
+where :math:`\mathbf{\theta}` is the vector of model weights, :math:`f(\mathbf{\theta})` is the primary objective function, :math:`g_i(\mathbf{\theta})` is the ith constraint function of :math:`n` constraints, and :math:`\mathbf{\lambda}` is a vector of Lagrange multipliers, such that :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
 
-In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations in directions orthogonal to the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which contains a momentum term, and found that it mitigates the oscillations in all problems we have tested so far. 
+The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L}}` are optima of the constrainted optimization problem:
+
+	Optimize :math:`f({\theta})` subject to:
+		
+		:math:`g_i({\theta}){\leq}0, {\quad} i{\in}\{0{\ldots}n\}`
+
+
+To find the saddle points we use gradient descent to obtain the global minimum over :math:`{\theta}` and simultaneous gradient *ascent* to obtain the global maximum over the multipliers, :math:`{\lambda}`.
+
+In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far. 
 
 Safety Test
 -----------

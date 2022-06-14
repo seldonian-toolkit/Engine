@@ -126,13 +126,21 @@
 <p><code class="code docutils literal notranslate"><span class="pre">run()</span></code> returns the <code class="code docutils literal notranslate"><span class="pre">candidate_solution</span></code>, the optimized model weights obtained during candidate selection, or <code class="code docutils literal notranslate"><span class="pre">'NSF'</span></code> if no solution was found.</p>
 <p>There are currently two supported optimization techniques for candidate selection:</p>
 <ol class="arabic simple">
-<li><p>Black box optimization with a barrier function. The barrier, which is shaped like the upper bound functions, is implemented when any of the constraints are violated. This forces the solutions toward the feasible set.</p></li>
+<li><p>Black box optimization with a barrier function. The barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set.</p></li>
 <li><p>Gradient descent on a <a class="reference external" href="https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).">Lagrangian</a>:</p></li>
 </ol>
 <div class="math notranslate nohighlight">
-\[{\mathcal{L(\mathbf{x,\lambda})}} = f(\mathbf{x}) + {\sum}_i^{n} {\lambda_i} g_i(\mathbf{x})\]</div>
-<p>where <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is a vector of features, <span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span> is the primary objective function, <span class="math notranslate nohighlight">\(g_i(\mathbf{x})\)</span> are the upper bound functions for the <span class="math notranslate nohighlight">\(n\)</span> constraints, and <span class="math notranslate nohighlight">\(\mathbf{\lambda}\)</span> is a vector of Lagrange multipliers, such that <span class="math notranslate nohighlight">\({\lambda_i}\)</span> is the Lagrange multiplier for the ith constraint.</p>
-<p>In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations in directions orthogonal to the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which contains a momentum term, and found that it mitigates the oscillations in our testing.</p>
+\[{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_i^{n} {\lambda_i} g_i(\mathbf{\theta})\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{\theta}\)</span> is the vector of model weights, <span class="math notranslate nohighlight">\(f(\mathbf{\theta})\)</span> is the primary objective function, <span class="math notranslate nohighlight">\(g_i(\mathbf{\theta})\)</span> is the ith constraint function of <span class="math notranslate nohighlight">\(n\)</span> constraints, and <span class="math notranslate nohighlight">\(\mathbf{\lambda}\)</span> is a vector of Lagrange multipliers, such that <span class="math notranslate nohighlight">\({\lambda_i}\)</span> is the Lagrange multiplier for the ith constraint.</p>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions">KKT</a> Theorem states that the saddle points of <span class="math notranslate nohighlight">\({\mathcal{L}}\)</span> are optima of the constrainted optimization problem:</p>
+<blockquote>
+<div><p>Optimize <span class="math notranslate nohighlight">\(f({\theta})\)</span> subject to:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(g_i({\theta}){\leq}0, {\quad} i{\in}\{0{\ldots}n\}\)</span></p>
+</div></blockquote>
+</div></blockquote>
+<p>To find the saddle points we use gradient descent to obtain the global minimum over <span class="math notranslate nohighlight">\({\theta}\)</span> and simultaneous gradient <em>ascent</em> to obtain the global maximum over the multipliers, <span class="math notranslate nohighlight">\({\lambda}\)</span>.</p>
+<p>In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations in directions orthogonal to the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which contains a momentum term, and found that it mitigates the oscillations in all problems we have tested so far.</p>
 </section>
 <section id="safety-test">
 <h2>Safety Test<a class="headerlink" href="#safety-test" title="Permalink to this headline">¶</a></h2>
