@@ -1,4 +1,4 @@
-seldonian.RL.environments.gridworld3x3.Environment
+﻿seldonian.RL.environments.gridworld3x3.Environment
 ==================================================
 
 .. currentmodule:: seldonian.RL.environments.gridworld3x3
@@ -26,7 +26,13 @@ seldonian.RL.environments.gridworld3x3.Environment
    ..
    ..    ~Environment.generate_episode
    ..
+   ..    ~Environment.generate_episode_flat
+   ..
+   ..    ~Environment.generate_episodes_flat_par
+   ..
    ..    ~Environment.generate_episodes_par
+   ..
+   ..    ~Environment.generate_flat_data
    ..
    ..    ~Environment.pi
    ..

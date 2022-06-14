@@ -159,6 +159,26 @@ as part of the episode</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_episode_flat">
+<span class="sig-name descname"><span class="pre">generate_episode_flat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_episode_flat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an entire episode as a flattened array 
+using the current policy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>return_index</strong> (<em>bool</em>) – Whether to return the timestep 
+as part of the episode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_episodes_flat_par">
+<span class="sig-name descname"><span class="pre">generate_episodes_flat_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_episodes_flat_par" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an entire episode as a flattened array 
+using the current policy</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_episodes_par">
 <span class="sig-name descname"><span class="pre">generate_episodes_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_episodes_par" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate n_episodes episodes using the current policy.
@@ -169,6 +189,30 @@ This is the function to use for multiprocessing</p>
 <li><p><strong>n_episodes</strong> (<em>int</em>) – The number of episodes to return</p></li>
 <li><p><strong>return_index</strong> (<em>bool</em>) – Whether to return the timestep 
 as part of each episode</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_flat_data">
+<span class="sig-name descname"><span class="pre">generate_flat_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_flat_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a pandas dataframe where each row is one episode
+like: 
+state_0,action_0,reward_0,probability_of_action_0,state_1,action_1,…
+for n_episodes episodes using the current policy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_episodes</strong> (<em>int</em>) – The number of episodes to return</p></li>
+<li><p><strong>parallel</strong> (<em>bool</em>) – Whether to use multiple workers 
+to generate the data</p></li>
+<li><p><strong>n_workers</strong> (<em>int</em>) – The number of workers to use if
+using multiprocessing</p></li>
+<li><p><strong>savename</strong> (<em>str</em><em>, </em><em>defaults to None</em>) – The name of the file in which to 
+save the dataframe</p></li>
+<li><p><strong>header</strong> (<em>bool</em><em>, </em><em>defaults to False</em>) – Whether to include the column names 
+in the saved dataframe</p></li>
 </ul>
 </dd>
 </dl>

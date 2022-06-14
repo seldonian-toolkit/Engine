@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>seldonian.dataset &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.dataset.Episode &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.dataset.DataSet" href="seldonian.dataset.DataSet.html" />
-    <link rel="prev" title="seldonian.candidate_selection.candidate_selection.CandidateSelection" href="seldonian.candidate_selection.candidate_selection.CandidateSelection.html" />
+    <link rel="next" title="seldonian.dataset.RLDataSet" href="seldonian.dataset.RLDataSet.html" />
+    <link rel="prev" title="seldonian.dataset.DataSetLoader" href="seldonian.dataset.DataSetLoader.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,29 +34,31 @@
 
           <div class="body" role="main">
             
-  <section id="module-seldonian.dataset">
-<span id="seldonian-dataset"></span><h1>seldonian.dataset<a class="headerlink" href="#module-seldonian.dataset" title="Permalink to this heading">¶</a></h1>
-<p>Build and load datasets for running Seldonian algorithms</p>
-<p class="rubric">Classes</p>
+  <section id="seldonian-dataset-episode">
+<h1>seldonian.dataset.Episode<a class="headerlink" href="#seldonian-dataset-episode" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="seldonian.dataset.Episode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Episode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.dataset.Episode.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object for holding RL episodes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.dataset.Episode.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return repr(self).</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataSet</span></code></a>(df, meta_information, regime, **kwargs)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.dataset.DataSetLoader.html#seldonian.dataset.DataSetLoader" title="seldonian.dataset.DataSetLoader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataSetLoader</span></code></a>(regime, **kwargs)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.dataset.Episode.html#seldonian.dataset.Episode" title="seldonian.dataset.Episode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Episode</span></code></a>(states, actions, rewards, pis)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.dataset.RLDataSet.html#seldonian.dataset.RLDataSet" title="seldonian.dataset.RLDataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RLDataSet</span></code></a>(df, episodes, meta_information, ...)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.dataset.SupervisedDataSet.html#seldonian.dataset.SupervisedDataSet" title="seldonian.dataset.SupervisedDataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SupervisedDataSet</span></code></a>(df, meta_information, ...)</p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
+</dd></dl>
+
 </section>
 
 
@@ -83,10 +85,10 @@
 <li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">seldonian.dataset</a><ul>
+<li class="toctree-l3 current"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSet.html">seldonian.dataset.DataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.Episode.html">seldonian.dataset.Episode</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.Episode</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.SupervisedDataSet.html">seldonian.dataset.SupervisedDataSet</a></li>
 </ul>
@@ -114,8 +116,10 @@
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../api.html">API</a><ul>
   <li><a href="seldonian.html">seldonian</a><ul>
-      <li>Previous: <a href="seldonian.candidate_selection.candidate_selection.CandidateSelection.html" title="previous chapter">seldonian.candidate_selection.candidate_selection.CandidateSelection</a></li>
-      <li>Next: <a href="seldonian.dataset.DataSet.html" title="next chapter">seldonian.dataset.DataSet</a></li>
+  <li><a href="seldonian.dataset.html">seldonian.dataset</a><ul>
+      <li>Previous: <a href="seldonian.dataset.DataSetLoader.html" title="previous chapter">seldonian.dataset.DataSetLoader</a></li>
+      <li>Next: <a href="seldonian.dataset.RLDataSet.html" title="next chapter">seldonian.dataset.RLDataSet</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -151,7 +155,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.dataset.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.dataset.Episode.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

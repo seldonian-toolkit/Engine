@@ -16,7 +16,7 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.dataset.RLDataSet" href="seldonian.dataset.RLDataSet.html" />
+    <link rel="next" title="seldonian.dataset.Episode" href="seldonian.dataset.Episode.html" />
     <link rel="prev" title="seldonian.dataset.DataSet" href="seldonian.dataset.DataSet.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -38,31 +38,16 @@
 <h1>seldonian.dataset.DataSetLoader<a class="headerlink" href="#seldonian-dataset-datasetloader" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DataSetLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_sensitive_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DataSetLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_column_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_sensitive_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object for loading datasets from disk into DataSet objects</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
-e.g. supervised or RL</p></li>
-<li><p><strong>column_names</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – list of all column names in the dataset.</p></li>
-<li><p><strong>sensitive_column_names</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – The names of the columns that 
-contain the <a class="reference internal" href="../glossary.html#term-Sensitive-attribute"><span class="xref std std-term">sensitive attributes</span></a>.</p></li>
-<li><p><strong>include_sensitive_columns</strong> – Whether to include 
-sensitive columns during training/prediction
-(supervised learning).</p></li>
-<li><p><strong>include_intercept_term</strong> – Whether to add 
-a column of ones as the first column in the dataset
-(supervised learning).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Variables<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>label_column</strong> (<em>str</em>) – The column with the target labels 
-(supervised learning)</p>
+<dd class="field-odd"><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
+e.g. supervised or RL</p>
 </dd>
 </dl>
 </dd></dl>
@@ -79,25 +64,35 @@ a column of ones as the first column in the dataset
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.from_csv">
-<span class="sig-name descname"><span class="pre">from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.from_csv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create DataSet object from csv file</p>
+<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset">
+<span class="sig-name descname"><span class="pre">load_RL_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create RLDataSet object from file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>csv_file</strong> (<em>str</em>) – The filename of the csv file 
-containing the data you want to load</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The file
+containing the data you want to load</p></li>
+<li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
+containing the metadata describing the data in filename</p></li>
+<li><p><strong>file_type</strong> (<em>str</em><em>, </em><em>defaults to 'csv'</em>) – the file extension of filename</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.from_pickle">
-<span class="sig-name descname"><span class="pre">from_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pkl_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.from_pickle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create DataSet object from pickle file</p>
+<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_supervised_dataset">
+<span class="sig-name descname"><span class="pre">load_supervised_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_sensitive_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_supervised_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create SupervisedDataSet object from file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pkl_file</strong> (<em>str</em>) – The filename of the pickle file 
-containing the data you want to load</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The file
+containing the data you want to load</p></li>
+<li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
+containing the metadata describing the data in filename</p></li>
+<li><p><strong>file_type</strong> (<em>str</em><em>, </em><em>defaults to 'csv'</em>) – the file extension of filename</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -133,6 +128,7 @@ containing the data you want to load</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSet.html">seldonian.dataset.DataSet</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.DataSetLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.Episode.html">seldonian.dataset.Episode</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.SupervisedDataSet.html">seldonian.dataset.SupervisedDataSet</a></li>
 </ul>
@@ -162,7 +158,7 @@ containing the data you want to load</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.dataset.html">seldonian.dataset</a><ul>
       <li>Previous: <a href="seldonian.dataset.DataSet.html" title="previous chapter">seldonian.dataset.DataSet</a></li>
-      <li>Next: <a href="seldonian.dataset.RLDataSet.html" title="next chapter">seldonian.dataset.RLDataSet</a></li>
+      <li>Next: <a href="seldonian.dataset.Episode.html" title="next chapter">seldonian.dataset.Episode</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

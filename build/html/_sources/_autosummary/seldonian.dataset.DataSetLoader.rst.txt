@@ -20,9 +20,9 @@ seldonian.dataset.DataSetLoader
    .. 
    ..    ~DataSetLoader.__init__
    ..
-   ..    ~DataSetLoader.from_csv
+   ..    ~DataSetLoader.load_RL_dataset
    ..
-   ..    ~DataSetLoader.from_pickle
+   ..    ~DataSetLoader.load_supervised_dataset
    ..
    
    
