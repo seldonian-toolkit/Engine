@@ -920,7 +920,9 @@ def test_single_conditional_columns_propagated():
 	constraint_str = 'abs(Mean_Error|[M]) - 0.1'
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised',
-		sub_regime='regression',columns=columns)
+		sub_regime='regression',
+		columns=dataset.df.columns)
+	
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
 

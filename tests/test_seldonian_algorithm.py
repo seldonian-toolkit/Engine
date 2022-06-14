@@ -60,9 +60,9 @@ def test_gpa_data_regression(gpa_regression_dataset):
     passed_safety,candidate_solution = seldonian_algorithm(spec)
     assert passed_safety == True
     array_to_compare = np.array(
-        [4.17882259e-01, -1.59868384e-04, 6.33766780e-04, 2.64271363e-04,
-        3.08303718e-04, 1.01170148e-04, 1.86987938e-03, 1.29098727e-03,
-        -3.82405534e-04, 2.29938169e-04])
+        [ 4.17214537e-01, -1.59553688e-04,  6.32496667e-04,  2.61407098e-04,
+	3.09777789e-04,  1.02968565e-04,  1.86971042e-03,  1.29303914e-03,
+	-3.80396712e-04,  2.27989618e-04])
 
     assert np.allclose(candidate_solution,array_to_compare)
 
@@ -112,9 +112,9 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
     passed_safety,candidate_solution = seldonian_algorithm(spec)
     assert passed_safety == True
     array_to_compare = np.array(
-        [ 4.18121191e-01,  7.65218366e-05,  8.68827231e-04,  4.96795941e-04,
-    5.40624536e-04,  3.35472715e-04,  2.10383120e-03,  1.52231771e-03,
-    -1.46634476e-04,  4.67094023e-04]
+        [ 4.17453469e-01,  7.68395649e-05,  8.67557891e-04,  4.93930585e-04,
+  5.42100872e-04,  3.37273577e-04,  2.10366433e-03,  1.52437236e-03,
+ -1.44621631e-04,  4.65147476e-04]
     )
     assert np.allclose(candidate_solution,array_to_compare)
 
@@ -178,10 +178,9 @@ def test_black_box_optimizers(gpa_regression_dataset):
 
     frac_data_in_safety=0.6
 
-    array_to_compare = np.array([
-        4.17882264e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
-        3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098726e-03,
-        -3.82405534e-04,  2.29938169e-04])
+    array_to_compare = np.array([4.17214561e-01, -1.59553688e-04,  6.32496667e-04,  2.61407098e-04,
+  3.09777789e-04,  1.02968565e-04,  1.86971038e-03,  1.29303914e-03,
+ -3.80396712e-04,  2.27989618e-04])
 
     for optimizer in ['Powell','CG','Nelder-Mead','BFGS','CMA-ES']:
         spec = SupervisedSpec(
@@ -293,9 +292,9 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
     passed_safety,candidate_solution = seldonian_algorithm(spec)
     assert passed_safety == True
     array_to_compare = np.array(
-        [4.17882259e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
-        3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098727e-03,
-        -3.82405534e-04,  2.29938169e-04])
+        [ 4.17214537e-01, -1.59553688e-04,  6.32496667e-04,  2.61407098e-04,
+  3.09777789e-04,  1.02968565e-04,  1.86971042e-03,  1.29303914e-03,
+ -3.80396712e-04,  2.27989618e-04])
     assert np.allclose(candidate_solution,array_to_compare)
 
 # def test_RL_gridworld():
@@ -437,10 +436,12 @@ def test_RL_builtin_or_custom_gradient_not_supported():
     primary_objective = model_instance.default_objective
     # Load dataset from file
     loader = DataSetLoader(
-        column_names=columns,
         regime=regime)
 
-    dataset = loader.from_csv(data_pth)
+    dataset = loader.load_RL_dataset(
+        filename=data_pth,
+        metadata_filename=metadata_pth,
+        file_type='csv')
     
     constraint_strs = ['-0.25 - J_pi_new'] 
     
