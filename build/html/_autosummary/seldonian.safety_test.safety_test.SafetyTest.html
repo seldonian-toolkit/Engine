@@ -86,13 +86,19 @@ if normalize returns==True. Only relevant for the RL regime</p></li>
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ttest'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loop over parse trees, calculate the bounds on leaf nodes
 and propagate to the root node. The safety test passes if
-the upper bounds of all parse tree root nodes are &gt;=0.</p>
+the upper bounds of all parse tree root nodes are less than or equal to 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>candidate_solution</strong> (<em>numpy ndarray</em>) – The solution found by candidate selection</p></li>
 <li><p><strong>bound_method</strong> (<em>str</em><em>, </em><em>defaults to 'ttest'</em>) – The statistical method for calculating the confidence bounds</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>passed, whether the candidate solution passed the safety test</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
