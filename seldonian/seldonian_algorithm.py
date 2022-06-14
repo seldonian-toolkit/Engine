@@ -179,7 +179,7 @@ def seldonian_algorithm(spec):
 	candidate_solution = cs.run(**spec.optimization_hyperparams,
 		use_builtin_primary_gradient_fn=spec.use_builtin_primary_gradient_fn,
 		custom_primary_gradient_fn=spec.custom_primary_gradient_fn)
-	
+	print("Candidate solution: ", candidate_solution)
 	NSF=False
 	if type(candidate_solution) == str and candidate_solution == 'NSF':
 		NSF = True

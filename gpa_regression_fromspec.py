@@ -47,9 +47,9 @@ if __name__ == '__main__':
 
     dataset = loader.from_csv(data_pth)
     
-    constraint_strs = ['Mean_Squared_Error - 2.0'] 
+    constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error'] 
     
-    deltas = [0.05]
+    deltas = [0.05,0.05]
 
     # For each constraint, make a parse tree
     parse_trees = []
@@ -78,8 +78,8 @@ if __name__ == '__main__':
         model_class=model_class,
         frac_data_in_safety=frac_data_in_safety,
         primary_objective=primary_objective,
-        use_builtin_primary_gradient_fn=False,
-        custom_primary_gradient_fn=gradient_MSE,
+        use_builtin_primary_gradient_fn=True,
+        # custom_primary_gradient_fn=gradient_MSE,
         parse_trees=parse_trees,
         initial_solution_fn=model_class().fit,
         bound_method='ttest',

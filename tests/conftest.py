@@ -77,11 +77,9 @@ def generate_data():
     
     return generate_data_function
 
-
 @pytest.fixture
 def gpa_regression_dataset():
-    def generate_dataset(constraint_strs,deltas,rseed=0,):
-        np.random.seed(rseed) 
+    def generate_dataset(constraint_strs,deltas):
         data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
         metadata_pth = 'static/datasets/GPA/metadata_regression.json'
 

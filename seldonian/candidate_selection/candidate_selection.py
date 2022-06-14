@@ -120,9 +120,9 @@ class CandidateSelection(object):
 			    beta_rmsprop=kwargs['beta_rmsprop'],
 			    num_iters=kwargs['num_iters'],
 				theta_init=self.initial_solution,
+				lambda_init=0.5*np.ones(len(self.parse_trees)),
 				store_values=self.write_logfile,
 				verbose=kwargs['verbose'],
-				parse_trees=self.parse_trees,
 			)
 
 			# Option to use builtin primary gradient (could be faster than autograd)
@@ -198,10 +198,11 @@ class CandidateSelection(object):
 
 		elif self.optimization_technique == 'barrier_function':
 			opts = {}
-			if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS']:
-				if 'maxiter' in kwargs:
-					opts['maxiter'] = kwargs['maxiter']
+			if 'maxiter' in kwargs:
+				opts['maxiter'] = kwargs['maxiter']
 
+			if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS']:
+				
 				from scipy.optimize import minimize 
 				res = minimize(
 					self.objective_with_barrier,
@@ -352,25 +353,28 @@ class CandidateSelection(object):
 		:param theta: model weights
 		:type theta: numpy.ndarray
 		"""
-		pt = self.parse_trees[0]
-		pt.reset_base_node_dict()
+		upper_bounds = []
+		for pt in self.parse_trees:
+			pt.reset_base_node_dict()
 
-		bounds_kwargs = dict(
-			theta=theta,
-			dataset=self.candidate_dataset,
-			model=self.model,
-			bound_method='ttest',
-			branch='candidate_selection',
-			n_safety=self.n_safety,
-			regime=self.regime
-			)
+			bounds_kwargs = dict(
+				theta=theta,
+				dataset=self.candidate_dataset,
+				model=self.model,
+				bound_method='ttest',
+				branch='candidate_selection',
+				n_safety=self.n_safety,
+				regime=self.regime
+				)
 
-		if self.regime == 'RL':
-			bounds_kwargs['gamma'] = self.gamma
-			bounds_kwargs['normalize_returns'] = self.normalize_returns
-			if self.normalize_returns:
-				bounds_kwargs['min_return'] = self.min_return
-				bounds_kwargs['max_return'] = self.max_return
-		pt.propagate_bounds(**bounds_kwargs)
+			if self.regime == 'RL':
+				bounds_kwargs['gamma'] = self.gamma
+				bounds_kwargs['normalize_returns'] = self.normalize_returns
+				if self.normalize_returns:
+					bounds_kwargs['min_return'] = self.min_return
+					bounds_kwargs['max_return'] = self.max_return
+			pt.propagate_bounds(**bounds_kwargs)
 
-		return pt.root.upper
+			upper_bounds.append(pt.root.upper)
+
+		return np.array(upper_bounds,dtype='float')

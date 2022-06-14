@@ -1,9 +1,9 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
-from seldonian.parse_tree import ParseTree
+from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import (DataSetLoader,
  	SupervisedDataSet)
-from seldonian.candidate_selection import CandidateSelection
+from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.utils.stats_utils import generate_data
 from sklearn.model_selection import train_test_split
 
@@ -51,11 +51,20 @@ if __name__ == "__main__":
 	constraint_str1 = '2.0 - Mean_Squared_Error'
 	delta = 0.05
 	parse_trees = []
-	pt = ParseTree(delta,regime='supervised',
+	pt1 = ParseTree(delta,regime='supervised',
 		sub_regime='regression')
-	pt.create_from_ast(constraint_str1)
-	pt.assign_deltas(weight_method='equal')
-	parse_trees.append(pt)
+	pt1.create_from_ast(constraint_str1)
+	pt1.assign_deltas(weight_method='equal')
+	parse_trees.append(pt1)
+
+	constraint_str2 = 'Mean_Squared_Error-5.0'
+	delta = 0.05
+	parse_trees = []
+	pt2 = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
+	pt2.create_from_ast(constraint_str2)
+	pt2.assign_deltas(weight_method='equal')
+	parse_trees.append(pt2)
 
 	minimizer_options = {}
 	# initial_solution = model_instance.fit(
@@ -70,7 +79,7 @@ if __name__ == "__main__":
 		parse_trees=parse_trees,
 		primary_objective=model_instance.sample_Mean_Squared_Error,
 		optimization_technique='gradient_descent',
-		optimizer='simple',
+		optimizer='adam',
 		initial_solution=initial_solution,
 		minimizer_options=minimizer_options)
 	
