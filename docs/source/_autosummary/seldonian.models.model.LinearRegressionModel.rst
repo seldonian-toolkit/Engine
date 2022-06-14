@@ -26,6 +26,8 @@ seldonian.models.model.LinearRegressionModel
    ..
    ..    ~LinearRegressionModel.fit
    ..
+   ..    ~LinearRegressionModel.gradient_sample_Mean_Squared_Error
+   ..
    ..    ~LinearRegressionModel.predict
    ..
    ..    ~LinearRegressionModel.sample_Mean_Error

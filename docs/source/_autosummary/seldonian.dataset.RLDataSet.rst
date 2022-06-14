@@ -1,9 +1,9 @@
-seldonian.safety\_test.SafetyTest
-=================================
+seldonian.dataset.RLDataSet
+===========================
 
-.. currentmodule:: seldonian.safety_test
+.. currentmodule:: seldonian.dataset
 
-.. autoclass:: SafetyTest
+.. autoclass:: RLDataSet
    :members:       
    :private-members:                                                 
    :show-inheritance:                           
@@ -18,9 +18,7 @@ seldonian.safety\_test.SafetyTest
 
    .. autosummary::
    .. 
-   ..    ~SafetyTest.__init__
-   ..
-   ..    ~SafetyTest.run
+   ..    ~RLDataSet.__init__
    ..
    
    

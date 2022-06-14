@@ -18,20 +18,6 @@ seldonian.models.model.LogisticRegressionModel
 
    .. autosummary::
    .. 
-   ..    ~LogisticRegressionModel.Vector_False_Negative_Rate
-   ..
-   ..    ~LogisticRegressionModel.Vector_False_Positive_Rate
-   ..
-   ..    ~LogisticRegressionModel.Vector_Negative_Rate
-   ..
-   ..    ~LogisticRegressionModel.Vector_Positive_Rate
-   ..
-   ..    ~LogisticRegressionModel.Vector_True_Negative_Rate
-   ..
-   ..    ~LogisticRegressionModel.Vector_True_Positive_Rate
-   ..
-   ..    ~LogisticRegressionModel.Vector_logistic_loss
-   ..
    ..    ~LogisticRegressionModel.__init__
    ..
    ..    ~LogisticRegressionModel.accuracy
@@ -59,6 +45,20 @@ seldonian.models.model.LogisticRegressionModel
    ..    ~LogisticRegressionModel.sample_logistic_loss
    ..
    ..    ~LogisticRegressionModel.sample_perceptron_loss
+   ..
+   ..    ~LogisticRegressionModel.vector_False_Negative_Rate
+   ..
+   ..    ~LogisticRegressionModel.vector_False_Positive_Rate
+   ..
+   ..    ~LogisticRegressionModel.vector_Negative_Rate
+   ..
+   ..    ~LogisticRegressionModel.vector_Positive_Rate
+   ..
+   ..    ~LogisticRegressionModel.vector_True_Negative_Rate
+   ..
+   ..    ~LogisticRegressionModel.vector_True_Positive_Rate
+   ..
+   ..    ~LogisticRegressionModel.vector_logistic_loss
    ..
    
    

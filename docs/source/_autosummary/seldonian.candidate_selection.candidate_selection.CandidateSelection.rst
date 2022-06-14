@@ -1,7 +1,7 @@
-seldonian.candidate\_selection.CandidateSelection
-=================================================
+seldonian.candidate\_selection.candidate\_selection.CandidateSelection
+======================================================================
 
-.. currentmodule:: seldonian.candidate_selection
+.. currentmodule:: seldonian.candidate_selection.candidate_selection
 
 .. autoclass:: CandidateSelection
    :members:       

@@ -41,7 +41,8 @@ def test_linear_regression(generate_data):
     constraint_str1 = 'Mean_Squared_Error - 2.0'
     delta = 0.05 
     parse_trees = []
-    pt = ParseTree(delta)
+    pt = ParseTree(delta,regime='supervised',
+        sub_regime='regression')
     pt.create_from_ast(constraint_str1)
     pt.assign_deltas(weight_method='equal')
     parse_trees.append(pt)

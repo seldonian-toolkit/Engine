@@ -4,7 +4,7 @@ Usage:
 
     .. code-block:: console
 
-        $ python interface.py data_pth metadata_pth
+        $ python cli_supervised.py data_pth metadata_pth
         [--include_sensitive_columns] 
         [--include_intercept_term]
         [--save_dir]
@@ -28,15 +28,18 @@ def run_interface(
 	""" Runs the command line interface 
 
 	:param data_pth: Path to main dataset file
+	:type data_pth: str
 
 	:param metadata_pth: Path to metadata JSON file
+	:type metadadata_pth: str
 
 	:param include_sensitive_columns: Whether to include 
 		sensitive columns during training/prediction
+	:type include_sensitive_columns: bool, defaults to False
 
 	:param include_intercept_term: Whether to add 
 		a column of ones as the first column in the dataset.
-
+	:type include_intercept_term: bool, defaults to False
 	"""
 
 	# Load metadata
@@ -88,7 +91,8 @@ def run_interface(
 
 		delta = deltas[ii]
 		# Create parse tree object
-		parse_tree = ParseTree(delta=delta)
+		parse_tree = ParseTree(delta=delta,regime='supervised',
+		sub_regime='classification')
 
 		# Fill out tree
 		parse_tree.create_from_ast(constraint_str)

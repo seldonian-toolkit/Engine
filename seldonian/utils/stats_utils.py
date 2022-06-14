@@ -19,8 +19,9 @@ def tinv(p, nu):
     Returns the inverse of Student's t CDF 
     using the degrees of freedom in nu for the corresponding
     probabilities in p. 
+    
     Python implementation of Matlab's tinv function:
-     https://www.mathworks.com/help/stats/tinv.html
+    https://www.mathworks.com/help/stats/tinv.html
 
     :param p: Probability
     :type p: float
