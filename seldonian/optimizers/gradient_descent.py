@@ -97,12 +97,16 @@ def gradient_descent_adam(
             best_feasible_g_vec = np.copy(g_vec)
             best_index = np.copy(i)
             candidate_solution = np.copy(theta)
+            # print(primary_val,g_vec,theta)
+            print("best so far")
+            print(candidate_solution)
+            # print()
 
         if store_values:
             theta_vals.append(theta.tolist())
-            lamb_vals.append(lamb)
-            f_vals.append(primary_val)
-            g_vals.append(g_vec)
+            lamb_vals.append(np.copy(lamb))
+            f_vals.append(np.copy(primary_val))
+            g_vals.append(np.copy(g_vec))
             
             L_val = primary_val + sum(lamb*g_vec) 
             L_vals.append(L_val)
@@ -112,7 +116,7 @@ def gradient_descent_adam(
         grad_primary_theta_val = grad_primary_theta(theta)
 
         gu_theta_vec = grad_upper_bound_theta(theta)
-        print(primary_val,g_vec)
+        # print(primary_val,g_vec,theta)
         
         grad_secondary_theta_val_vec = lamb*gu_theta_vec # elementwise mult
         # print(grad_secondary_theta_val_vec)
@@ -136,7 +140,8 @@ def gradient_descent_adam(
 
         # update weights
         theta -= alpha_theta*velocity_theta/(np.sqrt(s_theta)+rms_offset) # gradient descent
-
+        # print(lamb,alpha_lamb,gradient_lamb_vec)
+        # input("next")
         lamb += alpha_lamb*gradient_lamb_vec # element wise update
         
         # If any values in lambda vector dip below 0, force them to be zero
