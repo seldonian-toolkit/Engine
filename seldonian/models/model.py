@@ -873,7 +873,6 @@ class RLModel(SeldonianModel):
 		:return: The evaluated statistic over the whole sample
 		:rtype: float
 		"""
-		print()
 		if statistic_name == 'J_pi_new':
 			return model.sample_IS_estimate(model,
 				theta,data_dict)
@@ -968,11 +967,8 @@ class TabularSoftmaxModel(RLModel):
 		:type environment: Environment object from RL 
 			environment module
 
-		:ivar theta: The model weights
-		:vartype theta: numpy ndarray
 		"""
 		self.environment = environment
-		self.theta = None
 
 	def sample_IS_estimate(self,model,theta,data_dict):
 		""" Calculate the unweighted importance sampling estimate
@@ -990,14 +986,18 @@ class TabularSoftmaxModel(RLModel):
 		:return: The IS estimate calculated over all episodes
 		:rtype: float
 		"""
-
 		episodes = data_dict['episodes']
 		IS_estimate = 0
 		for ii,ep in enumerate(episodes):
 			pi_news = model.apply_policy(theta,ep.states,ep.actions)
-			pi_ratio_prod = np.prod(pi_news/ep.pis)
+			# print(pi_news,ep.pis)
+			pi_ratios = pi_news/ep.pis
+			# print(pi_ratios)
+			pi_ratio_prod = np.prod(pi_ratios)
+			# print(pi_ratio_prod)
 			weighted_return = weighted_sum_gamma(ep.rewards,
 				gamma=self.environment.gamma)
+			# print(weighted_return)
 			IS_estimate += pi_ratio_prod*weighted_return
 
 		IS_estimate/=len(episodes)
@@ -1020,37 +1020,18 @@ class TabularSoftmaxModel(RLModel):
 		:return: A vector of IS estimates calculated for each episode
 		:rtype: numpy ndarray(float)
 		"""
-
 		episodes = data_dict['episodes']
-		weighted_reward_sums_by_episode = data_dict['reward_sums_by_episode']
+		# weighted_reward_sums_by_episode = data_dict['reward_sums_by_episode']
 		result = []
 		for ii,ep in enumerate(episodes):
 			pi_news = model.apply_policy(theta,ep.states,ep.actions)
 			pi_ratio_prod = np.prod(pi_news/ep.pis)
-			result.append(pi_ratio_prod*weighted_reward_sums_by_episode[ii])
+			weighted_return = weighted_sum_gamma(ep.rewards,
+				gamma=self.environment.gamma)
+			# result.append(pi_ratio_prod*weighted_reward_sums_by_episode[ii])
+			result.append(pi_ratio_prod*weighted_return)
 		
 		return np.array(result)
-
-	@lru_cache
-	def _denom(self,state):
-		""" Helper function for apply_policy()
-		
-		:param state: A state in the environment
-		:type state: int
-		"""
-		return np.sum(np.exp(self.theta[state*4+self.environment.actions]))
-
-	@lru_cache
-	def _arg(self,state,action):
-		""" Helper function for apply_policy()
-		
-		:param state: A state in the environment
-		:type state: int
-
-		:param action: A possible action at the given state
-		:type action: int
-		"""
-		return self.theta[state*4+action]
 
 	def apply_policy(self,theta,states,actions):
 		""" Apply the softmax policy given a state and action.

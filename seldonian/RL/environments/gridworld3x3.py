@@ -156,145 +156,6 @@ class Environment():
 		self.current_state = self.initial_state
 		return
 		
-	def generate_episode_old(self,return_index=False):
-		""" Generate an entire episode using the current policy
-
-		:param return_index: Whether to return the timestep 
-			as part of the episode
-		:type return_index: bool
-
-		"""
-		episode = []
-		timestep = 0
-		while self.current_state != self.terminal_state:
-			if timestep == self.timeout:
-				break
-			
-			entry = self.take_step()
-			if return_index:
-				entry = np.hstack([timestep,entry])
-				episode.append([entry])
-			else:
-				episode.append(entry)
-			timestep+=1
-
-		self.reset()
-		return episode
-
-	def generate_episodes_par_old(self,n_episodes=1,return_index=False):
-		""" Generate n_episodes episodes using the current policy.
-		This is the function to use for multiprocessing   
-
-		:param n_episodes: The number of episodes to return
-		:type n_episodes: int
-		
-		:param return_index: Whether to return the timestep 
-			as part of each episode
-		:type return_index: bool
-
-		"""
-		np.random.seed()
-		episodes = []
-		for _ in range(n_episodes):
-			episode = []
-			timestep = 0
-			while self.current_state != self.terminal_state:
-				if timestep == self.timeout:
-					break
-
-				entry = self.take_step()
-				if return_index:
-					entry = np.hstack([timestep,entry])
-					episode.append([entry])
-				else:
-					episode.append(entry)
-				timestep+=1
-			episodes.append(episode)
-			self.reset()
-		return episodes 
-
-	def generate_data_old(self,n_episodes,parallel=True,
-		n_workers=8,savename=None,header=False):
-		""" Generate a pandas dataframe consisting of columns:
-		episode_index,state,action,reward,probability_of_action
-		for n_episodes episodes using the current policy.
-
-		:param n_episodes: The number of episodes to return
-		:type n_episodes: int
-		
-		:param parallel: Whether to use multiple workers 
-			to generate the data
-		:type parallel: bool
-
-		:param n_workers: The number of workers to use if
-			using multiprocessing
-		:type n_workers: int
-
-		:param savename: The name of the file in which to 
-			save the dataframe  
-		:type savename: str, defaults to None
-
-		:param header: Whether to include the column names 
-			in the saved dataframe
-		:type header: bool, defaults to False
-		"""
-		if parallel:
-			chunk_size = n_episodes//n_workers
-			episodes_per_worker = []
-			cumulative_episodes = 0
-			for i in range(n_workers):
-				if i != n_workers - 1:
-					episodes_per_worker.append(chunk_size)
-					cumulative_episodes+=chunk_size
-				else:
-					episodes_per_worker.append(n_episodes-cumulative_episodes)
-
-			helper = partial(self.generate_episodes_par,return_index=False)
-
-			with ProcessPoolExecutor(max_workers=n_workers,
-				mp_context=mp.get_context('fork')) as executor:
-				episodes = tqdm(executor.map(helper, episodes_per_worker),
-					total=n_workers)
-
-			data = []
-			episode_index = 0
-			for list_of_episodes in episodes:
-				try:
-					for episode in list_of_episodes:
-						for entry in episode:
-							data.append(np.hstack([episode_index,entry]))
-						episode_index+=1
-				except Exception as e:
-					print(e)
-		else:
-			episodes = [self.generate_episode(return_index=False) for ii in range(n_episodes)]
-			data = []
-			for episode_i,episode in enumerate(episodes):
-				for step in episode:
-					data.append([episode_i]+step)
-
-
-		# df = pd.DataFrame(data,columns=['episode_index','timestep','O','A','R','pi'])
-		# print(data)
-		df = pd.DataFrame(data,columns=['episode_index','O','A','R','pi'])
-		df = df.astype({
-			"episode_index": int, 
-			# "timestep": int,
-			"O": int,
-			"A": int,
-			"R": float,
-			"pi": float
-			})
-
-		if savename:
-			if savename.endswith('.csv'):
-				df.to_csv(savename,index=False,header=header)
-			elif savename.endswith('.pkl'):
-				with open(savename,'wb') as outfile:
-					pickle.dump(df,outfile)
-			print(f"Saved {savename}")
-		return df 
-
 	def generate_episode(self,return_index=False):
 		""" Generate an entire episode using the current policy
 
@@ -410,7 +271,6 @@ class Environment():
 			save_pickle(savename,data)
 		return data
 
-
 	def calc_J(self,param_weights,
 		n_episodes,parallel=True,n_workers=8):
 		""" Calculate the expected return of the sum 
@@ -438,14 +298,12 @@ class Environment():
 		:rtype: float
 		"""
 		self.param_weights = param_weights
-
-		df = self.generate_data(
+		
+		data = self.generate_data(
 			n_episodes=n_episodes,
 			parallel=parallel,
 			n_workers=n_workers)
 
-		ws_helper = partial(weighted_sum_gamma,gamma=self.gamma)
-		discounted_sum_rewards_episodes=df.groupby(
-			'episode_index')['R'].apply(ws_helper)
-
-		return np.mean(discounted_sum_rewards_episodes)
+		return np.mean(
+			[weighted_sum_gamma(ep.rewards,gamma=self.gamma) for ep in data])
+			

@@ -1,5 +1,6 @@
 """ Build and load datasets for running Seldonian algorithms """
 
+import autograd.numpy as np
 import pandas as pd
 import pickle
 from seldonian.utils.io_utils import load_json,load_pickle
@@ -184,10 +185,10 @@ class Episode(object):
 	def __init__(self,states,actions,rewards,pis):
 		""" Object for holding RL episodes
 		"""
-		self.states = states
-		self.actions = actions
-		self.rewards = rewards
-		self.pis = pis
+		self.states = np.array(states)
+		self.actions = np.array(actions)
+		self.rewards = np.array(rewards)
+		self.pis = np.array(pis)
 
 		
 
