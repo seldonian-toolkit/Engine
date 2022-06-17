@@ -1,9 +1,9 @@
-seldonian.dataset.DataSetLoader
-===============================
+seldonian.dataset.Episode
+=========================
 
 .. currentmodule:: seldonian.dataset
 
-.. autoclass:: DataSetLoader
+.. autoclass:: Episode
    :members:       
    :private-members:                                                 
    :show-inheritance:                           
@@ -18,11 +18,7 @@ seldonian.dataset.DataSetLoader
 
    .. autosummary::
    .. 
-   ..    ~DataSetLoader.__init__
-   ..
-   ..    ~DataSetLoader.load_RL_dataset
-   ..
-   ..    ~DataSetLoader.load_supervised_dataset
+   ..    ~Episode.__init__
    ..
    
    

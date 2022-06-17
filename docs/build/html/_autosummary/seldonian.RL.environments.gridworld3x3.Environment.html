@@ -128,8 +128,8 @@ of discounted rewards</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_data">
-<span class="sig-name descname"><span class="pre">generate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a pandas dataframe consisting of columns:
+<span class="sig-name descname"><span class="pre">generate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate list of Episode objects
 episode_index,state,action,reward,probability_of_action
 for n_episodes episodes using the current policy.</p>
 <dl class="field-list simple">
@@ -142,8 +142,6 @@ to generate the data</p></li>
 using multiprocessing</p></li>
 <li><p><strong>savename</strong> (<em>str</em><em>, </em><em>defaults to None</em>) – The name of the file in which to 
 save the dataframe</p></li>
-<li><p><strong>header</strong> (<em>bool</em><em>, </em><em>defaults to False</em>) – Whether to include the column names 
-in the saved dataframe</p></li>
 </ul>
 </dd>
 </dl>

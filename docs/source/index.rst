@@ -14,5 +14,4 @@ Table of contents
    overview
    getting_started
    api
-   usage
    glossary

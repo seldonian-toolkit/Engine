@@ -76,7 +76,16 @@ class Spec(object):
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
-		optimization_hyperparams={},
+		optimization_hyperparams={
+            'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.005,
+            'alpha_lamb'    : 0.005,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 200,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        },
 		regularization_hyperparams={}
 		):
 		self.dataset = dataset
@@ -181,7 +190,16 @@ class SupervisedSpec(Spec):
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
-		optimization_hyperparams={},
+		optimization_hyperparams={
+            'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.005,
+            'alpha_lamb'    : 0.005,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 200,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        },
 		regularization_hyperparams={},
 		):
 		super().__init__(dataset,model_class,
@@ -281,7 +299,16 @@ class RLSpec(Spec):
 		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
-		optimization_hyperparams={},
+		optimization_hyperparams={
+            'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.005,
+            'alpha_lamb'    : 0.005,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 200,
+            'hyper_search'  : None,
+            'verbose'       : True,
+        },
 		regularization_hyperparams={},
 		normalize_returns=False
 		):

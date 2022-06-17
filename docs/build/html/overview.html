@@ -140,7 +140,7 @@
 </div></blockquote>
 </div></blockquote>
 <p>To find the saddle points we use gradient descent to obtain the global minimum over <span class="math notranslate nohighlight">\({\theta}\)</span> and simultaneous gradient <em>ascent</em> to obtain the global maximum over the multipliers, <span class="math notranslate nohighlight">\({\lambda}\)</span>.</p>
-<p>In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations in directions orthogonal to the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which contains a momentum term, and found that it mitigates the oscillations in all problems we have tested so far.</p>
+<p>In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far.</p>
 </section>
 <section id="safety-test">
 <h2>Safety Test<a class="headerlink" href="#safety-test" title="Permalink to this headline">¶</a></h2>

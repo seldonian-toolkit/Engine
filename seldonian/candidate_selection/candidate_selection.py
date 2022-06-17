@@ -195,7 +195,7 @@ class CandidateSelection(object):
 				candidate_solution = res['candidate_solution']
 			else:
 				candidate_solution = 'NSF'
-
+				
 		elif self.optimization_technique == 'barrier_function':
 			opts = {}
 			if 'maxiter' in kwargs:
