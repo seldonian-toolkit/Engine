@@ -57,7 +57,6 @@ measure_functions_dict = {
 			[
 			'PR',
 			'NR',
-			'ER',
 			'FPR',
 			'TPR',
 			'FNR',
@@ -82,11 +81,11 @@ op_mapper = {
 	ast.Add: 'add',
 	ast.Mult:'mult',
 	ast.Div: 'div',
-	ast.Mod: 'modulo',
 	ast.Pow: 'pow'
 }
 
 not_supported_op_mapper = {
+	ast.Mod: 'mod',
 	ast.BitXor: '^',
 	ast.LShift: '<<',
 	ast.RShift: '>>',
