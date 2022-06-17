@@ -12,4 +12,4 @@ def define_hyperparameter_and_setting_dict():
 if __name__ == "__main__":
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
     returns = run_all_trials(hyperparameter_and_setting_dict)
-    print(returns) #asdf
+    print(returns)
