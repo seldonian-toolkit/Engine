@@ -180,7 +180,7 @@ class RLDataSet(DataSet):
 		""" Object for holding RL dataframe and dataset metadata
 	
 		:param episodes: List of episodes
-		:type episodes: list(:py:class:`.Episode)
+		:type episodes: list(:py:class:`.Episode`)
 
 		:param meta_information: List of attribute names in each Episode,
 			e.g. ['o','a','r','pi']

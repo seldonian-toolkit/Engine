@@ -47,7 +47,7 @@
 <section id="simple-example">
 <span id="id2"></span><h2>Simple example<a class="headerlink" href="#simple-example" title="Permalink to this headline">¶</a></h2>
 <p>Consider a simple supervised regression problem with two continous random variables X and Y. Our goal is to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, <span class="math notranslate nohighlight">\({\theta}\)</span>, which in this case are just the intercept and slope of the line.</p>
-<p>Now let’s suppose we want to add the following constraint into the problem: the MSE is less than 2.0, and we want to enforce this with a probability of 0.95. This is now a Seldonian machine learning problem, and it is all of the high level information we need to solve the problem using the engine!</p>
+<p>Now let’s suppose we want to add the following constraint into the problem: the MSE is less than 2.0, and we want to enforce this with a probability of 0.95. This is now a Seldonian machine learning problem. We now have all of the high level information we need to solve the problem using the engine!</p>
 <p>To code this up as a real example using the engine, we need to:</p>
 <ul class="simple">
 <li><p>Define the data - we’ll need to generate some synthetic data</p></li>
@@ -56,7 +56,9 @@
 <li><p>Define the behavioral constraint (constraint string and confidence level)</p></li>
 <li><p>Make the parse tree from this behavioral constraint</p></li>
 <li><p>Define the underlying machine learning model and primary objective</p></li>
+<li><p>Define an initial solution function which takes the features and labels as inputs and outputs an initial solution theta vector - in this case we will use the <code class="code docutils literal notranslate"><span class="pre">fit()</span></code> method of the model object.</p></li>
 <li><p>Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults</p></li>
+<li><p>Run the Seldonian algorithm using the spec object</p></li>
 </ul>
 <p>Let’s write out the code to do this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span>   <span class="c1"># Thinly-wrapped version of Numpy</span>
@@ -65,6 +67,7 @@
 <span class="kn">from</span> <span class="nn">seldonian.dataset</span> <span class="kn">import</span> <span class="n">SupervisedDataSet</span>
 <span class="kn">from</span> <span class="nn">seldonian.parse_tree.parse_tree</span> <span class="kn">import</span> <span class="n">ParseTree</span>
 <span class="kn">from</span> <span class="nn">seldonian.spec</span> <span class="kn">import</span> <span class="n">SupervisedSpec</span>
+<span class="kn">from</span> <span class="nn">seldonian.seldonian_algorithm</span> <span class="kn">import</span> <span class="n">seldonian_algorithm</span>
 
 <span class="k">def</span> <span class="nf">generate_data</span><span class="p">(</span><span class="n">numPoints</span><span class="p">,</span><span class="n">loc_X</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
     <span class="n">loc_Y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="n">sigma_X</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">sigma_Y</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
@@ -141,6 +144,9 @@
     <span class="c1"># Define the primary objective, the MSE</span>
     <span class="n">primary_objective</span> <span class="o">=</span> <span class="n">model_class</span><span class="p">()</span><span class="o">.</span><span class="n">sample_Mean_Squared_Error</span>
 
+    <span class="c1"># Define initial solution function</span>
+    <span class="n">initial_solution_fn</span><span class="o">=</span><span class="n">model_class</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span>
+
     <span class="c1"># Create a spec object, using a lot of hidden defaults</span>
 
     <span class="n">spec</span> <span class="o">=</span> <span class="n">SupervisedSpec</span><span class="p">(</span>
@@ -148,9 +154,13 @@
         <span class="n">model_class</span><span class="o">=</span><span class="n">model_class</span><span class="p">,</span>
         <span class="n">frac_data_in_safety</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
         <span class="n">primary_objective</span><span class="o">=</span><span class="n">primary_objective</span><span class="p">,</span>
-        <span class="n">initial_solution_fn</span><span class="o">=</span><span class="n">model_class</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">,</span>
+        <span class="n">initial_solution_fn</span><span class="o">=</span><span class="n">initial_solution_fn</span><span class="p">,</span>
         <span class="n">parse_trees</span><span class="o">=</span><span class="n">parse_trees</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Run seldonian algorithm</span>
+    <span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span> <span class="o">=</span> <span class="n">seldonian_algorithm</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In order to use the engine to enforce this constraint, we need to write this constraint function as a constraint string. The constraint string is:</p>

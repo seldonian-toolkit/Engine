@@ -21,7 +21,7 @@ Simple example
 --------------
 Consider a simple supervised regression problem with two continous random variables X and Y. Our goal is to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, :math:`{\theta}`, which in this case are just the intercept and slope of the line.
 
-Now let's suppose we want to add the following constraint into the problem: the MSE is less than 2.0, and we want to enforce this with a probability of 0.95. This is now a Seldonian machine learning problem, and it is all of the high level information we need to solve the problem using the engine!
+Now let's suppose we want to add the following constraint into the problem: the MSE is less than 2.0, and we want to enforce this with a probability of 0.95. This is now a Seldonian machine learning problem. We now have all of the high level information we need to solve the problem using the engine!
 
 To code this up as a real example using the engine, we need to:
 
@@ -31,7 +31,9 @@ To code this up as a real example using the engine, we need to:
 - Define the behavioral constraint (constraint string and confidence level)
 - Make the parse tree from this behavioral constraint
 - Define the underlying machine learning model and primary objective 
+- Define an initial solution function which takes the features and labels as inputs and outputs an initial solution theta vector - in this case we will use the :code:`fit()` method of the model object.
 - Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults
+- Run the Seldonian algorithm using the spec object
 
 Let's write out the code to do this:
 
@@ -43,6 +45,7 @@ Let's write out the code to do this:
     from seldonian.dataset import SupervisedDataSet
     from seldonian.parse_tree.parse_tree import ParseTree
     from seldonian.spec import SupervisedSpec
+    from seldonian.seldonian_algorithm import seldonian_algorithm
 
     def generate_data(numPoints,loc_X=0.0,
         loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
@@ -119,6 +122,9 @@ Let's write out the code to do this:
         # Define the primary objective, the MSE
         primary_objective = model_class().sample_Mean_Squared_Error
 
+        # Define initial solution function
+        initial_solution_fn=model_class().fit
+
         # Create a spec object, using a lot of hidden defaults
     
         spec = SupervisedSpec(
@@ -126,9 +132,13 @@ Let's write out the code to do this:
             model_class=model_class,
             frac_data_in_safety=0.6,
             primary_objective=primary_objective,
-            initial_solution_fn=model_class().fit,
+            initial_solution_fn=initial_solution_fn,
             parse_trees=parse_trees,
         )
+
+        # Run seldonian algorithm
+        passed_safety,candidate_solution = seldonian_algorithm(spec)
+        print(passed_safety,candidate_solution)
 
 In order to use the engine to enforce this constraint, we need to write this constraint function as a constraint string. The constraint string is:
 
