@@ -34,6 +34,14 @@ class DataSetLoader():
 			containing the metadata describing the data in filename
 		:type metadata_filename: str
 
+		:param include_sensitive_columns: Whether to use 
+			sensitive columns during model training
+		:type include_sensitive_columns: bool
+
+		:param include_intercept_term: Whether to pre-append
+			a column of ones in the feature array
+		:type include_intercept_term: bool
+
 		:param file_type: the file extension of filename
 		:type file_type: str, defaults to 'csv'
 		"""
@@ -123,7 +131,8 @@ class DataSet(object):
 
 
 class SupervisedDataSet(DataSet):
-	def __init__(self,df,meta_information,
+	def __init__(self,df,
+		meta_information,
 		label_column,
 		sensitive_column_names=[],
 		include_sensitive_columns=False,
@@ -170,11 +179,12 @@ class RLDataSet(DataSet):
 		**kwargs):
 		""" Object for holding RL dataframe and dataset metadata
 	
-		:param df: dataframe containing the full dataset 
-		:type df: pandas dataframe
+		:param episodes: List of episodes
+		:type episodes: list(:py:class:`.Episode)
 
-		:param meta_information: list of all column names in the dataframe
-		:type meta_information: List(str)
+		:param meta_information: List of attribute names in each Episode,
+			e.g. ['o','a','r','pi']
+		:type meta_information: list(str)
 		"""
 		super().__init__(
 			meta_information=meta_information,
@@ -184,6 +194,23 @@ class RLDataSet(DataSet):
 class Episode(object):
 	def __init__(self,states,actions,rewards,pis):
 		""" Object for holding RL episodes
+		
+		:param states: List of states for each timestep
+			in the episode
+		:type states: list
+
+		:param actions: List of actions for each timestep
+			in the episode
+		:type actions: list
+
+		:param rewards: List of rewards for each timestep 
+			in the episode
+		:type rewards: list
+
+		:param pis: List of action probabilities 
+			for each timestep in the episode
+		:type pis: list
+
 		"""
 		self.states = np.array(states)
 		self.actions = np.array(actions)
