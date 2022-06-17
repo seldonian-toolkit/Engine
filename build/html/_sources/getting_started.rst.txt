@@ -1,9 +1,154 @@
 Getting Started
 ===================
 
-Let's run the linear regression example from the `AI Safety Tutorial <http://aisafety.cs.umass.edu/tutorial0.html>`_. Going through this example with acquaint us with many of the most important pieces of the libary. 
 
-First, we will need to run an interface to tell the Seldonian algorithm what datasets and constraints we want to use. We will use the command line interface (CLI) in this example, specifically the supervised learning CLI.
+.. _installation:
+
+Installation
+------------
+
+To use the Seldonian Engine, first install it using pip:
+
+.. code-block:: console
+
+   (.venv) $ pip install seldonian-engine
+
+If you want to visualize the parse tree graphs, a system-wide installation of `Graphviz <https://graphviz.org/download/>`_ is required.
+
+.. _simple_example:
+
+Simple example
+--------------
+Consider a simple supervised regression problem with two continous random variables X and Y. Our goal is to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, :math:`{\theta}`, which in this case are just the intercept and slope of the line.
+
+Now let's suppose we want to add the following constraint into the problem: the MSE is less than 2.0, and we want to enforce this with a probability of 0.95. This is now a Seldonian machine learning problem. We now have all of the high level information we need to solve the problem using the engine!
+
+To code this up as a real example using the engine, we need to:
+
+- Define the data - we'll need to generate some synthetic data 
+- Define the metadata - in this case just the column names
+- Put data and metadata together into a DataSet object
+- Define the behavioral constraint (constraint string and confidence level)
+- Make the parse tree from this behavioral constraint
+- Define the underlying machine learning model and primary objective 
+- Define an initial solution function which takes the features and labels as inputs and outputs an initial solution theta vector - in this case we will use the :code:`fit()` method of the model object.
+- Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults
+- Run the Seldonian algorithm using the spec object
+
+Let's write out the code to do this:
+
+.. code::
+
+    import autograd.numpy as np   # Thinly-wrapped version of Numpy
+    import pandas as pd
+    from seldonian.models.model import LinearRegressionModel
+    from seldonian.dataset import SupervisedDataSet
+    from seldonian.parse_tree.parse_tree import ParseTree
+    from seldonian.spec import SupervisedSpec
+    from seldonian.seldonian_algorithm import seldonian_algorithm
+
+    def generate_data(numPoints,loc_X=0.0,
+        loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
+        """ The function we will use to generate 
+        synthetic data
+        """
+        # Sample x from a standard normal distribution
+        X = np.random.normal(loc_X, sigma_X, numPoints) 
+        # Set y to be x, plus noise from a standard normal distribution
+        Y = X + np.random.normal(loc_Y, sigma_Y, numPoints) 
+        return (X,Y)
+    
+    if __name__ == "__main__":
+        np.random.seed(0)
+        numPoints=1000
+
+        # Define the data
+        X,Y = generate_data(numPoints)
+
+        # Define the metadataa
+        columns = columns=['feature1','label']
+        
+        # Make a dataset object
+        rows = np.hstack([np.expand_dims(X,axis=1),
+            np.expand_dims(Y,axis=1)])
+        df = pd.DataFrame(rows,columns=columns)
+
+        dataset = SupervisedDataSet(df,
+            meta_information=columns,
+            label_column='label',
+            include_intercept_term=True)
+        
+        """ include_intercept_term=True
+        adds a column of ones in the 
+        feature array for convenience 
+        during matrix multiplication.
+        """
+
+        # Define the behavioral constraints
+        constraint_strs = ['Mean_Squared_Error - 2.0']
+        deltas = [0.05] # confidence levels
+
+        # Make the parse tree from this behavioral constraint
+        # Even though we only have one constraint, parse_trees
+        # still needs to be a list
+
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+
+            # Create parse tree object
+            parse_tree = ParseTree(
+                delta=delta,
+                regime='supervised',
+                sub_regime='regression',
+                columns=columns)
+
+            # Fill out tree
+            parse_tree.create_from_ast(constraint_str)
+            # assign deltas for each base node
+            # use equal weighting for each unique base node
+            parse_tree.assign_deltas(weight_method='equal')
+
+            # Assign bounds needed on the base nodes
+            parse_tree.assign_bounds_needed()
+            
+            parse_trees.append(parse_tree)
+
+        # Define the underlying machine learning model  
+        model_class = LinearRegressionModel
+
+        # Define the primary objective, the MSE
+        primary_objective = model_class().sample_Mean_Squared_Error
+
+        # Define initial solution function
+        initial_solution_fn=model_class().fit
+
+        # Create a spec object, using a lot of hidden defaults
+    
+        spec = SupervisedSpec(
+            dataset=dataset,
+            model_class=model_class,
+            frac_data_in_safety=0.6,
+            primary_objective=primary_objective,
+            initial_solution_fn=initial_solution_fn,
+            parse_trees=parse_trees,
+        )
+
+        # Run seldonian algorithm
+        passed_safety,candidate_solution = seldonian_algorithm(spec)
+        print(passed_safety,candidate_solution)
+
+In order to use the engine to enforce this constraint, we need to write this constraint function as a constraint string. The constraint string is:
+
+
+
+We also need to supply a :term:`confidence level<Confidence level>`, :math:`{\delta}`, for this constraint. Let's use a value of :math:`{\delta}=0.05`, so that the constraint is enforced with a probability of :math:`1-{\delta}=0.95`. 
+    
+
+
+what datasets and constraints we want to use. We will use the command line interface (CLI) in this example, specifically the supervised learning CLI.
 
 Looking at the documentation for :py:mod:`.cli_supervised`, we can see the usage is:
 
