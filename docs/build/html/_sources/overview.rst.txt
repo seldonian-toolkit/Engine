@@ -7,16 +7,15 @@ At the broadest scope, SAs consist of three parts: the interface, candidate sele
 
 Interface
 ---------
-The interface is used to provide:
+In the interface, the user provides:
 
-- The `Data file`_ 
-- The `Metadata file`_ 
-- The `Behavioral constraints`_ you want the SA to enforce
-- The :term:`Confidence level, delta<Confidence level>` at which you want each constraint to be enforced
+- The `Data file`_.
+- The `Metadata file`_.
+- The `Behavioral constraints`_ you want the SA to satisfy.
 
 There is currently one option for the interface, :py:mod:`.command_line_interface` (CLI). A graphical user interface (GUI) is currently in development. 
 
-The interface generates a `Spec object`_ object which consists of a complete specification that can used to run the seldonian algorithm in its entirety. The Spec object that the interface creates has many default parameters that the user may modify with their own custom script. 
+The interface generates a `Spec object`_ object which consists of a complete specification that can used to run the seldonian algorithm. It is up to the designer of the interface to decide how much of the Spec object the user needs to specify. 
 
 Data file 
 +++++++++

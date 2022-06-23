@@ -13,29 +13,42 @@ To use the Seldonian Engine, first install it using pip:
 
    (.venv) $ pip install seldonian-engine
 
+Then in Python:
+
+.. code::
+    
+    import seldonian
+
+
+
 If you want to visualize the parse tree graphs, a system-wide installation of `Graphviz <https://graphviz.org/download/>`_ is required.
 
 .. _simple_example:
 
-Simple example
---------------
+A simple complete example
+-------------------------
 Consider a simple supervised regression problem with two continous random variables X and Y. Our goal is to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, :math:`{\theta}`, which in this case are just the intercept and slope of the line.
 
-Now let's suppose we want to add the following constraint into the problem: the MSE is less than 2.0, and we want to enforce this with a probability of 0.95. This is now a Seldonian machine learning problem. We now have all of the high level information we need to solve the problem using the engine!
+Now let's suppose we want to add the following constraint into the problem: ensure that the MSE is less than 2.0 with a probability of 0.95. Our problem can now be fully formulated as a Seldonian machine learning (ML) problem:
 
-To code this up as a real example using the engine, we need to:
+  Minimize the MSE, subject to the constraint: :math:`g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0`, and :math:`{\delta}_1=0.05`. 
 
-- Define the data - we'll need to generate some synthetic data 
-- Define the metadata - in this case just the column names
-- Put data and metadata together into a DataSet object
-- Define the behavioral constraint (constraint string and confidence level)
-- Make the parse tree from this behavioral constraint
-- Define the underlying machine learning model and primary objective 
-- Define an initial solution function which takes the features and labels as inputs and outputs an initial solution theta vector - in this case we will use the :code:`fit()` method of the model object.
-- Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults
-- Run the Seldonian algorithm using the spec object
+Notice that the constraint happens to be aligned with our primary objective. In reality this is rarely the case. However, the steps to run the algorithm are the same regardless of whether this is true.
 
-Let's write out the code to do this:
+To code up this example using the engine, we need to follow these steps:
+
+1. Define the data - we will generate some synthetic data for X and Y in this case.
+2. Define the metadata - in this case this consists of the column names for X and Y and the regime, which is "supervised".
+3. Put the data and metadata together into a DataSet object.
+4. Define the behavioral constraint (constraint string and confidence level), which we already did above.
+5. Make the parse tree from this behavioral constraint.
+6. Define the underlying machine learning model and primary objective. 
+7. Define an initial solution function which takes the features and labels as inputs and outputs an initial solution theta vector. In this case we will define a function:code:`initial_solution()` function which just returns a zero vector as the initial solution.
+8. Decide what fraction of your data to split into candidate selection vs. the safety test.
+9. Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults. For a full list of parameters and their defaults see the API docs for :py:class:`.SupervisedSpec`.
+10. Run the Seldonian algorithm using the spec object. 
+
+Let's write out the code to do this. Each step above is enumerated in comments in the code below:
 
 .. code::
 
@@ -47,28 +60,28 @@ Let's write out the code to do this:
     from seldonian.spec import SupervisedSpec
     from seldonian.seldonian_algorithm import seldonian_algorithm
 
-    def generate_data(numPoints,loc_X=0.0,
-        loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
-        """ The function we will use to generate 
-        synthetic data
-        """
-        # Sample x from a standard normal distribution
-        X = np.random.normal(loc_X, sigma_X, numPoints) 
-        # Set y to be x, plus noise from a standard normal distribution
-        Y = X + np.random.normal(loc_Y, sigma_Y, numPoints) 
-        return (X,Y)
     
     if __name__ == "__main__":
         np.random.seed(0)
         numPoints=1000
 
-        # Define the data
+        # 1. Define the data
+        def generate_data(numPoints,loc_X=0.0,
+            loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
+            """ The function we will use to generate 
+            synthetic data
+            """
+            # Sample x from a standard normal distribution
+            X = np.random.normal(loc_X, sigma_X, numPoints) 
+            # Set y to be x, plus noise from a standard normal distribution
+            Y = X + np.random.normal(loc_Y, sigma_Y, numPoints) 
+            return (X,Y)
         X,Y = generate_data(numPoints)
 
-        # Define the metadataa
+        # 2. Define the metadataa
         columns = columns=['feature1','label']
         
-        # Make a dataset object
+        # 3. Make a dataset object
         rows = np.hstack([np.expand_dims(X,axis=1),
             np.expand_dims(Y,axis=1)])
         df = pd.DataFrame(rows,columns=columns)
@@ -84,13 +97,13 @@ Let's write out the code to do this:
         during matrix multiplication.
         """
 
-        # Define the behavioral constraints
+        # 4. Define the behavioral constraints
         constraint_strs = ['Mean_Squared_Error - 2.0']
         deltas = [0.05] # confidence levels
 
-        # Make the parse tree from this behavioral constraint
-        # Even though we only have one constraint, parse_trees
-        # still needs to be a list
+        """ 5. Make the parse tree from this behavioral constraint
+        parse_trees always needs to be a list. We only have one constraint,
+        so parse_trees is just a list of length 1. """
 
         parse_trees = []
         for ii in range(len(constraint_strs)):
@@ -116,49 +129,36 @@ Let's write out the code to do this:
             
             parse_trees.append(parse_tree)
 
-        # Define the underlying machine learning model  
+        # 6. Define the underlying machine learning model and primary objective 
         model_class = LinearRegressionModel
 
-        # Define the primary objective, the MSE
         primary_objective = model_class().sample_Mean_Squared_Error
 
-        # Define initial solution function
-        initial_solution_fn=model_class().fit
+        # 7. Define initial solution function
+        def initial_solution(X,y):
+            """ Initial solution will be [0,0] """
+            return np.zeros(2)
+        initial_solution_fn=initial_solution
 
-        # Create a spec object, using a lot of hidden defaults
+        # 8. Decide what fraction of your data to split into
+        # candidate selection vs. the safety test.
+        frac_data_in_safety=0.6
     
+        # 9. Create a spec object, using a lot of hidden defaults
         spec = SupervisedSpec(
             dataset=dataset,
             model_class=model_class,
-            frac_data_in_safety=0.6,
+            frac_data_in_safety=frac_data_in_safety,
             primary_objective=primary_objective,
             initial_solution_fn=initial_solution_fn,
             parse_trees=parse_trees,
         )
 
-        # Run seldonian algorithm
+        # 10. Run seldonian algorithm using the spec object
         passed_safety,candidate_solution = seldonian_algorithm(spec)
         print(passed_safety,candidate_solution)
 
-In order to use the engine to enforce this constraint, we need to write this constraint function as a constraint string. The constraint string is:
+In the second to last line, notice  how :code:`seldonian_algorithm()` returns two values. :code:`passed_safety` is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If :code:`passed_safety==False`, then :code:`candidate_solution="NSF"`, i.e. "No Solution Found". If :code:`passed_safety==False` then the candidate solution is a numpy array of model weights. In this example, you should get :code:`passed_safety=True` and a candidate solution of something like: :code:`[0.16818159 0.17379649]`, which might differ slightly depending on your machine's random number generator.
 
-
-
-We also need to supply a :term:`confidence level<Confidence level>`, :math:`{\delta}`, for this constraint. Let's use a value of :math:`{\delta}=0.05`, so that the constraint is enforced with a probability of :math:`1-{\delta}=0.95`. 
-    
-
-
-what datasets and constraints we want to use. We will use the command line interface (CLI) in this example, specifically the supervised learning CLI.
-
-Looking at the documentation for :py:mod:`.cli_supervised`, we can see the usage is:
-
- .. code-block:: console
-
-     $ python interface.py data_pth metadata_pth
-     [--include_sensitive_columns] 
-     [--include_intercept_term]
-     [--save_dir]
-
-The two required arguments are :code:`data_pth`, the path to the data file and :code:`metadata_pth`, the path to the metadata file. The data and metadata files for this example can be downloaded from the source code repository on `GitHub <https://github.com/seldonian-framework/Engine/tree/main/static/datasets/GPA>`_. The other arguments are optional, but we will want to use 
 
 

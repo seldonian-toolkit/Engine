@@ -98,8 +98,6 @@ def gradient_descent_adam(
             best_index = np.copy(i)
             candidate_solution = np.copy(theta)
             # print(primary_val,g_vec,theta)
-            print("best so far")
-            print(candidate_solution)
             # print()
 
         if store_values:

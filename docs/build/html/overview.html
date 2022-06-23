@@ -40,15 +40,14 @@
 <p>At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact within each of these.</p>
 <section id="interface">
 <h2>Interface<a class="headerlink" href="#interface" title="Permalink to this headline">¶</a></h2>
-<p>The interface is used to provide:</p>
+<p>In the interface, the user provides:</p>
 <ul class="simple">
-<li><p>The <a class="reference internal" href="#data-file">Data file</a></p></li>
-<li><p>The <a class="reference internal" href="#metadata-file">Metadata file</a></p></li>
-<li><p>The <a class="reference internal" href="#behavioral-constraints">Behavioral constraints</a> you want the SA to enforce</p></li>
-<li><p>The <a class="reference internal" href="glossary.html#term-Confidence-level"><span class="xref std std-term">Confidence level, delta</span></a> at which you want each constraint to be enforced</p></li>
+<li><p>The <a class="reference internal" href="#data-file">Data file</a>.</p></li>
+<li><p>The <a class="reference internal" href="#metadata-file">Metadata file</a>.</p></li>
+<li><p>The <a class="reference internal" href="#behavioral-constraints">Behavioral constraints</a> you want the SA to satisfy.</p></li>
 </ul>
 <p>There is currently one option for the interface, <a class="reference internal" href="_autosummary/interface.command_line_interface.html#module-interface.command_line_interface" title="interface.command_line_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">command_line_interface</span></code></a> (CLI). A graphical user interface (GUI) is currently in development.</p>
-<p>The interface generates a <a class="reference internal" href="#spec-object">Spec object</a> object which consists of a complete specification that can used to run the seldonian algorithm in its entirety. The Spec object that the interface creates has many default parameters that the user may modify with their own custom script.</p>
+<p>The interface generates a <a class="reference internal" href="#spec-object">Spec object</a> object which consists of a complete specification that can used to run the seldonian algorithm. It is up to the designer of the interface to decide how much of the Spec object the user needs to specify.</p>
 <section id="data-file">
 <h3>Data file<a class="headerlink" href="#data-file" title="Permalink to this headline">¶</a></h3>
 <p>The data that you provide to the interface must be rows of numbers that are comma-separated and have no header. The rows are separated by newlines. For example, a supervised learning dataset might look like:</p>
@@ -180,7 +179,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 </ul>
 
