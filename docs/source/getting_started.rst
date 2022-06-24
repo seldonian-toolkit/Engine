@@ -180,8 +180,20 @@ If you copy the above code into a file called :code:`example.py`, run the exampl
 
     $ python example.py
 
+You should see some output like:
 
-Notice in the last few lines of the script that :code:`seldonian_algorithm()` returns two values. :code:`passed_safety` is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If :code:`passed_safety==False`, then :code:`candidate_solution="NSF"`, i.e. "No Solution Found". If :code:`passed_safety==True` then the candidate solution is a numpy array of model weights. In this example, you should get :code:`passed_safety=True` and a candidate solution of something like: :code:`[0.16911355 0.1738146]`, which might differ slightly depending on your machine's random number generator.
+.. code::
+    
+    Iteration 0
+    Iteration 10
+    Iteration 20
+    Iteration 30
+    Iteration 40
+    ...
+    Passed safety test
+    True [0.16911355 0.1738146 ]
+
+Notice in the last few lines of the script that :code:`seldonian_algorithm()` returns two values. :code:`passed_safety` is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If :code:`passed_safety==False`, then :code:`candidate_solution="NSF"`, i.e. "No Solution Found". If :code:`passed_safety==True` then the candidate solution is a numpy array of model weights. In this example, you should get :code:`passed_safety=True` and a candidate solution of something like: :code:`[0.16911355 0.1738146]`, although the exact numbers might differ slightly depending on your machine's random number generator.
 
 
 
