@@ -198,7 +198,18 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python example.py
 </pre></div>
 </div>
-<p>Notice in the last few lines of the script that <code class="code docutils literal notranslate"><span class="pre">seldonian_algorithm()</span></code> returns two values. <code class="code docutils literal notranslate"><span class="pre">passed_safety</span></code> is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code>, then <code class="code docutils literal notranslate"><span class="pre">candidate_solution=&quot;NSF&quot;</span></code>, i.e. “No Solution Found”. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==True</span></code> then the candidate solution is a numpy array of model weights. In this example, you should get <code class="code docutils literal notranslate"><span class="pre">passed_safety=True</span></code> and a candidate solution of something like: <code class="code docutils literal notranslate"><span class="pre">[0.16911355</span> <span class="pre">0.1738146]</span></code>, which might differ slightly depending on your machine’s random number generator.</p>
+<p>You should see some output like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Iteration</span> <span class="mi">0</span>
+<span class="n">Iteration</span> <span class="mi">10</span>
+<span class="n">Iteration</span> <span class="mi">20</span>
+<span class="n">Iteration</span> <span class="mi">30</span>
+<span class="n">Iteration</span> <span class="mi">40</span>
+<span class="o">...</span>
+<span class="n">Passed</span> <span class="n">safety</span> <span class="n">test</span>
+<span class="kc">True</span> <span class="p">[</span><span class="mf">0.16911355</span> <span class="mf">0.1738146</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>Notice in the last few lines of the script that <code class="code docutils literal notranslate"><span class="pre">seldonian_algorithm()</span></code> returns two values. <code class="code docutils literal notranslate"><span class="pre">passed_safety</span></code> is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code>, then <code class="code docutils literal notranslate"><span class="pre">candidate_solution=&quot;NSF&quot;</span></code>, i.e. “No Solution Found”. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==True</span></code> then the candidate solution is a numpy array of model weights. In this example, you should get <code class="code docutils literal notranslate"><span class="pre">passed_safety=True</span></code> and a candidate solution of something like: <code class="code docutils literal notranslate"><span class="pre">[0.16911355</span> <span class="pre">0.1738146]</span></code>, although the exact numbers might differ slightly depending on your machine’s random number generator.</p>
 </section>
 </section>
 
