@@ -9,6 +9,12 @@
 This is the source code repository for a framework for creating and running [Seldonian](http://aisafety.cs.umass.edu/) algorithms. 
 
 ## Installation
+
+To use the latest stable version:
+```
+pip install seldonian-toolkit
+```
+
 To run this code as a developer, create a virtual environment. Then install the package locally, e.g. 
 
 ```
@@ -22,19 +28,6 @@ pip install -e .
 ```
 
 If you want to view the parse tree graphs using the built-in tools this library provides, install [graphviz](https://graphviz.org/download/) onto your system. The Seldonian library uses a Python API for graphviz, and the API requires that graphviz be installed system-wide. This should resolve mysterious error messages like "dot" not found. "dot" is a command line program included with graphviz for rendering the graphs from code. 
-
-## Interface
-
-This library is in its infancy, but a lite command line interface exists for parsing string expressions into parse trees. To use this interface, edit the file: `interface.py`. Modify `constraint_str` and `delta` to values of interest. Then run (make sure you have activated the `seldo` conda environment first) from the command line:
-```
-python interface.py
-```
-As a quick test, if you use the following variables:
-```
-constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
-delta = 0.05
-```
-The resulting diagram should match [this one](example_graph.pdf), although the actual intervals may be different due to the random seeding of the base variable intervals. 
 
 ## Testing
 To run the unit tests, from the command line do:
