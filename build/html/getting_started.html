@@ -40,7 +40,7 @@
 <section id="installation">
 <span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
 <p>To use the Seldonian Engine, first install it using pip:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.venv)</span> <span class="gp">$ </span>pip install seldonian-engine
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install seldonian-engine
 </pre></div>
 </div>
 <p>Then in Python:</p>
@@ -65,7 +65,7 @@
 <p><span class="math notranslate nohighlight">\(g_{2} = 1.25 - \mathrm{Mean\_Squared\_Error}\)</span>, and <span class="math notranslate nohighlight">\({\delta}_2=0.1\)</span>.</p>
 </div></blockquote>
 </div></blockquote>
-<p>While the first constraint is aligned with the primary objective function, the MSE, notice that the second is conflicting.</p>
+<p>While the first constraint is aligned with the primary objective function, the MSE, notice that the second is conflicting. The Seldonian algorithm will attempt to satisfy both of these constraints simultaneously, while also minimizing the primary objective. If it cannot, it will return “NSF”, i.e. “No solution found”. If it can, it will return a solution that satisfies the behavioral constraints.</p>
 <p>To code up this example using the engine, we need to follow these steps:</p>
 <ol class="arabic simple">
 <li><p>Define the data - we will generate some synthetic data for X and Y in this case.</p></li>
@@ -76,12 +76,13 @@
 <li><p>Define the underlying machine learning model and primary objective.</p></li>
 <li><p>Define an initial solution function which takes the features and labels as inputs and outputs an initial weight vector to start candidate selection. In this case we will define a function <code class="code docutils literal notranslate"><span class="pre">initial_solution()</span></code> function which just returns a zero vector as the initial solution.</p></li>
 <li><p>Decide what fraction of the data to split into candidate selection vs. the safety test.</p></li>
-<li><p>Decide what method to use for computing the high confidence upper bound on each <span class="math notranslate nohighlight">\(g_{i}\)</span>. We will use Student <span class="math notranslate nohighlight">\(t\)</span>-statistic.</p></li>
+<li><p>Decide what method to use for computing the high confidence upper bound on each <span class="math notranslate nohighlight">\(g_{i}\)</span>. We will use the Student <span class="math notranslate nohighlight">\(t\)</span>-statistic.</p></li>
 <li><p>Create a spec object containing all of this information and some hyperparameters - we can ignore many of these in this example. For a full list of parameters and their defaults see the API docs for <a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec" title="seldonian.spec.SupervisedSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a>.</p></li>
 <li><p>Run the Seldonian algorithm using the spec object.</p></li>
 </ol>
 <p>Let’s write out the code to do this. Each step above is enumerated in comments in the code below:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span>   <span class="c1"># Thinly-wrapped version of Numpy</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># example.py</span>
+<span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span>   <span class="c1"># Thinly-wrapped version of Numpy</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">seldonian.models.model</span> <span class="kn">import</span> <span class="n">LinearRegressionModel</span>
 <span class="kn">from</span> <span class="nn">seldonian.dataset</span> <span class="kn">import</span> <span class="n">SupervisedDataSet</span>
@@ -193,7 +194,11 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Notice in the last few lines that <code class="code docutils literal notranslate"><span class="pre">seldonian_algorithm()</span></code> returns two values. <code class="code docutils literal notranslate"><span class="pre">passed_safety</span></code> is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code>, then <code class="code docutils literal notranslate"><span class="pre">candidate_solution=&quot;NSF&quot;</span></code>, i.e. “No Solution Found”. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==True</span></code> then the candidate solution is a numpy array of model weights. In this example, you should get <code class="code docutils literal notranslate"><span class="pre">passed_safety=True</span></code> and a candidate solution of something like: <code class="code docutils literal notranslate"><span class="pre">[0.16911355</span> <span class="pre">0.1738146]</span></code>, which might differ slightly depending on your machine’s random number generator.</p>
+<p>If you copy the above code into a file called <code class="code docutils literal notranslate"><span class="pre">example.py</span></code>, run the example from the command line (once inside a virtual environment where you have pip-installed the engine) by doing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python example.py
+</pre></div>
+</div>
+<p>Notice in the last few lines of the script that <code class="code docutils literal notranslate"><span class="pre">seldonian_algorithm()</span></code> returns two values. <code class="code docutils literal notranslate"><span class="pre">passed_safety</span></code> is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code>, then <code class="code docutils literal notranslate"><span class="pre">candidate_solution=&quot;NSF&quot;</span></code>, i.e. “No Solution Found”. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==True</span></code> then the candidate solution is a numpy array of model weights. In this example, you should get <code class="code docutils literal notranslate"><span class="pre">passed_safety=True</span></code> and a candidate solution of something like: <code class="code docutils literal notranslate"><span class="pre">[0.16911355</span> <span class="pre">0.1738146]</span></code>, which might differ slightly depending on your machine’s random number generator.</p>
 </section>
 </section>
 
