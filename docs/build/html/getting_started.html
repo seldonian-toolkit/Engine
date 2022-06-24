@@ -49,23 +49,32 @@
 <p>If you want to visualize the parse tree graphs, a system-wide installation of <a class="reference external" href="https://graphviz.org/download/">Graphviz</a> is required.</p>
 </section>
 <section id="a-simple-complete-example">
-<span id="simple-example"></span><h2>A simple complete example<a class="headerlink" href="#a-simple-complete-example" title="Permalink to this headline">¶</a></h2>
-<p>Consider a simple supervised regression problem with two continous random variables X and Y. Our goal is to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, <span class="math notranslate nohighlight">\({\theta}\)</span>, which in this case are just the intercept and slope of the line.</p>
-<p>Now let’s suppose we want to add the following constraint into the problem: ensure that the MSE is less than 2.0 with a probability of 0.95. Our problem can now be fully formulated as a Seldonian machine learning (ML) problem:</p>
+<span id="simple-example"></span><h2>A simple, complete example<a class="headerlink" href="#a-simple-complete-example" title="Permalink to this headline">¶</a></h2>
+<p>Consider a simple supervised regression problem with two continous random variables X and Y. Let the goal be to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, <span class="math notranslate nohighlight">\({\theta}\)</span>, which in this case are just the intercept and slope of the line.</p>
+<p>Now let’s suppose we want to add the following two constraints into the problem:</p>
+<ol class="arabic simple">
+<li><p>Ensure that the MSE is less than 2.0 with a probability of at least 0.9.</p></li>
+<li><p>Ensure that the MSE is <em>greater than</em> 1.25 with a probability of at least 0.9.</p></li>
+</ol>
+<p>This problem can now be fully formulated as a Seldonian machine learning (ML) problem:</p>
 <blockquote>
-<div><p>Minimize the MSE, subject to the constraint: <span class="math notranslate nohighlight">\(g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0\)</span>, and <span class="math notranslate nohighlight">\({\delta}_1=0.05\)</span>.</p>
+<div><p>Minimize the MSE, subject to the constraints:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0\)</span>, and <span class="math notranslate nohighlight">\({\delta}_1=0.05\)</span>.</p>
+<p><span class="math notranslate nohighlight">\(g_{2} = 1.25 - \mathrm{Mean\_Squared\_Error}\)</span>, and <span class="math notranslate nohighlight">\({\delta}_2=0.05\)</span>.</p>
 </div></blockquote>
-<p>Notice that the constraint happens to be aligned with our primary objective. In reality this is rarely the case. However, the steps to run the algorithm are the same regardless of whether this is true.</p>
+</div></blockquote>
 <p>To code up this example using the engine, we need to follow these steps:</p>
 <ol class="arabic simple">
 <li><p>Define the data - we will generate some synthetic data for X and Y in this case.</p></li>
 <li><p>Define the metadata - in this case this consists of the column names for X and Y and the regime, which is “supervised”.</p></li>
 <li><p>Put the data and metadata together into a DataSet object.</p></li>
-<li><p>Define the behavioral constraint (constraint string and confidence level), which we already did above.</p></li>
-<li><p>Make the parse tree from this behavioral constraint.</p></li>
+<li><p>Define the behavioral constraints (constraint strings and confidence levels), which we already did above.</p></li>
+<li><p>Make the parse trees from these behavioral constraints.</p></li>
 <li><p>Define the underlying machine learning model and primary objective.</p></li>
-<li><p>Define an initial solution function which takes the features and labels as inputs and outputs an initial solution theta vector. In this case we will define a function:code:<cite>initial_solution()</cite> function which just returns a zero vector as the initial solution.</p></li>
-<li><p>Decide what fraction of your data to split into candidate selection vs. the safety test.</p></li>
+<li><p>Define an initial solution function which takes the features and labels as inputs and outputs an initial weight vector to start candidate selection. In this case we will define a function <code class="code docutils literal notranslate"><span class="pre">initial_solution()</span></code> function which just returns a zero vector as the initial solution.</p></li>
+<li><p>Decide what fraction of the data to split into candidate selection vs. the safety test.</p></li>
+<li><p>Decide what method to use for computing the high confidence upper bound on each <span class="math notranslate nohighlight">\(g_{i}\)</span>. We will use Student <span class="math notranslate nohighlight">\(t\)</span>-statistic.</p></li>
 <li><p>Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults. For a full list of parameters and their defaults see the API docs for <a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec" title="seldonian.spec.SupervisedSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a>.</p></li>
 <li><p>Run the Seldonian algorithm using the spec object.</p></li>
 </ol>
@@ -162,7 +171,10 @@
     <span class="c1"># candidate selection vs. the safety test.</span>
     <span class="n">frac_data_in_safety</span><span class="o">=</span><span class="mf">0.6</span>
 
-    <span class="c1"># 9. Create a spec object, using a lot of hidden defaults</span>
+    <span class="c1"># 9. Decide what method to use for computing the high confidence upper bound on each :math:`g_{i}`.</span>
+    <span class="n">bound_method</span><span class="o">=</span><span class="s1">&#39;ttest&#39;</span>
+
+    <span class="c1"># 10. Create a spec object, using some hidden defaults</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="n">SupervisedSpec</span><span class="p">(</span>
         <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
         <span class="n">model_class</span><span class="o">=</span><span class="n">model_class</span><span class="p">,</span>
@@ -170,9 +182,10 @@
         <span class="n">primary_objective</span><span class="o">=</span><span class="n">primary_objective</span><span class="p">,</span>
         <span class="n">initial_solution_fn</span><span class="o">=</span><span class="n">initial_solution_fn</span><span class="p">,</span>
         <span class="n">parse_trees</span><span class="o">=</span><span class="n">parse_trees</span><span class="p">,</span>
+        <span class="n">bound_method</span><span class="o">=</span><span class="n">bound_method</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># 10. Run seldonian algorithm using the spec object</span>
+    <span class="c1"># 11. Run seldonian algorithm using the spec object</span>
     <span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span> <span class="o">=</span> <span class="n">seldonian_algorithm</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span><span class="p">)</span>
 </pre></div>
@@ -202,7 +215,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#a-simple-complete-example">A simple complete example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-simple-complete-example">A simple, complete example</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>

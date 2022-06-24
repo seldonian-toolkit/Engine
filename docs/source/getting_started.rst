@@ -25,28 +25,38 @@ If you want to visualize the parse tree graphs, a system-wide installation of `G
 
 .. _simple_example:
 
-A simple complete example
--------------------------
-Consider a simple supervised regression problem with two continous random variables X and Y. Our goal is to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, :math:`{\theta}`, which in this case are just the intercept and slope of the line.
+A simple, complete example
+--------------------------
+Consider a simple supervised regression problem with two continous random variables X and Y. Let the goal be to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, :math:`{\theta}`, which in this case are just the intercept and slope of the line.
 
-Now let's suppose we want to add the following constraint into the problem: ensure that the MSE is less than 2.0 with a probability of 0.95. Our problem can now be fully formulated as a Seldonian machine learning (ML) problem:
+Now let's suppose we want to add the following two constraints into the problem:
 
-  Minimize the MSE, subject to the constraint: :math:`g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0`, and :math:`{\delta}_1=0.05`. 
+1. Ensure that the MSE is less than 2.0 with a probability of at least 0.9. 
+2. Ensure that the MSE is *greater than* 1.25 with a probability of at least 0.9. 
 
-Notice that the constraint happens to be aligned with our primary objective. In reality this is rarely the case. However, the steps to run the algorithm are the same regardless of whether this is true.
+This problem can now be fully formulated as a Seldonian machine learning problem:
+
+  Minimize the MSE, subject to the constraints:
+
+    :math:`g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0`, and :math:`{\delta}_1=0.1`. 
+    
+    :math:`g_{2} = 1.25 - \mathrm{Mean\_Squared\_Error}`, and :math:`{\delta}_2=0.1`. 
+
+While the first constraint is aligned with the primary objective function, the MSE, notice that the second is conflicting. 
 
 To code up this example using the engine, we need to follow these steps:
 
 1. Define the data - we will generate some synthetic data for X and Y in this case.
 2. Define the metadata - in this case this consists of the column names for X and Y and the regime, which is "supervised".
 3. Put the data and metadata together into a DataSet object.
-4. Define the behavioral constraint (constraint string and confidence level), which we already did above.
-5. Make the parse tree from this behavioral constraint.
+4. Define the behavioral constraints (constraint strings and confidence levels), which we already did above.
+5. Make the parse trees from these behavioral constraints.
 6. Define the underlying machine learning model and primary objective. 
-7. Define an initial solution function which takes the features and labels as inputs and outputs an initial solution theta vector. In this case we will define a function:code:`initial_solution()` function which just returns a zero vector as the initial solution.
-8. Decide what fraction of your data to split into candidate selection vs. the safety test.
-9. Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults. For a full list of parameters and their defaults see the API docs for :py:class:`.SupervisedSpec`.
-10. Run the Seldonian algorithm using the spec object. 
+7. Define an initial solution function which takes the features and labels as inputs and outputs an initial weight vector to start candidate selection. In this case we will define a function :code:`initial_solution()` function which just returns a zero vector as the initial solution.
+8. Decide what fraction of the data to split into candidate selection vs. the safety test.
+9. Decide what method to use for computing the high confidence upper bound on each :math:`g_{i}`. We will use Student :math:`t`-statistic.
+10. Create a spec object containing all of this information and some hyperparameters - we can ignore many of these in this example. For a full list of parameters and their defaults see the API docs for :py:class:`.SupervisedSpec`.
+11. Run the Seldonian algorithm using the spec object. 
 
 Let's write out the code to do this. Each step above is enumerated in comments in the code below:
 
@@ -98,12 +108,10 @@ Let's write out the code to do this. Each step above is enumerated in comments i
         """
 
         # 4. Define the behavioral constraints
-        constraint_strs = ['Mean_Squared_Error - 2.0']
-        deltas = [0.05] # confidence levels
+        constraint_strs = ['1.25 - Mean_Squared_Error','Mean_Squared_Error - 2.0']
+        deltas = [0.1,0.1] # confidence levels
 
-        """ 5. Make the parse tree from this behavioral constraint
-        parse_trees always needs to be a list. We only have one constraint,
-        so parse_trees is just a list of length 1. """
+        # 5. Make the parse trees from these behavioral constraints 
 
         parse_trees = []
         for ii in range(len(constraint_strs)):
@@ -138,13 +146,19 @@ Let's write out the code to do this. Each step above is enumerated in comments i
         def initial_solution(X,y):
             """ Initial solution will be [0,0] """
             return np.zeros(2)
+
         initial_solution_fn=initial_solution
 
         # 8. Decide what fraction of your data to split into
         # candidate selection vs. the safety test.
         frac_data_in_safety=0.6
     
-        # 9. Create a spec object, using a lot of hidden defaults
+        """ 9. Decide what method to use for computing the
+        high confidence upper bound on each :math:`g_{i}`.""" 
+        bound_method='ttest'
+
+        """10. Create a spec object, using some 
+        hidden defaults we won't worry about here"""
         spec = SupervisedSpec(
             dataset=dataset,
             model_class=model_class,
@@ -152,13 +166,14 @@ Let's write out the code to do this. Each step above is enumerated in comments i
             primary_objective=primary_objective,
             initial_solution_fn=initial_solution_fn,
             parse_trees=parse_trees,
+            bound_method=bound_method,
         )
 
-        # 10. Run seldonian algorithm using the spec object
+        # 11. Run seldonian algorithm using the spec object
         passed_safety,candidate_solution = seldonian_algorithm(spec)
         print(passed_safety,candidate_solution)
 
-In the second to last line, notice  how :code:`seldonian_algorithm()` returns two values. :code:`passed_safety` is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If :code:`passed_safety==False`, then :code:`candidate_solution="NSF"`, i.e. "No Solution Found". If :code:`passed_safety==False` then the candidate solution is a numpy array of model weights. In this example, you should get :code:`passed_safety=True` and a candidate solution of something like: :code:`[0.16818159 0.17379649]`, which might differ slightly depending on your machine's random number generator.
+Notice in the last few lines that :code:`seldonian_algorithm()` returns two values. :code:`passed_safety` is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If :code:`passed_safety==False`, then :code:`candidate_solution="NSF"`, i.e. "No Solution Found". If :code:`passed_safety==True` then the candidate solution is a numpy array of model weights. In this example, you should get :code:`passed_safety=True` and a candidate solution of something like: :code:`[0.16911355 0.1738146]`, which might differ slightly depending on your machine's random number generator.
 
 
 
