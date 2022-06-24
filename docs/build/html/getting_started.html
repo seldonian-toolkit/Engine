@@ -56,14 +56,15 @@
 <li><p>Ensure that the MSE is less than 2.0 with a probability of at least 0.9.</p></li>
 <li><p>Ensure that the MSE is <em>greater than</em> 1.25 with a probability of at least 0.9.</p></li>
 </ol>
-<p>This problem can now be fully formulated as a Seldonian machine learning (ML) problem:</p>
+<p>This problem can now be fully formulated as a Seldonian machine learning problem:</p>
 <blockquote>
 <div><p>Minimize the MSE, subject to the constraints:</p>
 <blockquote>
-<div><p><span class="math notranslate nohighlight">\(g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0\)</span>, and <span class="math notranslate nohighlight">\({\delta}_1=0.05\)</span>.</p>
-<p><span class="math notranslate nohighlight">\(g_{2} = 1.25 - \mathrm{Mean\_Squared\_Error}\)</span>, and <span class="math notranslate nohighlight">\({\delta}_2=0.05\)</span>.</p>
+<div><p><span class="math notranslate nohighlight">\(g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0\)</span>, and <span class="math notranslate nohighlight">\({\delta}_1=0.1\)</span>.</p>
+<p><span class="math notranslate nohighlight">\(g_{2} = 1.25 - \mathrm{Mean\_Squared\_Error}\)</span>, and <span class="math notranslate nohighlight">\({\delta}_2=0.1\)</span>.</p>
 </div></blockquote>
 </div></blockquote>
+<p>While the first constraint is aligned with the primary objective function, the MSE, notice that the second is conflicting.</p>
 <p>To code up this example using the engine, we need to follow these steps:</p>
 <ol class="arabic simple">
 <li><p>Define the data - we will generate some synthetic data for X and Y in this case.</p></li>
@@ -75,7 +76,7 @@
 <li><p>Define an initial solution function which takes the features and labels as inputs and outputs an initial weight vector to start candidate selection. In this case we will define a function <code class="code docutils literal notranslate"><span class="pre">initial_solution()</span></code> function which just returns a zero vector as the initial solution.</p></li>
 <li><p>Decide what fraction of the data to split into candidate selection vs. the safety test.</p></li>
 <li><p>Decide what method to use for computing the high confidence upper bound on each <span class="math notranslate nohighlight">\(g_{i}\)</span>. We will use Student <span class="math notranslate nohighlight">\(t\)</span>-statistic.</p></li>
-<li><p>Create a spec object containing all of this information and some hyperparameters - we can mostly use the defaults. For a full list of parameters and their defaults see the API docs for <a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec" title="seldonian.spec.SupervisedSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a>.</p></li>
+<li><p>Create a spec object containing all of this information and some hyperparameters - we can ignore many of these in this example. For a full list of parameters and their defaults see the API docs for <a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec" title="seldonian.spec.SupervisedSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a>.</p></li>
 <li><p>Run the Seldonian algorithm using the spec object.</p></li>
 </ol>
 <p>Let’s write out the code to do this. Each step above is enumerated in comments in the code below:</p>
@@ -125,12 +126,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># 4. Define the behavioral constraints</span>
-    <span class="n">constraint_strs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Mean_Squared_Error - 2.0&#39;</span><span class="p">]</span>
-    <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">]</span> <span class="c1"># confidence levels</span>
+    <span class="n">constraint_strs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1.25 - Mean_Squared_Error&#39;</span><span class="p">,</span><span class="s1">&#39;Mean_Squared_Error - 2.0&#39;</span><span class="p">]</span>
+    <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">]</span> <span class="c1"># confidence levels</span>
 
-    <span class="sd">&quot;&quot;&quot; 5. Make the parse tree from this behavioral constraint</span>
-<span class="sd">    parse_trees always needs to be a list. We only have one constraint,</span>
-<span class="sd">    so parse_trees is just a list of length 1. &quot;&quot;&quot;</span>
+    <span class="c1"># 5. Make the parse trees from these behavioral constraints</span>
 
     <span class="n">parse_trees</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">constraint_strs</span><span class="p">)):</span>
@@ -165,16 +164,19 @@
     <span class="k">def</span> <span class="nf">initial_solution</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initial solution will be [0,0] &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
     <span class="n">initial_solution_fn</span><span class="o">=</span><span class="n">initial_solution</span>
 
     <span class="c1"># 8. Decide what fraction of your data to split into</span>
     <span class="c1"># candidate selection vs. the safety test.</span>
     <span class="n">frac_data_in_safety</span><span class="o">=</span><span class="mf">0.6</span>
 
-    <span class="c1"># 9. Decide what method to use for computing the high confidence upper bound on each :math:`g_{i}`.</span>
+    <span class="sd">&quot;&quot;&quot; 9. Decide what method to use for computing the</span>
+<span class="sd">    high confidence upper bound on each :math:`g_{i}`.&quot;&quot;&quot;</span>
     <span class="n">bound_method</span><span class="o">=</span><span class="s1">&#39;ttest&#39;</span>
 
-    <span class="c1"># 10. Create a spec object, using some hidden defaults</span>
+    <span class="sd">&quot;&quot;&quot;10. Create a spec object, using some</span>
+<span class="sd">    hidden defaults we won&#39;t worry about here&quot;&quot;&quot;</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="n">SupervisedSpec</span><span class="p">(</span>
         <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
         <span class="n">model_class</span><span class="o">=</span><span class="n">model_class</span><span class="p">,</span>
@@ -190,7 +192,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In the second to last line, notice  how <code class="code docutils literal notranslate"><span class="pre">seldonian_algorithm()</span></code> returns two values. <code class="code docutils literal notranslate"><span class="pre">passed_safety</span></code> is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code>, then <code class="code docutils literal notranslate"><span class="pre">candidate_solution=&quot;NSF&quot;</span></code>, i.e. “No Solution Found”. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code> then the candidate solution is a numpy array of model weights. In this example, you should get <code class="code docutils literal notranslate"><span class="pre">passed_safety=True</span></code> and a candidate solution of something like: <code class="code docutils literal notranslate"><span class="pre">[0.16818159</span> <span class="pre">0.17379649]</span></code>, which might differ slightly depending on your machine’s random number generator.</p>
+<p>Notice in the last few lines that <code class="code docutils literal notranslate"><span class="pre">seldonian_algorithm()</span></code> returns two values. <code class="code docutils literal notranslate"><span class="pre">passed_safety</span></code> is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code>, then <code class="code docutils literal notranslate"><span class="pre">candidate_solution=&quot;NSF&quot;</span></code>, i.e. “No Solution Found”. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==True</span></code> then the candidate solution is a numpy array of model weights. In this example, you should get <code class="code docutils literal notranslate"><span class="pre">passed_safety=True</span></code> and a candidate solution of something like: <code class="code docutils literal notranslate"><span class="pre">[0.16911355</span> <span class="pre">0.1738146]</span></code>, which might differ slightly depending on your machine’s random number generator.</p>
 </section>
 </section>
 
