@@ -43,7 +43,29 @@ during the construction of parse trees</p>
 <dd><p>Contains strings that, if appearing in 
 a constraint string, will be recognized
 by the engine as statistical functions with 
-special meaning. Organized by regime and sub-regime.</p>
+special meaning. Organized by regime and sub-regime. 
+For reference the meaning of each measure function is listed here:</p>
+<blockquote>
+<div><p>Supervised classification:</p>
+<ul class="simple">
+<li><p>‘PR’: Positive rate</p></li>
+<li><p>‘NR’: Negative rate</p></li>
+<li><p>‘FPR’: False positive rate</p></li>
+<li><p>‘TPR’: True positive rate</p></li>
+<li><p>‘FNR’: False negative rate</p></li>
+<li><p>‘TNR’: True negative rate</p></li>
+<li><p>‘logistic_loss’: Logistic loss</p></li>
+</ul>
+<p>Supervised regression:</p>
+<ul class="simple">
+<li><p>‘Mean_Error’: Mean error</p></li>
+<li><p>‘Mean_Squared_Error’: Mean squared error</p></li>
+</ul>
+<p>Reinforcement learning:</p>
+<ul class="simple">
+<li><p>‘J_pi_new’: The performance (expected return of weighted rewards) of the new policy</p></li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py data">

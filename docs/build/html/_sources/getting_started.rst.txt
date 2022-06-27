@@ -11,7 +11,7 @@ To use the Seldonian Engine, first install it using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install seldonian-engine
+   $ pip install seldonian-engine
 
 Then in Python:
 
@@ -42,7 +42,7 @@ This problem can now be fully formulated as a Seldonian machine learning problem
     
     :math:`g_{2} = 1.25 - \mathrm{Mean\_Squared\_Error}`, and :math:`{\delta}_2=0.1`. 
 
-While the first constraint is aligned with the primary objective function, the MSE, notice that the second is conflicting. 
+While the first constraint is aligned with the primary objective function, the MSE, notice that the second is conflicting. The Seldonian algorithm will attempt to satisfy both of these constraints simultaneously, while also minimizing the primary objective. If it cannot, it will return "NSF", i.e. "No solution found". If it can, it will return a solution that satisfies the behavioral constraints.
 
 To code up this example using the engine, we need to follow these steps:
 
@@ -54,7 +54,7 @@ To code up this example using the engine, we need to follow these steps:
 6. Define the underlying machine learning model and primary objective. 
 7. Define an initial solution function which takes the features and labels as inputs and outputs an initial weight vector to start candidate selection. In this case we will define a function :code:`initial_solution()` function which just returns a zero vector as the initial solution.
 8. Decide what fraction of the data to split into candidate selection vs. the safety test.
-9. Decide what method to use for computing the high confidence upper bound on each :math:`g_{i}`. We will use Student :math:`t`-statistic.
+9. Decide what method to use for computing the high confidence upper bound on each :math:`g_{i}`. We will use the Student :math:`t`-statistic.
 10. Create a spec object containing all of this information and some hyperparameters - we can ignore many of these in this example. For a full list of parameters and their defaults see the API docs for :py:class:`.SupervisedSpec`.
 11. Run the Seldonian algorithm using the spec object. 
 
@@ -62,6 +62,7 @@ Let's write out the code to do this. Each step above is enumerated in comments i
 
 .. code::
 
+    # example.py
     import autograd.numpy as np   # Thinly-wrapped version of Numpy
     import pandas as pd
     from seldonian.models.model import LinearRegressionModel
@@ -173,7 +174,26 @@ Let's write out the code to do this. Each step above is enumerated in comments i
         passed_safety,candidate_solution = seldonian_algorithm(spec)
         print(passed_safety,candidate_solution)
 
-Notice in the last few lines that :code:`seldonian_algorithm()` returns two values. :code:`passed_safety` is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If :code:`passed_safety==False`, then :code:`candidate_solution="NSF"`, i.e. "No Solution Found". If :code:`passed_safety==True` then the candidate solution is a numpy array of model weights. In this example, you should get :code:`passed_safety=True` and a candidate solution of something like: :code:`[0.16911355 0.1738146]`, which might differ slightly depending on your machine's random number generator.
+If you copy the above code into a file called :code:`example.py`, run the example from the command line (once inside a virtual environment where you have pip-installed the engine) by doing:
+
+.. code::
+
+    $ python example.py
+
+You should see some output like:
+
+.. code::
+    
+    Iteration 0
+    Iteration 10
+    Iteration 20
+    Iteration 30
+    Iteration 40
+    ...
+    Passed safety test
+    True [0.16911355 0.1738146 ]
+
+Notice in the last few lines of the script that :code:`seldonian_algorithm()` returns two values. :code:`passed_safety` is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If :code:`passed_safety==False`, then :code:`candidate_solution="NSF"`, i.e. "No Solution Found". If :code:`passed_safety==True` then the candidate solution is a numpy array of model weights. In this example, you should get :code:`passed_safety=True` and a candidate solution of something like: :code:`[0.16911355 0.1738146]`, although the exact numbers might differ slightly depending on your machine's random number generator.
 
 
 

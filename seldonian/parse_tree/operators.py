@@ -8,6 +8,26 @@ during the construction of parse trees
 	a constraint string, will be recognized
 	by the engine as statistical functions with 
 	special meaning. Organized by regime and sub-regime. 
+	For reference the meaning of each measure function is listed here:
+		
+		Supervised classification: 
+
+		- 'PR': Positive rate
+		- 'NR': Negative rate
+		- 'FPR': False positive rate
+		- 'TPR': True positive rate
+		- 'FNR': False negative rate
+		- 'TNR': True negative rate
+		- 'logistic_loss': Logistic loss
+		
+		Supervised regression:
+			
+		- 'Mean_Error': Mean error
+		- 'Mean_Squared_Error': Mean squared error
+		
+		Reinforcement learning:
+
+		- 'J_pi_new': The performance (expected return of weighted rewards) of the new policy
 
 .. data:: custom_base_node_dict
 	:type: dict
