@@ -1,4 +1,4 @@
-seldonian.optimizers.gradient\_descent
+﻿seldonian.optimizers.gradient\_descent
 ======================================
 
 .. automodule:: seldonian.optimizers.gradient_descent 
@@ -15,6 +15,7 @@ seldonian.optimizers.gradient\_descent
       :toctree:                                         
    
       gradient_descent_adam
+      handle_gradients
    
    
 

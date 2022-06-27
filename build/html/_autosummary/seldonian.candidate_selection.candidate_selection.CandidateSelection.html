@@ -96,13 +96,19 @@ data is fixed. Used as input to gradient descent</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bound">
-<span class="sig-name descname"><span class="pre">get_constraint_upper_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bound" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get value of the upper bound of the constraint function
+<dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds">
+<span class="sig-name descname"><span class="pre">get_constraint_upper_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get value of the upper bounds of the constraint functions
 given model weights, theta. Used as input to gradient descent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of upper bounds on the constraint</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy ndarray</p>
 </dd>
 </dl>
 </dd></dl>

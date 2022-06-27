@@ -1,4 +1,4 @@
-seldonian.candidate\_selection.candidate\_selection.CandidateSelection
+﻿seldonian.candidate\_selection.candidate\_selection.CandidateSelection
 ======================================================================
 
 .. currentmodule:: seldonian.candidate_selection.candidate_selection
@@ -22,7 +22,7 @@ seldonian.candidate\_selection.candidate\_selection.CandidateSelection
    ..
    ..    ~CandidateSelection.evaluate_primary_objective
    ..
-   ..    ~CandidateSelection.get_constraint_upper_bound
+   ..    ~CandidateSelection.get_constraint_upper_bounds
    ..
    ..    ~CandidateSelection.objective_with_barrier
    ..
