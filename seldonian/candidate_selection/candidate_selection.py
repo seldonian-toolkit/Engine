@@ -113,7 +113,8 @@ class CandidateSelection(object):
 
 			gd_kwargs = dict(
 				primary_objective=self.evaluate_primary_objective,
-				upper_bound_function=self.get_constraint_upper_bound,
+				upper_bounds_function=self.get_constraint_upper_bounds,
+				gradient_library=kwargs['gradient_library'],
 				alpha_theta=kwargs['alpha_theta'],
 			    alpha_lamb=kwargs['alpha_lamb'],
 			    beta_velocity=kwargs['beta_velocity'],
@@ -346,12 +347,15 @@ class CandidateSelection(object):
 			result += reg_term
 			return result
 
-	def get_constraint_upper_bound(self,theta):
-		"""Get value of the upper bound of the constraint function
+	def get_constraint_upper_bounds(self,theta):
+		"""Get value of the upper bounds of the constraint functions
 		given model weights, theta. Used as input to gradient descent.
 
 		:param theta: model weights
 		:type theta: numpy.ndarray
+
+		:return: Array of upper bounds on the constraint
+		:rtype: numpy ndarray 
 		"""
 		upper_bounds = []
 		for pt in self.parse_trees:

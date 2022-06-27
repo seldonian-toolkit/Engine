@@ -2,9 +2,24 @@ import copy
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from autograd import grad, jacobian
 
+def handle_gradients(
+    gradient_library,
+    primary_objective,
+    upper_bounds_function):
+
+    if gradient_library == "autograd":
+        grad_primary_theta = grad(primary_objective,argnum=0)
+        grad_upper_bound_theta = jacobian(upper_bounds_function,argnum=0)
+    else:
+        raise NotImplementedError(
+            f"gradient library: {gradient_library}"
+            " not supported")
+
+    return grad_primary_theta,grad_upper_bound_theta
+
 def gradient_descent_adam(
     primary_objective,
-    upper_bound_function,
+    upper_bounds_function,
     theta_init,
     lambda_init,
     alpha_theta=0.05,
@@ -12,19 +27,27 @@ def gradient_descent_adam(
     beta_velocity=0.9,
     beta_rmsprop=0.9,
     num_iters=200,
+    gradient_library="autograd",
     store_values=False,
     verbose=False,
     **kwargs):
-    """ Implements gradient descent with "adam" optimizer
+    """ Implements simultaneous gradient descent/ascent using 
+    the "adam" optimizer on a Lagrangian:
+    L(theta,lambda) = f(theta) + lambda*g(theta),
+    where f is the primary objective, lambda is a vector of 
+    Lagrange multipliers, and g is a vector of the 
+    upper bound functions. Gradient descent is done for theta 
+    and gradient ascent is done for lambda to find the saddle 
+    points of L.
 
     :param primary_objective: The objective function that would
         be solely optimized in the absence of behavioral constraints,
         i.e. the loss function
     :type primary_objective: function or class method
 
-    :param upper_bound_function: The function that calculates
-        the upper bound on the constraint
-    :type upper_bound_function: function or class method
+    :param upper_bounds_function: The function that calculates
+        the upper bounds on the constraints
+    :type upper_bounds_function: function or class method
 
     :param theta_init: Initial model weights 
     :type theta_init: numpy ndarray
@@ -47,6 +70,10 @@ def gradient_descent_adam(
     :param num_iters: The number of iterations of gradient descent to run
     :type num_iters: int
 
+    :param gradient_library: The name of the library to use for computing 
+        automatic gradients. 
+    :type gradient_library: str, defaults to "autograd"
+
     :param store_values: Whether to include evaluations of various 
         quantities in the solution dictionary
     :type store_values: bool
@@ -66,14 +93,19 @@ def gradient_descent_adam(
     best_feasible_primary = np.inf # minimizing f so want it to be lowest possible
     best_index = 0  
 
-    # Define a function that returns gradients of LM loss function using Autograd
-    # It is possible the user provided a function for the gradient of the primary
+
+    # Get df/dtheta and dg/dtheta
+    (grad_primary_theta,
+        grad_upper_bound_theta) = handle_gradients(
+        gradient_library,
+        primary_objective,
+        upper_bounds_function)
+        
+    # It is possible user provided the function df/dtheta,
+    # which can often speed up computing the gradients.
+
     if 'primary_gradient' in kwargs:
         grad_primary_theta = kwargs['primary_gradient']
-    else:
-        grad_primary_theta = grad(primary_objective,argnum=0)
-
-    grad_upper_bound_theta = jacobian(upper_bound_function,argnum=0)
     
     if store_values: 
         # Store results in lists
@@ -88,7 +120,7 @@ def gradient_descent_adam(
             if i % 10 == 0:
                 print(f"Iteration {i}")
         primary_val = primary_objective(theta)
-        g_vec = upper_bound_function(theta)
+        g_vec = upper_bounds_function(theta)
         g_vec = g_vec.reshape(g_vec.shape[0],1)
         
         # Check if this is best feasible value so far

@@ -112,6 +112,7 @@ if __name__ == '__main__':
 		    'beta_velocity' : 0.9,
 		    'beta_rmsprop'  : 0.95,
 		    'num_iters'     : 200,
+		    'gradient_library': "autograd",
 		    'hyper_search'  : None,
 		    'verbose'       : True,
 		}
