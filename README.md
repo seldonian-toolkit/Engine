@@ -35,7 +35,7 @@ To run the unit tests, from the command line do:
 pytest
 ```
 
-This will automatically run all tests in `tests/`. Currently, there is only one test file in this folder, called `test_parse_tree.py`. Pytest will find that file and run all tests within that file. 
+This will automatically run all tests in `tests/`. 
 
 To get more introspection into the tests see the [Pytest documentation](https://docs.pytest.org/).
 
