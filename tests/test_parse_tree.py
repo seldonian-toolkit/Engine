@@ -1,11 +1,15 @@
+import pytest
+import time
+
+from sklearn.model_selection import train_test_split
+
 from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet)
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.utils.io_utils import load_json
 from seldonian.models.model import LinearRegressionModel
-import pytest
-import time
+
 
 two_interval_options = [
 	[[2.0,3.0],[4.0,5.0]],
@@ -309,6 +313,45 @@ def test_abs_bounds(interval_index,edge):
 	assert pt.root.upper == pytest.approx(answer[1])
 	assert pt.base_node_dict['a']['bound_computed'] == True
 
+##################
+### Node tests ###
+##################
+
+def test_node_reprs():
+	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
+	delta = 0.05 
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	pt.propagate_bounds(bound_method='manual')
+	# print(pt.root)
+	root_bounds_str = f"[-0.1, {float('inf')})"
+	assert pt.root.__repr__() == '\n'.join(
+		["[0]","sub",u'\u03B5' + ' ' + root_bounds_str])
+	abs_bounds_str = f"[0, {float('inf')})"
+	assert pt.root.left.__repr__() == '\n'.join(
+		["[1]","abs",u'\u03B5' + ' ' + abs_bounds_str])
+	
+	sub_bounds_str = f"({float('-inf')}, {float('inf')})"
+	assert pt.root.left.left.__repr__() == '\n'.join(
+		["[2]","sub",u'\u03B5' + ' ' + sub_bounds_str])
+
+	ME_M_bounds_str = f"({float('-inf')}, {float('inf')})"
+	assert pt.root.left.left.left.__repr__() == '\n'.join(
+		["[3]","Mean_Error | [M]",
+		u'\u03B5' + f' {ME_M_bounds_str}' + u', \u03B4=0.025' ])
+
+	ME_F_bounds_str = f"({float('-inf')}, {float('inf')})"
+	assert pt.root.left.left.right.__repr__() == '\n'.join(
+		["[4]","Mean_Error | [F]",
+		u'\u03B5' + f' {ME_F_bounds_str}' + u', \u03B4=0.025' ])
+
+	const_bounds_str = f"[0.1, 0.1]"
+	assert pt.root.right.__repr__() == '\n'.join(
+		["[5]","0.1",u'\u03B5' + ' ' + const_bounds_str])
+	
+
 ########################
 ### Parse tree tests ###
 ########################
@@ -331,6 +374,38 @@ def test_parse_tree_from_simple_string():
 	assert pt.root.right.left.right.name == 'PR'
 	assert pt.root.right.right.name == '4'
 	assert pt.root.right.right.value == 4
+
+def test_math_functions():
+	""" Test that math functions like
+	min(), max(), abs() and exp() get parsed 
+	as expected """
+	constraint_str = 'min((PR | [X]), (PR | [Y]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised',
+		sub_regime='classification',
+		columns=['X','Y'])
+	pt.create_from_ast(constraint_str)
+
+	# graph = pt.make_viz('pt')
+	# graph.view()
+	assert pt.n_nodes == 3
+	assert pt.n_base_nodes == 2
+	assert len(pt.base_node_dict) == 2
+	assert isinstance(pt.root,InternalNode)
+	assert pt.root.name == 'min'
+	assert pt.root.left.name == 'PR | [X]'
+	assert pt.root.right.name == 'PR | [Y]'
+
+	constraint_str = 'min((PR | [X]), (PR | [Y]), (PR | [Z]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	pt.create_from_ast(constraint_str)
+
+
 
 def test_measure_functions_recognized():
 	delta = 0.05
@@ -794,11 +869,24 @@ def test_ttest_bound(generate_data):
 		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
 	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
 	df = pd.DataFrame(rows,columns=['feature1','label'])
-	dataset = SupervisedDataSet(df,meta_information=['feature1','label'],
+	
+	frac_data_in_safety=0.6
+	candidate_df, safety_df = train_test_split(
+			df, test_size=frac_data_in_safety, shuffle=False)
+	
+	candidate_dataset = SupervisedDataSet(candidate_df,
+		meta_information=['feature1','label'],
+		regime='supervised',label_column='label',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
+
+	safety_dataset = SupervisedDataSet(safety_df,
+		meta_information=['feature1','label'],
 		regime='supervised',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
 	
+	# First, single sided bound (MSE only needs upper bound)
 	constraint_str = 'Mean_Squared_Error - 2.0'
 	delta = 0.05 
 
@@ -807,6 +895,7 @@ def test_ttest_bound(generate_data):
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
 	pt.assign_bounds_needed()
+	
 	assert pt.n_nodes == 3
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1
@@ -814,13 +903,202 @@ def test_ttest_bound(generate_data):
 	assert pt.root.left.will_lower_bound == False
 	assert pt.root.left.will_upper_bound == True
 	theta = np.array([0,1])
-	pt.propagate_bounds(theta=theta,dataset=dataset,
+	
+	# Candidate selection
+	pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
+		n_safety=len(safety_df),
+		model=model_instance,
+		branch='candidate_selection',
+		bound_method='ttest',
+		regime='supervised')
+	assert pt.root.lower == float('-inf') # not bound_computed 
+	assert pt.root.upper == pytest.approx(-0.932847)
+	pt.reset_base_node_dict(reset_data=True)
+	# Safety test
+	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 		model=model_instance,
 		branch='safety_test',
 		bound_method='ttest',
 		regime='supervised')
-	assert pt.root.lower == float('-inf') # not bound_computed 
-	assert pt.root.upper == pytest.approx(-0.995242)
+	assert pt.root.lower == float('-inf') # not computed
+	assert pt.root.upper == pytest.approx(-0.947693)
+
+	# Next, two sided bound 
+	constraint_str = 'abs(Mean_Squared_Error) - 2.0'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	
+	assert pt.n_nodes == 4
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+	theta = np.array([0,1])
+	
+	# Candidate selection
+	pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
+		n_safety=len(safety_df),
+		model=model_instance,
+		branch='candidate_selection',
+		bound_method='ttest',
+		regime='supervised')
+	
+	# assert pt.root.lower == float('-inf') # not bound_computed 
+	assert pt.root.upper == pytest.approx(-0.900307)
+	pt.reset_base_node_dict(reset_data=True)
+	# Safety test
+	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
+		model=model_instance,
+		branch='safety_test',
+		bound_method='ttest',
+		regime='supervised')
+	# assert pt.root.lower == float('-inf') # not computed
+	assert pt.root.upper == pytest.approx(-0.930726)
+
+def test_bad_bound_method(generate_data):
+	# dummy data for linear regression
+	np.random.seed(0)
+	numPoints=1000
+
+	model_instance = LinearRegressionModel()
+	X,Y = generate_data(
+		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
+	df = pd.DataFrame(rows,columns=['feature1','label'])
+	
+	frac_data_in_safety=0.6
+	candidate_df, safety_df = train_test_split(
+			df, test_size=frac_data_in_safety, shuffle=False)
+	
+	candidate_dataset = SupervisedDataSet(candidate_df,
+		meta_information=['feature1','label'],
+		regime='supervised',label_column='label',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
+
+	safety_dataset = SupervisedDataSet(safety_df,
+		meta_information=['feature1','label'],
+		regime='supervised',label_column='label',
+		include_sensitive_columns=False,
+		include_intercept_term=True)
+	
+	# First, single sided bound (MSE only needs upper bound)
+	constraint_str = 'Mean_Squared_Error - 2.0'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	
+	assert pt.n_nodes == 3
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+	assert pt.root.name == 'sub'  
+	assert pt.root.left.will_lower_bound == False
+	assert pt.root.left.will_upper_bound == True
+	theta = np.array([0,1])
+	
+	# Candidate selection
+	bound_method = 'bad-method'
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
+			n_safety=len(safety_df),
+			model=model_instance,
+			branch='candidate_selection',
+			bound_method=bound_method,
+			regime='supervised')
+	
+	error_str = (f"Bounding method {bound_method} is not supported")
+	assert str(excinfo.value) == error_str
+
+	pt.reset_base_node_dict(reset_data=True)
+	# Safety test
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
+			model=model_instance,
+			branch='safety_test',
+			bound_method=bound_method,
+			regime='supervised')
+
+	error_str = (f"Bounding method {bound_method} is not supported")
+	assert str(excinfo.value) == error_str
+
+	# Next, other side single sided bound (MSE only needs lower bound)
+	constraint_str = '1.0 - Mean_Squared_Error'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	
+	theta = np.array([0,1])
+	
+	# Candidate selection
+	bound_method = 'bad-method'
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
+			n_safety=len(safety_df),
+			model=model_instance,
+			branch='candidate_selection',
+			bound_method=bound_method,
+			regime='supervised')
+	
+	error_str = (f"Bounding method {bound_method} is not supported")
+	assert str(excinfo.value) == error_str
+
+	pt.reset_base_node_dict(reset_data=True)
+	# Safety test
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
+			model=model_instance,
+			branch='safety_test',
+			bound_method=bound_method,
+			regime='supervised')
+
+	error_str = (f"Bounding method {bound_method} is not supported")
+	assert str(excinfo.value) == error_str
+
+	# Now, two sided bound on leaf node
+	constraint_str = 'abs(Mean_Squared_Error) - 2.0'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	
+	# Candidate selection
+	bound_method = 'bad-method'
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
+			n_safety=len(safety_df),
+			model=model_instance,
+			branch='candidate_selection',
+			bound_method=bound_method,
+			regime='supervised')
+	
+	error_str = (f"Bounding method {bound_method} is not supported")
+	assert str(excinfo.value) == error_str
+
+	pt.reset_base_node_dict(reset_data=True)
+	# Safety test
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
+			model=model_instance,
+			branch='safety_test',
+			bound_method=bound_method,
+			regime='supervised')
+
+	error_str = (f"Bounding method {bound_method} is not supported")
+	assert str(excinfo.value) == error_str
 
 def test_evaluate_constraint(generate_data):
 	# Evaluate constraint mean, not the bound

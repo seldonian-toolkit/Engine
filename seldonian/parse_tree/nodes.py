@@ -376,7 +376,7 @@ class BaseNode(Node):
 			if bound_method == 'ttest':
 				lower = data.mean() - 2*stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
-				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
+				raise NotImplementedError(f"Bounding method {bound_method} is not supported")
 		
 		return lower
 
@@ -408,7 +408,7 @@ class BaseNode(Node):
 			if bound_method == 'ttest':
 				lower = data.mean() + 2*stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
-				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
+				raise NotImplementedError(f"Bounding method {bound_method} is not supported")
 			
 		return lower
 
@@ -453,8 +453,10 @@ class BaseNode(Node):
 			elif bound_method == 'manual':
 				pass
 			else:
-				raise NotImplementedError(f"Have not implemented" 
-					"confidence bounds with bound_method: {bound_method}")
+				raise NotImplementedError(
+					f"Bounding method {bound_method}"
+					" is not supported")
+
 			
 		return lower,upper
 
@@ -485,7 +487,9 @@ class BaseNode(Node):
 			if bound_method == 'ttest':	
 				lower = data.mean() - stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
-				raise NotImplementedError(f"Bounding method {bound_method} is not supported yet")
+				raise NotImplementedError(
+					f"Bounding method {bound_method}"
+					" is not supported")
 		return lower
 
 	def compute_HC_upperbound(self,
@@ -516,8 +520,9 @@ class BaseNode(Node):
 				upper = data.mean() + stddev(data) / np.sqrt(datasize) \
 					* tinv(1.0 - delta, datasize - 1)
 			else:
-				raise NotImplementedError("Have not implemented" 
-					f"confidence bounds with bound_method: {bound_method}")
+				raise NotImplementedError(
+					f"Bounding method {bound_method}"
+					" is not supported")
 			
 		return upper
 	
@@ -561,8 +566,9 @@ class BaseNode(Node):
 			elif bound_method == 'manual':
 				pass
 			else:
-				raise NotImplementedError("Have not implemented" 
-					f"confidence bounds with bound_method: {bound_method}")
+				raise NotImplementedError(
+					f"Bounding method {bound_method}"
+					" is not supported")
 		else:
 			raise NotImplementedError("Have not implemented" 
 					"confidence bounds without the keyword bound_method")

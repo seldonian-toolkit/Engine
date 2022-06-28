@@ -102,18 +102,6 @@ class Spec(object):
 		self.optimization_hyperparams = optimization_hyperparams
 		self.regularization_hyperparams = regularization_hyperparams
 
-		self.usable_opt_dict = {
-			'gradient_descent' : ['adam'],
-			'barrier_function': ['Powell','CG','Nelder-Mead','BFGS','CMA-ES']
-		}
-
-		acceptable_optimizers = self.usable_opt_dict[self.optimization_technique]
-		if self.optimizer not in acceptable_optimizers:
-			raise NotImplementedError(
-				f"Optimizer: {self.optimizer} is not an acceptable "
-				f"optimizer for optimization_technique: "
-				f"{self.optimization_technique}. Must be one of: "
-				f"{acceptable_optimizers}")
 
 class SupervisedSpec(Spec):
 	""" Specification object for running Supervised learning

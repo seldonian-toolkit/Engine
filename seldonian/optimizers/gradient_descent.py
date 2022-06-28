@@ -149,9 +149,7 @@ def gradient_descent_adam(
         # print(primary_val,g_vec,theta)
         
         grad_secondary_theta_val_vec = lamb*gu_theta_vec # elementwise mult
-        # print(grad_secondary_theta_val_vec)
-        # print(np.sum(grad_secondary_theta_val_vec))
-        # print(np.sum(grad_secondary_theta_val_vec,axis=1))
+        
         # Gradient of sum is sum of gradients
         gradient_theta = grad_primary_theta_val + sum(grad_secondary_theta_val_vec)
         

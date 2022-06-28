@@ -214,11 +214,17 @@ class ParseTree(object):
 		if hasattr(ast_node,'args') and (
 				ast_node.func.id not in self.available_measure_functions
 				):
-			if len(ast_node.args) == 0 or len(ast_node.args) > 2: 
-				readable_args = [x.id for x in ast_node.args]
-				raise NotImplementedError(
+			if len(ast_node.args) == 0: 
+				
+				raise RuntimeError(
 					"Please check the syntax of the function: "
-				   f" {new_node.name}(), with arguments: {readable_args}")
+				   f" {new_node.name}()."
+				   " It appears you provided no arguments")
+			elif len(ast_node.args) > 2:
+				raise RuntimeError(
+					"Please check the syntax of the function: "
+				   f" {new_node.name}()."
+				   " It appears you provided more than two arguments")
 			for ii,arg in enumerate(ast_node.args):
 				if ii == 0:
 					new_node.left = self._ast_tree_helper(arg)

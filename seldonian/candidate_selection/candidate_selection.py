@@ -109,6 +109,10 @@ class CandidateSelection(object):
 		:rtype: numpy ndarray or str 
 		"""
 		if self.optimization_technique == 'gradient_descent':
+			if self.optimizer != "adam":
+				raise NotImplementedError(
+					f"Optimizer: {self.optimizer} is not supported")
+
 			from seldonian.optimizers.gradient_descent import gradient_descent_adam
 
 			gd_kwargs = dict(
@@ -227,7 +231,7 @@ class CandidateSelection(object):
 				candidate_solution=es.result.xbest
 			else:
 				raise NotImplementedError(
-					f"Optimizer {self.optimizer} is not supported")
+					f"Optimizer: {self.optimizer} is not supported")
 		else:
 			raise NotImplementedError(f"Optimization technique: {self.optimization_technique} is not implemented")
 
@@ -256,9 +260,10 @@ class CandidateSelection(object):
 				self.features, self.labels)
 
 		elif self.regime == 'RL':
+			data_dict = {'episodes':self.candidate_dataset.episodes}
 			# Want to maximize the importance weight so minimize negative importance weight
 			result = -1.0*self.primary_objective(self.model,theta,
-				self.candidate_dataset)
+				data_dict)
 
 			# Optionally adding regularization term so that large thetas
 			# make this less negative
