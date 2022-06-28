@@ -185,7 +185,7 @@ class Environment():
 		self.reset()
 		return episode
 
-	def generate_episodes_par(self,n_episodes=1,return_index=False):
+	def generate_episodes_par(self,n_episodes=1,return_index=False,rseed=None):
 		""" Generate n_episodes episodes using the current policy.
 		This is the function to use for multiprocessing   
 
@@ -197,7 +197,11 @@ class Environment():
 		:type return_index: bool
 
 		"""
-		np.random.seed()
+		if rseed:
+			np.random.seed(rseed)
+		else:
+			np.random.seed()
+
 		episodes = []
 		for _ in range(n_episodes):
 			timestep = 0
