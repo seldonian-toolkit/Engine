@@ -378,7 +378,7 @@ def test_parse_tree_from_simple_string():
 def test_math_functions():
 	""" Test that math functions like
 	min(), max(), abs() and exp() get parsed 
-	as expected """
+	as expected. min and max expect no more than two arguments."""
 	constraint_str = 'min((PR | [X]), (PR | [Y]))'
 	delta = 0.05
 	pt = ParseTree(delta,
@@ -403,8 +403,25 @@ def test_math_functions():
 		regime='supervised',
 		sub_regime='classification',
 		columns=['X','Y','Z'])
-	pt.create_from_ast(constraint_str)
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Please check the syntax of the function: min()."
+			 " It appears you provided more than two arguments")
+	assert str(excinfo.value) == error_str
 
+	# constraint_str = 'abs((PR | [X]), (PR | [Y]))'
+	# delta = 0.05
+	# pt = ParseTree(delta,
+	# 	regime='supervised',
+	# 	sub_regime='classification',
+	# 	columns=['X','Y','Z'])
+	# # with pytest.raises(RuntimeError) as excinfo:
+	# pt.create_from_ast(constraint_str)
+	
+	# error_str = ("Please check the syntax of the function: min()."
+	# 		 " It appears you provided more than two arguments")
+	# assert str(excinfo.value) == error_str
 
 
 def test_measure_functions_recognized():

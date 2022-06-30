@@ -222,7 +222,7 @@ class ParseTree(object):
 				   " It appears you provided no arguments")
 			elif len(ast_node.args) > 2:
 				raise RuntimeError(
-					"Please check the syntax of the function: "
+					"Please check the syntax of the function:"
 				   f" {new_node.name}()."
 				   " It appears you provided more than two arguments")
 			for ii,arg in enumerate(ast_node.args):
