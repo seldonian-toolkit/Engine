@@ -20,13 +20,13 @@ seldonian.models.model.LogisticRegressionModel
    .. 
    ..    ~LogisticRegressionModel.__init__
    ..
-   ..    ~LogisticRegressionModel.accuracy
-   ..
    ..    ~LogisticRegressionModel.default_objective
    ..
    ..    ~LogisticRegressionModel.evaluate_statistic
    ..
    ..    ~LogisticRegressionModel.fit
+   ..
+   ..    ~LogisticRegressionModel.gradient_default_objective
    ..
    ..    ~LogisticRegressionModel.gradient_sample_logistic_loss
    ..
@@ -40,11 +40,13 @@ seldonian.models.model.LogisticRegressionModel
    ..
    ..    ~LogisticRegressionModel.sample_Positive_Rate
    ..
+   ..    ~LogisticRegressionModel.sample_True_Negative_Rate
+   ..
+   ..    ~LogisticRegressionModel.sample_True_Positive_Rate
+   ..
    ..    ~LogisticRegressionModel.sample_from_statistic
    ..
    ..    ~LogisticRegressionModel.sample_logistic_loss
-   ..
-   ..    ~LogisticRegressionModel.sample_perceptron_loss
    ..
    ..    ~LogisticRegressionModel.vector_False_Negative_Rate
    ..

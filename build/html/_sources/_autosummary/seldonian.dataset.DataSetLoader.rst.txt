@@ -1,4 +1,4 @@
-seldonian.dataset.DataSetLoader
+﻿seldonian.dataset.DataSetLoader
 ===============================
 
 .. currentmodule:: seldonian.dataset
@@ -20,7 +20,11 @@ seldonian.dataset.DataSetLoader
    .. 
    ..    ~DataSetLoader.__init__
    ..
-   ..    ~DataSetLoader.load_RL_dataset
+   ..    ~DataSetLoader.load_RL_dataset_from_csv
+   ..
+   ..    ~DataSetLoader.load_RL_dataset_from_dataframe
+   ..
+   ..    ~DataSetLoader.load_RL_dataset_from_episode_list
    ..
    ..    ~DataSetLoader.load_supervised_dataset
    ..

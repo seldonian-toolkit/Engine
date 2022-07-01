@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.models.model.LinearSoftmaxModel" href="seldonian.models.model.LinearSoftmaxModel.html" />
-    <link rel="prev" title="seldonian.models.model.LinearClassifierModel" href="seldonian.models.model.LinearClassifierModel.html" />
+    <link rel="prev" title="seldonian.models.model.ClassificationModel" href="seldonian.models.model.ClassificationModel.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -118,6 +118,30 @@ sample mean squared error</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>numpy ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.model.LinearRegressionModel.gradient_default_objective">
+<span class="sig-name descname"><span class="pre">gradient_default_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.model.LinearRegressionModel.gradient_default_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>The gradient of the default primary objective to use, the 
+sample mean squared error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gradient of the sample mean squared error 
+evaluated at theta</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -287,13 +311,11 @@ in the dataset</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.models.html">seldonian.models</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.model.html">seldonian.models.model</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.ClassificationModel.html">seldonian.models.model.ClassificationModel</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.LinearClassifierModel.html">seldonian.models.model.LinearClassifierModel</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.model.LinearRegressionModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.LinearSoftmaxModel.html">seldonian.models.model.LinearSoftmaxModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.LogisticRegressionModel.html">seldonian.models.model.LogisticRegressionModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.RLModel.html">seldonian.models.model.RLModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.RegressionModel.html">seldonian.models.model.RegressionModel</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.SGDClassifierModel.html">seldonian.models.model.SGDClassifierModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.SeldonianModel.html">seldonian.models.model.SeldonianModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.SupervisedModel.html">seldonian.models.model.SupervisedModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.model.TabularSoftmaxModel.html">seldonian.models.model.TabularSoftmaxModel</a></li>
@@ -324,7 +346,7 @@ in the dataset</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.models.html">seldonian.models</a><ul>
   <li><a href="seldonian.models.model.html">seldonian.models.model</a><ul>
-      <li>Previous: <a href="seldonian.models.model.LinearClassifierModel.html" title="previous chapter">seldonian.models.model.LinearClassifierModel</a></li>
+      <li>Previous: <a href="seldonian.models.model.ClassificationModel.html" title="previous chapter">seldonian.models.model.ClassificationModel</a></li>
       <li>Next: <a href="seldonian.models.model.LinearSoftmaxModel.html" title="next chapter">seldonian.models.model.LinearSoftmaxModel</a></li>
   </ul></li>
   </ul></li>
