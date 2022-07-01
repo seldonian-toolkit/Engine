@@ -69,7 +69,6 @@ def seldonian_algorithm(spec):
 		if include_intercept_term:
 			candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
-
 		try: 
 			initial_solution = initial_solution_fn(candidate_features,candidate_labels)
 		except ValueError:

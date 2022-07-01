@@ -17,15 +17,14 @@ def gradient_MSE(model,theta,X,Y):
 if __name__ == '__main__':
 	# gpa dataset
 	# Load metadata 
-    data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
-    metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+    data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
+    metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
 
     metadata_dict = load_json(metadata_pth)
     regime = metadata_dict['regime']
     sub_regime = metadata_dict['sub_regime']
     columns = metadata_dict['columns']
     sensitive_columns = metadata_dict['sensitive_columns']
-    label_column = metadata_dict['label_column']
                 
     include_sensitive_columns = False
     include_intercept_term = True
@@ -38,18 +37,19 @@ if __name__ == '__main__':
 
     # Load dataset from file
     loader = DataSetLoader(
-        column_names=columns,
-        sensitive_column_names=sensitive_columns,
+            regime=regime)
+
+    dataset = loader.load_supervised_dataset(
+        filename=data_pth,
+        metadata_filename=metadata_pth,
         include_sensitive_columns=include_sensitive_columns,
         include_intercept_term=include_intercept_term,
-        label_column=label_column,
-        regime=regime)
-
-    dataset = loader.from_csv(data_pth)
+        file_type='csv')
     
-    constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error'] 
+    # constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error'] 
+    constraint_strs = ['abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1']
     
-    deltas = [0.05,0.05]
+    deltas = [0.05]
 
     # For each constraint, make a parse tree
     parse_trees = []
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         delta = deltas[ii]
         # Create parse tree object
         parse_tree = ParseTree(delta=delta,regime='supervised',
-        sub_regime='regression')
+        sub_regime='regression',columns=sensitive_columns)
 
         # Fill out tree
         parse_tree.create_from_ast(constraint_str)
@@ -86,12 +86,13 @@ if __name__ == '__main__':
         optimization_technique='gradient_descent',
         optimizer='adam',
         optimization_hyperparams={
-            'lambda_init'   : 0.5,
-            'alpha_theta'   : 0.005,
-            'alpha_lamb'    : 0.005,
+            'lambda_init'   : np.array([0.5]),
+            'alpha_theta'   : 0.01,
+            'alpha_lamb'    : 0.01,
             'beta_velocity' : 0.9,
             'beta_rmsprop'  : 0.95,
-            'num_iters'     : 200,
+            'num_iters'     : 600,
+            'gradient_library': "autograd",
             'hyper_search'  : None,
             'verbose'       : True,
         }

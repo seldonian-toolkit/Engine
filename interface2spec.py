@@ -48,6 +48,7 @@ if __name__ == '__main__':
 		else:
 			raise NotImplementedError(f"{sub_regime} is not a supported "
 				"sub regime of supervised learning")
+	
 	elif regime == 'RL':
 		# Default model for RL
 		model_class = LinearSoftmaxModel

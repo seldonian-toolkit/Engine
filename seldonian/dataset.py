@@ -46,13 +46,14 @@ class DataSetLoader():
 		:type file_type: str, defaults to 'csv'
 		"""
 		if file_type.lower() == 'csv':
-			df = pd.read_csv(filename)
+			df = pd.read_csv(filename,header=None)
 		
 		elif file_type.lower() == 'pkl' or file_type.lower() == 'pickle':
+			# In this case the pickled object should be a pandas dataframe
 			df = load_pickle(filename)
 		else:
 			raise NotImplementedError(f"File type: {file_type} not supported")
-
+		# print(df)
 		# Load metadata
 		metadata_dict = load_json(metadata_filename)
 
@@ -68,11 +69,13 @@ class DataSetLoader():
 			include_sensitive_columns=include_sensitive_columns,
 			include_intercept_term=include_intercept_term)
 
-	def load_RL_dataset(self,
+	def load_RL_dataset_from_csv(self,
 		filename,
-		metadata_filename,
-		file_type='csv'):
+		metadata_filename):
 		""" Create RLDataSet object from file
+		containing the episodes as a CSV with format:
+
+		state,action,reward,probability_of_action
 
 		:param filename: The file
 			containing the data you want to load
@@ -81,22 +84,13 @@ class DataSetLoader():
 		:param metadata_filename: The file
 			containing the metadata describing the data in filename
 		:type metadata_filename: str
-
-		:param file_type: the file extension of filename
-		:type file_type: str, defaults to 'csv'
 		"""
 
 		# Load metadata
 		metadata_dict = load_json(metadata_filename)
 		columns = metadata_dict['columns']
 
-		if file_type.lower() == 'csv':
-			df = pd.read_csv(filename)
-		
-		elif file_type.lower() == 'pkl' or file_type.lower() == 'pickle':
-			df = load_pickle(filename)
-		else:
-			raise NotImplementedError(f"File type: {file_type} not supported")
+		df = pd.read_csv(filename,header=None)
 
 		df.columns = columns
 		episodes=[]
@@ -108,6 +102,70 @@ class DataSetLoader():
 							  rewards=df_ep.R.values,
 							  pis=df_ep.pi.values)
 			episodes.append(episode)
+		
+		return RLDataSet(
+			episodes=episodes,
+			meta_information=columns)
+	
+	def load_RL_dataset_from_dataframe(self,
+		filename,
+		metadata_filename):
+		""" Create RLDataSet object from file
+		containing pickled pandas dataframe. 
+		The dataframe does not need to have columns
+		assigned already
+
+		:param filename: The file
+			containing the pickled dataframe
+			you want to load
+		:type filename: str
+
+		:param metadata_filename: The file
+			containing the metadata describing the data in filename
+		:type metadata_filename: str
+		"""
+
+		# Load metadata
+		metadata_dict = load_json(metadata_filename)
+		columns = metadata_dict['columns']
+
+		df = load_pickle(filename)
+
+		df.columns = columns
+		episodes=[]
+		
+		for episode_index in df.episode_index.unique():
+			df_ep = df.loc[df.episode_index==episode_index]
+			episode = Episode(states=df_ep.O.values,
+							  actions=df_ep.A.values,
+							  rewards=df_ep.R.values,
+							  pis=df_ep.pi.values)
+			episodes.append(episode)
+		
+		return RLDataSet(
+			episodes=episodes,
+			meta_information=columns)
+		
+	def load_RL_dataset_from_episode_list(self,
+		filename,
+		metadata_filename):
+		""" Create RLDataSet object from file
+
+		:param filename: The file
+			containing the pickled episodes lists
+			you want to load
+		:type filename: str
+
+		:param metadata_filename: The file
+			containing the metadata describing the data in filename
+		:type metadata_filename: str
+		"""
+
+		# Load metadata
+		metadata_dict = load_json(metadata_filename)
+		columns = metadata_dict['columns']
+
+		episodes = load_pickle(filename)
 		
 		return RLDataSet(
 			episodes=episodes,

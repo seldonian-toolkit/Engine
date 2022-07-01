@@ -85,13 +85,14 @@ def gpa_regression_dataset():
     from seldonian.models.model import LinearRegressionModel
     def generate_dataset(constraint_strs,deltas):
 
-        data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
-        metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+        data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
+        metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
 
         metadata_dict = load_json(metadata_pth)
         regime = metadata_dict['regime']
         sub_regime = metadata_dict['sub_regime']
         columns = metadata_dict['columns']
+        sensitive_columns = metadata_dict['sensitive_columns']
                     
         include_sensitive_columns = False
         include_intercept_term = True
@@ -100,7 +101,7 @@ def gpa_regression_dataset():
         model_class = LinearRegressionModel
 
         # Mean squared error
-        primary_objective = model_class().sample_Mean_Squared_Error
+        primary_objective = model_class().default_objective
 
         # Load dataset from file
         loader = DataSetLoader(
@@ -121,7 +122,8 @@ def gpa_regression_dataset():
             delta = deltas[ii]
             # Create parse tree object
             parse_tree = ParseTree(delta=delta,
-                regime='supervised',sub_regime='regression')
+                regime='supervised',sub_regime='regression',
+                columns=sensitive_columns)
 
             # Fill out tree
             parse_tree.create_from_ast(constraint_str)
@@ -144,8 +146,8 @@ def gpa_classification_dataset():
     from seldonian.models.model import LogisticRegressionModel
     def generate_dataset(constraint_strs,deltas):
 
-        data_pth = 'static/datasets/GPA/gpa_classification_dataset.csv'
-        metadata_pth = 'static/datasets/GPA/metadata_classification.json'
+        data_pth = 'static/datasets/supervised/GPA/gpa_classification_dataset.csv'
+        metadata_pth = 'static/datasets/supervised/GPA/metadata_classification.json'
 
         metadata_dict = load_json(metadata_pth)
         regime = metadata_dict['regime']
@@ -159,7 +161,7 @@ def gpa_classification_dataset():
         model_class = LogisticRegressionModel
 
         # Mean squared error
-        primary_objective = model_class().sample_logistic_loss
+        primary_objective = model_class().default_objective
 
         # Load dataset from file
         loader = DataSetLoader(
@@ -198,7 +200,6 @@ def gpa_classification_dataset():
     
     return generate_dataset
 
-
 @pytest.fixture
 def RL_gridworld_dataset():
     from seldonian.RL.environments import gridworld3x3
@@ -214,12 +215,15 @@ def RL_gridworld_dataset():
         primary_objective = model_instance.sample_IS_estimate
 
         # Load data into dataset
-        data_pth = 'static/datasets/RL/gridworld/gridworld3x3_250episodes.pkl'
+        data_pth = 'static/datasets/RL/gridworld/gridworld3x3_250episodes_list.pkl'
+        metadata_pth = 'static/datasets/RL/gridworld/gridworld3x3_metadata.json'
 
-        episodes = load_pickle(data_pth)
-        columns = ['O','A','R','pi']
-        dataset = RLDataSet(episodes=episodes,
-            meta_information=columns)
+        loader = DataSetLoader(
+            regime=regime)
+
+        dataset = loader.load_RL_dataset_from_episode_list(
+            filename=data_pth,
+            metadata_filename=metadata_pth)
 
         # For each constraint, make a parse tree
         parse_trees = []

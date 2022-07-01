@@ -146,7 +146,7 @@ def gradient_descent_adam(
         grad_primary_theta_val = grad_primary_theta(theta)
 
         gu_theta_vec = grad_upper_bound_theta(theta)
-        # print(primary_val,g_vec,theta)
+        # print(primary_val,g_vec)
         
         grad_secondary_theta_val_vec = lamb*gu_theta_vec # elementwise mult
         

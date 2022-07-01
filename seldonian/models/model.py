@@ -17,7 +17,7 @@ class SupervisedModel(SeldonianModel):
 	def __init__(self):
 		""" Parent class for all supervised machine learning 
 		models used in this library """
-		pass
+		super().__init__()
 
 	def fit(self,X,Y):
 		""" Train the model using the feature,label pairs 
@@ -129,6 +129,7 @@ class RegressionModel(SupervisedModel):
 		prediction = model.predict(theta,X) # vector of values
 		err = prediction-Y
 		return 2/n*np.dot(err,X)
+
 		
 	def sample_Mean_Error(self,model,theta,X,Y):
 		"""
@@ -240,6 +241,27 @@ class LinearRegressionModel(RegressionModel):
 		"""
 		return self.sample_Mean_Squared_Error(model,theta,X,Y)
 
+	def gradient_default_objective(self,model,theta,X,Y):
+		""" The gradient of the default primary objective to use, the 
+		sample mean squared error
+
+		:param model: The Seldonian model object 
+		:type model: :py:class:`.SeldonianModel` object
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: Gradient of the sample mean squared error 
+			evaluated at theta
+		:rtype: float
+		"""
+		return self.gradient_sample_Mean_Squared_Error(model,theta,X,Y)
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):
@@ -275,7 +297,7 @@ class ClassificationModel(SupervisedModel):
 
 		if statistic_name == 'NR':
 			return model.sample_Negative_Rate(model,
-				theta,data_dict['features'],data_dict['labels'])
+				theta,data_dict['features'])
 
 		if statistic_name == 'FPR':
 			return model.sample_False_Positive_Rate(model,
@@ -287,6 +309,10 @@ class ClassificationModel(SupervisedModel):
 
 		if statistic_name == 'TPR':
 			return model.sample_True_Positive_Rate(model,
+				theta,data_dict['features'],data_dict['labels'])
+
+		if statistic_name == 'TNR':
+			return model.sample_True_Negative_Rate(model,
 				theta,data_dict['features'],data_dict['labels'])
 
 		if statistic_name == 'logistic_loss':
@@ -321,7 +347,7 @@ class ClassificationModel(SupervisedModel):
 
 		if statistic_name == 'NR':
 			return model.vector_Negative_Rate(model,
-				theta,data_dict['features'],data_dict['labels'])
+				theta,data_dict['features'])
 
 		if statistic_name == 'FPR':
 			return model.vector_False_Positive_Rate(model,
@@ -334,58 +360,16 @@ class ClassificationModel(SupervisedModel):
 		if statistic_name == 'TPR':
 			return model.vector_True_Positive_Rate(model,
 				theta,data_dict['features'],data_dict['labels'])
+
+		if statistic_name == 'TNR':
+			return model.vector_True_Negative_Rate(model,
+				theta,data_dict['features'],data_dict['labels'])
+
 		if statistic_name == 'logistic_loss':
 			return model.vector_logistic_loss(model,
 				theta,data_dict['features'],data_dict['labels'])
 
 		raise NotImplementedError(f"Statistic: {statistic_name} is not implemented")
-
-	def accuracy(self,model,theta,X,Y):
-		""" Calculate the accuracy of the 
-		binary classification model 
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param X: The features
-		:type X: numpy ndarray
-
-		:param Y: The labels
-		:type Y: numpy ndarray
-
-		:return: accuracy
-		:rtype: float
-		"""
-		prediction = model.predict(theta,X)
-		predict_class = prediction>=0.5
-		acc = np.mean(1.0*predict_class==Y)
-		return acc
-
-	def sample_perceptron_loss(self,model,theta,X,Y):
-		""" Calculate perceptron loss 
-		(fraction of incorrect classifications) on whole sample
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param X: The features
-		:type X: numpy ndarray
-
-		:param Y: The labels
-		:type Y: numpy ndarray
-
-		:return: perceptron loss
-		:rtype: float
-		"""
-		prediction = model.predict(theta,X)
-		res = np.mean(prediction!=Y) # 0 if all correct, 1 if all incorrect
-		return res
 
 	def sample_logistic_loss(self,model,theta,X,Y):
 		""" Calculate logistic loss 
@@ -551,6 +535,60 @@ class ClassificationModel(SupervisedModel):
 		pos_mask = Y==1.0 # this includes false positives and true negatives
 		return np.sum(1.0-prediction[pos_mask])/len(X[pos_mask])
 
+	def sample_True_Positive_Rate(self,model,theta,X,Y):
+		"""
+		Calculate true positive rate
+		for the whole sample.
+		
+		The is the sum of the probability of each 
+		sample being in the positive class when in fact it was in 
+		the positive class.
+
+		:param model: The Seldonian model object 
+		:type model: :py:class:`.SeldonianModel` object
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:return: False positive rate for whole sample
+		:rtype: float between 0 and 1
+		"""
+		prediction = self.predict(theta,X)
+		# Sum the probability of being in positive class
+		# subject to the truth being the other class
+		pos_mask = Y==1.0 # this includes false positives and true negatives
+		return np.sum(prediction[pos_mask])/len(X[pos_mask])
+
+	def sample_True_Negative_Rate(self,model,theta,X,Y):
+		"""
+		Calculate true negative rate
+		for the whole sample.
+		
+		The is the sum of the probability of each 
+		sample being in the negative class when in fact it was in 
+		the negative class.
+
+		:param model: The Seldonian model object 
+		:type model: :py:class:`.SeldonianModel` object
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:return: False positive rate for whole sample
+		:rtype: float between 0 and 1
+		"""
+		prediction = self.predict(theta,X)
+		# Sum the probability of being in negative class
+		# subject to the truth being the negative class
+		neg_mask = Y!=1.0 # this includes false positives and true negatives
+		return np.sum(1.0-prediction[neg_mask])/len(X[neg_mask])
+		
 	def vector_Positive_Rate(self,model,theta,X):
 		"""
 		Calculate positive rate
@@ -696,71 +734,6 @@ class ClassificationModel(SupervisedModel):
 		return 1.0 - prediction[pos_mask]
 
 
-class LinearClassifierModel(ClassificationModel):
-	def __init__(self):
-		""" Implements a linear classifier using linear regression"""
-		super().__init__()
-		self.model_class = LinearRegression
-
-	def predict(self,theta,X):
-		""" Make prediction using the model weights
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param X: The features
-		:type X: numpy ndarray
-
-		:return: predictions for each observation
-		:rtype: numpy ndarray(float)
-		"""
-		prediction = np.sign(np.dot(X,theta)) # -1 or 1
-		return prediction
-
-	def default_objective(self,model,theta,X,Y):
-		""" The default primary objective to use, the 
-		perceptron loss
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param X: The features
-		:type X: numpy ndarray
-
-		:param Y: The labels
-		:type Y: numpy ndarray
-
-		:return: Perceptron loss
-		:rtype: float
-		"""
-		return self.sample_perceptron_loss(model,theta,X,Y)
-
-
-class SGDClassifierModel(ClassificationModel):
-	def __init__(self):
-		""" Implements a linear support vector machine """
-		super().__init__()
-		# self.model_class = LinearRegression
-		self.model_class = SGDClassifier
-
-	def fit(self,X,Y):
-		reg = self.model_class().fit(X, Y)
-		return reg.coef_[0]
-
-	def predict(self,theta,X):
-		""" Given a set of weights, theta,
-		and an array of feature vectors, X, which include offsets
-		in the first column,
-		make prediction using the model """
-		prediction = np.sign(np.dot(theta.T,X.T)) # -1 or 1
-		# map -1 to 0
-		prediction[prediction==-1]=0
-		return prediction
-
-
 class LogisticRegressionModel(ClassificationModel):
 	def __init__(self):
 		""" Implements logistic regression """
@@ -820,11 +793,27 @@ class LogisticRegressionModel(ClassificationModel):
 		"""
 		return self.sample_logistic_loss(model,theta,X,Y)
 
+	def gradient_default_objective(self,model,theta,X,Y):
+		""" Gradient of logistic loss w.r.t. theta
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: perceptron loss
+		:rtype: float
+		"""
+		return self.gradient_sample_logistic_loss(model,theta,X,Y)
 
 class RLModel(SeldonianModel):
 	def __init__(self):
 		""" The base class for all RL Seldonian models"""
-		pass
+		super().__init__()
 		
 	def sample_from_statistic(self,
 		statistic_name,model,theta,data_dict):
@@ -968,6 +957,7 @@ class TabularSoftmaxModel(RLModel):
 			environment module
 
 		"""
+		super().__init__()
 		self.environment = environment
 
 	def sample_IS_estimate(self,model,theta,data_dict):

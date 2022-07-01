@@ -1117,8 +1117,11 @@ def test_bad_bound_method(generate_data):
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
 
-def test_evaluate_constraint(generate_data):
+def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	# Evaluate constraint mean, not the bound
+	# test all of the statistics in all regimes
+
+	### Regression 
 	np.random.seed(0)
 	numPoints=1000
 
@@ -1135,6 +1138,7 @@ def test_evaluate_constraint(generate_data):
 		include_sensitive_columns=False,
 		include_intercept_term=True)
 	
+	# MSE
 	constraint_str = 'Mean_Squared_Error - 2.0'
 	delta = 0.05 
 
@@ -1154,6 +1158,47 @@ def test_evaluate_constraint(generate_data):
 		branch='safety_test')
 
 	assert pt.root.value == pytest.approx(-1.06248)
+
+	# Mean error
+	constraint_str = 'Mean_Error - 2.0'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
+	pt.create_from_ast(constraint_str)
+
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	assert pt.n_nodes == 3
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+	
+	theta = np.array([0,1])
+	pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model_instance,regime='supervised',
+		branch='safety_test')
+
+	assert pt.root.value == pytest.approx(-2.013617)
+
+	### Classification
+	constraint_str = '(PR + NR + FPR + FNR + TPR + TNR + logistic_loss) - 10.0'
+	constraint_strs = [constraint_str]
+	deltas = [0.05]
+
+	(dataset,model_class,
+		primary_objective,parse_trees) = gpa_classification_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+	model_instance = model_class()
+
+	theta = np.zeros(10)
+	pt = parse_trees[0]
+	pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model_instance,regime='supervised',
+		branch='safety_test')
+	assert pt.root.value == pytest.approx(-6.306852)
+	
+
 
 def test_reset_parse_tree():
 	
@@ -1195,8 +1240,8 @@ def test_reset_parse_tree():
 
 def test_single_conditional_columns_propagated():
 	np.random.seed(0)
-	data_pth = 'static/datasets/GPA/gpa_regression_dataset.csv'
-	metadata_pth = 'static/datasets/GPA/metadata_regression.json'
+	data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
+	metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
 
 	metadata_dict = load_json(metadata_pth)
 
