@@ -60,7 +60,6 @@ def test_not_enough_data(generate_data):
 		include_sensitive_columns=False,
 		include_intercept_term=False
 	)
-
 	frac_data_in_safety=0.6
 
 	# Create spec object
