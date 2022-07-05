@@ -10,8 +10,7 @@ from seldonian.dataset import (DataSetLoader,
 from seldonian.models.model import (LinearRegressionModel,
 	TabularSoftmaxModel)
 from seldonian.spec import RLSpec, SupervisedSpec
-from seldonian.seldonian_algorithm import seldonian_algorithm
-
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
 
 
 ### Begin tests
@@ -87,10 +86,10 @@ def test_not_enough_data(generate_data):
 			'verbose'       : True,
 		}
 	)
-	warning_msg = ("Warning: not enough data to run the algorithm.  " 
-                   "Returning NSF and failing safety test.") 
+	warning_msg = "Warning: not enough data to run the Seldonian algorithm." 
 	with pytest.warns(UserWarning,match=warning_msg) as excinfo:
-		passed_safety,solution = seldonian_algorithm(spec)
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
 
 	spec_zeros = SupervisedSpec(
 		dataset=dataset,
@@ -115,10 +114,10 @@ def test_not_enough_data(generate_data):
 			'verbose'       : True,
 		}
 	)
-	warning_msg = ("Warning: not enough data to run the algorithm.  " 
-                   "Returning NSF and failing safety test.") 
+	warning_msg = "Warning: not enough data to run the Seldonian algorithm." 
 	with pytest.warns(UserWarning,match=warning_msg) as excinfo:
-		passed_safety,solution = seldonian_algorithm(spec_zeros)
+		SA = SeldonianAlgorithm(spec_zeros)
+		passed_safety,solution = SA.run()
 
 def test_bad_optimizer(gpa_regression_dataset):
 	""" Test that attempting to use an optimizer 
@@ -160,7 +159,8 @@ def test_bad_optimizer(gpa_regression_dataset):
 
 		# Run seldonian algorithm
 		with pytest.raises(NotImplementedError) as excinfo:
-			passed_safety,solution = seldonian_algorithm(bad_spec)
+			SA = SeldonianAlgorithm(bad_spec)
+			passed_safety,solution = SA.run()
 		error_str = "Optimizer: bad-optimizer is not supported"
 		assert error_str in str(excinfo.value)
 
@@ -187,7 +187,8 @@ def test_bad_optimizer(gpa_regression_dataset):
 
 	# Run seldonian algorithm
 	with pytest.raises(NotImplementedError) as excinfo:
-		passed_safety,solution = seldonian_algorithm(bad_spec)
+		SA = SeldonianAlgorithm(bad_spec)
+		passed_safety,solution = SA.run()
 	error_str = "Optimization technique: bad-opt-technique is not implemented"
 	assert error_str in str(excinfo.value)
 
@@ -236,7 +237,8 @@ def test_gpa_data_regression(gpa_regression_dataset):
 	)
 
 	# Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	array_to_compare = np.array(
 		[ 4.20776626e-01, -6.68167090e-04,  9.78329737e-04, -1.15722866e-03,
@@ -289,7 +291,8 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	)
 
 	# Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	array_to_compare = np.array(
 		[ 4.18121191e-01,  7.65218366e-05,  8.68827231e-04,  4.96795941e-04,
@@ -341,7 +344,8 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 	)
 
 	# Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	array_to_compare = np.array(
 		[ 0.42155706, -0.00152678, -0.0006972,  -0.00108743, -0.00102126, -0.00125793,
@@ -437,7 +441,8 @@ def test_gpa_data_classification(gpa_classification_dataset):
 		)
 
 		# Run seldonian algorithm
-		passed_safety,solution = seldonian_algorithm(spec)
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
 		assert passed_safety == True
 		print(solution)
 
@@ -490,7 +495,8 @@ def test_classification_statistics(gpa_classification_dataset):
 	)
 
 	# Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	print(passed_safety,solution)
 	solution_to_compare = np.array(
@@ -543,7 +549,8 @@ def test_NSF(gpa_regression_dataset):
 	)
 
 	# Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == False
 	assert solution == 'NSF'
 
@@ -591,7 +598,8 @@ def test_black_box_optimizers(gpa_regression_dataset):
 
 
 		# Run seldonian algorithm
-		passed_safety,solution = seldonian_algorithm(spec)
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
 
 		assert passed_safety == True
 		if optimizer != 'CMA-ES':
@@ -651,7 +659,8 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 	)
 
 	# Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	array_to_compare = np.array(
 		[ 4.17882259e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
@@ -758,7 +767,8 @@ def test_RL_builtin_or_custom_gradient_not_supported():
 				" is not yet supported for regimes other"
 				" than supervised learning")
 	with pytest.raises(NotImplementedError) as excinfo:
-		passed_safety,solution = seldonian_algorithm(spec)
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
 		
 	assert error_str in str(excinfo.value)
 
@@ -796,7 +806,8 @@ def test_RL_builtin_or_custom_gradient_not_supported():
 				" is not yet supported for regimes other"
 				" than supervised learning")
 	with pytest.raises(NotImplementedError) as excinfo2:
-		passed_safety,solution = seldonian_algorithm(spec2)
+		SA = SeldonianAlgorithm(spec2)
+		passed_safety,solution = SA.run()
 		
 	assert error_str2 in str(excinfo2.value)
 	
@@ -846,7 +857,8 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	)
 
 	# # Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	array_to_compare = np.array(
 	   [ 0.14021112, -0.14216886, -0.13786284, -0.14577261,  0.14013514,  0.13784917,
@@ -899,7 +911,8 @@ def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	)
 
 	# # Run seldonian algorithm
-	passed_safety,solution = seldonian_algorithm(spec)
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	array_to_compare = np.array(
 	   [-0.01478694, -1.52299897,  0.60606259, -0.0475612,  -0.13658868,  0.33656384,

@@ -13,7 +13,6 @@ def dir_path(path):
     else:
         raise NotADirectoryError(path)
 
-
 def load_pickle(filename):
     """ A wrapper for loading an object from a pickle file
 
