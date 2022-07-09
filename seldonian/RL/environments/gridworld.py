@@ -23,7 +23,7 @@ class Gridworld(Environment):
         self.terminal_state = False
 
     def transition(self, action):
-        reward = -1.0
+        reward = -1
         self.time += 1
         self.update_position(action)
         if self.vis:
@@ -32,7 +32,7 @@ class Gridworld(Environment):
         if self.is_in_goal_state() or self.time >= self.max_time - 1:
             self.terminal_state = True
             if self.is_in_goal_state():
-                reward = 0.0
+                reward = 0
         return reward
 
     def get_observation(self):

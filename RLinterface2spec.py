@@ -20,8 +20,6 @@ def main_RLinterface2spec():
 
 def dataset2spec(save_dir, metadata_pth, dataset):
     # Load metadata
-    print("pwd:", os.getcwd())
-    print("metadata_pth:", metadata_pth)
     with open(metadata_pth, 'r') as infile:
         metadata_dict = json.load(infile)
 

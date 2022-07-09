@@ -7,6 +7,13 @@ from seldonian.utils.io_utils import load_pickle
 if __name__ == '__main__':
     specfile = '/home/james/seldonian_library_repos/Engine/seldonian/RL/spec.pkl'
     spec = load_pickle(specfile)
+
+    dataset = spec.dataset
+    regime = dataset.regime
+    print(regime)
+    print(spec.RL_environment_obj)
+
+
     spec.use_builtin_primary_gradient_fn = False
     spec.optimization_hyperparams['num_iters'] = 20
     spec.optimization_hyperparams['alpha_theta'] = 0.05

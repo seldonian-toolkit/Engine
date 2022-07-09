@@ -1,15 +1,14 @@
 from seldonian.RL.RL_runner import *
+from seldonian.RL.hyperparams_and_settings import *
 
-def define_hyperparameter_and_setting_dict():
-    the_dict = {}
-    the_dict["env"] = "gridworld"
-    the_dict["agent"] = "discrete_random"
-    the_dict["num_trials"] = 2
-    the_dict["num_episodes"] = 3
-    the_dict["vis"] = False
-    return the_dict
+def print_results(results):
+    for trial_num, trial in enumerate(results):
+        print(f"\n\n\ntrial {trial_num}:")
+        for episode_num, episode in enumerate(trial):
+            print(f"\nepisode {episode_num}:")
+            print(episode)
 
 if __name__ == "__main__":
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
-    returns = run_all_trials(hyperparameter_and_setting_dict)
-    print(returns)
+    results = run_all_trials(hyperparameter_and_setting_dict)
+    print_results(results)
