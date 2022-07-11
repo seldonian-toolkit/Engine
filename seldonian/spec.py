@@ -205,6 +205,7 @@ class SupervisedSpec(Spec):
 			optimization_hyperparams,
 			regularization_hyperparams)
 
+
 class RLSpec(Spec):
 	""" Specification object for running RL Seldonian algorithms
 

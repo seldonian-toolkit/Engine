@@ -82,7 +82,7 @@ def generate_data():
 @pytest.fixture
 def gpa_regression_dataset():
 
-    from seldonian.models.model import LinearRegressionModel
+    from seldonian.models.models import LinearRegressionModel
     def generate_dataset(constraint_strs,deltas):
 
         data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
@@ -143,7 +143,7 @@ def gpa_regression_dataset():
 @pytest.fixture
 def gpa_classification_dataset():
 
-    from seldonian.models.model import LogisticRegressionModel
+    from seldonian.models.models import LogisticRegressionModel
     def generate_dataset(constraint_strs,deltas):
 
         data_pth = 'static/datasets/supervised/GPA/gpa_classification_dataset.csv'
@@ -203,7 +203,7 @@ def gpa_classification_dataset():
 @pytest.fixture
 def RL_gridworld_dataset():
     from seldonian.RL.environments import gridworld3x3
-    from seldonian.models.model import TabularSoftmaxModel
+    from seldonian.models.models import TabularSoftmaxModel
 
     def generate_dataset(constraint_strs,deltas):
         env = gridworld3x3.Environment()

@@ -7,7 +7,7 @@ from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import dir_path
 from seldonian.spec import SupervisedSpec
-from seldonian.models.model import *
+from seldonian.models.models import *
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

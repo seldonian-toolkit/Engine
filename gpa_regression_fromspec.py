@@ -5,7 +5,7 @@ from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
 from seldonian.utils.io_utils import load_json
 from seldonian.seldonian_algorithm import seldonian_algorithm
-from seldonian.models.model import LinearRegressionModel
+from seldonian.models.models import LinearRegressionModel
 from seldonian.spec import SupervisedSpec
 
 def gradient_MSE(model,theta,X,Y):

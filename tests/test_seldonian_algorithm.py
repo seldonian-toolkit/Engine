@@ -7,7 +7,7 @@ from seldonian.utils.io_utils import load_json, load_pickle
 from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet,RLDataSet)
-from seldonian.models.model import (LinearRegressionModel,
+from seldonian.models.models import (LinearRegressionModel,
 	TabularSoftmaxModel)
 from seldonian.spec import RLSpec, SupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm

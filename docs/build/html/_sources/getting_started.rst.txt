@@ -65,7 +65,7 @@ Let's write out the code to do this. Each step above is enumerated in comments i
     # example.py
     import autograd.numpy as np   # Thinly-wrapped version of Numpy
     import pandas as pd
-    from seldonian.models.model import LinearRegressionModel
+    from seldonian.models.models import LinearRegressionModel
     from seldonian.dataset import SupervisedDataSet
     from seldonian.parse_tree.parse_tree import ParseTree
     from seldonian.spec import SupervisedSpec

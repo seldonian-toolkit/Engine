@@ -10,7 +10,7 @@ from seldonian.utils.io_utils import dir_path
 from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
 from seldonian.spec import RLSpec
-from seldonian.models.model import *
+from seldonian.models.models import *
 
 
 if __name__ == '__main__':

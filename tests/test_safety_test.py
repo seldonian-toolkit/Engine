@@ -34,7 +34,7 @@ def test_run_safety_test(generate_data):
         include_intercept_term=include_intercept_term)
 
     # Linear regression model
-    from seldonian.models.model import LinearRegressionModel
+    from seldonian.models.models import LinearRegressionModel
     model_instance = LinearRegressionModel()
     
     # One constraint, so one parse tree
@@ -88,7 +88,7 @@ def test_evaluate_primary_objective(generate_data):
         include_intercept_term=include_intercept_term)
 
     # Linear regression model
-    from seldonian.models.model import LinearRegressionModel
+    from seldonian.models.models import LinearRegressionModel
     model_instance = LinearRegressionModel()
     primary_objective = model_instance.default_objective
     

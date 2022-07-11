@@ -8,7 +8,7 @@ from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet)
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.utils.io_utils import load_json
-from seldonian.models.model import LinearRegressionModel
+from seldonian.models.models import LinearRegressionModel
 
 
 two_interval_options = [
