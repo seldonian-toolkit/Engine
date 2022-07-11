@@ -67,9 +67,11 @@ e.g. supervised or RL</p>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset">
-<span class="sig-name descname"><span class="pre">load_RL_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create RLDataSet object from file</p>
+<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv">
+<span class="sig-name descname"><span class="pre">load_RL_dataset_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create RLDataSet object from file
+containing the episodes as a CSV with format:</p>
+<p>state,action,reward,probability_of_action</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -77,7 +79,43 @@ e.g. supervised or RL</p>
 containing the data you want to load</p></li>
 <li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
 containing the metadata describing the data in filename</p></li>
-<li><p><strong>file_type</strong> (<em>str</em><em>, </em><em>defaults to 'csv'</em>) – the file extension of filename</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_dataframe">
+<span class="sig-name descname"><span class="pre">load_RL_dataset_from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create RLDataSet object from file
+containing pickled pandas dataframe. 
+The dataframe does not need to have columns
+assigned already</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The file
+containing the pickled dataframe
+you want to load</p></li>
+<li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
+containing the metadata describing the data in filename</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_list">
+<span class="sig-name descname"><span class="pre">load_RL_dataset_from_episode_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create RLDataSet object from file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The file
+containing the pickled episodes lists
+you want to load</p></li>
+<li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
+containing the metadata describing the data in filename</p></li>
 </ul>
 </dd>
 </dl>
@@ -150,7 +188,6 @@ a column of ones in the feature array</p></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>

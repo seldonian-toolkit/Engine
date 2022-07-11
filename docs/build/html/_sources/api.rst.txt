@@ -7,4 +7,3 @@ API
    :recursive:
 
    seldonian
-   interface

@@ -43,7 +43,10 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.optimizers.gradient_descent.gradient_descent_adam.html#seldonian.optimizers.gradient_descent.gradient_descent_adam" title="seldonian.optimizers.gradient_descent.gradient_descent_adam"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_descent_adam</span></code></a>(primary_objective, ...)</p></td>
-<td><p>Implements gradient descent with &quot;adam&quot; optimizer</p></td>
+<td><p>Implements simultaneous gradient descent/ascent using  the &quot;adam&quot; optimizer on a Lagrangian: L(theta,lambda) = f(theta) + lambda*g(theta), where f is the primary objective, lambda is a vector of  Lagrange multipliers, and g is a vector of the  upper bound functions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.optimizers.gradient_descent.handle_gradients.html#seldonian.optimizers.gradient_descent.handle_gradients" title="seldonian.optimizers.gradient_descent.handle_gradients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_gradients</span></code></a>(gradient_library, ...)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -78,6 +81,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.optimizers.gradient_descent</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.optimizers.gradient_descent.gradient_descent_adam.html">seldonian.optimizers.gradient_descent.gradient_descent_adam</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.optimizers.gradient_descent.handle_gradients.html">seldonian.optimizers.gradient_descent.handle_gradients</a></li>
 </ul>
 </li>
 </ul>
@@ -90,7 +94,6 @@
 <li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>

@@ -13,7 +13,6 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API" href="api.html" />
@@ -48,167 +47,9 @@
 </div>
 <p>If you want to visualize the parse tree graphs, a system-wide installation of <a class="reference external" href="https://graphviz.org/download/">Graphviz</a> is required.</p>
 </section>
-<section id="a-simple-complete-example">
-<span id="simple-example"></span><h2>A simple, complete example<a class="headerlink" href="#a-simple-complete-example" title="Permalink to this headline">¶</a></h2>
-<p>Consider a simple supervised regression problem with two continous random variables X and Y. Let the goal be to predict label Y using the single feature X. To solve this problem we could use univariate linear regression with an objective function of the mean squared error (MSE). We can find the optimal solution to this problem by minimizing the objective function w.r.t. to the weights of the model, <span class="math notranslate nohighlight">\({\theta}\)</span>, which in this case are just the intercept and slope of the line.</p>
-<p>Now let’s suppose we want to add the following two constraints into the problem:</p>
-<ol class="arabic simple">
-<li><p>Ensure that the MSE is less than 2.0 with a probability of at least 0.9.</p></li>
-<li><p>Ensure that the MSE is <em>greater than</em> 1.25 with a probability of at least 0.9.</p></li>
-</ol>
-<p>This problem can now be fully formulated as a Seldonian machine learning problem:</p>
-<blockquote>
-<div><p>Minimize the MSE, subject to the constraints:</p>
-<blockquote>
-<div><p><span class="math notranslate nohighlight">\(g_{1} = \mathrm{Mean\_Squared\_Error} - 2.0\)</span>, and <span class="math notranslate nohighlight">\({\delta}_1=0.1\)</span>.</p>
-<p><span class="math notranslate nohighlight">\(g_{2} = 1.25 - \mathrm{Mean\_Squared\_Error}\)</span>, and <span class="math notranslate nohighlight">\({\delta}_2=0.1\)</span>.</p>
-</div></blockquote>
-</div></blockquote>
-<p>While the first constraint is aligned with the primary objective function, the MSE, notice that the second is conflicting. The Seldonian algorithm will attempt to satisfy both of these constraints simultaneously, while also minimizing the primary objective. If it cannot, it will return “NSF”, i.e. “No solution found”. If it can, it will return a solution that satisfies the behavioral constraints.</p>
-<p>To code up this example using the engine, we need to follow these steps:</p>
-<ol class="arabic simple">
-<li><p>Define the data - we will generate some synthetic data for X and Y in this case.</p></li>
-<li><p>Define the metadata - in this case this consists of the column names for X and Y and the regime, which is “supervised”.</p></li>
-<li><p>Put the data and metadata together into a DataSet object.</p></li>
-<li><p>Define the behavioral constraints (constraint strings and confidence levels), which we already did above.</p></li>
-<li><p>Make the parse trees from these behavioral constraints.</p></li>
-<li><p>Define the underlying machine learning model and primary objective.</p></li>
-<li><p>Define an initial solution function which takes the features and labels as inputs and outputs an initial weight vector to start candidate selection. In this case we will define a function <code class="code docutils literal notranslate"><span class="pre">initial_solution()</span></code> function which just returns a zero vector as the initial solution.</p></li>
-<li><p>Decide what fraction of the data to split into candidate selection vs. the safety test.</p></li>
-<li><p>Decide what method to use for computing the high confidence upper bound on each <span class="math notranslate nohighlight">\(g_{i}\)</span>. We will use the Student <span class="math notranslate nohighlight">\(t\)</span>-statistic.</p></li>
-<li><p>Create a spec object containing all of this information and some hyperparameters - we can ignore many of these in this example. For a full list of parameters and their defaults see the API docs for <a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec" title="seldonian.spec.SupervisedSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a>.</p></li>
-<li><p>Run the Seldonian algorithm using the spec object.</p></li>
-</ol>
-<p>Let’s write out the code to do this. Each step above is enumerated in comments in the code below:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># example.py</span>
-<span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">np</span>   <span class="c1"># Thinly-wrapped version of Numpy</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">seldonian.models.model</span> <span class="kn">import</span> <span class="n">LinearRegressionModel</span>
-<span class="kn">from</span> <span class="nn">seldonian.dataset</span> <span class="kn">import</span> <span class="n">SupervisedDataSet</span>
-<span class="kn">from</span> <span class="nn">seldonian.parse_tree.parse_tree</span> <span class="kn">import</span> <span class="n">ParseTree</span>
-<span class="kn">from</span> <span class="nn">seldonian.spec</span> <span class="kn">import</span> <span class="n">SupervisedSpec</span>
-<span class="kn">from</span> <span class="nn">seldonian.seldonian_algorithm</span> <span class="kn">import</span> <span class="n">seldonian_algorithm</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">numPoints</span><span class="o">=</span><span class="mi">1000</span>
-
-    <span class="c1"># 1. Define the data</span>
-    <span class="k">def</span> <span class="nf">generate_data</span><span class="p">(</span><span class="n">numPoints</span><span class="p">,</span><span class="n">loc_X</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">loc_Y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="n">sigma_X</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">sigma_Y</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The function we will use to generate</span>
-<span class="sd">        synthetic data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Sample x from a standard normal distribution</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc_X</span><span class="p">,</span> <span class="n">sigma_X</span><span class="p">,</span> <span class="n">numPoints</span><span class="p">)</span>
-        <span class="c1"># Set y to be x, plus noise from a standard normal distribution</span>
-        <span class="n">Y</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc_Y</span><span class="p">,</span> <span class="n">sigma_Y</span><span class="p">,</span> <span class="n">numPoints</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span>
-    <span class="n">X</span><span class="p">,</span><span class="n">Y</span> <span class="o">=</span> <span class="n">generate_data</span><span class="p">(</span><span class="n">numPoints</span><span class="p">)</span>
-
-    <span class="c1"># 2. Define the metadataa</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;feature1&#39;</span><span class="p">,</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
-
-    <span class="c1"># 3. Make a dataset object</span>
-    <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)])</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
-
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">SupervisedDataSet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
-        <span class="n">meta_information</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
-        <span class="n">label_column</span><span class="o">=</span><span class="s1">&#39;label&#39;</span><span class="p">,</span>
-        <span class="n">include_intercept_term</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="sd">&quot;&quot;&quot; include_intercept_term=True</span>
-<span class="sd">    adds a column of ones in the</span>
-<span class="sd">    feature array for convenience</span>
-<span class="sd">    during matrix multiplication.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># 4. Define the behavioral constraints</span>
-    <span class="n">constraint_strs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1.25 - Mean_Squared_Error&#39;</span><span class="p">,</span><span class="s1">&#39;Mean_Squared_Error - 2.0&#39;</span><span class="p">]</span>
-    <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">]</span> <span class="c1"># confidence levels</span>
-
-    <span class="c1"># 5. Make the parse trees from these behavioral constraints</span>
-
-    <span class="n">parse_trees</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">constraint_strs</span><span class="p">)):</span>
-        <span class="n">constraint_str</span> <span class="o">=</span> <span class="n">constraint_strs</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
-
-        <span class="n">delta</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
-
-        <span class="c1"># Create parse tree object</span>
-        <span class="n">parse_tree</span> <span class="o">=</span> <span class="n">ParseTree</span><span class="p">(</span>
-            <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span>
-            <span class="n">regime</span><span class="o">=</span><span class="s1">&#39;supervised&#39;</span><span class="p">,</span>
-            <span class="n">sub_regime</span><span class="o">=</span><span class="s1">&#39;regression&#39;</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
-
-        <span class="c1"># Fill out tree</span>
-        <span class="n">parse_tree</span><span class="o">.</span><span class="n">create_from_ast</span><span class="p">(</span><span class="n">constraint_str</span><span class="p">)</span>
-        <span class="c1"># assign deltas for each base node</span>
-        <span class="c1"># use equal weighting for each unique base node</span>
-        <span class="n">parse_tree</span><span class="o">.</span><span class="n">assign_deltas</span><span class="p">(</span><span class="n">weight_method</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Assign bounds needed on the base nodes</span>
-        <span class="n">parse_tree</span><span class="o">.</span><span class="n">assign_bounds_needed</span><span class="p">()</span>
-
-        <span class="n">parse_trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_tree</span><span class="p">)</span>
-
-    <span class="c1"># 6. Define the underlying machine learning model and primary objective</span>
-    <span class="n">model_class</span> <span class="o">=</span> <span class="n">LinearRegressionModel</span>
-
-    <span class="n">primary_objective</span> <span class="o">=</span> <span class="n">model_class</span><span class="p">()</span><span class="o">.</span><span class="n">sample_Mean_Squared_Error</span>
-
-    <span class="c1"># 7. Define initial solution function</span>
-    <span class="k">def</span> <span class="nf">initial_solution</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initial solution will be [0,0] &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-    <span class="n">initial_solution_fn</span><span class="o">=</span><span class="n">initial_solution</span>
-
-    <span class="c1"># 8. Decide what fraction of your data to split into</span>
-    <span class="c1"># candidate selection vs. the safety test.</span>
-    <span class="n">frac_data_in_safety</span><span class="o">=</span><span class="mf">0.6</span>
-
-    <span class="sd">&quot;&quot;&quot; 9. Decide what method to use for computing the</span>
-<span class="sd">    high confidence upper bound on each :math:`g_{i}`.&quot;&quot;&quot;</span>
-    <span class="n">bound_method</span><span class="o">=</span><span class="s1">&#39;ttest&#39;</span>
-
-    <span class="sd">&quot;&quot;&quot;10. Create a spec object, using some</span>
-<span class="sd">    hidden defaults we won&#39;t worry about here&quot;&quot;&quot;</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="n">SupervisedSpec</span><span class="p">(</span>
-        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
-        <span class="n">model_class</span><span class="o">=</span><span class="n">model_class</span><span class="p">,</span>
-        <span class="n">frac_data_in_safety</span><span class="o">=</span><span class="n">frac_data_in_safety</span><span class="p">,</span>
-        <span class="n">primary_objective</span><span class="o">=</span><span class="n">primary_objective</span><span class="p">,</span>
-        <span class="n">initial_solution_fn</span><span class="o">=</span><span class="n">initial_solution_fn</span><span class="p">,</span>
-        <span class="n">parse_trees</span><span class="o">=</span><span class="n">parse_trees</span><span class="p">,</span>
-        <span class="n">bound_method</span><span class="o">=</span><span class="n">bound_method</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># 11. Run seldonian algorithm using the spec object</span>
-    <span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span> <span class="o">=</span> <span class="n">seldonian_algorithm</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">passed_safety</span><span class="p">,</span><span class="n">candidate_solution</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>If you copy the above code into a file called <code class="code docutils literal notranslate"><span class="pre">example.py</span></code>, run the example from the command line (once inside a virtual environment where you have pip-installed the engine) by doing:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python example.py
-</pre></div>
-</div>
-<p>You should see some output like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Iteration</span> <span class="mi">0</span>
-<span class="n">Iteration</span> <span class="mi">10</span>
-<span class="n">Iteration</span> <span class="mi">20</span>
-<span class="n">Iteration</span> <span class="mi">30</span>
-<span class="n">Iteration</span> <span class="mi">40</span>
-<span class="o">...</span>
-<span class="n">Passed</span> <span class="n">safety</span> <span class="n">test</span>
-<span class="kc">True</span> <span class="p">[</span><span class="mf">0.16911355</span> <span class="mf">0.1738146</span> <span class="p">]</span>
-</pre></div>
-</div>
-<p>Notice in the last few lines of the script that <code class="code docutils literal notranslate"><span class="pre">seldonian_algorithm()</span></code> returns two values. <code class="code docutils literal notranslate"><span class="pre">passed_safety</span></code> is a boolean indicating whether the candidate solution found during candidate selection passed the safety test. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==False</span></code>, then <code class="code docutils literal notranslate"><span class="pre">candidate_solution=&quot;NSF&quot;</span></code>, i.e. “No Solution Found”. If <code class="code docutils literal notranslate"><span class="pre">passed_safety==True</span></code> then the candidate solution is a numpy array of model weights. In this example, you should get <code class="code docutils literal notranslate"><span class="pre">passed_safety=True</span></code> and a candidate solution of something like: <code class="code docutils literal notranslate"><span class="pre">[0.16911355</span> <span class="pre">0.1738146]</span></code>, although the exact numbers might differ slightly depending on your machine’s random number generator.</p>
+<section id="a-first-tutorial">
+<span id="simple-example"></span><h2>A first tutorial<a class="headerlink" href="#a-first-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>We recommend starting with the <a class="reference external" href="https://seldonian-toolkit.github.io/Tutorials/simple_engine_tutorial.html">Getting started with the Seldonian Engine</a> tutorial.</p>
 </section>
 </section>
 
@@ -233,7 +74,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#a-simple-complete-example">A simple, complete example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-first-tutorial">A first tutorial</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>

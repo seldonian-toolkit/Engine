@@ -11,3 +11,4 @@ qsa*
 **/.coverage
 build
 dist
+docs/source/_autosummary

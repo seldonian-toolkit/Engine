@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="seldonian_engine",
-    version="0.1.1",
+    version="0.2.1",
     author="Austin Hoag",
     author_email="austinthomashoag@gmail.com",
     description="Core library for Seldonian algorithms",

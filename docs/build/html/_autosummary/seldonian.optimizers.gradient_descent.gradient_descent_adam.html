@@ -15,7 +15,7 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.parse_tree" href="seldonian.parse_tree.html" />
+    <link rel="next" title="seldonian.optimizers.gradient_descent.handle_gradients" href="seldonian.optimizers.gradient_descent.handle_gradients.html" />
     <link rel="prev" title="seldonian.optimizers.gradient_descent" href="seldonian.optimizers.gradient_descent.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -37,16 +37,23 @@
 <h1>seldonian.optimizers.gradient_descent.gradient_descent_adam<a class="headerlink" href="#seldonian-optimizers-gradient-descent-gradient-descent-adam" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.optimizers.gradient_descent.gradient_descent_adam">
-<span class="sig-name descname"><span class="pre">gradient_descent_adam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_bound_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_lamb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_rmsprop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.optimizers.gradient_descent.gradient_descent_adam" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements gradient descent with “adam” optimizer</p>
+<span class="sig-name descname"><span class="pre">gradient_descent_adam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_bounds_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_lamb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_rmsprop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'autograd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.optimizers.gradient_descent.gradient_descent_adam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements simultaneous gradient descent/ascent using 
+the “adam” optimizer on a Lagrangian:
+L(theta,lambda) = f(theta) + lambda*g(theta),
+where f is the primary objective, lambda is a vector of 
+Lagrange multipliers, and g is a vector of the 
+upper bound functions. Gradient descent is done for theta 
+and gradient ascent is done for lambda to find the saddle 
+points of L.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>primary_objective</strong> (<em>function</em><em> or </em><em>class method</em>) – The objective function that would
 be solely optimized in the absence of behavioral constraints,
 i.e. the loss function</p></li>
-<li><p><strong>upper_bound_function</strong> (<em>function</em><em> or </em><em>class method</em>) – The function that calculates
-the upper bound on the constraint</p></li>
+<li><p><strong>upper_bounds_function</strong> (<em>function</em><em> or </em><em>class method</em>) – The function that calculates
+the upper bounds on the constraints</p></li>
 <li><p><strong>theta_init</strong> (<em>float</em>) – Initial model weights</p></li>
 <li><p><strong>lambda_init</strong> – Initial values for Lagrange multiplier terms</p></li>
 <li><p><strong>alpha_theta</strong> (<em>float</em>) – Initial learning rate for theta</p></li>
@@ -54,6 +61,8 @@ the upper bound on the constraint</p></li>
 <li><p><strong>beta_velocity</strong> (<em>float</em>) – Exponential decay rate for velocity term</p></li>
 <li><p><strong>beta_rmsprop</strong> (<em>float</em>) – Exponential decay rate for rmsprop term</p></li>
 <li><p><strong>num_iters</strong> (<em>int</em>) – The number of iterations of gradient descent to run</p></li>
+<li><p><strong>gradient_library</strong> (<em>str</em><em>, </em><em>defaults to &quot;autograd&quot;</em>) – The name of the library to use for computing 
+automatic gradients.</p></li>
 <li><p><strong>store_values</strong> (<em>bool</em>) – Whether to include evaluations of various 
 quantities in the solution dictionary</p></li>
 </ul>
@@ -99,6 +108,7 @@ about the gradient descent run, if store_values==True</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.optimizers.gradient_descent.html">seldonian.optimizers.gradient_descent</a><ul class="current">
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.optimizers.gradient_descent.gradient_descent_adam</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.optimizers.gradient_descent.handle_gradients.html">seldonian.optimizers.gradient_descent.handle_gradients</a></li>
 </ul>
 </li>
 </ul>
@@ -111,7 +121,6 @@ about the gradient descent run, if store_values==True</p>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
@@ -126,7 +135,7 @@ about the gradient descent run, if store_values==True</p>
   <li><a href="seldonian.optimizers.html">seldonian.optimizers</a><ul>
   <li><a href="seldonian.optimizers.gradient_descent.html">seldonian.optimizers.gradient_descent</a><ul>
       <li>Previous: <a href="seldonian.optimizers.gradient_descent.html" title="previous chapter">seldonian.optimizers.gradient_descent</a></li>
-      <li>Next: <a href="seldonian.parse_tree.html" title="next chapter">seldonian.parse_tree</a></li>
+      <li>Next: <a href="seldonian.optimizers.gradient_descent.handle_gradients.html" title="next chapter">seldonian.optimizers.gradient_descent.handle_gradients</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
