@@ -9,16 +9,17 @@ seldonian.seldonian\_algorithm
 
    
    
-   .. rubric:: Functions
+   
+
+   
+   
+   .. rubric:: Classes
 
    .. autosummary::
       :toctree:                                         
+      :template: custom-class-template.rst              
    
-      seldonian_algorithm
-   
-   
-
-   
+      SeldonianAlgorithm
    
    
 

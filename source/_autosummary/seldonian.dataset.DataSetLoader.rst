@@ -1,4 +1,4 @@
-﻿seldonian.dataset.DataSetLoader
+seldonian.dataset.DataSetLoader
 ===============================
 
 .. currentmodule:: seldonian.dataset

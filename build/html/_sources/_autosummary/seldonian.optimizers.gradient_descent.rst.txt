@@ -1,4 +1,4 @@
-﻿seldonian.optimizers.gradient\_descent
+seldonian.optimizers.gradient\_descent
 ======================================
 
 .. automodule:: seldonian.optimizers.gradient_descent 

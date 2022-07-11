@@ -20,6 +20,8 @@ seldonian.safety\_test.safety\_test.SafetyTest
    .. 
    ..    ~SafetyTest.__init__
    ..
+   ..    ~SafetyTest.evaluate_primary_objective
+   ..
    ..    ~SafetyTest.run
    ..
    

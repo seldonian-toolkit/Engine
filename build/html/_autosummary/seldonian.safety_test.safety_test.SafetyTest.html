@@ -38,17 +38,17 @@
 <h1>seldonian.safety_test.safety_test.SafetyTest<a class="headerlink" href="#seldonian-safety-test-safety-test-safetytest" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SafetyTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SafetyTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">safety_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">safety_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object for running safety test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – The dataset object containing safety data</p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.model.SeldonianModel.html#seldonian.models.model.SeldonianModel" title="seldonian.models.model.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>safety_dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – The dataset object containing safety data</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.models.SeldonianModel.html#seldonian.models.models.SeldonianModel" title="seldonian.models.models.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
 <li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
 behavioral constraints</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
@@ -82,15 +82,28 @@ if normalize returns==True. Only relevant for the RL regime</p></li>
 </tbody>
 </table>
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest.evaluate_primary_objective">
+<span class="sig-name descname"><span class="pre">evaluate_primary_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.evaluate_primary_objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get value of the primary objective given model weights,
+theta, on the safety dataset. Wrapper for primary_objective where 
+data is fixed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ttest'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.run" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ttest'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loop over parse trees, calculate the bounds on leaf nodes
 and propagate to the root node. The safety test passes if
 the upper bounds of all parse tree root nodes are less than or equal to 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>candidate_solution</strong> (<em>numpy ndarray</em>) – The solution found by candidate selection</p></li>
+<li><p><strong>solution</strong> (<em>numpy ndarray</em>) – The solution found by candidate selection</p></li>
 <li><p><strong>bound_method</strong> (<em>str</em><em>, </em><em>defaults to 'ttest'</em>) – The statistical method for calculating the confidence bounds</p></li>
 </ul>
 </dd>
@@ -148,7 +161,6 @@ the upper bounds of all parse tree root nodes are less than or equal to 0.</p>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="interface.html">interface</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>

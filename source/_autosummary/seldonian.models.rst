@@ -29,5 +29,5 @@ seldonian.models
    :recursive:
 
 
-   seldonian.models.model
+   seldonian.models.models
 
