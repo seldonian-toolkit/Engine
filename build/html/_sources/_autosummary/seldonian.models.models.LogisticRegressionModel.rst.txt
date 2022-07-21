@@ -48,6 +48,8 @@ seldonian.models.models.LogisticRegressionModel
    ..
    ..    ~LogisticRegressionModel.sample_logistic_loss
    ..
+   ..    ~LogisticRegressionModel.sample_weighted_loss
+   ..
    ..    ~LogisticRegressionModel.vector_False_Negative_Rate
    ..
    ..    ~LogisticRegressionModel.vector_False_Positive_Rate
@@ -61,6 +63,8 @@ seldonian.models.models.LogisticRegressionModel
    ..    ~LogisticRegressionModel.vector_True_Positive_Rate
    ..
    ..    ~LogisticRegressionModel.vector_logistic_loss
+   ..
+   ..    ~LogisticRegressionModel.vector_weighted_loss
    ..
    
    

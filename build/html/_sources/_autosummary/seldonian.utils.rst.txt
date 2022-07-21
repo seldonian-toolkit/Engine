@@ -30,5 +30,6 @@ seldonian.utils
 
 
    seldonian.utils.io_utils
+   seldonian.utils.plot_utils
    seldonian.utils.stats_utils
 

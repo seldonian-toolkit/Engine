@@ -382,6 +382,31 @@ on whole sample</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.models.LogisticRegressionModel.sample_weighted_loss">
+<span class="sig-name descname"><span class="pre">sample_weighted_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LogisticRegressionModel.sample_weighted_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the averaged weighted cost: 
+sum_i p_(wrong answer for point I) * c_i
+where c_i is 1 for false positives and 5 for false negatives</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.models.SeldonianModel.html#seldonian.models.models.SeldonianModel" title="seldonian.models.models.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>weighted loss such that false negatives 
+have 5 times the cost as false positives</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.models.LogisticRegressionModel.vector_False_Negative_Rate">
 <span class="sig-name descname"><span class="pre">vector_False_Negative_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LogisticRegressionModel.vector_False_Negative_Rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate false negative rate
@@ -534,7 +559,30 @@ on each observation in sample</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>array of logistic losses for each observation</p>
+<dd class="field-even"><p>array of logistic losses</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.models.LogisticRegressionModel.vector_weighted_loss">
+<span class="sig-name descname"><span class="pre">vector_weighted_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LogisticRegressionModel.vector_weighted_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the averaged weighted cost
+on each observation in sample</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.models.SeldonianModel.html#seldonian.models.models.SeldonianModel" title="seldonian.models.models.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>array of weighted losses</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>numpy ndarray(float)</p>

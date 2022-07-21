@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>seldonian.utils.io_utils.dir_path &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.utils.plot_utils.plot_gradient_descent &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.utils.io_utils.load_json" href="seldonian.utils.io_utils.load_json.html" />
-    <link rel="prev" title="seldonian.utils.io_utils" href="seldonian.utils.io_utils.html" />
+    <link rel="next" title="seldonian.utils.stats_utils" href="seldonian.utils.stats_utils.html" />
+    <link rel="prev" title="seldonian.utils.plot_utils" href="seldonian.utils.plot_utils.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,15 +34,23 @@
 
           <div class="body" role="main">
             
-  <section id="seldonian-utils-io-utils-dir-path">
-<h1>seldonian.utils.io_utils.dir_path<a class="headerlink" href="#seldonian-utils-io-utils-dir-path" title="Permalink to this heading">¶</a></h1>
+  <section id="seldonian-utils-plot-utils-plot-gradient-descent">
+<h1>seldonian.utils.plot_utils.plot_gradient_descent<a class="headerlink" href="#seldonian-utils-plot-utils-plot-gradient-descent" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="seldonian.utils.io_utils.dir_path">
-<span class="sig-name descname"><span class="pre">dir_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.io_utils.dir_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>A utility for checking whether a path is a directory</p>
+<dt class="sig sig-object py" id="seldonian.utils.plot_utils.plot_gradient_descent">
+<span class="sig-name descname"><span class="pre">plot_gradient_descent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test.png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.plot_utils.plot_gradient_descent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make figure showing evolution of gradient descent.
+Shows the values of the Lagrange multipliers, primary objective,
+constraint functions and the Lagrangian L = f + dot(lambda,g).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – An input path that may or may not be a directory</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solution</strong> (<em>dict</em>) – The solution dictionary returned by gradient descent</p></li>
+<li><p><strong>primary_objective_name</strong> (<em>str</em>) – The label you want displayed on the plot
+for the primary objective</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether to save the plot</p></li>
+<li><p><strong>savename</strong> (<em>str</em>) – The full path where you want to save the plot</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -81,15 +89,11 @@
 <li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="seldonian.utils.io_utils.html">seldonian.utils.io_utils</a><ul class="current">
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.io_utils.dir_path</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.load_json.html">seldonian.utils.io_utils.load_json</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.load_pickle.html">seldonian.utils.io_utils.load_pickle</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.save_pickle.html">seldonian.utils.io_utils.save_pickle</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.yes_or_no_input.html">seldonian.utils.io_utils.yes_or_no_input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.utils.io_utils.html">seldonian.utils.io_utils</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="seldonian.utils.plot_utils.html">seldonian.utils.plot_utils</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.plot_utils.plot_gradient_descent</a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.utils.plot_utils.html">seldonian.utils.plot_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.utils.stats_utils.html">seldonian.utils.stats_utils</a></li>
 </ul>
 </li>
@@ -108,9 +112,9 @@
   <li><a href="../api.html">API</a><ul>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.utils.html">seldonian.utils</a><ul>
-  <li><a href="seldonian.utils.io_utils.html">seldonian.utils.io_utils</a><ul>
-      <li>Previous: <a href="seldonian.utils.io_utils.html" title="previous chapter">seldonian.utils.io_utils</a></li>
-      <li>Next: <a href="seldonian.utils.io_utils.load_json.html" title="next chapter">seldonian.utils.io_utils.load_json</a></li>
+  <li><a href="seldonian.utils.plot_utils.html">seldonian.utils.plot_utils</a><ul>
+      <li>Previous: <a href="seldonian.utils.plot_utils.html" title="previous chapter">seldonian.utils.plot_utils</a></li>
+      <li>Next: <a href="seldonian.utils.stats_utils.html" title="next chapter">seldonian.utils.stats_utils</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -148,7 +152,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.utils.io_utils.dir_path.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.utils.plot_utils.plot_gradient_descent.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

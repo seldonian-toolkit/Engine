@@ -42,6 +42,8 @@ seldonian.models.models.ClassificationModel
    ..
    ..    ~ClassificationModel.sample_logistic_loss
    ..
+   ..    ~ClassificationModel.sample_weighted_loss
+   ..
    ..    ~ClassificationModel.vector_False_Negative_Rate
    ..
    ..    ~ClassificationModel.vector_False_Positive_Rate
@@ -55,6 +57,8 @@ seldonian.models.models.ClassificationModel
    ..    ~ClassificationModel.vector_True_Positive_Rate
    ..
    ..    ~ClassificationModel.vector_logistic_loss
+   ..
+   ..    ~ClassificationModel.vector_weighted_loss
    ..
    
    
