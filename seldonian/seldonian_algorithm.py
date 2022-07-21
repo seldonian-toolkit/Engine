@@ -29,7 +29,8 @@ class SeldonianAlgorithm():
 		if self.regime == 'supervised':
 			self.model_instance = self.spec.model_class()
 			self.candidate_df, self.safety_df = train_test_split(
-				self.dataset.df, test_size=self.spec.frac_data_in_safety, shuffle=False)
+				self.dataset.df, test_size=self.spec.frac_data_in_safety, 
+				shuffle=False)
 
 			self.label_column = self.dataset.label_column
 			self.include_sensitive_columns = self.dataset.include_sensitive_columns
@@ -53,7 +54,7 @@ class SeldonianAlgorithm():
 			
 			self.n_candidate = len(self.candidate_df)
 			self.n_safety = len(self.safety_df)
-			print(self.n_candidate,self.n_safety)
+
 			if self.n_candidate < 2 or self.n_safety < 2:
 				warning_msg = (
 					"Warning: not enough data to "
@@ -74,8 +75,19 @@ class SeldonianAlgorithm():
 			if self.include_intercept_term:
 				self.candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
-			self.initial_solution = self.initial_solution_fn(
-				self.candidate_features,self.candidate_labels)
+			try: 
+				self.initial_solution = self.initial_solution_fn(
+					self.candidate_features,self.candidate_labels)
+			except Exception as e: 
+				warning_msg = (
+					"Warning: initial solution function failed with this error:"
+					f" {e}")
+				warnings.warn(warning_msg)
+				self.initial_solution = np.random.normal(
+					loc=0.0,scale=1.0,size=(self.candidate_features.shape[1])
+					)
+			print("Initial solution: ")
+			print(self.initial_solution)
 
 		elif self.regime == 'RL':
 			self.RL_environment_obj = self.spec.RL_environment_obj
@@ -180,14 +192,12 @@ class SeldonianAlgorithm():
 		"""
 			
 		cs = self.candidate_selection()
-		candidate_solution = cs.run(**self.spec.optimization_hyperparams,
+		solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn)
 		
-		print("Candidate solution: ", candidate_solution)
-		
 		NSF=False
-		if type(candidate_solution) == str and candidate_solution == 'NSF':
+		if type(solution) == str and solution == 'NSF':
 			NSF = True
 
 		if NSF:
@@ -195,12 +205,9 @@ class SeldonianAlgorithm():
 		else:
 			# Safety test
 			st = self.safety_test()
-			passed_safety = st.run(candidate_solution,
+			passed_safety = st.run(solution,
 				bound_method=self.spec.bound_method)
 		
-		# candidate_solution is no more. Call it solution.
-		solution = copy.deepcopy(candidate_solution)
-
 		return passed_safety, solution
 
 	def evaluate_primary_objective(self,branch,theta):

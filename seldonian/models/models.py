@@ -129,8 +129,7 @@ class RegressionModel(SupervisedModel):
 		prediction = model.predict(theta,X) # vector of values
 		err = prediction-Y
 		return 2/n*np.dot(err,X)
-
-		
+	
 	def sample_Mean_Error(self,model,theta,X,Y):
 		"""
 		Calculate sample mean error 
@@ -262,6 +261,7 @@ class LinearRegressionModel(RegressionModel):
 		:rtype: float
 		"""
 		return self.gradient_sample_Mean_Squared_Error(model,theta,X,Y)
+
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):
@@ -412,6 +412,67 @@ class ClassificationModel(SupervisedModel):
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
 		return (1/len(X))*np.dot(X.T, (h - Y))
 
+	def sample_weighted_loss(self,model,theta,X,Y):
+		""" Calculate the averaged weighted cost: 
+		sum_i p_(wrong answer for point I) * c_i
+		where c_i is 1 for false positives and 5 for false negatives
+
+		:param model: The Seldonian model object 
+		:type model: :py:class:`.SeldonianModel` object
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: weighted loss such that false negatives 
+			have 5 times the cost as false positives
+		:rtype: float
+		"""
+		# calculate probabilistic false positive rate and false negative rate
+		y_pred = self.predict(theta,X)
+		n_points = len(Y)
+		neg_mask = Y!=1 # this includes false positives and true negatives
+		pos_mask = Y==1 # this includes true positives and false negatives
+		fp_values = y_pred[neg_mask] # get just false positives
+		fn_values = 1.0-y_pred[pos_mask] # get just false negatives
+		fpr = 1.0*np.sum(fp_values)
+		fnr = 5.0*np.sum(fn_values)
+		return (fpr + fnr)/n_points
+
+	def vector_weighted_loss(self,model,theta,X,Y):
+		""" Calculate the averaged weighted cost
+		on each observation in sample
+
+		:param model: The Seldonian model object 
+		:type model: :py:class:`.SeldonianModel` object
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: array of weighted losses
+		:rtype: numpy ndarray(float)
+		"""
+		# calculate probabilistic false positive rate and false negative rate
+		y_pred = self.predict(theta,X)
+		fp_mask = np.logical_and(Y!=1,y_pred==1)
+		fn_mask = np.logical_and(Y==1,y_pred!=1)
+		# calculate probabilistic false positive rate and false negative rate
+		res = np.zeros_like(Y)
+		res[fp_mask] = 1.0
+		res[fn_mask] = 5.0
+		return res
+
 	def vector_logistic_loss(self,model,theta,X,Y):
 		""" Calculate logistic loss 
 		on each observation in sample
@@ -428,7 +489,7 @@ class ClassificationModel(SupervisedModel):
 		:param Y: The labels
 		:type Y: numpy ndarray
 
-		:return: array of logistic losses for each observation
+		:return: array of logistic losses 
 		:rtype: numpy ndarray(float)
 		"""
 		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
@@ -454,7 +515,7 @@ class ClassificationModel(SupervisedModel):
 
 		:return: Positive rate for whole sample
 		:rtype: float between 0 and 1
-		"""
+		"""	
 		prediction = self.predict(theta,X)
 		return np.sum(prediction)/len(X) # if all 1s then PR=1. 
 
@@ -809,6 +870,7 @@ class LogisticRegressionModel(ClassificationModel):
 		:rtype: float
 		"""
 		return self.gradient_sample_logistic_loss(model,theta,X,Y)
+
 
 class RLModel(SeldonianModel):
 	def __init__(self):
