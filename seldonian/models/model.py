@@ -821,9 +821,9 @@ class LogisticRegressionModel(ClassificationModel):
 		return self.sample_logistic_loss(model,theta,X,Y)
 
 
-class RLModel(SeldonianModel):
+class RLEvaluator():
 	def __init__(self):
-		""" The base class for all RL Seldonian models"""
+		""" The base class for all RL evaluators"""
 		pass
 		
 	def sample_from_statistic(self,
@@ -848,7 +848,7 @@ class RLModel(SeldonianModel):
 		"""
 
 		if statistic_name == 'J_pi_new':
-			return model.vector_IS_estimate(model,
+			return self.vector_IS_estimate(model,
 				theta,data_dict)
 		else:
 			raise NotImplementedError(
@@ -874,107 +874,17 @@ class RLModel(SeldonianModel):
 		:rtype: float
 		"""
 		if statistic_name == 'J_pi_new':
-			return model.sample_IS_estimate(model,
+			return self.sample_IS_estimate(model,
 				theta,data_dict)
 		else:
 			raise NotImplementedError(
 				f"Statistic: {statistic_name} is not implemented")
 
-	def sample_IS_estimate(self,model,theta,data_dict):
+	def sample_IS_estimate(self, model, theta, data_dict):
 		""" Calculate the unweighted importance sampling estimate
 		on all episodes in the dataframe
 
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param dataset: The object containing data and metadata
-		:type dataset: dataset.Dataset object
-
-		:return: The IS estimate calculated over all episodes
-		:rtype: float
-		"""
-
-		"""Set instance variable theta
-		does this so a cache can be used 
-		to accelerate the apply_policy() computation 
-		on all state,action pairs """
-		dataframe = data_dict['dataframe']
-		model.theta = theta
-		pi_ratios = list(map(model.apply_policy,
-					dataframe['O'].values,
-					dataframe['A'].values))/dataframe['pi'].values
-		split_indices_by_episode = np.unique(dataframe['episode_index'].values,
-			return_index=True)[1][1:]
-		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
-		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
-		
-		# Weighted rewards
-		gamma = self.environment.gamma
-		rewards_by_episode = np.split(dataframe['R'].values,split_indices_by_episode)
-		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,
-			rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
-		result = sum(products_by_episode*weighted_reward_sums)/len(pi_ratios_by_episode)
-		return result 
-
-	def vector_IS_estimate(self,model,theta,data_dict):
-		""" Calculate the unweighted importance sampling estimate
-		on each episodes in the dataframe
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param dataframe: Contains the episodes
-		:type dataframe: pandas dataframe
-
-		:return: A vector of IS estimates calculated for each episode
-		:rtype: numpy ndarray(float)
-		"""
-
-		"""set instance variable theta
-		does this so a cache can be used 
-		to accelerate the apply_policy() computation 
-		on all state,action pairs """
-		model.theta = theta
-		pi_ratios = list(map(
-			model.apply_policy,
-					data_dict['dataframe']['O'].values,
-					data_dict['dataframe']['A'].values
-					))/data_dict['dataframe']['pi'].values
-
-		split_indices_by_episode = np.unique(
-			data_dict['dataframe']['episode_index'].values,
-			return_index=True)[1][1:]
-		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
-		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
-		result = (
-			products_by_episode*data_dict['reward_sums_by_episode']
-			)
-		return result
-
-
-class TabularSoftmaxModel(RLModel):
-	def __init__(self,environment):
-		""" Tabular softmax model used for e.g. gridworld 
-		environment
-
-		:param environment: the RL environment object
-		:type environment: Environment object from RL 
-			environment module
-
-		"""
-		self.environment = environment
-
-	def sample_IS_estimate(self,model,theta,data_dict):
-		""" Calculate the unweighted importance sampling estimate
-		on all episodes in the dataframe
-
-		:param model: The Seldonian model object 
+		:param model: The Seldonian model object
 		:type model: :py:class:`.SeldonianModel` object
 
 		:param theta: The parameter weights
@@ -988,27 +898,26 @@ class TabularSoftmaxModel(RLModel):
 		"""
 		episodes = data_dict['episodes']
 		IS_estimate = 0
-		for ii,ep in enumerate(episodes):
-			pi_news = model.apply_policy(theta,ep.states,ep.actions)
+		for ii, ep in enumerate(episodes):
+			pi_news = model.get_probs_from_observations_and_actions(theta, ep.states, ep.actions)
 			# print(pi_news,ep.pis)
-			pi_ratios = pi_news/ep.pis
+			pi_ratios = pi_news / ep.pis
 			# print(pi_ratios)
 			pi_ratio_prod = np.prod(pi_ratios)
 			# print(pi_ratio_prod)
-			weighted_return = weighted_sum_gamma(ep.rewards,
-				gamma=self.environment.gamma)
+			weighted_return = weighted_sum_gamma(ep.rewards, gamma=model.env.gamma)
 			# print(weighted_return)
-			IS_estimate += pi_ratio_prod*weighted_return
+			IS_estimate += pi_ratio_prod * weighted_return
 
-		IS_estimate/=len(episodes)
-		
+		IS_estimate /= len(episodes)
+
 		return IS_estimate
 
-	def vector_IS_estimate(self,model,theta,data_dict):
+	def vector_IS_estimate(self, model, theta, data_dict):
 		""" Calculate the unweighted importance sampling estimate
 		on each episodes in the dataframe
 
-		:param model: The Seldonian model object 
+		:param model: The Seldonian model object
 		:type model: :py:class:`.SeldonianModel` object
 
 		:param theta: The parameter weights
@@ -1023,186 +932,11 @@ class TabularSoftmaxModel(RLModel):
 		episodes = data_dict['episodes']
 		# weighted_reward_sums_by_episode = data_dict['reward_sums_by_episode']
 		result = []
-		for ii,ep in enumerate(episodes):
-			pi_news = model.apply_policy(theta,ep.states,ep.actions)
-			pi_ratio_prod = np.prod(pi_news/ep.pis)
-			weighted_return = weighted_sum_gamma(ep.rewards,
-				gamma=self.environment.gamma)
+		for ii, ep in enumerate(episodes):
+			pi_news = model.get_probs_from_observations_and_actions(theta, ep.states, ep.actions)
+			pi_ratio_prod = np.prod(pi_news / ep.pis)
+			weighted_return = weighted_sum_gamma(ep.rewards, gamma=model.env.gamma)
 			# result.append(pi_ratio_prod*weighted_reward_sums_by_episode[ii])
-			result.append(pi_ratio_prod*weighted_return)
-		
-		return np.array(result)
-
-	def apply_policy(self,theta,states,actions):
-		""" Apply the softmax policy given a state and action.
-		Uses self.theta for the policy parameters in helper functions
-
-		:param state: A state in the environment
-		:type state: int
-
-		:param action: A possible action at the given state
-		:type action: int
-		"""
-		arg = theta[states*4+actions]
-		num=np.exp(arg)
-		
-		result = []
-		for ii,state in enumerate(states):
-			denom = np.sum(np.exp(theta[state*4+self.environment.actions]))
-			result.append(num[ii]/denom)
+			result.append(pi_ratio_prod * weighted_return)
 
 		return np.array(result)
-
-	def default_objective(self,model,theta,data_dict):
-		""" The default primary objective to use, the 
-		unweighted IS estimate
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param dataset: The object containing data and metadata
-		:type dataset: dataset.Dataset object
-		"""
-		return self.sample_IS_estimate(model,theta,data_dict)
-
-
-class LinearSoftmaxModel(RLModel):
-	def __init__(self,environment):
-		""" Linear softmax model used for e.g. mountaincar
-		environment
-
-		:param environment: the RL environment object
-		:type environment: Environment object from 
-			the RL environment module  
-
-		:ivar theta: The model weights
-		:vartype theta: numpy ndarray
-		"""
-		self.environment = environment
-		self.theta = None
-
-	def IS_estimate(self,model,theta,dataset):
-		""" Calculate the unweighted importance sampling estimate
-		on all episodes in the dataframe. Overrides parent method
-		so that it can normalizes returns to [0,1].
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param dataset: Contains the dataframe and metadata
-		:type dataset: :py:class:`.DataSet` object
-
-		:return: The IS estimate calculated over all episodes
-		:rtype: float
-		"""
-
-		self.theta = theta
-		pi_ratios = list(map(self.apply_policy,
-					dataset.df['O'].values,
-					dataset.df['A'].values))/dataset.df['pi'].values
-		self.theta = None
-		split_indices_by_episode = np.unique(dataset.df['episode_index'].values,
-			return_index=True)[1][1:]
-		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
-		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
-		
-		# Weighted rewards
-		gamma = self.environment.gamma
-		rewards_by_episode = np.split(dataset.df['R'].values,
-			split_indices_by_episode)
-		weighted_reward_sums = np.array(list(map(weighted_sum_gamma,
-			rewards_by_episode,gamma*np.ones_like(rewards_by_episode))))
-		
-		# normalize to [0,1]
-		min_return = self.environment.min_return
-		max_return = self.environment.max_return
-		normalized_returns = (weighted_reward_sums-min_return)/(max_return-min_return)
-
-		result = sum(products_by_episode*normalized_returns)/len(pi_ratios_by_episode)
-		return result 
-
-	def vector_IS_estimate(self,model,theta,data_dict):
-		""" Calculate the unweighted importance sampling estimate
-		on each episode in the dataframe. Overrides parent method.
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param dataset: Contains the dataframe and metadata
-		:type dataset: :py:class:`.DataSet` object
-
-		:return: The IS estimates calculated on each episode
-		:rtype: numpy ndarray(float)
-		"""
-		self.theta = theta
-		pi_ratios = list(map(self.apply_policy,
-					data_dict['dataframe']['O'].values,
-					data_dict['dataframe']['A'].values))/data_dict['dataframe']['pi'].values
-		self.theta = None
-		split_indices_by_episode = np.unique(data_dict['dataframe']['episode_index'].values,
-			return_index=True)[1][1:]
-		pi_ratios_by_episode = np.split(pi_ratios, split_indices_by_episode) # this is a list
-		products_by_episode = np.array(list(map(np.prod,pi_ratios_by_episode)))
-		result = (
-			products_by_episode*data_dict['reward_sums_by_episode']
-			)
-		return result
-
-	def apply_policy(self, state, action)->float:
-		""" Get the probability of taking action in given state 
-		
-		:param state: A state in the environment
-		:type state: numpy ndarray
-
-		:param action: A possible action at the given state
-		:type action: int
-
-		:return: Probability of taking action in given state
-		:rtype: float
-		"""
-		x = self.environment.basis.encode(state)
-		p = self.get_p(x)
-		return p[action]
-
-	def get_p(self, x):
-		""" Get vector of probabilites given encoded state, x
-
-		:param x: Encoded state
-		:type x: numpy ndarray
-
-		:return: A vector of probablities, one for each 
-			possible action in given encoded state
-		:rtype: numpy ndarray
-		""" 
-		u = np.exp(np.clip(np.dot(x, 
-			self.theta.reshape(self.environment.policy.n_inputs, self.environment.policy.n_actions)), -32, 32)) 
-		u /= u.sum()
-
-		return u
-
-	def default_objective(self,model,theta,data_dict):
-		""" The default primary objective to use, the 
-		IS estimate defined in this class
-
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param dataset: Contains the dataframe and metadata
-		:type dataset: :py:class:`.DataSet` object
-
-		:return: IS estimate for whole sample
-		:rtype: float
-		"""
-		return self.IS_estimate(model,theta,data_dict)

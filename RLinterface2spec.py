@@ -10,6 +10,9 @@ from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
 from seldonian.spec import RLSpec
 from seldonian.models.model import *
+from seldonian.RL.Agents import *
+from seldonian.RL.environments import *
+from seldonian.RL.RL_model import *
 
 
 def main_RLinterface2spec():
@@ -18,20 +21,27 @@ def main_RLinterface2spec():
     dataset2spec(save_dir, metadata_pth, dataset)
 
 
-def dataset2spec(save_dir, metadata_pth, dataset):
+def dataset2spec(save_dir, metadata_pth, dataset, agent):
     # Load metadata
     with open(metadata_pth, 'r') as infile:
         metadata_dict = json.load(infile)
 
-    RL_environment_name = metadata_dict['RL_environment_name']
+    RL_module_name = metadata_dict['RL_module_name']
     RL_environment_module = importlib.import_module(
-        f'seldonian.RL.environments.{RL_environment_name}')
-    RL_environment_obj = RL_environment_module.Environment()
+        f'seldonian.RL.environments.{RL_module_name}')
+    RL_env_class_name = metadata_dict['RL_class_name']
+    RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)
 
-    model_class = TabularSoftmaxModel
-    model_instance = model_class(RL_environment_obj)
 
-    primary_objective = model_instance.default_objective
+    #HERE, point to agent
+    # model_class = TabularSoftmaxModel
+    # model_instance = model_class(RL_environment_obj)
+
+    evaluator = RLEvaluator() #is this right?
+    model_class = RL_model(agent, RL_environment_obj, evaluator)
+
+    # primary_objective = model_instance.default_objective
+    primary_objective = evaluator.sample_IS_estimate
 
     constraint_strs = ['-0.25 - J_pi_new']
 

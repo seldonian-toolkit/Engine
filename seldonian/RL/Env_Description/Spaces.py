@@ -6,6 +6,9 @@ class Discrete_Space:
         self.min = min
         self.max = max
 
+    def get_num_values(self):
+        return self.max - self.min + 1
+
 
 class Continuous_Space:
     def __init__(self, bounds):

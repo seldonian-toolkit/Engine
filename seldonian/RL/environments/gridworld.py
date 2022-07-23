@@ -11,9 +11,10 @@ class Gridworld(Environment):
         self.time = 0
         self.max_time = 101
         self.vis = False
+        self.gamma = 0.9
 
     def create_env_description(self, num_states):
-        observation_space = Discrete_Space(0, num_states)
+        observation_space = Discrete_Space(0, num_states-1)
         action_space = Discrete_Space(0, 3)
         return Env_Description(observation_space, action_space)
 

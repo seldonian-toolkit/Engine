@@ -1,5 +1,6 @@
 from seldonian.RL.Agents.Discrete_Random_Agent import *
 from seldonian.RL.Agents.mountain_car_rough_solution import *
+from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
 
 from seldonian.RL.environments.gridworld import *
 from seldonian.RL.environments.mountaincar import *
@@ -23,7 +24,7 @@ def run_trial(hyperparameter_and_setting_dict):
         env.start_visualizing()
     for episode_num in range(hyperparameter_and_setting_dict["num_episodes"]):
         episodes.append(run_episode(agent, env))
-    return episodes
+    return episodes, agent
 
 def run_episode(agent, env):
     observations = []
@@ -58,6 +59,8 @@ def create_agent(hyperparameter_and_setting_dict):
         return Discrete_Random_Agent(env_desc)
     elif agent_type == "mountain_car_rough_solution":
         return Mountain_car_rough_solution()
+    elif agent_type == "Parameterized_non_learning_softmax_agent":
+        return Parameterized_non_learning_softmax_agent(env_desc)
     else:
         raise Exception(f"unknown agent type {agent_type}")
 
