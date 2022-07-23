@@ -25,5 +25,5 @@ class Parameterized_non_learning_softmax_agent(Agent):
         this_action = self.softmax.from_environment_action_to_0_indexed_action(action)
         return action_probs[this_action]
 
-    def set_new_params(self, theta):
-        self.FA.set_new_params(theta)
+    def set_new_params(self, new_params):
+        self.FA.set_new_params(new_params)

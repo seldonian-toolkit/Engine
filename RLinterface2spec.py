@@ -41,7 +41,7 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent):
     model_class = RL_model(agent, RL_environment_obj, evaluator)
 
     # primary_objective = model_instance.default_objective
-    primary_objective = evaluator.sample_IS_estimate
+    primary_objective = evaluator.sample_IS_estimate #this isn't correct, it is?
 
     constraint_strs = ['-0.25 - J_pi_new']
 

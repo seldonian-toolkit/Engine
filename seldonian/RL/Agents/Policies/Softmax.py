@@ -35,12 +35,3 @@ class Softmax(Discrete_Action_Policy):
         for action_dim in range(self.num_actions):
             e_to_the_something_terms[action_dim] = np.exp(action_values[action_dim] - max_value)  # subtract max for numerical stability
         return e_to_the_something_terms
-
-# def main():
-#     my_softmax = Softmax(-1, 3)
-#     actions = [0, 0, 0]
-#     for _ in range(1000000):
-#         actions[my_softmax.choose_action(np.array([3., 5., 8.8])) + 1] += 1
-#     print(actions)
-#
-# main()

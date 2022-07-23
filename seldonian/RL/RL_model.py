@@ -6,8 +6,8 @@ class RL_model: #consist of agent, env, and evaluator
         self.env = env
         self.evaluator = evaluator
 
-    def get_probs_from_observations_and_actions(self, theta, observations, actions):
-        self.agent.set_new_params(theta)
+    def get_probs_from_observations_and_actions(self, new_params, observations, actions):
+        self.agent.set_new_params(new_params)
         num_probs = len(observations)
         if num_probs != len(actions):
             error(f"different number of observations ({observations}) and actions ({actions})")
