@@ -164,7 +164,6 @@ class CandidateSelection(object):
 
 					def grad_primary_objective_theta(theta):
 						return grad_primary_objective(
-							model=self.model,
 							theta=theta,
 							X=self.features.values,
 							Y=self.labels.values)
@@ -261,7 +260,7 @@ class CandidateSelection(object):
 		elif self.regime == 'RL':
 			data_dict = {'episodes':self.candidate_dataset.episodes}
 			# Want to maximize the importance weight so minimize negative importance weight
-			result = -1.0*self.primary_objective(self.model,theta,
+			result = -1.0*self.primary_objective(theta,
 				data_dict)
 
 			# Optionally adding regularization term so that large thetas
@@ -340,7 +339,7 @@ class CandidateSelection(object):
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
 			data_dict = {'episodes':self.candidate_dataset.episodes}
-			result = -1.0*self.primary_objective(self.model,theta,
+			result = -1.0*self.primary_objective(theta,
 				data_dict)
 
 			if hasattr(self,'reg_coef'):

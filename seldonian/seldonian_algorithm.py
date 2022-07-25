@@ -94,10 +94,9 @@ class SeldonianAlgorithm():
 			self.normalize_returns = self.spec.normalize_returns
 
 			self.RL_agent_obj = self.spec.RL_agent_obj
-			self.RL_evaluator = self.spec.RL_evaluator
 
 			self.model_instance = self.spec.model_class(
-				self.RL_agent_obj, self.RL_environment_obj, self.RL_evaluator)
+				self.RL_agent_obj, self.RL_environment_obj)
 
 			episodes = self.spec.dataset.episodes
 			# Create candidate and safety datasets

@@ -286,7 +286,6 @@ class RLSpec(Spec):
 		parse_trees,
 		RL_environment_obj,
 		RL_agent_obj,
-		RL_evaluator,
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
 		bound_method='ttest',
@@ -320,6 +319,5 @@ class RLSpec(Spec):
 			regularization_hyperparams)
 		self.RL_environment_obj = RL_environment_obj
 		self.RL_agent_obj = RL_agent_obj
-		self.RL_evaluator = RL_evaluator
 		self.normalize_returns = normalize_returns
 

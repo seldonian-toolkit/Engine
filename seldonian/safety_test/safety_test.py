@@ -143,7 +143,7 @@ class SafetyTest(object):
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
 			data_dict = {'episodes':self.safety_dataset.episodes}
-			result = -1.0*primary_objective(self.model,theta,
+			result = -1.0*primary_objective(theta,
 				data_dict)
 
 			if hasattr(self,'reg_coef'):

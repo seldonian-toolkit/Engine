@@ -37,11 +37,10 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent):
     # model_class = TabularSoftmaxModel
     # model_instance = model_class(RL_environment_obj)
 
-    evaluator = RLEvaluator()
     # model_class = RL_model(agent, RL_environment_obj, evaluator)
-
+    RL_model_instance = RL_model(agent,RL_environment_obj)
     # primary_objective = model_instance.default_objective
-    primary_objective = evaluator.sample_IS_estimate
+    primary_objective = RL_model_instance.sample_IS_estimate
 
     constraint_strs = ['-0.25 - J_pi_new']
 
@@ -77,7 +76,6 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent):
         parse_trees=parse_trees,
         RL_environment_obj=RL_environment_obj,
         RL_agent_obj=agent,
-        RL_evaluator=evaluator,
         initial_solution_fn=None,
         bound_method='ttest',
         optimization_technique='gradient_descent',
