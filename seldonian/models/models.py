@@ -794,6 +794,44 @@ class ClassificationModel(SupervisedModel):
 		pos_mask = Y!=1.0 # this includes false positives and true negatives
 		return 1.0 - prediction[pos_mask]
 
+	def default_objective(self,model,theta,X,Y):
+		""" The default primary objective to use, the 
+		logistic loss
+
+		:param model: The Seldonian model object 
+		:type model: :py:class:`.SeldonianModel` object
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: Logistic loss
+		:rtype: float
+		"""
+		return self.sample_logistic_loss(model,theta,X,Y)
+
+	def gradient_default_objective(self,model,theta,X,Y):
+		""" Gradient of logistic loss w.r.t. theta
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: perceptron loss
+		:rtype: float
+		"""
+		return self.gradient_sample_logistic_loss(model,theta,X,Y)
+
 
 class LogisticRegressionModel(ClassificationModel):
 	def __init__(self):
@@ -833,29 +871,17 @@ class LogisticRegressionModel(ClassificationModel):
 		reg = self.model_class().fit(X, Y)
 		return reg.coef_[0]
 
-	def default_objective(self,model,theta,X,Y):
-		""" The default primary objective to use, the 
-		logistic loss
 
-		:param model: The Seldonian model object 
-		:type model: :py:class:`.SeldonianModel` object
+class DummyClassifierModel(ClassificationModel):
+	def __init__(self):
+		""" Implements a classifier that always predicts
+		the positive class, regardless of input """
+		super().__init__()
+		self.model_class = None
 
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param X: The features
-		:type X: numpy ndarray
-
-		:param Y: The labels
-		:type Y: numpy ndarray
-
-		:return: Logistic loss
-		:rtype: float
-		"""
-		return self.sample_logistic_loss(model,theta,X,Y)
-
-	def gradient_default_objective(self,model,theta,X,Y):
-		""" Gradient of logistic loss w.r.t. theta
+	def predict(self,theta,X):
+		""" Predict the probability of 
+		having the positive class label
 
 		:param theta: The parameter weights
 		:type theta: numpy ndarray
@@ -863,13 +889,11 @@ class LogisticRegressionModel(ClassificationModel):
 		:param X: The features
 		:type X: numpy ndarray
 
-		:param Y: The labels
-		:type Y: numpy ndarray
-
-		:return: perceptron loss
+		:return: predictions for each observation
 		:rtype: float
 		"""
-		return self.gradient_sample_logistic_loss(model,theta,X,Y)
+
+		return np.ones(len(X))
 
 
 class RLModel(SeldonianModel):
