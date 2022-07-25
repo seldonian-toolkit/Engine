@@ -144,7 +144,6 @@ class BaseNode(Node):
 		data_dict = kwargs['data_dict']
 		value = model.evaluate_statistic(
 			statistic_name=self.measure_function_name,
-			model=model,
 			theta=theta,
 			data_dict=data_dict)
 		return value
@@ -270,7 +269,7 @@ class BaseNode(Node):
 
 		return model.sample_from_statistic(
 			statistic_name=self.measure_function_name,
-			model=model,theta=theta,data_dict=data_dict)
+			theta=theta,data_dict=data_dict)
 					
 	def calculate_bounds(self,
 		**kwargs):

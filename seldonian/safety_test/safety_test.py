@@ -134,7 +134,7 @@ class SafetyTest(object):
 		
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised':
-			result = primary_objective(self.model, theta, 
+			result = primary_objective(theta, 
 					self.features.values, self.labels.values)
 			return result
 

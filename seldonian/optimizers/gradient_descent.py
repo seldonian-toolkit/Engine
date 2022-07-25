@@ -2,7 +2,7 @@ import copy
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from autograd import grad, jacobian
 
-def handle_gradients(
+def setup_gradients(
     gradient_library,
     primary_objective,
     upper_bounds_function):
@@ -96,7 +96,7 @@ def gradient_descent_adam(
 
     # Get df/dtheta and dg/dtheta
     (grad_primary_theta,
-        grad_upper_bound_theta) = handle_gradients(
+        grad_upper_bound_theta) = setup_gradients(
         gradient_library,
         primary_objective,
         upper_bounds_function)

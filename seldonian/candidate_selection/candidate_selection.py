@@ -144,7 +144,6 @@ class CandidateSelection(object):
 						
 						def grad_primary_objective_theta(theta):
 							return grad_primary_objective(
-								model=self.model,
 								theta=theta,
 								X=self.features.values,
 								Y=self.labels.values)
@@ -256,7 +255,7 @@ class CandidateSelection(object):
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
 		if self.regime == 'supervised':
-			result = self.primary_objective(self.model, theta, 
+			result = self.primary_objective(theta, 
 				self.features, self.labels)
 
 		elif self.regime == 'RL':
@@ -332,7 +331,7 @@ class CandidateSelection(object):
 		"""
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised':
-			result = self.primary_objective(self.model, theta, 
+			result = self.primary_objective(theta, 
 					self.features.values, self.labels.values)
 			return result
 
