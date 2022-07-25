@@ -20,6 +20,7 @@ seldonian.models.models
       :template: custom-class-template.rst              
    
       ClassificationModel
+      DummyClassifierModel
       LinearRegressionModel
       LinearSoftmaxModel
       LogisticRegressionModel
