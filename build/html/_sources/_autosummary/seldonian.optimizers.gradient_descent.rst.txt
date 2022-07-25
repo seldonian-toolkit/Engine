@@ -15,7 +15,7 @@ seldonian.optimizers.gradient\_descent
       :toctree:                                         
    
       gradient_descent_adam
-      handle_gradients
+      setup_gradients
    
    
 
