@@ -1,7 +1,7 @@
 # This file/class is partially finished, but was probably a mistake to make because non-differentiable.  Going to leave it undeleted for now in case it's useful, but if significant time has gone by (currently 7/22/22), feel free to delete this file
 
 # from seldonian.RL.Agents.Policies.Policy import *
-# import numpy as np
+# import autograd.numpy as np
 # from utils import *
 #
 # class Epsilon_Greedy(Discrete_Action_Policy):

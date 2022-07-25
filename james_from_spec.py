@@ -12,10 +12,11 @@ if __name__ == '__main__':
     regime = dataset.regime
     print(regime)
     print(spec.RL_environment_obj)
+    print(spec.RL_environment_obj.gamma)
 
 
     spec.use_builtin_primary_gradient_fn = False
-    spec.optimization_hyperparams['num_iters'] = 20
+    spec.optimization_hyperparams['num_iters'] = 40
     spec.optimization_hyperparams['alpha_theta'] = 0.05
     spec.optimization_hyperparams['alpha_lamb'] = 0.05
     # spec.regularization_hyperparams['reg_coef'] = 0.1

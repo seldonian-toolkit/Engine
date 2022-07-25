@@ -27,3 +27,6 @@ class Parameterized_non_learning_softmax_agent(Agent):
 
     def set_new_params(self, new_params):
         self.FA.set_new_params(new_params)
+
+    def get_params(self):
+        return self.FA.weights

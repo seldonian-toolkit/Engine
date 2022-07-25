@@ -30,18 +30,18 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent):
     RL_environment_module = importlib.import_module(
         f'seldonian.RL.environments.{RL_module_name}')
     RL_env_class_name = metadata_dict['RL_class_name']
-    RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)
+    RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)()
 
 
     #HERE, point to agent
     # model_class = TabularSoftmaxModel
     # model_instance = model_class(RL_environment_obj)
 
-    evaluator = RLEvaluator() #is this right?
-    model_class = RL_model(agent, RL_environment_obj, evaluator)
+    evaluator = RLEvaluator()
+    # model_class = RL_model(agent, RL_environment_obj, evaluator)
 
     # primary_objective = model_instance.default_objective
-    primary_objective = evaluator.sample_IS_estimate #this isn't correct, it is?
+    primary_objective = evaluator.sample_IS_estimate
 
     constraint_strs = ['-0.25 - J_pi_new']
 
@@ -71,11 +71,13 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent):
     # Save spec object, using defaults where necessary
     spec = RLSpec(
         dataset=dataset,
-        model_class=model_class,
+        model_class=RL_model,
         frac_data_in_safety=0.6,
         primary_objective=primary_objective,
         parse_trees=parse_trees,
         RL_environment_obj=RL_environment_obj,
+        RL_agent_obj=agent,
+        RL_evaluator=evaluator,
         initial_solution_fn=None,
         bound_method='ttest',
         optimization_technique='gradient_descent',

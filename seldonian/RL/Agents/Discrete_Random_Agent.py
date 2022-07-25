@@ -1,5 +1,5 @@
 from seldonian.RL.Agents.Agent import *
-import numpy as np
+import autograd.numpy as np
 
 class Discrete_Random_Agent(Agent):
     def __init__(self, env_description):

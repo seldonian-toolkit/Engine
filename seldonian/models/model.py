@@ -934,9 +934,15 @@ class RLEvaluator():
 		result = []
 		for ii, ep in enumerate(episodes):
 			pi_news = model.get_probs_from_observations_and_actions(theta, ep.states, ep.actions)
+			# print("pi news:")
+			# print(pi_news)
 			pi_ratio_prod = np.prod(pi_news / ep.pis)
+			# print("pi_ratio_prod:")
+			# print(pi_ratio_prod)
 			weighted_return = weighted_sum_gamma(ep.rewards, gamma=model.env.gamma)
 			# result.append(pi_ratio_prod*weighted_reward_sums_by_episode[ii])
 			result.append(pi_ratio_prod * weighted_return)
 
+		# print("\nnp.array(result):")
+		# print(np.array(result))
 		return np.array(result)

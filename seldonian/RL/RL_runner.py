@@ -67,7 +67,7 @@ def create_agent(hyperparameter_and_setting_dict):
 def create_env(hyperparameter_and_setting_dict):
     env_type = hyperparameter_and_setting_dict["env"]
     if env_type == "gridworld":
-        return Gridworld(3)
+        return Gridworld()
     elif env_type == "mountaincar":
         return Mountaincar()
     elif env_type == "n_step_mountaincar":

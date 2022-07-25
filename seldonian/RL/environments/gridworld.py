@@ -2,7 +2,7 @@ from seldonian.RL.environments.Environment import *
 from seldonian.RL.Env_Description.Env_Description import *
 
 class Gridworld(Environment):
-    def __init__(self, size):
+    def __init__(self, size=3):
         self.size = size
         self.num_states = size*size
         self.env_description = self.create_env_description(self.num_states)
@@ -24,7 +24,7 @@ class Gridworld(Environment):
         self.terminal_state = False
 
     def transition(self, action):
-        reward = -1
+        reward = 0
         self.time += 1
         self.update_position(action)
         if self.vis:
@@ -33,7 +33,9 @@ class Gridworld(Environment):
         if self.is_in_goal_state() or self.time >= self.max_time - 1:
             self.terminal_state = True
             if self.is_in_goal_state():
-                reward = 0
+                reward = 1
+        elif self.state == 7:
+            reward = -1
         return reward
 
     def get_observation(self):

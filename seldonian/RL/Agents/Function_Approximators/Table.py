@@ -1,5 +1,5 @@
 from seldonian.RL.Agents.Function_Approximators.Function_Approximator import *
-import numpy as np
+import autograd.numpy as np
 
 class Table(Function_Approximator):
     def __init__(self, min_state, num_states):

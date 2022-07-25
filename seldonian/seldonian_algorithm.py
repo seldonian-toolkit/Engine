@@ -100,9 +100,19 @@ def seldonian_algorithm(spec):
 
 	elif regime == 'RL':
 		RL_environment_obj = spec.RL_environment_obj
+		print("Type: ", RL_environment_obj)
 		normalize_returns = spec.normalize_returns
 
-		model_instance = spec.model_class(RL_environment_obj)
+		RL_agent_obj = spec.RL_agent_obj
+		RL_evaluator = spec.RL_evaluator
+
+		print(type(RL_agent_obj))
+		print(type(RL_evaluator))
+
+		model_instance = spec.model_class(RL_agent_obj, RL_environment_obj, RL_evaluator)
+
+
+
 		episodes = spec.dataset.episodes
 		# Create candidate and safety datasets
 		n_episodes = len(episodes)
@@ -126,7 +136,7 @@ def seldonian_algorithm(spec):
 		print(f"Candidate dataset has {n_candidate} episodes")
 		
 		# initial solution
-		initial_solution = RL_environment_obj.initial_weights
+		initial_solution = RL_agent_obj.get_params()
 
 		cs_kwargs = dict(
 			model=model_instance,

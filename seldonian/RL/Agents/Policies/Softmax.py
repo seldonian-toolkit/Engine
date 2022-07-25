@@ -1,5 +1,5 @@
 from seldonian.RL.Agents.Policies.Policy import *
-import numpy as np
+import autograd.numpy as np
 from utils import *
 
 class Softmax(Discrete_Action_Policy):
@@ -31,7 +31,5 @@ class Softmax(Discrete_Action_Policy):
 
     def get_e_to_the_something_terms(self, action_values):
         max_value = np.max(action_values)
-        e_to_the_something_terms = np.zeros(self.num_actions)
-        for action_dim in range(self.num_actions):
-            e_to_the_something_terms[action_dim] = np.exp(action_values[action_dim] - max_value)  # subtract max for numerical stability
+        e_to_the_something_terms = np.exp(action_values - max_value)
         return e_to_the_something_terms

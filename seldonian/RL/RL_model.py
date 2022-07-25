@@ -12,10 +12,12 @@ class RL_model: #consist of agent, env, and evaluator
         if num_probs != len(actions):
             error(f"different number of observations ({observations}) and actions ({actions})")
 
-        probs = np.zeros(num_probs)
-        for index in range(num_probs):
-            probs[index] = self.get_prob_this_action(observations[index], actions[index])
-        return probs
+        probs = [self.get_prob_this_action(observations[index], actions[index]) for index in range(num_probs)]
+
+        return np.array(probs)
 
     def get_prob_this_action(self, observation, action):
-        self.agent.get_prob_this_action(observation, action)
+        return self.agent.get_prob_this_action(observation, action)
+
+    def sample_from_statistic(self, statistic_name,model,theta,data_dict):
+        return self.evaluator.sample_from_statistic(statistic_name,self,theta,data_dict)
