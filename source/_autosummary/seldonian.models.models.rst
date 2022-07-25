@@ -22,13 +22,11 @@ seldonian.models.models
       ClassificationModel
       DummyClassifierModel
       LinearRegressionModel
-      LinearSoftmaxModel
       LogisticRegressionModel
-      RLModel
+      RLEvaluator
       RegressionModel
       SeldonianModel
       SupervisedModel
-      TabularSoftmaxModel
    
    
 

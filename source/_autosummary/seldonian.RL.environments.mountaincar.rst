@@ -9,13 +9,6 @@ seldonian.RL.environments.mountaincar
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:                                         
-   
-      increment_counter
-   
    
 
    
@@ -26,12 +19,7 @@ seldonian.RL.environments.mountaincar
       :toctree:                                         
       :template: custom-class-template.rst              
    
-      Basis
-      Environment
-      FourierBasis
-      Linear_Softmax
       Mountaincar
-      Policy
    
    
 
