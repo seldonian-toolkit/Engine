@@ -93,7 +93,12 @@ class SeldonianAlgorithm():
 			self.RL_environment_obj = self.spec.RL_environment_obj
 			self.normalize_returns = self.spec.normalize_returns
 
-			self.model_instance = self.spec.model_class(self.RL_environment_obj)
+			self.RL_agent_obj = self.spec.RL_agent_obj
+			self.RL_evaluator = self.spec.RL_evaluator
+
+			self.model_instance = self.spec.model_class(
+				self.RL_agent_obj, self.RL_environment_obj, self.RL_evaluator)
+
 			episodes = self.spec.dataset.episodes
 			# Create candidate and safety datasets
 			n_episodes = len(episodes)
@@ -114,9 +119,27 @@ class SeldonianAlgorithm():
 			# assert len(safety_df) == n_safety
 			print(f"Safety dataset has {self.n_safety} episodes")
 			print(f"Candidate dataset has {self.n_candidate} episodes")
-
+			
 			# initial solution
-			self.initial_solution = self.RL_environment_obj.initial_weights
+			self.initial_solution = self.RL_agent_obj.get_params()
+
+			cs_kwargs = dict(
+				model=self.model_instance,
+				candidate_dataset=self.candidate_dataset,
+				n_safety=self.n_safety,
+				parse_trees=self.spec.parse_trees,
+				primary_objective=self.spec.primary_objective,
+				optimization_technique=self.spec.optimization_technique,
+				optimizer=self.spec.optimizer,
+				initial_solution=self.initial_solution,
+				regime=self.regime,
+				gamma=self.RL_environment_obj.gamma,
+				normalize_returns=self.normalize_returns
+				)
+
+			if self.normalize_returns:
+				cs_kwargs['min_return']=self.RL_environment_obj.min_return
+				cs_kwargs['max_return']=self.RL_environment_obj.max_return
 			
 	def candidate_selection(self):
 		""" Creat the candidate selection object """

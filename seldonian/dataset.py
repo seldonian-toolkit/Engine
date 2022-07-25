@@ -275,5 +275,10 @@ class Episode(object):
 		self.rewards = np.array(rewards)
 		self.pis = np.array(pis)
 
-		
+	def __str__(self):
+		return f"return = {sum(self.rewards)}\n"+\
+	    f"{len(self.states)} states, type of first in array is {type(self.states[0])}: {self.states}\n"\
+		+ f"{len(self.actions)} actions, type of first in array is {type(self.actions[0])}: {self.actions}\n"\
+		+ f"{len(self.rewards)} rewards, type of first in array is {type(self.rewards[0])}: {self.rewards}\n"\
+		+ f"{len(self.pis)} pis, type of first in array is {type(self.pis[0])}: {self.pis}"
 
