@@ -165,6 +165,7 @@ class CandidateSelection(object):
 					def grad_primary_objective_theta(theta):
 						return grad_primary_objective(
 							theta=theta,
+							model=self.model,
 							X=self.features.values,
 							Y=self.labels.values)
 
