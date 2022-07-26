@@ -129,7 +129,6 @@ def gradient_descent_adam(
             best_feasible_g_vec = np.copy(g_vec)
             best_index = np.copy(i)
             candidate_solution = np.copy(theta)
-            # print(primary_val,g_vec,theta)
             # print()
 
         if store_values:
@@ -146,7 +145,6 @@ def gradient_descent_adam(
         grad_primary_theta_val = grad_primary_theta(theta)
 
         gu_theta_vec = grad_upper_bound_theta(theta)
-        print(primary_val,g_vec,theta)
         
         grad_secondary_theta_val_vec = lamb*gu_theta_vec # elementwise mult
         
@@ -174,6 +172,9 @@ def gradient_descent_adam(
         
         # If any values in lambda vector dip below 0, force them to be zero
         lamb[lamb<0]=0
+        # print(primary_val,lamb,g_vec,theta)
+        if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
+            break
 
     solution = {}
     solution_found = True

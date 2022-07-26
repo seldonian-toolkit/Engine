@@ -66,8 +66,8 @@ if __name__ == '__main__':
 		include_intercept_term=args.include_intercept_term,
 		file_type='csv')
 	
-	# constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.15'] 
-	constraint_strs = ['abs((FNR | [M]) - (FNR | [F])) + abs((FPR | [M]) - (FPR | [F])) - 0.35'] # equalized odds
+	constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.15'] 
+	# constraint_strs = ['abs((FNR | [M]) - (FNR | [F])) + abs((FPR | [M]) - (FPR | [F])) - 0.35'] # equalized odds
 	# constraint_strs = ['0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'] # disparate impact
 	
 	deltas = [0.05]

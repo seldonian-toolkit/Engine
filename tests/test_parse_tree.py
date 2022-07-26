@@ -1198,8 +1198,6 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 		branch='safety_test')
 	assert pt.root.value == pytest.approx(-6.306852)
 	
-
-
 def test_reset_parse_tree():
 	
 	constraint_str = '(FPR + FNR) - 0.5'
@@ -1279,3 +1277,40 @@ def test_single_conditional_columns_propagated():
 	assert len(pt.base_node_dict["Mean_Error | [M]"]['data_dict']['features']) == 22335
 	pt.reset_base_node_dict()
 	
+
+def test_build_tree():
+	""" Test the convenience function that builds the tree,
+	weights deltas, and assigns bounds all in one """
+
+	constraint_str = '(FPR + FNR) - 0.5'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='classification')
+
+	# build the tree the original way 
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+	assert pt.n_base_nodes == 2
+	assert len(pt.base_node_dict) == 2
+	assert pt.base_node_dict['FPR']['bound_computed'] == False
+	assert pt.base_node_dict['FPR']['lower'] == float('-inf')
+	assert pt.base_node_dict['FPR']['upper'] == float('inf')
+	assert pt.base_node_dict['FNR']['lower'] == float('-inf')
+	assert pt.base_node_dict['FNR']['upper'] == float('inf')
+	assert pt.base_node_dict['FNR']['bound_computed'] == False
+
+	##### build the tree with the convenience function
+	pt2 = ParseTree(delta,regime='supervised',
+		sub_regime='classification') 
+	pt2.build_tree(constraint_str=constraint_str,
+		delta_weight_method='equal')
+	assert pt2.n_base_nodes == 2
+	assert len(pt2.base_node_dict) == 2
+	assert pt2.base_node_dict['FPR']['bound_computed'] == False
+	assert pt2.base_node_dict['FPR']['lower'] == float('-inf')
+	assert pt2.base_node_dict['FPR']['upper'] == float('inf')
+	assert pt2.base_node_dict['FNR']['lower'] == float('-inf')
+	assert pt2.base_node_dict['FNR']['upper'] == float('inf')
+	assert pt2.base_node_dict['FNR']['bound_computed'] == False
+

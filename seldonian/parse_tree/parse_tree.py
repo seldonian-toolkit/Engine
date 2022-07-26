@@ -93,6 +93,32 @@ class ParseTree(object):
 		self.available_measure_functions = measure_functions_dict[
 			self.regime][self.sub_regime]
 
+	def build_tree(self,constraint_str,delta_weight_method='equal'):
+		""" 
+		Convenience function for building the tree from 
+		a constraint string, 
+		weighting of deltas to each base node, and 
+		assigning which nodes need upper and lower bounding
+
+		:param constraint_str: 
+			mathematical expression written in Python syntax
+			from which we build the parse tree
+		:type constraint_str: str
+
+		:param delta_weight_method: str, 
+			How you want to assign the deltas to the base nodes.
+			The default 'equal' splits up delta equally
+			among unique base nodes 
+		:type delta_weight_method: str, defaults to 'equal'
+		"""
+
+		self.create_from_ast(s=constraint_str)
+
+		self.assign_deltas(weight_method=delta_weight_method)
+
+		self.assign_bounds_needed()
+
+
 	def create_from_ast(self,s):
 		""" 
 		Create the node structure of the tree
