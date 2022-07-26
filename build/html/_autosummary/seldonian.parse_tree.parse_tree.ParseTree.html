@@ -356,6 +356,27 @@ among unique base nodes</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.build_tree">
+<span class="sig-name descname"><span class="pre">build_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.build_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for building the tree from 
+a constraint string, 
+weighting of deltas to each base node, and 
+assigning which nodes need upper and lower bounding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>constraint_str</strong> (<em>str</em>) – mathematical expression written in Python syntax
+from which we build the parse tree</p></li>
+<li><p><strong>delta_weight_method</strong> (<em>str</em><em>, </em><em>defaults to 'equal'</em>) – str, 
+How you want to assign the deltas to the base nodes.
+The default ‘equal’ splits up delta equally
+among unique base nodes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.create_from_ast">
 <span class="sig-name descname"><span class="pre">create_from_ast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.create_from_ast" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the node structure of the tree

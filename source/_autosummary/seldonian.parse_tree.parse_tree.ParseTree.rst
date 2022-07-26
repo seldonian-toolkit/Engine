@@ -24,6 +24,8 @@ seldonian.parse\_tree.parse\_tree.ParseTree
    ..
    ..    ~ParseTree.assign_deltas
    ..
+   ..    ~ParseTree.build_tree
+   ..
    ..    ~ParseTree.create_from_ast
    ..
    ..    ~ParseTree.evaluate_constraint
