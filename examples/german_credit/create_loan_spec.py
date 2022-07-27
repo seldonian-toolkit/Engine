@@ -1,3 +1,4 @@
+# createSpec.py
 import os
 from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
@@ -18,8 +19,10 @@ if __name__ == '__main__':
 	sub_regime = metadata_dict['sub_regime']
 	label_column = metadata_dict['label_column']
 	
+	# Use logistic regression model
 	model_class = LogisticRegressionModel
 	
+	# Set the primary objective to be log loss
 	primary_objective = model_class().sample_logistic_loss
 
 	# Load dataset from file
@@ -33,11 +36,12 @@ if __name__ == '__main__':
 		include_intercept_term=True,
 		file_type='csv')
 	
-	constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.15'] 
+	# Define behavioral constraints
+	constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) - 0.15'] 
 	
 	deltas = [0.05]
 
-	# For each constraint, make a parse tree
+	# For each constraint (in this case only one), make a parse tree
 	parse_trees = []
 	for ii in range(len(constraint_strs)):
 		constraint_str = constraint_strs[ii]
@@ -68,14 +72,14 @@ if __name__ == '__main__':
 		optimizer='adam',
 		optimization_hyperparams={
 			'lambda_init'   : 0.5,
-		    'alpha_theta'   : 0.01,
-		    'alpha_lamb'    : 0.01,
-		    'beta_velocity' : 0.9,
-		    'beta_rmsprop'  : 0.95,
-		    'num_iters'     : 1000,
-		    'gradient_library': "autograd",
-		    'hyper_search'  : None,
-		    'verbose'       : True,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 1000,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
 		}
 	)
 

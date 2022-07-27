@@ -47,6 +47,17 @@ def load_json(filename):
         data = json.load(infile)
     return data
 
+def save_json(filename,data,indent=2,verbose=False):
+    """ A wrapper for loading an object from a JSON file
+
+    :param filename: An input filename pointing to a JSON file
+    :type filename: str
+    """
+    with open(filename,'w') as outfile:
+        data = json.dump(data,outfile)
+    if verbose:
+        print(f"Saved {filename}\n")
+
 def yes_or_no_input(str_to_show,default_str,default_val):
     """ Show user a yes or no question and gather their 
     input from the command line. If they provide an invalid
