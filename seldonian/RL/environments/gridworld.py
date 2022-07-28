@@ -27,8 +27,6 @@ class Gridworld(Environment):
         reward = 0
         self.time += 1
         self.update_position(action)
-        if self.vis:
-            self.visualize()
 
         if self.is_in_goal_state() or self.time >= self.max_time - 1:
             self.terminal_state = True
@@ -36,6 +34,9 @@ class Gridworld(Environment):
                 reward = 1
         if self.state == 7:
             reward = -1
+        if self.vis:
+            self.visualize()
+            print("reward", reward)
         return reward
 
     def get_observation(self):

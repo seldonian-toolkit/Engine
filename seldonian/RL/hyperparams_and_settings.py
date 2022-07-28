@@ -8,6 +8,7 @@ def define_hyperparameter_and_setting_dict():
     # the_dict["agent"] = "mountain_car_rough_solution"
     # the_dict["agent"] = "discrete_random"
     the_dict["agent"] = "Parameterized_non_learning_softmax_agent"
+    # the_dict["agent"] = "Keyboard_gridworld"
 
     the_dict["num_episodes"] = 500
     the_dict["num_trials"] = 1

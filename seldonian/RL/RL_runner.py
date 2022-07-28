@@ -1,6 +1,7 @@
 from seldonian.RL.Agents.Discrete_Random_Agent import *
 from seldonian.RL.Agents.mountain_car_rough_solution import *
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
+from seldonian.RL.Agents.keyboard_gridworld import *
 
 from seldonian.RL.environments.gridworld import *
 from seldonian.RL.environments.mountaincar import *
@@ -61,6 +62,8 @@ def create_agent(hyperparameter_and_setting_dict):
         return Mountain_car_rough_solution()
     elif agent_type == "Parameterized_non_learning_softmax_agent":
         return Parameterized_non_learning_softmax_agent(env_desc)
+    elif agent_type == "Keyboard_gridworld":
+        return Keyboard_gridworld(env_desc)
     else:
         raise Exception(f"unknown agent type {agent_type}")
 
