@@ -19,3 +19,6 @@ class Agent:
             return construct_Q_Table_From_Env_Description(env_desciption)
         else:
             error(f"unhandled state type {type(env_desciption.observation_space)} and action type {type(env_desciption.action_space)} for make_state_action_FA()")
+
+    def get_params(self):
+        raise NotImplementedError()
