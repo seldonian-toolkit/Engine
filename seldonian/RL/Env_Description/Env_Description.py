@@ -12,7 +12,7 @@ class Env_Description:
         return self.observation_space.get_num_values()
 
     def get_num_actions(self):
-        check_space_type(self.observation_space, Discrete_Space)
+        check_space_type(self.action_space, Discrete_Space)
         return self.action_space.get_num_values()
 
     def get_min_action(self):
