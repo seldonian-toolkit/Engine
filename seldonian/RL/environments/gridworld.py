@@ -34,7 +34,7 @@ class Gridworld(Environment):
             self.terminal_state = True
             if self.is_in_goal_state():
                 reward = 1
-        elif self.state == 7:
+        if self.state == 7:
             reward = -1
         return reward
 
@@ -71,5 +71,3 @@ class Gridworld(Environment):
                 print_state += 1
             print()
         print()
-
-

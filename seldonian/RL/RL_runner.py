@@ -12,7 +12,7 @@ def run_all_trials(hyperparameter_and_setting_dict):
     num_trials = hyperparameter_and_setting_dict["num_trials"]
     trials = []
     for trial_num in range(num_trials):
-        trials.append(run_trial(hyperparameter_and_setting_dict))
+        trials.append(run_trial(hyperparameter_and_setting_dict)[0])
     return trials
 
 def run_trial(hyperparameter_and_setting_dict):
