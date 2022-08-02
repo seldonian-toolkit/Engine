@@ -23,6 +23,7 @@ seldonian.models.models
       DummyClassifierModel
       LinearRegressionModel
       LogisticRegressionModel
+      RandomClassifierModel
       RegressionModel
       SeldonianModel
       SupervisedModel

@@ -30,6 +30,8 @@ seldonian.models.models.ClassificationModel
    ..
    ..    ~ClassificationModel.gradient_sample_logistic_loss
    ..
+   ..    ~ClassificationModel.predict
+   ..
    ..    ~ClassificationModel.sample_False_Negative_Rate
    ..
    ..    ~ClassificationModel.sample_False_Positive_Rate

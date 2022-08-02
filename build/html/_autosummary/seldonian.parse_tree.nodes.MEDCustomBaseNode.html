@@ -251,7 +251,7 @@ evaluated at each observation in dataset</p></li>
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MEDCustomBaseNode.zhat">
 <span class="sig-name descname"><span class="pre">zhat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.zhat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pair up male and female columns and compute a vector of:
-(y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon.
+(y_i - y_hat_i | M) - (y_j - y_hat_j | F).
 There may not be the same number of male and female rows
 so the number of pairs is min(N_male,N_female)</p>
 <dl class="field-list simple">
