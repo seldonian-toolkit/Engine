@@ -246,6 +246,62 @@ def test_gpa_data_regression(gpa_regression_dataset):
 
 	assert np.allclose(solution,array_to_compare)
 
+def test_phil_custom_base_node(gpa_regression_dataset):
+	""" Test that the gpa regression example runs 
+	using Phil's custom base node. Make
+	sure safety test passes and solution is correct.
+	"""
+	rseed=0
+	np.random.seed(rseed) 
+	# constraint_strs = ['Mean_Squared_Error - 2.0']
+	constraint_strs = ['MED_MF - 0.1']
+	deltas = [0.05]
+
+	(dataset,model_class,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model_class=model_class,
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		parse_trees=parse_trees,
+		initial_solution_fn=model_class().fit,
+		bound_method='ttest',
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 600,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	array_to_compare = np.array(
+		[0.42370182, -0.00469413, -0.00299174,
+		 -0.0045492,  -0.00392318, -0.0047077,
+	  	 0.01771072,  0.0168809,  -0.0052295,
+	  	 -0.00376234])
+
+	assert np.allclose(solution,array_to_compare)
+
+
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 
 	with a two constraints using gradient descent. Make

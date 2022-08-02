@@ -588,7 +588,6 @@ class MEDCustomBaseNode(BaseNode):
 
 		Overrides several parent class methods 
 		
-		
 		:param name: 
 			The name of the node
 		:type name: str
@@ -606,7 +605,6 @@ class MEDCustomBaseNode(BaseNode):
 		:vartype delta: float
 		"""
 		super().__init__(name,lower,upper,**kwargs)
-		self.delta = 0  
 		
 	def calculate_data_forbound(self,**kwargs):
 		""" 
@@ -628,7 +626,6 @@ class MEDCustomBaseNode(BaseNode):
 
 		if kwargs['branch'] == 'candidate_selection':
 			n_safety = kwargs['n_safety']
-			# frac_masked = len(dataframe)/len(dataset.df)
 			frac_masked = datasize/len(dataframe)
 			datasize = int(round(frac_masked*n_safety))
 
@@ -682,7 +679,7 @@ class MEDCustomBaseNode(BaseNode):
 	def zhat(self,model,theta,data_dict):
 		"""
 		Pair up male and female columns and compute a vector of:
-		(y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon.
+		(y_i - y_hat_i | M) - (y_j - y_hat_j | F).
 		There may not be the same number of male and female rows
 		so the number of pairs is min(N_male,N_female)
 

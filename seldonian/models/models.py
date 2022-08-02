@@ -33,6 +33,7 @@ class SupervisedModel(SeldonianModel):
 		reg = self.model_class().fit(X, Y)
 		return np.hstack([np.array(reg.intercept_),reg.coef_[1:]])
 
+
 class RegressionModel(SupervisedModel):
 	def __init__(self):
 		""" Parent class for all regression-based machine learning 
@@ -181,6 +182,7 @@ class RegressionModel(SupervisedModel):
 	def predict(self):
 		raise NotImplementedError("Implement this method in child class")
 
+
 class LinearRegressionModel(RegressionModel):
 	def __init__(self):
 		""" Implements linear regression """
@@ -248,6 +250,9 @@ class ClassificationModel(SupervisedModel):
 		"""
 		super().__init__()
 
+	def predict(self):
+		raise NotImplementedError("Implement this method in child class")
+		
 	def evaluate_statistic(self,
 		statistic_name,theta,data_dict):
 		""" Evaluate a provided statistic for the whole sample provided
@@ -814,4 +819,29 @@ class DummyClassifierModel(ClassificationModel):
 		"""
 
 		return np.ones(len(X))
+
+
+class RandomClassifierModel(ClassificationModel):
+	def __init__(self):
+		""" Implements a classifier that always predicts
+		that the positive class has prob=0.5,
+		regardless of input """
+		super().__init__()
+		self.model_class = None
+
+	def predict(self,theta,X):
+		""" Predict the probability of 
+		having the positive class label
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:return: predictions for each observation
+		:rtype: float
+		"""
+
+		return 0.5*np.ones(len(X))
 

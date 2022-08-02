@@ -140,7 +140,7 @@ class SeldonianAlgorithm():
 				cs_kwargs['min_return']=self.RL_environment_obj.min_return
 				cs_kwargs['max_return']=self.RL_environment_obj.max_return
 			
-	def candidate_selection(self):
+	def candidate_selection(self,write_cs_logfile=False):
 		""" Creat the candidate selection object """
 		if self.regime == 'supervised':
 			cs_kwargs = dict(
@@ -153,6 +153,7 @@ class SeldonianAlgorithm():
 				optimizer=self.spec.optimizer,
 				initial_solution=self.initial_solution,
 				regime=self.regime)
+
 		elif self.regime == 'RL':
 			cs_kwargs = dict(
 				model=self.model_instance,
@@ -173,7 +174,7 @@ class SeldonianAlgorithm():
 				cs_kwargs['max_return']=self.RL_environment_obj.max_return
 
 		cs = CandidateSelection(**cs_kwargs,**self.spec.regularization_hyperparams,
-			write_logfile=True)
+			write_logfile=write_cs_logfile)
 
 		return cs
 
@@ -201,9 +202,12 @@ class SeldonianAlgorithm():
 		st = SafetyTest(**st_kwargs)
 		return st
 
-	def run(self):
+	def run(self,write_cs_logfile=False):
 		"""
 		Runs seldonian algorithm using spec object
+
+		:param write_cs_logfile: Whether to write out the pickle file 
+			containing the evolution of the parameters of candidate selection
 
 		:return: (passed_safety, solution). passed_safety 
 			indicates whether solution found during candidate selection
@@ -213,7 +217,7 @@ class SeldonianAlgorithm():
 			
 		"""
 			
-		cs = self.candidate_selection()
+		cs = self.candidate_selection(write_cs_logfile=write_cs_logfile)
 		solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn)
