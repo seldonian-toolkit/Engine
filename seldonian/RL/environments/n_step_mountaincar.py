@@ -9,6 +9,7 @@ class N_step_mountaincar(Environment):
         self.env_description = self.mc_env.create_env_description()
         self.terminal_state = False
         self.vis = False
+        self.gamma = 0.9
         self.reset()
 
     def reset(self):

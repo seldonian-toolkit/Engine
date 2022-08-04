@@ -3,9 +3,9 @@ from seldonian.RL.Agents.Function_Approximators.Table import *
 from seldonian.RL.Agents.Policies.Softmax import *
 
 class Parameterized_non_learning_softmax_agent(Agent):
-    def __init__(self, env_description):
+    def __init__(self, env_description, hyperparam_and_setting_dict):
         num_actions = env_description.get_num_actions()
-        self.FA = self.make_state_action_FA(env_description)
+        self.FA = self.make_state_action_FA(env_description, hyperparam_and_setting_dict)
         self.softmax = Softmax(env_description.get_min_action(), num_actions)
         self.env_description = env_description
 

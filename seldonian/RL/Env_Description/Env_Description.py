@@ -23,6 +23,9 @@ class Env_Description:
         check_space_type(self.action_space, Discrete_Space)
         return self.observation_space.min
 
+    def get_num_state_dims(self):
+        return self.observation_space.get_num_dims()
+
 
 def check_space_type(space, desired_type):
     if type(space) != desired_type:

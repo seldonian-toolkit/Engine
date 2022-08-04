@@ -61,7 +61,7 @@ def create_agent(hyperparameter_and_setting_dict):
     elif agent_type == "mountain_car_rough_solution":
         return Mountain_car_rough_solution()
     elif agent_type == "Parameterized_non_learning_softmax_agent":
-        return Parameterized_non_learning_softmax_agent(env_desc)
+        return Parameterized_non_learning_softmax_agent(env_desc, hyperparameter_and_setting_dict)
     elif agent_type == "Keyboard_gridworld":
         return Keyboard_gridworld(env_desc)
     else:

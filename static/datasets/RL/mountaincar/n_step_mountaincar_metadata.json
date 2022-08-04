@@ -1,0 +1,6 @@
+{
+	"columns":["episode_index","O","A","R","pi"],
+	"regime":"RL",
+	"RL_module_name":"n_step_mountaincar",
+	"RL_class_name":"N_step_mountaincar"
+}

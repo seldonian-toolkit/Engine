@@ -25,3 +25,6 @@ class Continuous_Space:
         for dim in range(self.num_dims):
             if bounds[dim][0] > bounds[dim][1]:
                 raise(Exception(f"for dimension {dim}, min {bounds[dim][0]} is greater than max {bounds[dim][1]}"))
+
+    def get_num_dims(self):
+        return self.num_dims
