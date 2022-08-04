@@ -24,8 +24,6 @@ seldonian.models.models.ClassificationModel
    ..
    ..    ~ClassificationModel.evaluate_statistic
    ..
-   ..    ~ClassificationModel.fit
-   ..
    ..    ~ClassificationModel.gradient_default_objective
    ..
    ..    ~ClassificationModel.gradient_sample_logistic_loss

@@ -24,8 +24,6 @@ seldonian.models.models.DummyClassifierModel
    ..
    ..    ~DummyClassifierModel.evaluate_statistic
    ..
-   ..    ~DummyClassifierModel.fit
-   ..
    ..    ~DummyClassifierModel.gradient_default_objective
    ..
    ..    ~DummyClassifierModel.gradient_sample_logistic_loss

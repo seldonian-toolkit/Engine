@@ -20,8 +20,6 @@ seldonian.models.models.SupervisedModel
    .. 
    ..    ~SupervisedModel.__init__
    ..
-   ..    ~SupervisedModel.fit
-   ..
    
    
 
