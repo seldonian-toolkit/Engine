@@ -18,22 +18,6 @@ class SupervisedModel(SeldonianModel):
 		models used in this library """
 		super().__init__()
 
-	def fit(self,X,Y):
-		""" Train the model using the feature,label pairs 
-
-		:param X: features 
-		:type X: NxM numpy ndarray 
-
-		:param Y: labels 
-		:type Y: Nx1 numpy ndarray 
-
-		:return: weights from the fitted model
-		:rtype: numpy ndarray
-		"""
-		reg = self.model_class().fit(X, Y)
-		return np.hstack([np.array(reg.intercept_),reg.coef_[1:]])
-
-
 class RegressionModel(SupervisedModel):
 	def __init__(self):
 		""" Parent class for all regression-based machine learning 
@@ -240,6 +224,20 @@ class LinearRegressionModel(RegressionModel):
 		"""
 		return self.gradient_sample_Mean_Squared_Error(theta,X,Y)
 
+	def fit(self,X,Y):
+		""" Train the model using the feature,label pairs 
+
+		:param X: features 
+		:type X: NxM numpy ndarray 
+
+		:param Y: labels 
+		:type Y: Nx1 numpy ndarray 
+
+		:return: weights from the fitted model
+		:rtype: numpy ndarray
+		"""
+		reg = self.model_class().fit(X, Y)
+		return np.hstack([np.array(reg.intercept_),reg.coef_[1:]])
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):
@@ -362,7 +360,8 @@ class ClassificationModel(SupervisedModel):
 		:return: logistic loss
 		:rtype: float
 		"""
-		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
+		z = np.dot(X,theta[1:]) + theta[0]
+		h = 1/(1+np.exp(-z))
 		res = np.mean(-Y*np.log(h) - (1.0-Y)*np.log(1.0-h))
 		return res
 
@@ -382,7 +381,8 @@ class ClassificationModel(SupervisedModel):
 		:return: array of logistic losses 
 		:rtype: numpy ndarray(float)
 		"""
-		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
+		z = np.dot(X,theta[1:]) + theta[0]
+		h = 1/(1+np.exp(-z))
 		res = -Y*np.log(h) - (1.0-Y)*np.log(1.0-h)
 		return res		
 
@@ -401,8 +401,12 @@ class ClassificationModel(SupervisedModel):
 		:return: perceptron loss
 		:rtype: float
 		"""
-		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
-		return (1/len(X))*np.dot(X.T, (h - Y))
+		
+		z = np.dot(X,theta[1:]) + theta[0]
+		h = 1/(1+np.exp(-z))
+		X_withintercept = np.hstack([np.ones((len(X),1)),np.array(X)])
+		res = (1/len(X))*np.dot(X_withintercept.T, (h - Y))
+		return res
 
 	def sample_weighted_loss(self,theta,X,Y):
 		""" Calculate the averaged weighted cost: 
@@ -777,7 +781,8 @@ class LogisticRegressionModel(ClassificationModel):
 		:return: predictions for each observation
 		:rtype: float
 		"""
-		h = 1/(1+np.exp(-1.0*np.dot(X,theta)))
+		z = np.dot(X,theta[1:]) + theta[0]
+		h = 1/(1+np.exp(-z))
 
 		return h
 
@@ -793,8 +798,9 @@ class LogisticRegressionModel(ClassificationModel):
 		:return: fitted model weights
 		:rtype: numpy ndarray(float)
 		"""
+		# self.predictor = LogisticRegression()
 		reg = self.model_class().fit(X, Y)
-		return reg.coef_[0]
+		return np.squeeze(np.hstack([reg.intercept_.reshape(-1,1),reg.coef_]))
 
 
 class DummyClassifierModel(ClassificationModel):

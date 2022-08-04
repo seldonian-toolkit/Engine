@@ -155,7 +155,7 @@ def gpa_classification_dataset():
         columns = metadata_dict['columns']
                     
         include_sensitive_columns = False
-        include_intercept_term = True
+        include_intercept_term = False
         regime='supervised'
 
         model_class = LogisticRegressionModel

@@ -433,30 +433,20 @@ def test_gpa_data_classification(gpa_classification_dataset):
 
 	solution_dict = {
 	'disparate_impact':np.array(
-		[-0.07451169, -0.04746089,  0.15604706,
-		 0.10953836,  0.08014627,  0.03998193,
-		 0.40485252,  0.3045781,  -0.10843437,
-		 -0.05772248]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'demographic_parity':np.array(
-		[-0.07951141, -0.042461, 0.16104631,
-		 0.1145382,   0.08514536,  0.04498181,
-		 0.39985267,  0.29957834, -0.10343447,
-		 -0.05272268]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'equalized_odds':np.array(
-		[-0.07951143, -0.04246094,  0.16104688,
-		 0.1145383,   0.08514607,  0.04498188,
-		 0.39985263,  0.2995783,  -0.10343441,
-		 -0.05272256]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'equal_opportunity':np.array(
-		[-0.07951139, -0.04246098,  0.16104682,
-		 0.11453824,  0.08514599,  0.04498183,
-		 0.39985278,  0.29957895, -0.10343445, 
-		 -0.05272261]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'predictive_equality':np.array(
-		[-0.07951143, -0.04246099,  0.16104644,
-		 0.11453823,  0.08514568,  0.04498183,
-		 0.39985272,  0.29957838, -0.10343446, 
-		 -0.05272268])
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913])
 	}
 	
 	for constraint in fairness_constraint_dict:
@@ -476,7 +466,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 			model_class=model_class,
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
-			use_builtin_primary_gradient_fn=True,
+			use_builtin_primary_gradient_fn=False,
 			parse_trees=parse_trees,
 			initial_solution_fn=model_class().fit,
 			bound_method='ttest',
@@ -497,7 +487,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 
 		# Run seldonian algorithm
 		SA = SeldonianAlgorithm(spec)
-		passed_safety,solution = SA.run()
+		passed_safety,solution = SA.run(write_cs_logfile=True)
 		assert passed_safety == True
 		print(solution)
 
@@ -555,10 +545,10 @@ def test_classification_statistics(gpa_classification_dataset):
 	assert passed_safety == True
 	print(passed_safety,solution)
 	solution_to_compare = np.array(
-		[-0.07451169, -0.04746089,  0.15604706,
-		 0.10953836,  0.08014627,  0.03998193,
-		 0.40485252,  0.3045781,  -0.10843437,
-		 -0.05772248])
+		[-0.14932756, -0.04743285,  0.15603878,
+		  0.10953721,  0.08014052,  0.03997749,
+  		  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]
+  	)
 
 	assert np.allclose(solution,solution_to_compare)
 

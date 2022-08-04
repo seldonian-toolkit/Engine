@@ -382,7 +382,6 @@ class CandidateSelection(object):
 					bounds_kwargs['min_return'] = self.min_return
 					bounds_kwargs['max_return'] = self.max_return
 			pt.propagate_bounds(**bounds_kwargs)
-
 			upper_bounds.append(pt.root.upper)
 
 		return np.array(upper_bounds,dtype='float')

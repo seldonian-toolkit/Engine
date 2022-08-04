@@ -113,7 +113,6 @@ class SafetyTest(object):
 					bounds_kwargs['max_return'] = self.max_return
 
 			pt.propagate_bounds(**bounds_kwargs)
-
 			# Check if the i-th behavioral constraint is satisfied
 			upperBound = pt.root.upper 
 			if upperBound > 0.0: # If the current constraint was not satisfied, the safety test failed

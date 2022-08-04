@@ -84,7 +84,7 @@ class SeldonianAlgorithm():
 					f" {e}")
 				warnings.warn(warning_msg)
 				self.initial_solution = np.random.normal(
-					loc=0.0,scale=1.0,size=(self.candidate_features.shape[1])
+					loc=0.0,scale=1.0,size=(self.candidate_features.shape[1]+1)
 					)
 			print("Initial solution: ")
 			print(self.initial_solution)
