@@ -70,7 +70,6 @@ def test_not_enough_data(generate_data):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -98,7 +97,6 @@ def test_not_enough_data(generate_data):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=lambda x,y: np.zeros(1),
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -145,7 +143,6 @@ def test_bad_optimizer(gpa_regression_dataset):
 				use_builtin_primary_gradient_fn=False,
 				parse_trees=parse_trees,
 				initial_solution_fn=model_class().fit,
-				bound_method='ttest',
 				optimization_technique=optimization_technique,
 				optimizer=bad_optimizer,
 				optimization_hyperparams={
@@ -173,7 +170,6 @@ def test_bad_optimizer(gpa_regression_dataset):
 			use_builtin_primary_gradient_fn=False,
 			parse_trees=parse_trees,
 			initial_solution_fn=model_class().fit,
-			bound_method='ttest',
 			optimization_technique=bad_optimization_technique,
 			optimizer='adam',
 			optimization_hyperparams={
@@ -219,7 +215,6 @@ def test_gpa_data_regression(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -273,7 +268,6 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -300,7 +294,6 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 	  	 -0.00376234])
 
 	assert np.allclose(solution,array_to_compare)
-
 
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 
@@ -329,7 +322,6 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -351,8 +343,8 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	assert passed_safety == True
 	array_to_compare = np.array(
 		[ 4.18121191e-01,  7.65218366e-05,  8.68827231e-04,  4.96795941e-04,
-  5.40624536e-04,  3.35472715e-04,  2.10383120e-03,  1.52231771e-03,
- -1.46634476e-04,  4.67094023e-04]
+		  5.40624536e-04,  3.35472715e-04,  2.10383120e-03,  1.52231771e-03,
+		 -1.46634476e-04,  4.67094023e-04]
 	)
 	assert np.allclose(solution,array_to_compare)
 
@@ -382,7 +374,6 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -469,7 +460,6 @@ def test_gpa_data_classification(gpa_classification_dataset):
 			use_builtin_primary_gradient_fn=False,
 			parse_trees=parse_trees,
 			initial_solution_fn=model_class().fit,
-			bound_method='ttest',
 			optimization_technique='gradient_descent',
 			optimizer='adam',
 			optimization_hyperparams={
@@ -523,7 +513,6 @@ def test_classification_statistics(gpa_classification_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -577,7 +566,6 @@ def test_NSF(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -630,7 +618,6 @@ def test_black_box_optimizers(gpa_regression_dataset):
 			use_builtin_primary_gradient_fn=False,
 			parse_trees=parse_trees,
 			initial_solution_fn=model_class().fit,
-			bound_method='ttest',
 			optimization_technique='barrier_function',
 			optimizer=optimizer,
 			optimization_hyperparams={
@@ -687,7 +674,6 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 		custom_primary_gradient_fn=gradient_MSE,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={

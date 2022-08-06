@@ -181,7 +181,7 @@ def test_add_bounds(interval_index,stump):
 	a,b=two_interval_options[interval_index]
 	answer = answer_dict['add'][interval_index]
 	pt = stump('add',a,b)
-	pt.propagate_bounds(bound_method='manual')
+	pt.propagate_bounds()
 	assert pt.root.lower == answer[0]
 	assert pt.root.upper == answer[1]
 	assert pt.base_node_dict['a']['bound_computed'] == True
@@ -194,7 +194,7 @@ def test_subtract_bounds(interval_index,stump):
 	a,b=two_interval_options[interval_index]
 	answer = answer_dict['sub'][interval_index]
 	pt = stump('sub',a,b)
-	pt.propagate_bounds(bound_method='manual')
+	pt.propagate_bounds()
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
@@ -208,7 +208,7 @@ def test_multiply_bounds(interval_index,stump):
 	a,b=two_interval_options[interval_index]
 	answer = answer_dict['mult'][interval_index]
 	pt = stump('mult',a,b)
-	pt.propagate_bounds(bound_method='manual')
+	pt.propagate_bounds()
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
@@ -222,7 +222,7 @@ def test_divide_bounds(interval_index,stump):
 	a,b=two_interval_options[interval_index]
 	answer = answer_dict['div'][interval_index]
 	pt = stump('div',a,b)
-	pt.propagate_bounds(bound_method='manual')
+	pt.propagate_bounds()
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
@@ -243,7 +243,7 @@ def test_power_bounds(interval_index,stump):
 	if a[0] < 0:
 		with pytest.warns(UserWarning,match=warning_msg):
 			with pytest.raises(ArithmeticError) as excinfo:
-				pt.propagate_bounds(bound_method='manual')
+				pt.propagate_bounds()
 		
 		assert "Cannot compute interval" in str(excinfo.value)
 		assert "because first argument contains negatives" in str(excinfo.value)
@@ -251,14 +251,14 @@ def test_power_bounds(interval_index,stump):
 	elif 0 in a and (b[0]<0 or b[1]<1):
 		with pytest.warns(UserWarning,match=warning_msg):
 			with pytest.raises(ZeroDivisionError) as excinfo:
-				pt.propagate_bounds(bound_method='manual')
+				pt.propagate_bounds()
 		
 		assert "0.0 cannot be raised to a negative power" in str(excinfo.value)
 	else:
 		answer = answer_dict['pow'][interval_index]
 
 		with pytest.warns(UserWarning,match=warning_msg):
-			pt.propagate_bounds(bound_method='manual')
+			pt.propagate_bounds()
 		
 		# Use approx due to floating point imprecision
 		assert pt.root.lower == pytest.approx(answer[0])
@@ -276,7 +276,7 @@ def test_min_bounds(interval_index,stump):
 	
 	answer = answer_dict['min'][interval_index]
 
-	pt.propagate_bounds(bound_method='manual')
+	pt.propagate_bounds()
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
@@ -293,7 +293,7 @@ def test_max_bounds(interval_index,stump):
 	
 	answer = answer_dict['max'][interval_index]
 
-	pt.propagate_bounds(bound_method='manual')
+	pt.propagate_bounds()
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
@@ -307,7 +307,7 @@ def test_abs_bounds(interval_index,edge):
 	a=single_interval_options[interval_index]
 	answer = answer_dict['abs'][interval_index]
 	pt = edge('abs',a)
-	pt.propagate_bounds(bound_method='manual')
+	pt.propagate_bounds()
 	# Use approx due to floating point imprecision
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
@@ -317,40 +317,43 @@ def test_abs_bounds(interval_index,edge):
 ### Node tests ###
 ##################
 
-def test_node_reprs():
-	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
-	delta = 0.05 
-	pt = ParseTree(delta,regime='supervised',
-		sub_regime='regression',columns=['M','F'])
-	pt.create_from_ast(constraint_str)
-	pt.assign_deltas(weight_method='equal')
-	pt.propagate_bounds(bound_method='manual')
-	# print(pt.root)
-	root_bounds_str = f"[-0.1, {float('inf')})"
+def test_node_reprs(stump):
+	a,b=[[2.0,3.0],[4.0,5.0]]
+
+	pt = stump('add',a,b)
+	
+	pt.assign_deltas()
+	pt.propagate_bounds()
+	
+	# Before assigning which bounds are needed
+	root_bounds_str = f"[6, 8]"
 	assert pt.root.__repr__() == '\n'.join(
-		["[0]","sub",u'\u03B5' + ' ' + root_bounds_str])
-	abs_bounds_str = f"[0, {float('inf')})"
+		["[0]","add",u'\u03B5' + ' ' + root_bounds_str])
+	left_bounds_str = f"[2, 3]"
 	assert pt.root.left.__repr__() == '\n'.join(
-		["[1]","abs",u'\u03B5' + ' ' + abs_bounds_str])
+		["[1]","a",u'\u03B5' + ' ' + left_bounds_str + u', \u03B4=0.025'])
 	
-	sub_bounds_str = f"({float('-inf')}, {float('inf')})"
-	assert pt.root.left.left.__repr__() == '\n'.join(
-		["[2]","sub",u'\u03B5' + ' ' + sub_bounds_str])
-
-	ME_M_bounds_str = f"({float('-inf')}, {float('inf')})"
-	assert pt.root.left.left.left.__repr__() == '\n'.join(
-		["[3]","Mean_Error | [M]",
-		u'\u03B5' + f' {ME_M_bounds_str}' + u', \u03B4=0.025' ])
-
-	ME_F_bounds_str = f"({float('-inf')}, {float('inf')})"
-	assert pt.root.left.left.right.__repr__() == '\n'.join(
-		["[4]","Mean_Error | [F]",
-		u'\u03B5' + f' {ME_F_bounds_str}' + u', \u03B4=0.025' ])
-
-	const_bounds_str = f"[0.1, 0.1]"
+	right_bounds_str = f"[4, 5]"
 	assert pt.root.right.__repr__() == '\n'.join(
-		["[5]","0.1",u'\u03B5' + ' ' + const_bounds_str])
+		["[2]","b",u'\u03B5' + ' ' + right_bounds_str + u', \u03B4=0.025'])
+	# After assigning which bounds are needed 
+	pt = stump('add',a,b)
 	
+	pt.assign_deltas()
+	pt.assign_bounds_needed()
+	pt.propagate_bounds()
+	
+	# Before assigning which bounds are needed
+	root_bounds_str = f"[_, 8]"
+	assert pt.root.__repr__() == '\n'.join(
+		["[0]","add",u'\u03B5' + ' ' + root_bounds_str])
+	left_bounds_str = f"[_, 3]"
+	assert pt.root.left.__repr__() == '\n'.join(
+		["[1]","a",u'\u03B5' + ' ' + left_bounds_str + u', \u03B4=0.025'])
+	
+	right_bounds_str = f"[_, 5]"
+	assert pt.root.right.__repr__() == '\n'.join(
+		["[2]","b",u'\u03B5' + ' ' + right_bounds_str + u', \u03B4=0.025'])
 
 ########################
 ### Parse tree tests ###
@@ -422,7 +425,6 @@ def test_math_functions():
 	# error_str = ("Please check the syntax of the function: min()."
 	# 		 " It appears you provided more than two arguments")
 	# assert str(excinfo.value) == error_str
-
 
 def test_measure_functions_recognized():
 	delta = 0.05
@@ -873,7 +875,8 @@ def test_duplicate_base_nodes():
 	assert pt.n_base_nodes == 2 
 	assert len(pt.base_node_dict) == 1 
 	assert pt.base_node_dict['FPR']['bound_computed'] == False
-	pt.propagate_bounds(bound_method='random')
+	pt.base_node_dict['FPR']['bound_method'] = "random"
+	pt.propagate_bounds()
 	assert pt.base_node_dict['FPR']['bound_computed'] == True
 
 def test_ttest_bound(generate_data):
@@ -926,7 +929,6 @@ def test_ttest_bound(generate_data):
 		n_safety=len(safety_df),
 		model=model_instance,
 		branch='candidate_selection',
-		bound_method='ttest',
 		regime='supervised')
 	assert pt.root.lower == float('-inf') # not bound_computed 
 	assert pt.root.upper == pytest.approx(-0.932847)
@@ -935,7 +937,6 @@ def test_ttest_bound(generate_data):
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 		model=model_instance,
 		branch='safety_test',
-		bound_method='ttest',
 		regime='supervised')
 	assert pt.root.lower == float('-inf') # not computed
 	assert pt.root.upper == pytest.approx(-0.947693)
@@ -960,7 +961,6 @@ def test_ttest_bound(generate_data):
 		n_safety=len(safety_df),
 		model=model_instance,
 		branch='candidate_selection',
-		bound_method='ttest',
 		regime='supervised')
 	
 	# assert pt.root.lower == float('-inf') # not bound_computed 
@@ -970,7 +970,6 @@ def test_ttest_bound(generate_data):
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 		model=model_instance,
 		branch='safety_test',
-		bound_method='ttest',
 		regime='supervised')
 	# assert pt.root.lower == float('-inf') # not computed
 	assert pt.root.upper == pytest.approx(-0.930726)
@@ -1022,24 +1021,24 @@ def test_bad_bound_method(generate_data):
 	
 	# Candidate selection
 	bound_method = 'bad-method'
+	pt.base_node_dict['Mean_Squared_Error']['bound_method'] = bound_method
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
 			n_safety=len(safety_df),
 			model=model_instance,
 			branch='candidate_selection',
-			bound_method=bound_method,
 			regime='supervised')
 	
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
 
 	pt.reset_base_node_dict(reset_data=True)
+	pt.base_node_dict['Mean_Squared_Error']['bound_method'] = bound_method
 	# Safety test
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 			model=model_instance,
 			branch='safety_test',
-			bound_method=bound_method,
 			regime='supervised')
 
 	error_str = (f"Bounding method {bound_method} is not supported")
@@ -1054,29 +1053,27 @@ def test_bad_bound_method(generate_data):
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
 	pt.assign_bounds_needed()
-	
+	pt.base_node_dict['Mean_Squared_Error']['bound_method'] = bound_method
 	theta = np.array([0,1])
 	
 	# Candidate selection
-	bound_method = 'bad-method'
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
 			n_safety=len(safety_df),
 			model=model_instance,
 			branch='candidate_selection',
-			bound_method=bound_method,
 			regime='supervised')
 	
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
 
 	pt.reset_base_node_dict(reset_data=True)
+	pt.base_node_dict['Mean_Squared_Error']['bound_method'] = bound_method
 	# Safety test
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 			model=model_instance,
 			branch='safety_test',
-			bound_method=bound_method,
 			regime='supervised')
 
 	error_str = (f"Bounding method {bound_method} is not supported")
@@ -1091,6 +1088,7 @@ def test_bad_bound_method(generate_data):
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
 	pt.assign_bounds_needed()
+	pt.base_node_dict['Mean_Squared_Error']['bound_method'] = bound_method
 	
 	# Candidate selection
 	bound_method = 'bad-method'
@@ -1099,19 +1097,18 @@ def test_bad_bound_method(generate_data):
 			n_safety=len(safety_df),
 			model=model_instance,
 			branch='candidate_selection',
-			bound_method=bound_method,
 			regime='supervised')
 	
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
 
 	pt.reset_base_node_dict(reset_data=True)
+	pt.base_node_dict['Mean_Squared_Error']['bound_method'] = bound_method
 	# Safety test
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 			model=model_instance,
 			branch='safety_test',
-			bound_method=bound_method,
 			regime='supervised')
 
 	error_str = (f"Bounding method {bound_method} is not supported")
@@ -1212,12 +1209,17 @@ def test_reset_parse_tree():
 	assert pt.base_node_dict['FPR']['bound_computed'] == False
 	assert pt.base_node_dict['FPR']['lower'] == float('-inf')
 	assert pt.base_node_dict['FPR']['upper'] == float('inf')
+	assert pt.base_node_dict['FPR']['bound_method'] == 'ttest' # the default
 	assert pt.base_node_dict['FNR']['lower'] == float('-inf')
 	assert pt.base_node_dict['FNR']['upper'] == float('inf')
 	assert pt.base_node_dict['FNR']['bound_computed'] == False
+	assert pt.base_node_dict['FNR']['bound_method'] == 'ttest' # the default
+
+	pt.base_node_dict['FPR']['bound_method'] = 'random' 
+	pt.base_node_dict['FNR']['bound_method'] = 'random' 
 
 	# propagate bounds
-	pt.propagate_bounds(bound_method='random')
+	pt.propagate_bounds()
 	assert len(pt.base_node_dict) == 2
 	assert pt.base_node_dict['FPR']['bound_computed'] == True
 	assert pt.base_node_dict['FNR']['bound_computed'] == True
@@ -1226,7 +1228,7 @@ def test_reset_parse_tree():
 	assert pt.base_node_dict['FNR']['lower'] >= 0
 	assert pt.base_node_dict['FNR']['upper'] > 0
 
-	# reset the node dict 
+	# # reset the node dict 
 	pt.reset_base_node_dict()
 	assert len(pt.base_node_dict) == 2
 	assert pt.base_node_dict['FPR']['bound_computed'] == False
@@ -1269,7 +1271,6 @@ def test_single_conditional_columns_propagated():
 	theta = np.random.uniform(-0.05,0.05,10)
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,branch='safety_test',
-		bound_method='ttest',
 		regime='supervised')
 	assert pt.root.lower == pytest.approx(61.9001779655)
 	assert pt.root.upper == pytest.approx(62.1362236720)

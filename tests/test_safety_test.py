@@ -51,12 +51,12 @@ def test_run_safety_test(generate_data):
     candidate_solution = np.array([20,4])
 
     st = SafetyTest(safety_dataset,model_instance,parse_trees)
-    passed_safety = st.run(candidate_solution,bound_method='ttest')
+    passed_safety = st.run(candidate_solution)
     assert passed_safety == False
     
     # A candidate solution that we know should pass,
     candidate_solution = np.array([0,1])
-    passed_safety = st.run(candidate_solution,bound_method='ttest')
+    passed_safety = st.run(candidate_solution)
     assert passed_safety == True
 
 def test_evaluate_primary_objective(generate_data):

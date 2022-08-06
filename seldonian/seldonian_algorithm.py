@@ -231,8 +231,7 @@ class SeldonianAlgorithm():
 		else:
 			# Safety test
 			st = self.safety_test()
-			passed_safety = st.run(solution,
-				bound_method=self.spec.bound_method)
+			passed_safety = st.run(solution)
 		
 		return passed_safety, solution
 

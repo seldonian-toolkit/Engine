@@ -282,7 +282,6 @@ class CandidateSelection(object):
 				theta=theta,
 				dataset=self.candidate_dataset,
 				model=self.model,
-				bound_method='ttest',
 				branch='candidate_selection',
 				n_safety=self.n_safety,
 				regime=self.regime)
@@ -369,7 +368,6 @@ class CandidateSelection(object):
 				theta=theta,
 				dataset=self.candidate_dataset,
 				model=self.model,
-				bound_method='ttest',
 				branch='candidate_selection',
 				n_safety=self.n_safety,
 				regime=self.regime

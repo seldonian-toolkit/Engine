@@ -120,7 +120,6 @@ class BaseNode(Node):
 		"""
 		super().__init__(name,lower,upper,**kwargs)
 		self.conditional_columns = conditional_columns
-		
 		self.node_type = 'base_node'
 		self.delta = 0  
 		self.measure_function_name = '' 
@@ -275,6 +274,10 @@ class BaseNode(Node):
 		**kwargs):
 		"""Calculate confidence bounds given a bound_method, 
 		such as t-test.
+
+		:param bound_method: Method to use for computing high confidence
+			bounds
+		:type bound_method: str
 		""" 
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -305,6 +308,7 @@ class BaseNode(Node):
 					model=model,
 					theta=theta,
 					data_dict=data_dict)
+
 				if self.will_lower_bound and self.will_upper_bound:
 					if branch == 'candidate_selection':
 						lower,upper = self.predict_HC_upper_and_lowerbound(
@@ -346,6 +350,9 @@ class BaseNode(Node):
 
 				raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
 
+		else:
+			raise RuntimeError("bound_method not specified!")
+	
 	def predict_HC_lowerbound(self,
 		data,
 		datasize,
