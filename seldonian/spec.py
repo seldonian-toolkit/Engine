@@ -71,6 +71,7 @@ class Spec(object):
 		primary_objective,
 		initial_solution_fn,
 		parse_trees,
+		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
 		optimization_technique='gradient_descent',
@@ -96,6 +97,7 @@ class Spec(object):
 		self.use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn
 		self.custom_primary_gradient_fn = custom_primary_gradient_fn
 		self.parse_trees = parse_trees
+		self.base_node_bound_method_dict = base_node_bound_method_dict
 		self.optimization_technique = optimization_technique
 		self.optimizer = optimizer
 		self.optimization_hyperparams = optimization_hyperparams
@@ -172,6 +174,7 @@ class SupervisedSpec(Spec):
 		primary_objective,
 		initial_solution_fn,
 		parse_trees,
+		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
 		optimization_technique='gradient_descent',
@@ -194,6 +197,7 @@ class SupervisedSpec(Spec):
 			primary_objective,
 			initial_solution_fn,
 			parse_trees,
+			base_node_bound_method_dict,
 			use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn,
 			optimization_technique,
@@ -282,6 +286,7 @@ class RLSpec(Spec):
 		parse_trees,
 		RL_environment_obj,
 		RL_agent_obj,
+		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
 		optimization_technique='gradient_descent',
@@ -305,6 +310,7 @@ class RLSpec(Spec):
 			primary_objective,
 			initial_solution_fn,
 			parse_trees,
+			custom_base_node_bounding_dict,
 			use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn,
 			optimization_technique,

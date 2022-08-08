@@ -21,7 +21,20 @@ class SeldonianAlgorithm():
 		:type spec: :py:class:`.Spec` object
 		"""
 		self.spec = spec
-		
+		self.parse_trees = self.spec.parse_trees
+		self.base_node_bound_method_dict = self.spec.base_node_bound_method_dict
+
+		if self.base_node_bound_method_dict != {}:
+			all_pt_constraint_strs = [pt.constraint_str for pt in self.parse_trees]
+			for constraint_str in self.base_node_bound_method_dict:
+				this_bound_method_dict = self.base_node_bound_method_dict[constraint_str]
+				# figure out which parse tree this comes from
+				this_pt_index = all_pt_constraint_strs.index(constraint_str)
+				this_pt = self.parse_trees[this_pt_index]
+				# change the bound method for each node provided
+				for node_name in this_bound_method_dict:
+					this_pt.base_node_dict[node_name]['bound_method'] = this_bound_method_dict[node_name]
+
 		self.dataset = self.spec.dataset
 		self.regime = self.dataset.regime
 		self.column_names = self.dataset.meta_information
@@ -214,7 +227,6 @@ class SeldonianAlgorithm():
 			passes the safety test. solution is the optimized
 			model weights found during candidate selection or 'NSF'.
 		:rtype: Tuple 
-			
 		"""
 			
 		cs = self.candidate_selection(write_cs_logfile=write_cs_logfile)

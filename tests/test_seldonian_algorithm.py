@@ -14,6 +14,52 @@ from seldonian.models.models import LinearRegressionModel
 
 ### Begin tests
 
+def test_base_node_bound_methods_updated(gpa_regression_dataset):
+	rseed=99
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error']
+	deltas = [0.05,0.05]
+	(dataset,model_class,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+			constraint_strs=constraint_strs,
+			deltas=deltas)
+	assert parse_trees[0].base_node_dict['Mean_Squared_Error']['bound_method'] == 'ttest'
+	assert parse_trees[1].base_node_dict['Mean_Squared_Error']['bound_method'] == 'ttest'
+	base_node_bound_method_dict = {
+		'Mean_Squared_Error - 5.0': {
+			'Mean_Squared_Error':'manual'
+			},
+		'2.0 - Mean_Squared_Error': {
+			'Mean_Squared_Error':'random'
+			}
+	}
+	frac_data_in_safety=0.6
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model_class=model_class,
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		parse_trees=parse_trees,
+		base_node_bound_method_dict=base_node_bound_method_dict,
+		initial_solution_fn=model_class().fit,
+		optimization_technique='barrier_function',
+		optimizer='Powell',
+		optimization_hyperparams={
+			'maxiter'   : 1000,
+			'seed':rseed,
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# Build SA object and verify that the bound method was updated
+	SA = SeldonianAlgorithm(spec)
+	assert parse_trees[0].base_node_dict['Mean_Squared_Error']['bound_method'] == 'manual'
+	assert parse_trees[1].base_node_dict['Mean_Squared_Error']['bound_method'] == 'random'
+
+
 def test_not_enough_data(generate_data):
 	# dummy data for linear regression
 	rseed=0
