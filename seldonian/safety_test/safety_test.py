@@ -74,7 +74,7 @@ class SafetyTest(object):
 			else:
 				self.normalize_returns=False
 
-	def run(self,solution,bound_method='ttest',**kwargs):
+	def run(self,solution,**kwargs):
 		""" Loop over parse trees, calculate the bounds on leaf nodes
 		and propagate to the root node. The safety test passes if
 		the upper bounds of all parse tree root nodes are less than or equal to 0. 
@@ -82,10 +82,6 @@ class SafetyTest(object):
 		:param solution: 
 			The solution found by candidate selection
 		:type solution: numpy ndarray
-
-		:param bound_method: 
-			The statistical method for calculating the confidence bounds
-		:type bound_method: str, defaults to 'ttest'
 
 		:return: passed, whether the candidate solution passed the safety test
 		:rtype: bool
@@ -101,7 +97,6 @@ class SafetyTest(object):
 				dataset=self.safety_dataset,
 				model=self.model,
 				branch='safety_test',
-				bound_method=bound_method,
 				regime=self.regime
 				)
 			
@@ -113,7 +108,6 @@ class SafetyTest(object):
 					bounds_kwargs['max_return'] = self.max_return
 
 			pt.propagate_bounds(**bounds_kwargs)
-
 			# Check if the i-th behavioral constraint is satisfied
 			upperBound = pt.root.upper 
 			if upperBound > 0.0: # If the current constraint was not satisfied, the safety test failed

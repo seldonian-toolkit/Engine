@@ -22,10 +22,10 @@ def plot_gradient_descent(solution,primary_objective_name,save=False,savename='t
     fig = plt.figure(figsize=(12,4))
     fontsize=12
     solution_found = solution['solution_found']
-    theta_vals = solution['theta_vals'] # includes intercept
-    lamb_vals = solution['lamb_vals']
-    f_vals = solution['f_vals']
-    g_vals = solution['g_vals']
+    theta_vals = solution['theta_vals'] 
+    lamb_vals = solution['lamb_vals'] # i x j array where i is number of iterations, j is number of constraints
+    f_vals = solution['f_vals'] # length = i array where i is number of iterations 
+    g_vals = solution['g_vals'] # i x j array where i is number of iterations, j is number of constraints
     L_vals = solution['L_vals']
     if solution_found:
         best_index = solution['best_index']

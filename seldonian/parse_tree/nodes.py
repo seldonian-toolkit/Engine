@@ -120,7 +120,6 @@ class BaseNode(Node):
 		"""
 		super().__init__(name,lower,upper,**kwargs)
 		self.conditional_columns = conditional_columns
-		
 		self.node_type = 'base_node'
 		self.delta = 0  
 		self.measure_function_name = '' 
@@ -275,6 +274,10 @@ class BaseNode(Node):
 		**kwargs):
 		"""Calculate confidence bounds given a bound_method, 
 		such as t-test.
+
+		:param bound_method: Method to use for computing high confidence
+			bounds
+		:type bound_method: str
 		""" 
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -305,6 +308,7 @@ class BaseNode(Node):
 					model=model,
 					theta=theta,
 					data_dict=data_dict)
+
 				if self.will_lower_bound and self.will_upper_bound:
 					if branch == 'candidate_selection':
 						lower,upper = self.predict_HC_upper_and_lowerbound(
@@ -346,6 +350,9 @@ class BaseNode(Node):
 
 				raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
 
+		else:
+			raise RuntimeError("bound_method not specified!")
+	
 	def predict_HC_lowerbound(self,
 		data,
 		datasize,
@@ -588,7 +595,6 @@ class MEDCustomBaseNode(BaseNode):
 
 		Overrides several parent class methods 
 		
-		
 		:param name: 
 			The name of the node
 		:type name: str
@@ -606,7 +612,6 @@ class MEDCustomBaseNode(BaseNode):
 		:vartype delta: float
 		"""
 		super().__init__(name,lower,upper,**kwargs)
-		self.delta = 0  
 		
 	def calculate_data_forbound(self,**kwargs):
 		""" 
@@ -628,7 +633,6 @@ class MEDCustomBaseNode(BaseNode):
 
 		if kwargs['branch'] == 'candidate_selection':
 			n_safety = kwargs['n_safety']
-			# frac_masked = len(dataframe)/len(dataset.df)
 			frac_masked = datasize/len(dataframe)
 			datasize = int(round(frac_masked*n_safety))
 
@@ -682,7 +686,7 @@ class MEDCustomBaseNode(BaseNode):
 	def zhat(self,model,theta,data_dict):
 		"""
 		Pair up male and female columns and compute a vector of:
-		(y_i - y_hat_i | M) - (y_j - y_hat_j | F) - epsilon.
+		(y_i - y_hat_i | M) - (y_j - y_hat_j | F).
 		There may not be the same number of male and female rows
 		so the number of pairs is min(N_male,N_female)
 

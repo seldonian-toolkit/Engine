@@ -15,9 +15,14 @@ def stump():
         regime='supervised',sub_regime='classification'):
         # A parse tree with a root node and left and right children only
         root = InternalNode(operator_type)
+        root.index=0
         root.left = BaseNode('a')
+        root.left.index=1
         root.right = BaseNode('b')
+        root.right.index=2
+
         pt = ParseTree(delta=0.05,regime=regime,sub_regime=sub_regime)
+        # pt.create_from_ast("a+b")
         pt.root = root
         pt.root.left.lower  = left_bounds[0]
         pt.root.left.upper  = left_bounds[1]
@@ -27,6 +32,7 @@ def stump():
         pt.n_base_nodes = 2
         pt.base_node_dict = {
             'a':{
+                'bound_method':'manual',
                 'bound_computed':False,
                 'lower':float("-inf"),
                 'upper':float("inf"),
@@ -34,6 +40,7 @@ def stump():
                 'datasize':0
                 },
             'b':{
+                'bound_method':'manual',
                 'bound_computed':False,
                 'lower':float("-inf"),
                 'upper':float("inf"),
@@ -60,6 +67,7 @@ def edge():
         pt.n_base_nodes = 1
         pt.base_node_dict = {
             'a':{
+                'bound_method':'manual',
                 'bound_computed':False,
                 'lower':float("-inf"),
                 'upper':float("inf"),
@@ -155,7 +163,7 @@ def gpa_classification_dataset():
         columns = metadata_dict['columns']
                     
         include_sensitive_columns = False
-        include_intercept_term = True
+        include_intercept_term = False
         regime='supervised'
 
         model_class = LogisticRegressionModel

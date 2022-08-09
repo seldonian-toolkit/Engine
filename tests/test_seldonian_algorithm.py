@@ -14,6 +14,52 @@ from seldonian.models.models import LinearRegressionModel
 
 ### Begin tests
 
+def test_base_node_bound_methods_updated(gpa_regression_dataset):
+	rseed=99
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error']
+	deltas = [0.05,0.05]
+	(dataset,model_class,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+			constraint_strs=constraint_strs,
+			deltas=deltas)
+	assert parse_trees[0].base_node_dict['Mean_Squared_Error']['bound_method'] == 'ttest'
+	assert parse_trees[1].base_node_dict['Mean_Squared_Error']['bound_method'] == 'ttest'
+	base_node_bound_method_dict = {
+		'Mean_Squared_Error - 5.0': {
+			'Mean_Squared_Error':'manual'
+			},
+		'2.0 - Mean_Squared_Error': {
+			'Mean_Squared_Error':'random'
+			}
+	}
+	frac_data_in_safety=0.6
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model_class=model_class,
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		parse_trees=parse_trees,
+		base_node_bound_method_dict=base_node_bound_method_dict,
+		initial_solution_fn=model_class().fit,
+		optimization_technique='barrier_function',
+		optimizer='Powell',
+		optimization_hyperparams={
+			'maxiter'   : 1000,
+			'seed':rseed,
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# Build SA object and verify that the bound method was updated
+	SA = SeldonianAlgorithm(spec)
+	assert parse_trees[0].base_node_dict['Mean_Squared_Error']['bound_method'] == 'manual'
+	assert parse_trees[1].base_node_dict['Mean_Squared_Error']['bound_method'] == 'random'
+
+
 def test_not_enough_data(generate_data):
 	# dummy data for linear regression
 	rseed=0
@@ -70,7 +116,6 @@ def test_not_enough_data(generate_data):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -98,7 +143,6 @@ def test_not_enough_data(generate_data):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=lambda x,y: np.zeros(1),
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -145,7 +189,6 @@ def test_bad_optimizer(gpa_regression_dataset):
 				use_builtin_primary_gradient_fn=False,
 				parse_trees=parse_trees,
 				initial_solution_fn=model_class().fit,
-				bound_method='ttest',
 				optimization_technique=optimization_technique,
 				optimizer=bad_optimizer,
 				optimization_hyperparams={
@@ -173,7 +216,6 @@ def test_bad_optimizer(gpa_regression_dataset):
 			use_builtin_primary_gradient_fn=False,
 			parse_trees=parse_trees,
 			initial_solution_fn=model_class().fit,
-			bound_method='ttest',
 			optimization_technique=bad_optimization_technique,
 			optimizer='adam',
 			optimization_hyperparams={
@@ -219,7 +261,6 @@ def test_gpa_data_regression(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -243,6 +284,60 @@ def test_gpa_data_regression(gpa_regression_dataset):
 		[ 4.20776626e-01, -6.68167090e-04,  9.78329737e-04, -1.15722866e-03,
  -1.05315739e-03, -8.12009686e-04,  4.61741069e-03,  3.92829593e-03,
  -1.40006741e-03,  3.41671151e-05])
+
+	assert np.allclose(solution,array_to_compare)
+
+def test_phil_custom_base_node(gpa_regression_dataset):
+	""" Test that the gpa regression example runs 
+	using Phil's custom base node. Make
+	sure safety test passes and solution is correct.
+	"""
+	rseed=0
+	np.random.seed(rseed) 
+	# constraint_strs = ['Mean_Squared_Error - 2.0']
+	constraint_strs = ['MED_MF - 0.1']
+	deltas = [0.05]
+
+	(dataset,model_class,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model_class=model_class,
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		parse_trees=parse_trees,
+		initial_solution_fn=model_class().fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 600,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	array_to_compare = np.array(
+		[0.42370182, -0.00469413, -0.00299174,
+		 -0.0045492,  -0.00392318, -0.0047077,
+	  	 0.01771072,  0.0168809,  -0.0052295,
+	  	 -0.00376234])
 
 	assert np.allclose(solution,array_to_compare)
 
@@ -273,7 +368,6 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -295,8 +389,8 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	assert passed_safety == True
 	array_to_compare = np.array(
 		[ 4.18121191e-01,  7.65218366e-05,  8.68827231e-04,  4.96795941e-04,
-  5.40624536e-04,  3.35472715e-04,  2.10383120e-03,  1.52231771e-03,
- -1.46634476e-04,  4.67094023e-04]
+		  5.40624536e-04,  3.35472715e-04,  2.10383120e-03,  1.52231771e-03,
+		 -1.46634476e-04,  4.67094023e-04]
 	)
 	assert np.allclose(solution,array_to_compare)
 
@@ -326,7 +420,6 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -377,30 +470,20 @@ def test_gpa_data_classification(gpa_classification_dataset):
 
 	solution_dict = {
 	'disparate_impact':np.array(
-		[-0.07451169, -0.04746089,  0.15604706,
-		 0.10953836,  0.08014627,  0.03998193,
-		 0.40485252,  0.3045781,  -0.10843437,
-		 -0.05772248]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'demographic_parity':np.array(
-		[-0.07951141, -0.042461, 0.16104631,
-		 0.1145382,   0.08514536,  0.04498181,
-		 0.39985267,  0.29957834, -0.10343447,
-		 -0.05272268]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'equalized_odds':np.array(
-		[-0.07951143, -0.04246094,  0.16104688,
-		 0.1145383,   0.08514607,  0.04498188,
-		 0.39985263,  0.2995783,  -0.10343441,
-		 -0.05272256]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'equal_opportunity':np.array(
-		[-0.07951139, -0.04246098,  0.16104682,
-		 0.11453824,  0.08514599,  0.04498183,
-		 0.39985278,  0.29957895, -0.10343445, 
-		 -0.05272261]),
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]),
 	'predictive_equality':np.array(
-		[-0.07951143, -0.04246099,  0.16104644,
-		 0.11453823,  0.08514568,  0.04498183,
-		 0.39985272,  0.29957838, -0.10343446, 
-		 -0.05272268])
+		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
+  0.40484586,  0.3045744,  -0.1084586,  -0.05770913])
 	}
 	
 	for constraint in fairness_constraint_dict:
@@ -420,10 +503,9 @@ def test_gpa_data_classification(gpa_classification_dataset):
 			model_class=model_class,
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
-			use_builtin_primary_gradient_fn=True,
+			use_builtin_primary_gradient_fn=False,
 			parse_trees=parse_trees,
 			initial_solution_fn=model_class().fit,
-			bound_method='ttest',
 			optimization_technique='gradient_descent',
 			optimizer='adam',
 			optimization_hyperparams={
@@ -441,7 +523,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 
 		# Run seldonian algorithm
 		SA = SeldonianAlgorithm(spec)
-		passed_safety,solution = SA.run()
+		passed_safety,solution = SA.run(write_cs_logfile=True)
 		assert passed_safety == True
 		print(solution)
 
@@ -477,7 +559,6 @@ def test_classification_statistics(gpa_classification_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -499,10 +580,10 @@ def test_classification_statistics(gpa_classification_dataset):
 	assert passed_safety == True
 	print(passed_safety,solution)
 	solution_to_compare = np.array(
-		[-0.07451169, -0.04746089,  0.15604706,
-		 0.10953836,  0.08014627,  0.03998193,
-		 0.40485252,  0.3045781,  -0.10843437,
-		 -0.05772248])
+		[-0.14932756, -0.04743285,  0.15603878,
+		  0.10953721,  0.08014052,  0.03997749,
+  		  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]
+  	)
 
 	assert np.allclose(solution,solution_to_compare)
 
@@ -531,7 +612,6 @@ def test_NSF(gpa_regression_dataset):
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -584,7 +664,6 @@ def test_black_box_optimizers(gpa_regression_dataset):
 			use_builtin_primary_gradient_fn=False,
 			parse_trees=parse_trees,
 			initial_solution_fn=model_class().fit,
-			bound_method='ttest',
 			optimization_technique='barrier_function',
 			optimizer=optimizer,
 			optimization_hyperparams={
@@ -641,7 +720,6 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 		custom_primary_gradient_fn=gradient_MSE,
 		parse_trees=parse_trees,
 		initial_solution_fn=model_class().fit,
-		bound_method='ttest',
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={

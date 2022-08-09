@@ -282,7 +282,6 @@ class CandidateSelection(object):
 				theta=theta,
 				dataset=self.candidate_dataset,
 				model=self.model,
-				bound_method='ttest',
 				branch='candidate_selection',
 				n_safety=self.n_safety,
 				regime=self.regime)
@@ -369,7 +368,6 @@ class CandidateSelection(object):
 				theta=theta,
 				dataset=self.candidate_dataset,
 				model=self.model,
-				bound_method='ttest',
 				branch='candidate_selection',
 				n_safety=self.n_safety,
 				regime=self.regime
@@ -382,7 +380,6 @@ class CandidateSelection(object):
 					bounds_kwargs['min_return'] = self.min_return
 					bounds_kwargs['max_return'] = self.max_return
 			pt.propagate_bounds(**bounds_kwargs)
-
 			upper_bounds.append(pt.root.upper)
 
 		return np.array(upper_bounds,dtype='float')
