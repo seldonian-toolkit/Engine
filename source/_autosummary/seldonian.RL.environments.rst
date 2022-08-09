@@ -30,6 +30,7 @@ seldonian.RL.environments
 
 
    seldonian.RL.environments.Environment
+   seldonian.RL.environments.SimGlucose
    seldonian.RL.environments.gridworld
    seldonian.RL.environments.gridworld3x3
    seldonian.RL.environments.mountaincar
