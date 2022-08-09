@@ -310,7 +310,7 @@ class RLSpec(Spec):
 			primary_objective,
 			initial_solution_fn,
 			parse_trees,
-			custom_base_node_bounding_dict,
+			base_node_bound_method_dict,
 			use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn,
 			optimization_technique,

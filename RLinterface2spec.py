@@ -21,7 +21,7 @@ def main_RLinterface2spec():
     dataset2spec(save_dir, metadata_pth, dataset)
 
 
-def dataset2spec(save_dir, metadata_pth, dataset, agent):
+def dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_strs):
     # Load metadata
     with open(metadata_pth, 'r') as infile:
         metadata_dict = json.load(infile)
@@ -32,17 +32,8 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent):
     RL_env_class_name = metadata_dict['RL_class_name']
     RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)()
 
-
-    #HERE, point to agent
-    # model_class = TabularSoftmaxModel
-    # model_instance = model_class(RL_environment_obj)
-
-    # model_class = RL_model(agent, RL_environment_obj, evaluator)
     RL_model_instance = RL_model(agent,RL_environment_obj)
-    # primary_objective = model_instance.default_objective
     primary_objective = RL_model_instance.sample_IS_estimate
-
-    constraint_strs = ['-0.25 - J_pi_new']
 
     deltas = [0.05]
 
@@ -77,7 +68,6 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent):
         RL_environment_obj=RL_environment_obj,
         RL_agent_obj=agent,
         initial_solution_fn=None,
-        bound_method='ttest',
         optimization_technique='gradient_descent',
         optimizer='adam',
         optimization_hyperparams={

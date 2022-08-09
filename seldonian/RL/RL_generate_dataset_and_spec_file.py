@@ -18,7 +18,8 @@ def main():
     print(f"{len(episodes)} episodes")
     metadata_pth = get_metadata_path(hyperparameter_and_setting_dict["env"])
     save_dir = '.'
-    dataset2spec(save_dir, metadata_pth, dataset, agent)
+    constraint_string = get_constraint_string(hyperparameter_and_setting_dict["env"])
+    dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_string)
 
 def get_metadata_path(env_name):
     if env_name == "gridworld":
@@ -27,6 +28,12 @@ def get_metadata_path(env_name):
         return "../../static/datasets/RL/mountaincar/n_step_mountaincar_metadata.json"
     else:
         error(f"unknown env name {env_name}")
+
+def get_constraint_string(env):
+    if env == "gridworld":
+        return ['-0.25 - J_pi_new']
+    else:
+        error(f"Unknown env {env}")
 
 if __name__ == '__main__':
     main()
