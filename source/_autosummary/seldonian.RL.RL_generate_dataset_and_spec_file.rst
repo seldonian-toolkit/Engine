@@ -14,6 +14,7 @@ seldonian.RL.RL\_generate\_dataset\_and\_spec\_file
    .. autosummary::
       :toctree:                                         
    
+      get_metadata_path
       main
    
    
