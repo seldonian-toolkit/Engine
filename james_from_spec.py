@@ -10,9 +10,8 @@ if __name__ == '__main__':
 
     dataset = spec.dataset
     regime = dataset.regime
-    print(regime)
-    print(spec.RL_environment_obj)
-    print(spec.RL_environment_obj.gamma)
+    print("regime:", regime)
+    print("RL_environment_obj:", spec.RL_environment_obj)
 
     spec.use_builtin_primary_gradient_fn = False
     spec.optimization_hyperparams['num_iters'] = 40
@@ -21,4 +20,4 @@ if __name__ == '__main__':
     # spec.regularization_hyperparams['reg_coef'] = 0.1
     SA = SeldonianAlgorithm(spec)
     passed_safety, candidate_solution = SA.run()
-    print(passed_safety, candidate_solution)
+    print(f"passed: {passed_safety}, candidate_solution: {candidate_solution}")

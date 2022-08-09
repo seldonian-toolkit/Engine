@@ -11,4 +11,8 @@ def print_results(results):
 if __name__ == "__main__":
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
     results = run_all_trials(hyperparameter_and_setting_dict)
-    print_results(results)
+    print("returns:")
+    for trial_num in range(hyperparameter_and_setting_dict["num_trials"]):
+        print(f"\ntrial number {trial_num}")
+        for episode in results[trial_num]:
+            print(sum(episode.rewards))

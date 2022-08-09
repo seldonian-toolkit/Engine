@@ -31,5 +31,5 @@ class Softmax(Discrete_Action_Policy):
 
     def get_e_to_the_something_terms(self, action_values):
         max_value = np.max(action_values)
-        e_to_the_something_terms = np.exp(action_values - max_value)
+        e_to_the_something_terms = np.exp(action_values - max_value) #subtract max for numerical stability
         return e_to_the_something_terms

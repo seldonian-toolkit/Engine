@@ -1,6 +1,7 @@
 from seldonian.RL.Agents.Discrete_Random_Agent import *
 from seldonian.RL.Agents.mountain_car_rough_solution import *
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
+from seldonian.RL.Agents.keyboard_gridworld import *
 
 from seldonian.RL.environments.gridworld import *
 from seldonian.RL.environments.mountaincar import *
@@ -12,7 +13,7 @@ def run_all_trials(hyperparameter_and_setting_dict):
     num_trials = hyperparameter_and_setting_dict["num_trials"]
     trials = []
     for trial_num in range(num_trials):
-        trials.append(run_trial(hyperparameter_and_setting_dict))
+        trials.append(run_trial(hyperparameter_and_setting_dict)[0])
     return trials
 
 def run_trial(hyperparameter_and_setting_dict):
@@ -60,7 +61,9 @@ def create_agent(hyperparameter_and_setting_dict):
     elif agent_type == "mountain_car_rough_solution":
         return Mountain_car_rough_solution()
     elif agent_type == "Parameterized_non_learning_softmax_agent":
-        return Parameterized_non_learning_softmax_agent(env_desc)
+        return Parameterized_non_learning_softmax_agent(env_desc, hyperparameter_and_setting_dict)
+    elif agent_type == "Keyboard_gridworld":
+        return Keyboard_gridworld(env_desc)
     else:
         raise Exception(f"unknown agent type {agent_type}")
 
