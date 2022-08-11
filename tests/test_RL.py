@@ -6,6 +6,8 @@ from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
 import autograd.numpy as np
 
 def test_tables():
+    """tests Table class methods"""
+
     min_state = -3
     num_states = 6
     num_actions = 3
@@ -51,7 +53,9 @@ def test_Parameterized_non_learning_softmax_agent():
     observation_space = Discrete_Space(-1, 2)
     action_space = Discrete_Space(-1, 1)
     env_desc = Env_Description(observation_space, action_space)
-    agent = Parameterized_non_learning_softmax_agent(env_desc)
+    hyperparam_and_setting_dict = {}
+    hyperparam_and_setting_dict["basis"] = "Fourier"
+    agent = Parameterized_non_learning_softmax_agent(env_desc, hyperparam_and_setting_dict)
 
     correct_shape = (3, 4)
     assert agent.get_params().shape == correct_shape
@@ -75,11 +79,11 @@ def test_Parameterized_non_learning_softmax_agent():
 def test_spaces_and_env_descriptions():
     cont_space = Continuous_Space(np.array([[0.0, 1.1], [3.3, 4.4], [5.5, 6.6]])) #should be no error
     with pytest.raises(Exception):
-        cont_space = Continuous_Space(np.array([[0.0, 1.1], [3.3, 4.4], [5.5, -6.6]]))
+        cont_space = Continuous_Space(np.array([[0.0, 1.1], [3.3, 4.4], [5.5, -6.6]])) #max is smaller than min
     with pytest.raises(Exception):
-        cont_space = Continuous_Space(np.array([[2.0, 1.1], [3.3, 4.4], [5.5, 6.6]]))
+        cont_space = Continuous_Space(np.array([[2.0, 1.1], [3.3, 4.4], [5.5, 6.6]]))  #max is smaller than min
     with pytest.raises(Exception):
-        cont_space = Continuous_Space(np.array([[2.0, 2.1, 3.3], [4.4, 5.5, 6.6]]))
+        cont_space = Continuous_Space(np.array([[2.0, 2.1, 3.3], [4.4, 5.5, 6.6]])) #need 2 values, not 3
 
     obs_space = Discrete_Space(-10, 10)
     assert obs_space.get_num_values() == 21
