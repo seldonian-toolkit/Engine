@@ -27,6 +27,13 @@ def run_trial(hyperparameter_and_setting_dict):
         episodes.append(run_episode(agent, env))
     return episodes, agent
 
+def run_trial_given_agent_and_env(agent,env,num_episodes):
+    episodes = []
+
+    for episode_num in range(num_episodes):
+        episodes.append(run_episode(agent, env))
+    return episodes
+
 def run_episode(agent, env):
     observations = []
     actions = []

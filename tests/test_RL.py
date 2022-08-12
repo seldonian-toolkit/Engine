@@ -51,7 +51,7 @@ def test_Parameterized_non_learning_softmax_agent():
     observation_space = Discrete_Space(-1, 2)
     action_space = Discrete_Space(-1, 1)
     env_desc = Env_Description(observation_space, action_space)
-    agent = Parameterized_non_learning_softmax_agent(env_desc)
+    agent = Parameterized_non_learning_softmax_agent(env_desc,{})
 
     correct_shape = (3, 4)
     assert agent.get_params().shape == correct_shape
