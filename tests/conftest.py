@@ -5,7 +5,8 @@ from seldonian.parse_tree.parse_tree import *
 from seldonian.utils.io_utils import (load_json,
     load_pickle)
 from seldonian.dataset import (DataSetLoader,
-    RLDataSet)
+    RLDataSet,SupervisedDataSet)
+from seldonian.spec import SupervisedSpec
 
 
 
@@ -86,6 +87,82 @@ def generate_data():
         return (X,Y)
     
     return generate_data_function
+
+
+@pytest.fixture
+def synthetic_dataset(generate_data):
+    from seldonian.models.models import LinearRegressionModel
+    
+    def generate_dataset(constraint_strs,deltas):
+        rseed=0
+        np.random.seed(rseed) 
+        numPoints=1000
+        columns=['feature1','label']
+        model_class = LinearRegressionModel
+        X,Y = generate_data(
+            numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+        import matplotlib.pyplot as plt
+        rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
+        df = pd.DataFrame(rows,columns=columns)
+
+        parse_trees = []
+        
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(delta=delta,
+                regime='supervised',sub_regime='regression',
+                columns=[])
+
+            # Fill out tree
+            parse_tree.create_from_ast(constraint_str)
+            # assign deltas for each base node
+            # use equal weighting for each base node
+            parse_tree.assign_deltas(weight_method='equal')
+
+            # Assign bounds needed on the base nodes
+            parse_tree.assign_bounds_needed()
+            
+            parse_trees.append(parse_tree)
+
+        dataset = SupervisedDataSet(df=df,meta_information=columns,
+            label_column='label',
+            sensitive_column_names=[],
+            include_sensitive_columns=False,
+            include_intercept_term=False
+        )
+        frac_data_in_safety=0.6
+
+        # Create spec object
+        # Will warn because of initial solution trying to fit with not enough data
+        spec = SupervisedSpec(
+            dataset=dataset,
+            model_class=model_class,
+            frac_data_in_safety=frac_data_in_safety,
+            primary_objective=model_class().default_objective,
+            use_builtin_primary_gradient_fn=True,
+            parse_trees=parse_trees,
+            initial_solution_fn=model_class().fit,
+            optimization_technique='gradient_descent',
+            optimizer='adam',
+            optimization_hyperparams={
+                'lambda_init'   : np.array([0.5]),
+                'alpha_theta'   : 0.01,
+                'alpha_lamb'    : 0.01,
+                'beta_velocity' : 0.9,
+                'beta_rmsprop'  : 0.95,
+                'num_iters'     : 50,
+                'gradient_library': "autograd",
+                'hyper_search'  : None,
+                'verbose'       : True,
+            }
+        )
+        return spec
+    
+    return generate_dataset
+
 
 @pytest.fixture
 def gpa_regression_dataset():

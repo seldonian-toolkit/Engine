@@ -76,6 +76,7 @@ class Node(object):
 			]
 		) 
   
+
 class BaseNode(Node):
 	def __init__(self,
 		name,
@@ -225,7 +226,7 @@ class BaseNode(Node):
 			data_dict = {'features':features,'labels':labels}  
 			
 		elif regime == 'RL':
-			gamma = kwargs['gamma']
+			gamma = model.env.gamma
 			episodes = dataset.episodes
 
 			if branch == 'candidate_selection':
@@ -274,10 +275,6 @@ class BaseNode(Node):
 		**kwargs):
 		"""Calculate confidence bounds given a bound_method, 
 		such as t-test.
-
-		:param bound_method: Method to use for computing high confidence
-			bounds
-		:type bound_method: str
 		""" 
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
@@ -581,6 +578,7 @@ class BaseNode(Node):
 
 		return lower,upper
   
+
 class MEDCustomBaseNode(BaseNode):
 	def __init__(self,
 		name,
@@ -715,6 +713,343 @@ class MEDCustomBaseNode(BaseNode):
 
 		return mean_error_male - mean_error_female
 
+ 
+class CVARSQEBaseNode(BaseNode):
+	def __init__(self,
+		name,
+		lower=float('-inf'),
+		upper=float('inf'),
+		**kwargs):
+		""" 
+		Custom base node that calculates the upper and 
+		lower bounds on CVaR_alpha (with alpha fixed to 0.1)
+		of the squared error. We are using the positive
+		definition of CVaR_alpha, i.e. "...the expected value 
+		if we only consider the samples that are at least VaR_alpha,"
+		where VaR_alpha "... is the largest value such that at least 100*alpha%
+		of samples will be larger than it." - Thomas & Miller 2019:
+		https://people.cs.umass.edu/~pthomas/papers/Thomas2019.pdf
+		See Theorem 3 for upper bound and Theorem 4 for lower bound
+
+		Overrides several parent class methods 
+		
+		:param name: 
+			The name of the node
+		:type name: str
+		
+		:param lower: 
+			Lower confidence bound
+		:type lower: float
+		
+		:param upper: 
+			Upper confidence bound
+		:type upper: float
+
+		:ivar delta: 
+			The share of the confidence put into this node
+		:vartype delta: float
+
+		:ivar alpha: 
+			The probability threshold used to define CVAR
+		:vartype alpha: float
+		"""
+		super().__init__(name,lower,upper,**kwargs)
+		self.alpha = 0.1
+	
+	def calculate_value(self,**kwargs):
+		"""
+		Calculate the actual value of CVAR_alpha,
+		not the bound.
+		""" 
+		model = kwargs['model']
+		theta = kwargs['theta']
+		data_dict = kwargs['data_dict']
+
+		# Get squashed squared errors
+		y = data_dict['labels']
+		y_min,y_max = min(y),max(y)
+		X = data_dict['features']
+		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
+		
+		Z = np.array(sorted(squared_errors))
+		# Now calculate cvar
+		percentile_thresh = (1-self.alpha)*100
+		var_thresh = np.percentile(Z,percentile_thresh)
+		var_mask = Z >= var_thresh
+		Z_var = Z[var_mask]
+		cvar = np.mean(Z_var)
+		return cvar
+
+	def calculate_bounds(self,
+		**kwargs):
+		"""Calculate confidence bounds using the concentration 
+		inequalities in Thomas & Miller 2019, Theorem's 3 and 4.
+		""" 
+		branch = kwargs['branch']
+		model = kwargs['model']
+		theta = kwargs['theta']
+		data_dict = kwargs['data_dict']
+		# Need to get vector of squashed squared errors,
+		# i.e. rescaled to be between 0 and y_max,
+		# where y_max is the max value of the label, y
+		X = data_dict['features']
+		y = data_dict['labels']
+		y_min,y_max = min(y),max(y)
+		y_hat_min = (3*y_min - y_max)/2
+		y_hat_max =(3*y_max - y_min)/2
+		max_squared_error = max(
+			pow(y_hat_max-y_min,2),
+			pow(y_max - y_hat_min,2))
+		min_squared_error = 0
+		
+		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
+		# squared_errors_nosquash = pow(y_hats-y,2)
+		# import matplotlib.pyplot as plt
+		# fig = plt.figure()
+		# plt.hist(squared_errors)
+		# plt.show()
+		# input("Wait")
+		# Need b, the maximum possible squared error,
+		# which would happen if y=0 and y_hat_prime=y_max
+		# or vice versa. Either way result would be y_max**2
+		a=min_squared_error
+		b=max_squared_error
+		# Need to sort them to get Z1, ..., Zn
+		sorted_squared_errors = sorted(squared_errors)
+
+		bound_kwargs = {
+			"Z":sorted_squared_errors,
+			"delta":self.delta,
+			"n_safety":kwargs['datasize'],
+			"a":a,
+			"b":b
+			}
+		
+		if self.will_lower_bound and self.will_upper_bound:
+			if branch == 'candidate_selection':
+				lower,upper = self.predict_HC_upper_and_lowerbound(
+					**bound_kwargs)  
+			elif branch == 'safety_test':
+				lower,upper = self.compute_HC_upper_and_lowerbound(
+					**bound_kwargs)  
+			return {'lower':lower,'upper':upper}
+		
+		elif self.will_lower_bound:
+			if branch == 'candidate_selection':
+				lower = self.predict_HC_lowerbound(**bound_kwargs)  
+			elif branch == 'safety_test':
+				lower = self.compute_HC_lowerbound(**bound_kwargs)  
+			return {'lower':lower}
+
+		elif self.will_upper_bound:
+			if branch == 'candidate_selection':
+				upper = self.predict_HC_upperbound(**bound_kwargs)  
+			elif branch == 'safety_test':
+				upper = self.compute_HC_upperbound(**bound_kwargs)  
+			return {'upper':upper}
+
+		raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
+
+	def predict_HC_lowerbound(self,
+		Z,
+		delta,
+		n_safety,
+		a,**kwargs):
+		"""
+		Calculate high confidence lower bound
+		that we expect to pass the safety test.
+		Used in candidate selection
+
+		:param Z: 
+			Vector containing sorted squared errors
+		:type Z: numpy ndarray of length n_candidate + 1
+		
+		:param delta: 
+			Confidence level, e.g. 0.05
+		:type delta: float
+
+		:param n_safety: 
+			The number of observations in the safety dataset
+		:type n_safety: int
+
+		:param a: The minimum possible value of the squared error
+		:type a: float
+		""" 
+		Znew = Z.copy()
+		Znew = np.array([a] + Znew)
+		n_candidate = len(Znew) - 1
+
+		sqrt_term = np.sqrt((np.log(1/delta))/(2*n_safety))
+		max_term = np.maximum(
+			np.zeros(n_candidate),
+			np.minimum(
+				np.ones(n_candidate),
+				(1+np.arange(n_candidate)
+				)/n_candidate+2*sqrt_term)-(1-self.alpha))
+		
+		lower = Znew[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
+
+		return lower
+
+	def predict_HC_upperbound(self,
+		Z,
+		delta,
+		n_safety,
+		b,**kwargs):
+		"""
+		Calculate high confidence upper bound
+		that we expect to pass the safety test.
+		Used in candidate selection
+
+		:param Z: 
+			Vector containing sorted squared errors
+		:type Z: numpy ndarray of length n_candidate + 1
+		
+		:param delta: 
+			Confidence level, e.g. 0.05
+		:type delta: float
+
+		:param n_safety: 
+			The number of observations in the safety dataset
+		:type n_safety: int
+
+		:param b: The maximum possible value of the squared error
+		:type b: float
+		"""  
+		assert(0<delta<=0.5)
+		Znew = Z.copy()
+		Znew.append(b)
+		
+		n_candidate = len(Znew) - 1
+
+		# sqrt term is independent of loop index
+		sqrt_term = np.sqrt((np.log(1/delta))/(2*n_safety))
+		max_term = np.maximum(
+			np.zeros(n_candidate),
+			(1+np.arange(n_candidate))/n_candidate-2*sqrt_term-(1-self.alpha))
+		upper = Z[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
+			
+		return upper
+
+	def predict_HC_upper_and_lowerbound(self,
+		**kwargs
+		):
+		"""
+		Calculate high confidence lower and upper bounds
+		that we expect to pass the safety test.
+		Used in candidate selection.
+	
+		This is equivalent
+		to calling predict_HC_lowerbound() and 
+		predict_HC_upperbound() independently.
+		""" 
+		
+		lower = self.predict_HC_lowerbound(
+			**kwargs)
+		upper = self.predict_HC_upperbound(
+			**kwargs)
+			
+		return lower,upper
+
+	def compute_HC_lowerbound(self,
+		Z,
+		delta,
+		n_safety,
+		a,**kwargs
+		):
+		"""
+		Calculate high confidence lower bound
+		Used in safety test.
+
+		:param Z: 
+			Vector containing sorted squared errors
+		:type Z: numpy ndarray of length n_candidate + 1
+		
+		:param delta: 
+			Confidence level, e.g. 0.05
+		:type delta: float
+
+		:param n_safety: 
+			The number of observations in the safety dataset
+		:type n_safety: int
+
+		:param a: The minimum possible value of the squared error
+		:type a: float
+
+		"""  
+		Znew = Z.copy()
+		Znew = np.array([a] + Znew)
+		n_candidate = len(Znew) - 1
+
+		sqrt_term = np.sqrt((np.log(1/delta))/(2*n_safety))
+		max_term = np.maximum(
+			np.zeros(n_safety),
+			np.minimum(
+				np.ones(n_safety),
+				(1+np.arange(n_safety)
+				)/n_safety+sqrt_term)-(1-self.alpha))
+		
+		lower = Znew[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
+
+		return lower
+
+	def compute_HC_upperbound(self,
+		Z,
+		delta,
+		n_safety,
+		b,**kwargs):
+		"""
+		Calculate high confidence upper bound
+		Used in safety test
+
+		:param Z: 
+			Vector containing sorted squared errors
+		:type Z: numpy ndarray of length n_candidate + 1
+		
+		:param delta: 
+			Confidence level, e.g. 0.05
+		:type delta: float
+
+		:param n_safety: 
+			The number of observations in the safety dataset
+		:type n_safety: int
+
+		:param b: The maximum possible value of the squared error
+		:type b: float
+		"""
+		assert(0<delta<=0.5)
+		Znew = Z.copy()
+		Znew.append(b)
+
+		# sqrt term is independent of loop index
+		sqrt_term = np.sqrt((np.log(1/delta))/(2*n_safety))
+		max_term = np.maximum(
+			np.zeros(n_safety),
+			(1+np.arange(n_safety))/n_safety-sqrt_term-(1-self.alpha))
+		upper = Z[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
+			
+		return upper
+	
+	def compute_HC_upper_and_lowerbound(self,
+		**kwargs):
+		"""
+		Calculate high confidence lower and upper bounds
+		Used in safety test.
+	
+		This is equivalent
+		to calling compute_HC_lowerbound() and 
+		compute_HC_upperbound() independently.
+
+		"""
+
+		lower = self.compute_HC_lowerbound(
+			**kwargs)
+		upper = self.compute_HC_upperbound(
+			**kwargs)
+
+		return lower,upper
+  
+	
 class ConstantNode(Node):
 	def __init__(self,name,value,**kwargs):
 		""" 
@@ -739,6 +1074,7 @@ class ConstantNode(Node):
 		self.value = value
 		self.node_type = 'constant_node'
   
+
 class InternalNode(Node):
 	def __init__(self,name,
 		lower=float('-inf'),upper=float('inf'),**kwargs):

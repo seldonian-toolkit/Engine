@@ -120,7 +120,6 @@ class ParseTree(object):
 
 		self.assign_bounds_needed()
 
-
 	def create_from_ast(self,s):
 		""" 
 		Create the node structure of the tree

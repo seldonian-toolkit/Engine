@@ -9,7 +9,8 @@ from seldonian.models.models import LogisticRegressionModel
 if __name__ == '__main__':
     data_pth = "../../static/datasets/supervised/german_credit/german_loan_numeric_forseldonian.csv"
     metadata_pth = "../../static/datasets/supervised/german_credit/metadata_german_loan.json"
-    save_dir = '../../../interface_outputs/loan_disparate_impact_fairlearndef'
+    # save_dir = '../../../interface_outputs/loan_disparate_impact_fairlearndef'
+    save_dir = '../../../interface_outputs/loan_equalized_odds_seldodef'
     os.makedirs(save_dir,exist_ok=True)
     # Load metadata
     metadata_dict = load_json(metadata_pth)
@@ -39,11 +40,11 @@ if __name__ == '__main__':
     
     # Define behavioral constraints
     # constraint_strs = ['0.9 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'] 
-    constraint_strs = ['0.9 - min((PR | [M])/(PR),(PR)/(PR | [M]))'] 
+    # constraint_strs = ['0.9 - min((PR | [M])/(PR),(PR)/(PR | [M]))'] 
     # constraint_strs = ['abs((PR | [M]) - PR) - 0.1'] 
     # constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.1'] 
     # constraint_strs = ['abs((FPR | [M]) - FPR) - 0.1'] 
-    # constraint_strs = ['abs((FPR | [M]) - FPR) - 0.1'] 
+    constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) + abs((FNR | [M]) - (FNR | [F])) - 0.2'] 
     
     deltas = [0.05]
 

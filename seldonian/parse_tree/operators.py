@@ -93,7 +93,8 @@ measure_functions_dict = {
 }
 
 custom_base_node_dict = {
-	'MED_MF':MEDCustomBaseNode
+	'MED_MF':MEDCustomBaseNode,
+	'CVARSQE':CVARSQEBaseNode,
 }
 
 op_mapper = {

@@ -10,7 +10,8 @@ from seldonian.dataset import (DataSetLoader,
 
 from seldonian.spec import RLSpec, SupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
-from seldonian.models.models import LinearRegressionModel
+from seldonian.models.models import (LinearRegressionModel,
+	SquashedLinearRegressionModel)
 
 ### Begin tests
 
@@ -58,7 +59,6 @@ def test_base_node_bound_methods_updated(gpa_regression_dataset):
 	SA = SeldonianAlgorithm(spec)
 	assert parse_trees[0].base_node_dict['Mean_Squared_Error']['bound_method'] == 'manual'
 	assert parse_trees[1].base_node_dict['Mean_Squared_Error']['bound_method'] == 'random'
-
 
 def test_not_enough_data(generate_data):
 	# dummy data for linear regression
@@ -340,6 +340,46 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 	  	 -0.00376234])
 
 	assert np.allclose(solution,array_to_compare)
+
+def test_cvar_custom_base_node(synthetic_dataset):
+	""" Test that the gpa regression example runs 
+	using the custom base node that calculates 
+	CVaR alpha of the squared error. Make
+	sure safety test passes and solution is correct.
+
+	Check that the actual value of the constraint (not the bound)
+	is also correctly calculated.
+	"""
+	
+	constraint_strs = ['CVARSQE - 9.0']
+	deltas = [0.05]
+
+	spec = synthetic_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+	
+	spec.model_class = SquashedLinearRegressionModel
+	spec.use_builtin_primary_gradient_fn = False
+	spec.primary_objective = SquashedLinearRegressionModel().sample_Squashed_Squared_Error
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	# print(passed_safety,solution)
+	assert passed_safety == True
+	array_to_compare = np.array([-0.27208444])
+	assert np.allclose(solution,array_to_compare)
+
+	# Evaluate CVAR on the safety dataset
+	# safety dataset should still be cached in base_node_dict
+	# after safety test 
+	safety_dataset = SA.safety_dataset
+	spec.parse_trees[0].evaluate_constraint(
+		dataset=safety_dataset,
+		model=spec.model_class(),theta=solution)
+	# value gets stored in base node
+	cvar = spec.parse_trees[0].root.left.value
+	assert cvar == pytest.approx(4.215009025681028)
+
 
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 

@@ -18,11 +18,15 @@ class SupervisedModel(SeldonianModel):
 		models used in this library """
 		super().__init__()
 
+
 class RegressionModel(SupervisedModel):
 	def __init__(self):
 		""" Parent class for all regression-based machine learning 
 		models used in this library """ 
 		super().__init__()
+
+	def predict(self):
+		raise NotImplementedError("Implement this method in child class")
 
 	def evaluate_statistic(self,
 		statistic_name,theta,data_dict):
@@ -126,7 +130,7 @@ class RegressionModel(SupervisedModel):
 		return res
 
 	def vector_Mean_Squared_Error(self,theta,X,Y):
-		""" Calculate mean squared error for each observation
+		""" Calculate squared error for each observation
 		in the dataset
 
 		:param theta: The parameter weights
@@ -163,10 +167,7 @@ class RegressionModel(SupervisedModel):
 		prediction = self.predict(theta, X)
 		return prediction-Y
 
-	def predict(self):
-		raise NotImplementedError("Implement this method in child class")
-
-
+	
 class LinearRegressionModel(RegressionModel):
 	def __init__(self):
 		""" Implements linear regression """
@@ -238,6 +239,91 @@ class LinearRegressionModel(RegressionModel):
 		"""
 		reg = self.model_class().fit(X, Y)
 		return np.hstack([np.array(reg.intercept_),reg.coef_[1:]])
+
+
+class SquashedLinearRegressionModel(LinearRegressionModel):
+	def __init__(self):
+		""" Implements linear regression 
+		with a squashed predict function.
+		Overrides several parent methods """
+		super().__init__()
+		self.model_class = LinearRegression
+
+	def sample_Squashed_Squared_Error(self,theta,X,Y):
+		"""
+		Calculate sample mean squared error 
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: Sample mean squared error
+		:rtype: float
+		"""
+		n = len(X)
+		prediction = self.predict(theta,X,Y) # vector of values
+		res = sum(pow(prediction-Y,2))/n
+		return res
+
+	def vector_Squashed_Squared_Error(self,theta,X,Y):
+		"""
+		Calculate vector of squashed squared errors 
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:param Y: The labels
+		:type Y: numpy ndarray
+
+		:return: Sample mean squared error
+		:rtype: float
+		"""
+		n = len(X)
+		prediction = self.predict(theta,X,Y) # vector of values
+		res = pow(prediction-Y,2)
+		return res
+
+	def gradient_sample_Squashed_Squared_Error(self,theta,X,Y):
+		n = len(X)
+		# prediction = sigma(Xw)
+		prediction = self.predict(theta,X,Y) # vector of values
+		err = prediction-Y
+		# return 2/n*np.dot(err,prediction)*np.dot(1-prediction,X)
+		return 2/n*np.dot(err,prediction)*np.dot(1-prediction,X)
+
+	def _sigmoid(self,X):
+		return 1/(1+np.exp(X))
+
+	def predict(self,theta,X,Y):
+		""" Overrides the original predict
+		function to squash predictions 
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+
+		:param X: The features
+		:type X: numpy ndarray
+
+		:return: predicted labels
+		:rtype: numpy ndarray
+		"""
+		Y_min,Y_max = min(Y),max(Y)
+		# Want range of Y_hat to be twice that of Y
+		# and want size of interval on either side of Y_min and Y_max
+		# to be the same. The unique solution to this is:
+		Y_hat_min = (3*Y_min - Y_max)/2
+		Y_hat_max =(3*Y_max - Y_min)/2
+		Z = np.dot(X,theta)
+		return self._sigmoid(Z)*(Y_hat_max-Y_hat_min) + Y_hat_min
+
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):

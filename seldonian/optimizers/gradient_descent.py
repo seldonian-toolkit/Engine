@@ -119,10 +119,11 @@ def gradient_descent_adam(
         if verbose:
             if i % 10 == 0:
                 print(f"Iteration {i}")
+        # print("computing f and g")
         primary_val = primary_objective(theta)
         g_vec = upper_bounds_function(theta)
         g_vec = g_vec.reshape(g_vec.shape[0],1)
-        
+
         # Check if this is best feasible value so far
         if all([g<= 0 for g in g_vec]) and primary_val < best_feasible_primary:
             best_feasible_primary = np.copy(primary_val)
@@ -143,7 +144,6 @@ def gradient_descent_adam(
         # Obtain gradients of both terms in Lagrangian 
         # at current values of theta and lambda
         grad_primary_theta_val = grad_primary_theta(theta)
-
         gu_theta_vec = grad_upper_bound_theta(theta)
         
         grad_secondary_theta_val_vec = lamb*gu_theta_vec # elementwise mult

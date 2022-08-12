@@ -555,7 +555,7 @@ def test_measure_function_from_wrong_regime():
 		"FPR")
 	assert str(excinfo.value) in error_str
  
-def test_custom_base_node():
+def test_custom_base_nodes():
 	constraint_str = 'MED_MF - 0.1'
 	delta = 0.05 
 
@@ -563,6 +563,19 @@ def test_custom_base_node():
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert isinstance(pt.root.left,BaseNode)
+	assert isinstance(pt.root.left,MEDCustomBaseNode)
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+
+	constraint_str = 'CVARSQE - 1.0'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised',
+		sub_regime='regression')
+	pt.create_from_ast(constraint_str)
+	assert isinstance(pt.root.left,BaseNode)
+	assert isinstance(pt.root.left,CVARSQEBaseNode)
+	assert pt.root.left.alpha == 0.1
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1
 

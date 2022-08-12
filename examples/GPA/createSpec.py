@@ -7,9 +7,10 @@ from seldonian.spec import SupervisedSpec
 from seldonian.models.models import LogisticRegressionModel
 
 if __name__ == '__main__':
-    data_pth = "../../static/datasets/supervised/german_credit/german_loan_numeric_forseldonian.csv"
-    metadata_pth = "../../static/datasets/supervised/german_credit/metadata_classification.json"
-    save_dir = '../../../interface_outputs/loan_disparate_impact_fairlearn'
+    data_pth = "../../static/datasets/supervised/GPA/gpa_classification_dataset.csv"
+    metadata_pth = "../../static/datasets/supervised/GPA/metadata_classification.json"
+    save_dir = '../../../interface_outputs/gpa_demographic_parity'
+    os.makedirs(save_dir,exist_ok=True)
     # save_dir = '../../../interface_outputs/disparate_impact_fairlearn'
     # Load metadata
     metadata_dict = load_json(metadata_pth)
@@ -34,13 +35,13 @@ if __name__ == '__main__':
         filename=data_pth,
         metadata_filename=metadata_pth,
         include_sensitive_columns=False,
-        include_intercept_term=True,
+        include_intercept_term=False,
         file_type='csv')
     
     # Define behavioral constraints
-    # constraint_strs = ['0.9 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'] 
-    constraint_strs = ['0.9 - min((PR | [M])/(PR),(PR)/(PR | [M]))'] 
-    # constraint_strs = ['abs((PR | [M]) - PR) - 0.1'] 
+    # constraint_strs = ['0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'] 
+    # constraint_strs = ['0.9 - min((PR | [M])/(PR),(PR)/(PR | [M]))'] 
+    constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.2'] 
     
     deltas = [0.05]
 
@@ -70,7 +71,6 @@ if __name__ == '__main__':
         parse_trees=parse_trees,
         initial_solution_fn=model_class().fit,
         use_builtin_primary_gradient_fn=True,
-        bound_method='ttest',
         optimization_technique='gradient_descent',
         optimizer='adam',
         optimization_hyperparams={
