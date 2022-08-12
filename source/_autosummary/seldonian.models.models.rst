@@ -26,6 +26,7 @@ seldonian.models.models
       RandomClassifierModel
       RegressionModel
       SeldonianModel
+      SquashedLinearRegressionModel
       SupervisedModel
    
    

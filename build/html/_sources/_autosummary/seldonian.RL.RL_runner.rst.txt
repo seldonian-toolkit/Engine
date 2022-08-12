@@ -19,6 +19,7 @@ seldonian.RL.RL\_runner
       run_all_trials
       run_episode
       run_trial
+      run_trial_given_agent_and_env
    
    
 

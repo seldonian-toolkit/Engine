@@ -20,6 +20,7 @@ seldonian.parse\_tree.nodes
       :template: custom-class-template.rst              
    
       BaseNode
+      CVARSQEBaseNode
       ConstantNode
       InternalNode
       MEDCustomBaseNode

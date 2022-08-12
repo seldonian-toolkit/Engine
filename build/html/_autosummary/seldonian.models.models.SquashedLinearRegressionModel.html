@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>seldonian.models.models.LinearRegressionModel &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.models.models.SquashedLinearRegressionModel &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.models.models.LogisticRegressionModel" href="seldonian.models.models.LogisticRegressionModel.html" />
-    <link rel="prev" title="seldonian.models.models.DummyClassifierModel" href="seldonian.models.models.DummyClassifierModel.html" />
+    <link rel="next" title="seldonian.models.models.SupervisedModel" href="seldonian.models.models.SupervisedModel.html" />
+    <link rel="prev" title="seldonian.models.models.SeldonianModel" href="seldonian.models.models.SeldonianModel.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,21 +34,23 @@
 
           <div class="body" role="main">
             
-  <section id="seldonian-models-models-linearregressionmodel">
-<h1>seldonian.models.models.LinearRegressionModel<a class="headerlink" href="#seldonian-models-models-linearregressionmodel" title="Permalink to this heading">¶</a></h1>
+  <section id="seldonian-models-models-squashedlinearregressionmodel">
+<h1>seldonian.models.models.SquashedLinearRegressionModel<a class="headerlink" href="#seldonian-models-models-squashedlinearregressionmodel" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearRegressionModel</span></span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="seldonian.models.models.RegressionModel.html#seldonian.models.models.RegressionModel" title="seldonian.models.models.RegressionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressionModel</span></code></a></p>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SquashedLinearRegressionModel</span></span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="seldonian.models.models.LinearRegressionModel.html#seldonian.models.models.LinearRegressionModel" title="seldonian.models.models.LinearRegressionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearRegressionModel</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements linear regression</p>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements linear regression 
+with a squashed predict function.
+Overrides several parent methods</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.__repr__">
-<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.__repr__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.__repr__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return repr(self).</p>
 </dd></dl>
 
@@ -58,8 +60,8 @@
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.default_objective">
-<span class="sig-name descname"><span class="pre">default_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.default_objective" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.default_objective">
+<span class="sig-name descname"><span class="pre">default_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.default_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default primary objective to use, the 
 sample mean squared error</p>
 <dl class="field-list simple">
@@ -80,8 +82,8 @@ sample mean squared error</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.evaluate_statistic">
-<span class="sig-name descname"><span class="pre">evaluate_statistic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.evaluate_statistic" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.evaluate_statistic">
+<span class="sig-name descname"><span class="pre">evaluate_statistic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.evaluate_statistic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate a provided statistic for the whole sample provided</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -101,8 +103,8 @@ sample mean squared error</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.fit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train the model using the feature,label pairs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -121,8 +123,8 @@ sample mean squared error</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.gradient_default_objective">
-<span class="sig-name descname"><span class="pre">gradient_default_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.gradient_default_objective" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.gradient_default_objective">
+<span class="sig-name descname"><span class="pre">gradient_default_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.gradient_default_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>The gradient of the default primary objective to use, the 
 sample mean squared error</p>
 <dl class="field-list simple">
@@ -144,9 +146,10 @@ evaluated at theta</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict label using the linear model</p>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides the original predict
+function to squash predictions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -164,8 +167,8 @@ evaluated at theta</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.sample_Mean_Error">
-<span class="sig-name descname"><span class="pre">sample_Mean_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.sample_Mean_Error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.sample_Mean_Error">
+<span class="sig-name descname"><span class="pre">sample_Mean_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.sample_Mean_Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate sample mean error</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -185,8 +188,8 @@ evaluated at theta</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.sample_Mean_Squared_Error">
-<span class="sig-name descname"><span class="pre">sample_Mean_Squared_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.sample_Mean_Squared_Error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.sample_Mean_Squared_Error">
+<span class="sig-name descname"><span class="pre">sample_Mean_Squared_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.sample_Mean_Squared_Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate sample mean squared error</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -206,8 +209,29 @@ evaluated at theta</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.sample_from_statistic">
-<span class="sig-name descname"><span class="pre">sample_from_statistic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.sample_from_statistic" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.sample_Squashed_Squared_Error">
+<span class="sig-name descname"><span class="pre">sample_Squashed_Squared_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.sample_Squashed_Squared_Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate sample mean squared error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sample mean squared error</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.sample_from_statistic">
+<span class="sig-name descname"><span class="pre">sample_from_statistic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistic_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.sample_from_statistic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate a provided statistic for each observation 
 in the sample</p>
 <dl class="field-list simple">
@@ -228,8 +252,8 @@ in the sample</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.vector_Mean_Error">
-<span class="sig-name descname"><span class="pre">vector_Mean_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.vector_Mean_Error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.vector_Mean_Error">
+<span class="sig-name descname"><span class="pre">vector_Mean_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.vector_Mean_Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate mean error for each observation
 in the dataset</p>
 <dl class="field-list simple">
@@ -250,8 +274,8 @@ in the dataset</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.models.models.LinearRegressionModel.vector_Mean_Squared_Error">
-<span class="sig-name descname"><span class="pre">vector_Mean_Squared_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.LinearRegressionModel.vector_Mean_Squared_Error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.vector_Mean_Squared_Error">
+<span class="sig-name descname"><span class="pre">vector_Mean_Squared_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.vector_Mean_Squared_Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate squared error for each observation
 in the dataset</p>
 <dl class="field-list simple">
@@ -267,6 +291,27 @@ in the dataset</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>numpy ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.vector_Squashed_Squared_Error">
+<span class="sig-name descname"><span class="pre">vector_Squashed_Squared_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.vector_Squashed_Squared_Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate vector of squashed squared errors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sample mean squared error</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -304,12 +349,12 @@ in the dataset</p>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.models.html">seldonian.models.models</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.ClassificationModel.html">seldonian.models.models.ClassificationModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.DummyClassifierModel.html">seldonian.models.models.DummyClassifierModel</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.models.LinearRegressionModel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.LinearRegressionModel.html">seldonian.models.models.LinearRegressionModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.LogisticRegressionModel.html">seldonian.models.models.LogisticRegressionModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.RandomClassifierModel.html">seldonian.models.models.RandomClassifierModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.RegressionModel.html">seldonian.models.models.RegressionModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.SeldonianModel.html">seldonian.models.models.SeldonianModel</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.SquashedLinearRegressionModel.html">seldonian.models.models.SquashedLinearRegressionModel</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.models.SquashedLinearRegressionModel</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.models.SupervisedModel.html">seldonian.models.models.SupervisedModel</a></li>
 </ul>
 </li>
@@ -337,8 +382,8 @@ in the dataset</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.models.html">seldonian.models</a><ul>
   <li><a href="seldonian.models.models.html">seldonian.models.models</a><ul>
-      <li>Previous: <a href="seldonian.models.models.DummyClassifierModel.html" title="previous chapter">seldonian.models.models.DummyClassifierModel</a></li>
-      <li>Next: <a href="seldonian.models.models.LogisticRegressionModel.html" title="next chapter">seldonian.models.models.LogisticRegressionModel</a></li>
+      <li>Previous: <a href="seldonian.models.models.SeldonianModel.html" title="previous chapter">seldonian.models.models.SeldonianModel</a></li>
+      <li>Next: <a href="seldonian.models.models.SupervisedModel.html" title="next chapter">seldonian.models.models.SupervisedModel</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -376,7 +421,7 @@ in the dataset</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.models.models.LinearRegressionModel.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.models.models.SquashedLinearRegressionModel.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
