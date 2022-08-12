@@ -22,15 +22,15 @@ def test_tables():
 
     #check manually setting weights, and get_action_values_given_state()
     mytable.weights[0, 0] = 1.1
-    mytable.weights[1, 0] = 2.2
-    mytable.weights[2, 0] = -3.3
+    mytable.weights[0, 1] = 2.2
+    mytable.weights[0, 2] = -3.3
     assert np.allclose(mytable.get_action_values_given_state(-3), np.array([1.1, 2.2, -3.3]))
     for state in range(-2, 3):
         assert np.allclose(mytable.get_action_values_given_state(state), np.array([0.0, 0.0, 0.0]))
 
-    mytable.weights[0, 3] = 1.1
-    mytable.weights[1, 3] = 2.2
-    mytable.weights[2, 3] = -3.3
+    mytable.weights[3, 0] = 1.1
+    mytable.weights[3, 1] = 2.2
+    mytable.weights[3, 2] = -3.3
     assert np.allclose(mytable.get_action_values_given_state(0), np.array([1.1, 2.2, -3.3]))
 
 def test_Discrete_Action_Policy():
@@ -63,7 +63,7 @@ def test_Parameterized_non_learning_softmax_agent():
     hyperparam_and_setting_dict["basis"] = "Fourier"
     agent = Parameterized_non_learning_softmax_agent(env_desc, hyperparam_and_setting_dict)
 
-    correct_shape = (3, 4)
+    correct_shape = (4, 3)
     assert agent.get_params().shape == correct_shape
 
     new_params = np.random.rand(correct_shape[0], correct_shape[1])
@@ -71,14 +71,14 @@ def test_Parameterized_non_learning_softmax_agent():
     assert np.allclose(agent.get_params(), new_params) #test set_new_params() and get_params()
 
     #test get_action_values() and get_prob_this_action()
-    agent.set_new_params(np.array([[1.1, 1.1, 1.1, 1.1], [-2.2, -2.2, -2.2, -2.2], [3.3, 3.3, 3.3, 3.3]]))
+    agent.set_new_params(np.array([[1.1, 1.1, 1.1, 1.1], [-2.2, -2.2, -2.2, -2.2], [3.3, 3.3, 3.3, 3.3]]).T)
     for state in range(-1, 3):
         assert np.allclose(agent.get_action_values(state), [1.1, -2.2, 3.3])
         assert np.allclose(agent.get_prob_this_action(state, -1), .099384841)
         assert np.allclose(agent.get_prob_this_action(state, 0), .0036656277)
         assert np.allclose(agent.get_prob_this_action(state, 1), 0.8969495313)
 
-    incorrect_shape = (4, 3)
+    incorrect_shape = (2, 5)
     bad_params = np.random.rand(incorrect_shape[0], incorrect_shape[1])
     with pytest.raises(Exception):
         agent.set_new_params(bad_params) #make sure throws error with bad shape

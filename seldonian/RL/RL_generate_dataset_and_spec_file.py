@@ -1,4 +1,5 @@
 from seldonian.RL.environments.gridworld3x3 import Environment
+from time import time
 from seldonian.dataset import RLDataSet
 from RLinterface2spec import dataset2spec
 from seldonian.RL.hyperparams_and_settings import *
@@ -9,9 +10,12 @@ from utils import *
 def main():
 
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
+    start_time = time()
     episodes, agent = run_trial(hyperparameter_and_setting_dict)
+    print(f"data generation took {time() - start_time} seconds")
 
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
+
     # print(dataset.episodes[0])
     # print(f"{len(episodes)} episodes")
     metadata_pth = get_metadata_path(hyperparameter_and_setting_dict["env"])

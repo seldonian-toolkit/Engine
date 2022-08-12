@@ -1,5 +1,6 @@
 import os, sys
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
+from time import time
 
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.utils.io_utils import load_pickle
@@ -19,5 +20,7 @@ if __name__ == '__main__':
     spec.optimization_hyperparams['alpha_lamb'] = 0.05
     # spec.regularization_hyperparams['reg_coef'] = 0.1
     SA = SeldonianAlgorithm(spec)
+    start_time = time()
     passed_safety, candidate_solution = SA.run()
     print(f"passed: {passed_safety}, candidate_solution: {candidate_solution}")
+    print(f"took {time() - start_time} seconds")
