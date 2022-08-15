@@ -162,27 +162,35 @@ class ParseTree(object):
 		:return: String for g
 		:rtype: str
 		"""
-		for c in ['<','>','=']:
-			if c in s:
-				raise RuntimeError(
-					"Not a valid constraint string "
-					f"because we found the character: '{c}', "
-					"which is not allowed")
-
 		if '<=' in s:
 			assert s.count("<=") == 1
 			assert s.count(">=") == 0
 			start_index = s.index("<=")
+			LHS = s[0:start_index].strip()
 			RHS = s[start_index+2:].strip()
-			new_s = s[0:start_index].strip() + f'-({RHS})' 
+			if RHS == '0':
+				new_s = LHS
+			else:
+				new_s = LHS + f'-({RHS})' 
 		elif '>=' in s:
 			assert s.count(">=") == 1
 			assert s.count("<=") == 0
 			start_index = s.index(">=")
 			LHS = s[:start_index].strip()
-			new_s = s[start_index+2:].strip() + f'-({LHS})'
+			RHS = s[start_index+2:].strip()
+			if LHS == 0:
+				new_s = RHS
+			else:
+				new_s = RHS + f'-({LHS})'
 		else:
 			new_s = s
+
+		# Validate that new string does not have bad symbols in it
+		for c in ['<','>','=']:
+			if c in new_s:
+				raise NotImplementedError("Error parsing your expression."
+				" An operator was used which we do not support: "
+				f"{c}")
 		return new_s
 		
 	def _ast_tree_helper(self,ast_node):

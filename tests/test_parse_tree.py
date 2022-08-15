@@ -378,6 +378,84 @@ def test_parse_tree_from_simple_string():
 	assert pt.root.right.right.name == '4'
 	assert pt.root.right.right.value == 4
 
+def test_parse_tree_with_inequalities():
+	# First one without inequalities
+	# constraint_str = 'FPR <= 0.5 + 0.3*(PR | [M])'
+	constraint_str = 'FPR - (0.5 + (PR | [M]))'
+	pt = ParseTree(delta=0.05,regime='supervised',
+			sub_regime='classification',columns=['M'])
+
+	# Fill out tree
+	pt.build_tree(
+		constraint_str=constraint_str,
+		delta_weight_method='equal')
+	
+	assert pt.n_nodes == 5
+	assert pt.n_base_nodes == 2
+	assert len(pt.base_node_dict) == 2
+	assert isinstance(pt.root,InternalNode)
+	assert pt.root.name == 'sub'
+	assert pt.root.left.name == 'FPR'
+	assert pt.root.right.name == 'add'
+	assert pt.root.right.left.name == '0.5'
+	assert pt.root.right.left.value == 0.5
+	assert pt.root.right.right.name == 'PR | [M]'
+
+	# Now with <= 
+	constraint_str_lte = 'FPR <= 0.5 + (PR | [M])'
+	pt_lte = ParseTree(delta=0.05,regime='supervised',
+			sub_regime='classification',columns=['M'])
+
+	# Fill out tree
+	pt_lte.build_tree(
+		constraint_str=constraint_str_lte,
+		delta_weight_method='equal')
+	
+	assert pt_lte.n_nodes == 5
+	assert pt_lte.n_base_nodes == 2
+	assert len(pt_lte.base_node_dict) == 2
+	assert isinstance(pt_lte.root,InternalNode)
+	assert pt_lte.root.name == 'sub'
+	assert pt_lte.root.left.name == 'FPR'
+	assert pt_lte.root.right.name == 'add'
+	assert pt_lte.root.right.left.name == '0.5'
+	assert pt_lte.root.right.left.value == 0.5
+	assert pt_lte.root.right.right.name == 'PR | [M]'
+
+	# Now with >= 
+	constraint_str_gte = '0.5 + (PR | [M]) >= FPR'
+	pt_gte = ParseTree(delta=0.05,regime='supervised',
+			sub_regime='classification',columns=['M'])
+
+	# Fill out tree
+	pt_gte.build_tree(
+		constraint_str=constraint_str_gte,
+		delta_weight_method='equal')
+	
+	assert pt_gte.n_nodes == 5
+	assert pt_gte.n_base_nodes == 2
+	assert len(pt_gte.base_node_dict) == 2
+	assert isinstance(pt_gte.root,InternalNode)
+	assert pt_gte.root.name == 'sub'
+	assert pt_gte.root.left.name == 'FPR'
+	assert pt_gte.root.right.name == 'add'
+	assert pt_gte.root.right.left.name == '0.5'
+	assert pt_gte.root.right.left.value == 0.5
+	assert pt_gte.root.right.right.name == 'PR | [M]'
+
+	# <= 0
+	constraint_str_lte0 = 'FPR - (0.5 + (PR | [M])) <= 0'
+	pt_lte0 = ParseTree(delta=0.05,regime='supervised',
+			sub_regime='classification',columns=['M'])
+
+	# Fill out tree
+	pt_lte0.build_tree(
+		constraint_str=constraint_str_lte0,
+		delta_weight_method='equal')
+	graph = pt_lte0.make_viz(constraint_str_lte0)
+	graph.view()
+
+
 def test_math_functions():
 	""" Test that math functions like
 	min(), max(), abs() and exp() get parsed 
@@ -390,8 +468,6 @@ def test_math_functions():
 		columns=['X','Y'])
 	pt.create_from_ast(constraint_str)
 
-	# graph = pt.make_viz('pt')
-	# graph.view()
 	assert pt.n_nodes == 3
 	assert pt.n_base_nodes == 2
 	assert len(pt.base_node_dict) == 2
@@ -644,24 +720,24 @@ def test_raise_error_on_excluded_operators():
 		 " An operator was used which we do not support: ^")
 	assert str(excinfo.value) == error_str
 
-	constraint_str = 'FPR<<4'
+	constraint_str = 'FPR<4'
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised',
 		sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
 	error_str = ("Error parsing your expression."
-		 " An operator was used which we do not support: <<")
+		 " An operator was used which we do not support: <")
 	assert str(excinfo.value) == error_str
 
-	constraint_str = 'FPR>>4'
+	constraint_str = 'FPR>4'
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised',
 		sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
 	error_str = ("Error parsing your expression."
-		 " An operator was used which we do not support: >>")
+		 " An operator was used which we do not support: >")
 	assert str(excinfo.value) == error_str
 
 	constraint_str = 'FPR & FNR'
@@ -1291,7 +1367,6 @@ def test_single_conditional_columns_propagated():
 	assert len(pt.base_node_dict["Mean_Error | [M]"]['data_dict']['features']) == 22335
 	pt.reset_base_node_dict()
 	
-
 def test_build_tree():
 	""" Test the convenience function that builds the tree,
 	weights deltas, and assigns bounds all in one """
