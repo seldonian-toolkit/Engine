@@ -359,7 +359,7 @@ def test_cvar_custom_base_node(synthetic_dataset):
 		deltas=deltas)
 	
 	spec.model_class = SquashedLinearRegressionModel
-	spec.use_builtin_primary_gradient_fn = False
+	spec.use_builtin_primary_gradient_fn = True
 	spec.primary_objective = SquashedLinearRegressionModel().sample_Squashed_Squared_Error
 	# Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)

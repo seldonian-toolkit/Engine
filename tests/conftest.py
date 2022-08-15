@@ -96,7 +96,7 @@ def synthetic_dataset(generate_data):
     def generate_dataset(constraint_strs,deltas):
         rseed=0
         np.random.seed(rseed) 
-        numPoints=1000
+        numPoints=5000
         columns=['feature1','label']
         model_class = LinearRegressionModel
         X,Y = generate_data(
