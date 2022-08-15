@@ -3,6 +3,36 @@ from seldonian.RL.Env_Description.Env_Description import *
 
 class Gridworld(Environment):
     def __init__(self, size=3):
+        """ Square gridworld RL environment of arbitrary size.
+        
+        :param size: The number of grid cells on a side 
+        :type size: int
+
+        :ivar num_states: The number of distinct grid cells
+        :vartype num_states: int
+
+        :ivar env_description: an object for accessing attributes
+            of the environment
+        :vartype env_description: :py:class:`.Env_Description`
+
+        :ivar state: The current state 
+        :vartype state: int
+
+        :ivar terminal_state: Whether the terminal state is occupied
+        :vartype terminal_state: bool
+
+        :ivar time: The current timestep
+        :vartype time: int
+
+        :ivar max_time: Maximum allowed timestep
+        :vartype max_time: int
+
+        :ivar vis: Whether to print state when transitioning states
+        :vartype vis: bool
+
+        :ivar gamma: The discount factor in calculating the expected return
+        :vartype gamma: float
+        """
         self.size = size
         self.num_states = size*size
         self.env_description = self.create_env_description(self.num_states)
