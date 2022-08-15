@@ -452,8 +452,38 @@ def test_parse_tree_with_inequalities():
 	pt_lte0.build_tree(
 		constraint_str=constraint_str_lte0,
 		delta_weight_method='equal')
-	graph = pt_lte0.make_viz(constraint_str_lte0)
-	graph.view()
+
+	assert pt_lte0.n_nodes == 5
+	assert pt_lte0.n_base_nodes == 2
+	assert len(pt_lte0.base_node_dict) == 2
+	assert isinstance(pt_lte0.root,InternalNode)
+	assert pt_lte0.root.name == 'sub'
+	assert pt_lte0.root.left.name == 'FPR'
+	assert pt_lte0.root.right.name == 'add'
+	assert pt_lte0.root.right.left.name == '0.5'
+	assert pt_lte0.root.right.left.value == 0.5
+	assert pt_lte0.root.right.right.name == 'PR | [M]'
+	
+	# >= 0
+	constraint_str_gte0 = '0 >= FPR - (0.5 + (PR | [M]))'
+	pt_gte0 = ParseTree(delta=0.05,regime='supervised',
+			sub_regime='classification',columns=['M'])
+
+	# Fill out tree
+	pt_gte0.build_tree(
+		constraint_str=constraint_str_gte0,
+		delta_weight_method='equal')
+
+	assert pt_gte0.n_nodes == 5
+	assert pt_gte0.n_base_nodes == 2
+	assert len(pt_gte0.base_node_dict) == 2
+	assert isinstance(pt_gte0.root,InternalNode)
+	assert pt_gte0.root.name == 'sub'
+	assert pt_gte0.root.left.name == 'FPR'
+	assert pt_gte0.root.right.name == 'add'
+	assert pt_gte0.root.right.left.name == '0.5'
+	assert pt_gte0.root.right.left.value == 0.5
+	assert pt_gte0.root.right.right.name == 'PR | [M]'
 
 
 def test_math_functions():

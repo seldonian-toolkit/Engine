@@ -178,7 +178,7 @@ class ParseTree(object):
 			start_index = s.index(">=")
 			LHS = s[:start_index].strip()
 			RHS = s[start_index+2:].strip()
-			if LHS == 0:
+			if LHS == '0':
 				new_s = RHS
 			else:
 				new_s = RHS + f'-({LHS})'
