@@ -130,10 +130,12 @@ class ParseTree(object):
 			from which we build the parse tree
 		:type s: str
 		"""
-		self.constraint_str = s
+		# Preprocessing string
+		preprocessed_s = self._preprocess_constraint_str(s)
+		self.constraint_str = preprocessed_s
 		self.node_index = 0
 
-		tree = ast.parse(s)
+		tree = ast.parse(preprocessed_s)
 		# makes sure this is a single expression
 		assert len(tree.body) == 1 
 
@@ -142,7 +144,47 @@ class ParseTree(object):
 
 		# Recursively build the tree
 		self.root = self._ast_tree_helper(root)
+	
+	def _preprocess_constraint_str(self,s):
+		""" 
+		Check if inequalities present and 
+		move everything to one side so final 
+		constraint string is in the form: {constraint_str} <= 0
 
+		Also does some validation checks to make sure string
+		that was passed is valid
+
+		:param s: 
+			mathematical expression written in Python syntax
+			from which we build the parse tree
+		:type s: str
+
+		:return: String for g
+		:rtype: str
+		"""
+		for c in ['<','>','=']:
+			if c in s:
+				raise RuntimeError(
+					"Not a valid constraint string "
+					f"because we found the character: '{c}', "
+					"which is not allowed")
+
+		if '<=' in s:
+			assert s.count("<=") == 1
+			assert s.count(">=") == 0
+			start_index = s.index("<=")
+			RHS = s[start_index+2:].strip()
+			new_s = s[0:start_index].strip() + f'-({RHS})' 
+		elif '>=' in s:
+			assert s.count(">=") == 1
+			assert s.count("<=") == 0
+			start_index = s.index(">=")
+			LHS = s[:start_index].strip()
+			new_s = s[start_index+2:].strip() + f'-({LHS})'
+		else:
+			new_s = s
+		return new_s
+		
 	def _ast_tree_helper(self,ast_node):
 		""" 
 		From a given node in the ast tree,
