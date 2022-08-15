@@ -9,7 +9,7 @@ from seldonian.models.models import LogisticRegressionModel
 if __name__ == '__main__':
     data_pth = "../../static/datasets/supervised/GPA/gpa_classification_dataset.csv"
     metadata_pth = "../../static/datasets/supervised/GPA/metadata_classification.json"
-    save_dir = '../../../interface_outputs/gpa_demographic_parity'
+    save_dir = '../../../interface_outputs/gpa_predictive_equality'
     os.makedirs(save_dir,exist_ok=True)
     # save_dir = '../../../interface_outputs/disparate_impact_fairlearn'
     # Load metadata
@@ -41,7 +41,9 @@ if __name__ == '__main__':
     # Define behavioral constraints
     # constraint_strs = ['0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'] 
     # constraint_strs = ['0.9 - min((PR | [M])/(PR),(PR)/(PR | [M]))'] 
-    constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.2'] 
+    # constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.2'] 
+    # constraint_strs = ['abs((FNR | [M]) - (FNR | [F])) + abs((FPR | [M]) - (FPR | [F])) - 0.35'] 
+    constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) - 0.2'] 
     
     deltas = [0.05]
 
