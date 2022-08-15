@@ -305,7 +305,9 @@ class RLSpec(Spec):
 		regularization_hyperparams={},
 		normalize_returns=False
 		):
-		super().__init__(dataset,model_class,
+		super().__init__(
+			dataset,
+			model_class,
 			frac_data_in_safety,
 			primary_objective,
 			initial_solution_fn,

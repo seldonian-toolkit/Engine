@@ -804,8 +804,11 @@ class CVARSQEBaseNode(BaseNode):
 		
 		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
 		# squared_errors_nosquash = pow(y_hats-y,2)
-		# import matplotlib.pyplot as plt
-		# fig = plt.figure()
+		import matplotlib.pyplot as plt
+		fig = plt.figure()
+		# plt.hist(squared_errors)
+		# y_hat = model.predict(theta,X,y)
+		# # plt.scatter(range(len(y)),y-y_hat)
 		# plt.hist(squared_errors)
 		# plt.show()
 		# input("Wait")
@@ -814,6 +817,8 @@ class CVARSQEBaseNode(BaseNode):
 		# or vice versa. Either way result would be y_max**2
 		a=min_squared_error
 		b=max_squared_error
+		print(a,b)
+		input("Wait")
 		# Need to sort them to get Z1, ..., Zn
 		sorted_squared_errors = sorted(squared_errors)
 

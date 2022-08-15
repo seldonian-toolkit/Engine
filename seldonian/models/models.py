@@ -287,17 +287,42 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		:rtype: float
 		"""
 		n = len(X)
+		print(n)
 		prediction = self.predict(theta,X,Y) # vector of values
 		res = pow(prediction-Y,2)
 		return res
 
 	def gradient_sample_Squashed_Squared_Error(self,theta,X,Y):
 		n = len(X)
+		Y_min,Y_max = min(Y),max(Y)
+		Y_hat_min = (3*Y_min - Y_max)/2
+		Y_hat_max =(3*Y_max - Y_min)/2
+		c1 = Y_hat_max - Y_hat_min
+		c2 = -Y_hat_min
 		# prediction = sigma(Xw)
-		prediction = self.predict(theta,X,Y) # vector of values
-		err = prediction-Y
+		Y_hat = self.predict(theta,X,Y) # vector of values
+		Y_hat_old = np.dot(X,theta)
+		sig = self._sigmoid(Y_hat_old)
+
+		# print(X[0])
+		# s = 0
+		# for i in range(len(X)):
+		# 	term1=Y[i] - (c1*sig[i]-c2)
+		# 	term2=-c1*sig[i]*(1-sig[i])*X[i]
+		# 	s+=term1*term2
+
+		term1=Y - (c1*sig-c2)
+		term2=-c1*sig*(1-sig)*X[:,0]
+
+		# print(term1.shape)
+		# print(term2.shape)
+		# arg = term1*term2
+		# # print(arg.shape)
+		s = sum(term1*term2)
+		# # print(s.shape)
+		# s = sum(term1*term2)
 		# return 2/n*np.dot(err,prediction)*np.dot(1-prediction,X)
-		return 2/n*np.dot(err,prediction)*np.dot(1-prediction,X)
+		return -2/n*s
 
 	def _sigmoid(self,X):
 		return 1/(1+np.exp(X))
