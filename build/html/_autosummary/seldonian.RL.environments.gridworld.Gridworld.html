@@ -43,7 +43,26 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Square gridworld RL environment of arbitrary size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em>) – The number of grid cells on a side</p>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>num_states</strong> (<em>int</em>) – The number of distinct grid cells</p></li>
+<li><p><strong>env_description</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code>) – an object for accessing attributes
+of the environment</p></li>
+<li><p><strong>state</strong> (<em>int</em>) – The current state</p></li>
+<li><p><strong>terminal_state</strong> (<em>bool</em>) – Whether the terminal state is occupied</p></li>
+<li><p><strong>time</strong> (<em>int</em>) – The current timestep</p></li>
+<li><p><strong>max_time</strong> (<em>int</em>) – Maximum allowed timestep</p></li>
+<li><p><strong>vis</strong> (<em>bool</em>) – Whether to print state when transitioning states</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – The discount factor in calculating the expected return</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.__repr__">

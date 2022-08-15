@@ -278,6 +278,28 @@ b and b are both be intervals</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str">
+<span class="sig-name descname"><span class="pre">_preprocess_constraint_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if inequalities present and 
+move everything to one side so final 
+constraint string is in the form: {constraint_str} &lt;= 0</p>
+<p>Also does some validation checks to make sure string
+that was passed is valid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – mathematical expression written in Python syntax
+from which we build the parse tree</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>String for g</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._propagate_value">
 <span class="sig-name descname"><span class="pre">_propagate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._propagate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for propagating values</p>
