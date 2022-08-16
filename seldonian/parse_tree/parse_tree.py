@@ -1146,3 +1146,32 @@ class ParseTree(object):
 				fontsize=f'{self.node_fontsize}')
 			graph.edge(str(root.index),str(root.right.index))
 			self.make_viz_helper(root.right,graph)   
+
+def make_parse_trees_from_constraints(
+    constraint_strs,
+    deltas,
+    regime='supervised',
+    sub_regime='regression',
+    columns=[],
+    delta_weight_method='equal'):
+    parse_trees = []
+    for ii in range(len(constraint_strs)):
+        constraint_str = constraint_strs[ii]
+
+        delta = deltas[ii]
+
+        # Create parse tree object
+        pt = ParseTree(
+            delta=delta,
+            regime=regime,
+            sub_regime=sub_regime,
+            columns=columns)
+
+        # Fill out tree
+        pt.build_tree(
+            constraint_str=constraint_str,
+            delta_weight_method=delta_weight_method)
+
+        parse_trees.append(pt)
+        
+    return parse_trees
