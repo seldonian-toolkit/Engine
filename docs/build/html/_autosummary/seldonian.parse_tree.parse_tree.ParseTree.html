@@ -16,7 +16,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.safety_test" href="seldonian.safety_test.html" />
-    <link rel="prev" title="seldonian.parse_tree.parse_tree" href="seldonian.parse_tree.parse_tree.html" />
+    <link rel="prev" title="seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints" href="seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -281,6 +281,28 @@ b and b are both be intervals</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str">
+<span class="sig-name descname"><span class="pre">_preprocess_constraint_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if inequalities present and 
+move everything to one side so final 
+constraint string is in the form: {constraint_str} &lt;= 0</p>
+<p>Also does some validation checks to make sure string
+that was passed is valid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – mathematical expression written in Python syntax
+from which we build the parse tree</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String for g</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._propagate_value">
 <span class="sig-name descname"><span class="pre">_propagate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._propagate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for propagating values</p>
@@ -354,6 +376,27 @@ is the upper bound of the root node.</p>
 How you want to assign the deltas to the base nodes.
 The default ‘equal’ splits up delta equally
 among unique base nodes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.build_tree">
+<span class="sig-name descname"><span class="pre">build_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.build_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for building the tree from 
+a constraint string, 
+weighting of deltas to each base node, and 
+assigning which nodes need upper and lower bounding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>constraint_str</strong> (<em>str</em>) – mathematical expression written in Python syntax
+from which we build the parse tree</p></li>
+<li><p><strong>delta_weight_method</strong> (<em>str</em><em>, </em><em>defaults to 'equal'</em>) – str, 
+How you want to assign the deltas to the base nodes.
+The default ‘equal’ splits up delta equally
+among unique base nodes</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -477,6 +520,7 @@ than one needs to reset the bounds.</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints.html">seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.parse_tree.ParseTree</a></li>
 </ul>
 </li>
@@ -502,7 +546,7 @@ than one needs to reset the bounds.</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.parse_tree.html">seldonian.parse_tree</a><ul>
   <li><a href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a><ul>
-      <li>Previous: <a href="seldonian.parse_tree.parse_tree.html" title="previous chapter">seldonian.parse_tree.parse_tree</a></li>
+      <li>Previous: <a href="seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints.html" title="previous chapter">seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints</a></li>
       <li>Next: <a href="seldonian.safety_test.html" title="next chapter">seldonian.safety_test</a></li>
   </ul></li>
   </ul></li>

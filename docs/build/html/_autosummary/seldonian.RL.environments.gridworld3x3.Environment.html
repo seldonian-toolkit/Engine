@@ -15,8 +15,6 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.RL.environments.mountaincar" href="seldonian.RL.environments.mountaincar.html" />
-    <link rel="prev" title="seldonian.RL.environments.gridworld3x3" href="seldonian.RL.environments.gridworld3x3.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -35,175 +33,6 @@
             
   <section id="seldonian-rl-environments-gridworld3x3-environment">
 <h1>seldonian.RL.environments.gridworld3x3.Environment<a class="headerlink" href="#seldonian-rl-environments-gridworld3x3-environment" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Environment</span></span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>3x3 gridworld environment (states: 0-8) with a 
-reward function of 0 everywhere except 
-r=-1 in cell 7 (bottom middle) and
-r=1 in cell 8 (bottom right). 
-Actions are 0,1,2,3 for up,down,left,right respectively. 
-An episode starts in cell 0 (top left) and terminates in cell 8
-or if timeout occurs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Variables</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>gamma</strong> (<em>float</em>) – Discount factor when calculating returns</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>) – The number of timesteps after which we 
-terminate the agent regardless of state</p></li>
-<li><p><strong>states</strong> (<em>numpy ndarray</em><em>(</em><em>int</em><em>)</em>) – The possible states</p></li>
-<li><p><strong>actions</strong> (<em>numpy ndarray</em><em>(</em><em>int</em><em>)</em>) – The possible actions</p></li>
-<li><p><strong>reward_dict</strong> (<em>dict</em>) – Maps state, action pair to reward</p></li>
-<li><p><strong>environ_dict</strong> (<em>dict</em>) – Maps state, action pair to next state</p></li>
-<li><p><strong>initial_state</strong> (<em>int</em>) – Where the agent starts each episode</p></li>
-<li><p><strong>terminal_state</strong> (<em>int</em>) – The terminal state</p></li>
-<li><p><strong>current_state</strong> (<em>int</em>) – The current state of the agent</p></li>
-<li><p><strong>initial_weights</strong> (<em>numpy ndarray</em>) – The initial parameter weights 
-of the agent’s policy model</p></li>
-<li><p><strong>param_weights</strong> (<em>numpy ndarray</em>) – The current parameter weights 
-of the agent’s policy model</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.__repr__">
-<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.__repr__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return repr(self).</p>
-</dd></dl>
-
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-</tbody>
-</table>
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment._arg">
-<span class="sig-name descname"><span class="pre">_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment._arg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function for pi()</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment._denom">
-<span class="sig-name descname"><span class="pre">_denom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment._denom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function for pi()</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.calc_J">
-<span class="sig-name descname"><span class="pre">calc_J</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.calc_J" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the expected return of the sum 
-of discounted rewards by generating episodes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>param_weights</strong> (<em>numpy ndarray</em>) – The parameter weights to use
-when generating new episodes</p></li>
-<li><p><strong>n_episodes</strong> (<em>int</em>) – The number of episodes to use for 
-calculating the performance</p></li>
-<li><p><strong>parallel</strong> (<em>bool</em>) – Whether to use multiple workers 
-to generate the data</p></li>
-<li><p><strong>n_workers</strong> (<em>int</em>) – The number of workers to use if
-using multiprocessing</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>J, the expected return of the sum 
-of discounted rewards</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_data">
-<span class="sig-name descname"><span class="pre">generate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate list of Episode objects
-episode_index,state,action,reward,probability_of_action
-for n_episodes episodes using the current policy.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_episodes</strong> (<em>int</em>) – The number of episodes to return</p></li>
-<li><p><strong>parallel</strong> (<em>bool</em>) – Whether to use multiple workers 
-to generate the data</p></li>
-<li><p><strong>n_workers</strong> (<em>int</em>) – The number of workers to use if
-using multiprocessing</p></li>
-<li><p><strong>savename</strong> (<em>str</em><em>, </em><em>defaults to None</em>) – The name of the file in which to 
-save the dataframe</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_episode">
-<span class="sig-name descname"><span class="pre">generate_episode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_episode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate an entire episode using the current policy</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>return_index</strong> (<em>bool</em>) – Whether to return the timestep 
-as part of the episode</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.generate_episodes_par">
-<span class="sig-name descname"><span class="pre">generate_episodes_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_episodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rseed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.generate_episodes_par" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate n_episodes episodes using the current policy.
-This is the function to use for multiprocessing</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_episodes</strong> (<em>int</em>) – The number of episodes to return</p></li>
-<li><p><strong>return_index</strong> (<em>bool</em>) – Whether to return the timestep 
-as part of each episode</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.pi">
-<span class="sig-name descname"><span class="pre">pi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.pi" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply the tabular softmax policy
-to get action probability at a given state</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>state</strong> (<em>int</em>) – a position on the gridworld between 0-8</p></li>
-<li><p><strong>action</strong> (<em>int</em>) – 0,1,2, or 3 corresponding to up,down,left,right</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.reset">
-<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.reset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resets the agent to the initial state.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.environments.gridworld3x3.Environment.take_step">
-<span class="sig-name descname"><span class="pre">take_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld3x3.Environment.take_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Take an action using the policy and change the state</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 
@@ -223,36 +52,10 @@ to get action probability at a given state</p>
 
 
 <h3>Navigation</h3>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a><ul class="current">
-<li class="toctree-l5 current"><a class="reference internal" href="seldonian.RL.environments.gridworld3x3.html">seldonian.RL.environments.gridworld3x3</a><ul class="current">
-<li class="toctree-l6 current"><a class="current reference internal" href="#">seldonian.RL.environments.gridworld3x3.Environment</a></li>
-</ul>
-</li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.RL.environments.mountaincar.html">seldonian.RL.environments.mountaincar</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
@@ -260,18 +63,6 @@ to get action probability at a given state</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="../api.html">API</a><ul>
-  <li><a href="seldonian.html">seldonian</a><ul>
-  <li><a href="seldonian.RL.html">seldonian.RL</a><ul>
-  <li><a href="seldonian.RL.environments.html">seldonian.RL.environments</a><ul>
-  <li><a href="seldonian.RL.environments.gridworld3x3.html">seldonian.RL.environments.gridworld3x3</a><ul>
-      <li>Previous: <a href="seldonian.RL.environments.gridworld3x3.html" title="previous chapter">seldonian.RL.environments.gridworld3x3</a></li>
-      <li>Next: <a href="seldonian.RL.environments.mountaincar.html" title="next chapter">seldonian.RL.environments.mountaincar</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>

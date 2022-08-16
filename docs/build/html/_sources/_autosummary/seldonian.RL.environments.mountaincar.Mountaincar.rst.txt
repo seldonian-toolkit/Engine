@@ -18,29 +18,35 @@ seldonian.RL.environments.mountaincar.Mountaincar
 
    .. autosummary::
    .. 
-   ..    ~Mountaincar.R
-   ..
    ..    ~Mountaincar.__init__
    ..
-   ..    ~Mountaincar.nextState
+   ..    ~Mountaincar.check_valid_mc_action
+   ..
+   ..    ~Mountaincar.create_env_description
+   ..
+   ..    ~Mountaincar.get_env_description
+   ..
+   ..    ~Mountaincar.get_observation
+   ..
+   ..    ~Mountaincar.position_and_termination_update
    ..
    ..    ~Mountaincar.reset
    ..
-   ..    ~Mountaincar.step
+   ..    ~Mountaincar.start_visualizing
    ..
-   ..    ~Mountaincar.terminal
+   ..    ~Mountaincar.stop_visualizing
+   ..
+   ..    ~Mountaincar.terminated
+   ..
+   ..    ~Mountaincar.transition
+   ..
+   ..    ~Mountaincar.update_velocity
+   ..
+   ..    ~Mountaincar.visualize
    ..
    
    
 
    
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~Mountaincar.gamma
-      ~Mountaincar.isEnd
-      ~Mountaincar.state
    
    
