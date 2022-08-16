@@ -90,6 +90,24 @@ info about the environment and data generation</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.construct_basis_and_linear_FA">
+<span class="sig-name descname"><span class="pre">construct_basis_and_linear_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.construct_basis_and_linear_FA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a basis and linear function approximator 
+from an environment description and dictionary specification</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
+of the environment</p></li>
+<li><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
+environment, agent, number of episodes per trial,
+and number of trials</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_action_values">
 <span class="sig-name descname"><span class="pre">get_action_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_action_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all possible actions from this state using the Q table</p>
@@ -132,6 +150,28 @@ info about the environment and data generation</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.make_state_action_FA">
+<span class="sig-name descname"><span class="pre">make_state_action_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_desciption</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.make_state_action_FA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a function approximator from an environment description and
+dictionary specification</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
+of the environment</p></li>
+<li><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
+environment, agent, number of episodes per trial,
+and number of trials</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>function approximator, type depends on whether observation 
+space is discrete or continous</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.set_new_params">
 <span class="sig-name descname"><span class="pre">set_new_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.set_new_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of the agent</p>
@@ -141,6 +181,11 @@ info about the environment and data generation</p></li>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminated</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

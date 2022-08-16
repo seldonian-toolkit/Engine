@@ -56,6 +56,64 @@
 <tbody>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.get_env_description">
+<span class="sig-name descname"><span class="pre">get_env_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.get_env_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get environment description 
+Override this method in child class implementation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.get_observation">
+<span class="sig-name descname"><span class="pre">get_observation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.get_observation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current observation. 
+Override this method in child class implementation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset observation to initial observation 
+Override this method in child class implementation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.start_visualizing">
+<span class="sig-name descname"><span class="pre">start_visualizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.start_visualizing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn on visualization debugger</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.stop_visualizing">
+<span class="sig-name descname"><span class="pre">stop_visualizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.stop_visualizing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn off visualization debugger</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.terminated">
+<span class="sig-name descname"><span class="pre">terminated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.terminated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the terminal state</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.transition">
+<span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transition to a new observation given an action</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>action</strong> – A possible action in the environment</p>
+</dd>
+</dl>
+<p>Override this method in child class implementation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.environments.mountaincar.Mountaincar.visualize">
+<span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.mountaincar.Mountaincar.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out current observation, useful for debugging 
+Override this method in child class implementation</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
