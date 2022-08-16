@@ -170,10 +170,10 @@ class SupervisedSpec(Spec):
 	def __init__(self,
 		dataset,
 		model_class,
-		frac_data_in_safety,
-		primary_objective,
-		initial_solution_fn,
 		parse_trees,
+		primary_objective=None,
+		initial_solution_fn=None,
+		frac_data_in_safety=0.6,
 		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
@@ -192,18 +192,20 @@ class SupervisedSpec(Spec):
         },
 		regularization_hyperparams={},
 		):
-		super().__init__(dataset,model_class,
-			frac_data_in_safety,
-			primary_objective,
-			initial_solution_fn,
-			parse_trees,
-			base_node_bound_method_dict,
-			use_builtin_primary_gradient_fn,
-			custom_primary_gradient_fn,
-			optimization_technique,
-			optimizer,
-			optimization_hyperparams,
-			regularization_hyperparams)
+		super().__init__(
+			dataset=dataset,
+			model_class=model_class,
+			parse_trees=parse_trees,
+			primary_objective=primary_objective,
+			initial_solution_fn=initial_solution_fn,
+			frac_data_in_safety=frac_data_in_safety,
+			base_node_bound_method_dict=base_node_bound_method_dict,
+			use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn,
+			custom_primary_gradient_fn=custom_primary_gradient_fn,
+			optimization_technique=optimization_technique,
+			optimizer=optimizer,
+			optimization_hyperparams=optimization_hyperparams,
+			regularization_hyperparams=regularization_hyperparams)
 
 
 class RLSpec(Spec):

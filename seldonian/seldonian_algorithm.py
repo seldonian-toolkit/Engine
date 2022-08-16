@@ -88,17 +88,20 @@ class SeldonianAlgorithm():
 			if self.include_intercept_term:
 				self.candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
-			try: 
-				self.initial_solution = self.initial_solution_fn(
-					self.candidate_features,self.candidate_labels)
-			except Exception as e: 
-				warning_msg = (
-					"Warning: initial solution function failed with this error:"
-					f" {e}")
-				warnings.warn(warning_msg)
-				self.initial_solution = np.random.normal(
-					loc=0.0,scale=1.0,size=(self.candidate_features.shape[1]+1)
-					)
+			if self.initial_solution_fn is None:
+				self.initial_solution = np.zeros(self.candidate_features.shape[1])
+			else:
+				try: 
+					self.initial_solution = self.initial_solution_fn(
+						self.candidate_features,self.candidate_labels)
+				except Exception as e: 
+					warning_msg = (
+						"Warning: initial solution function failed with this error:"
+						f" {e}")
+					warnings.warn(warning_msg)
+					self.initial_solution = np.random.normal(
+						loc=0.0,scale=1.0,size=(self.candidate_features.shape[1]+1)
+						)
 			print("Initial solution: ")
 			print(self.initial_solution)
 
@@ -152,7 +155,10 @@ class SeldonianAlgorithm():
 			if self.normalize_returns:
 				cs_kwargs['min_return']=self.RL_environment_obj.min_return
 				cs_kwargs['max_return']=self.RL_environment_obj.max_return
-			
+		
+		if self.spec.primary_objective is None:
+			self.spec.primary_objective = self.model_instance.default_objective	
+
 	def candidate_selection(self,write_cs_logfile=False):
 		""" Creat the candidate selection object """
 		if self.regime == 'supervised':
