@@ -9,6 +9,13 @@ seldonian.parse\_tree.parse\_tree
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:                                         
+   
+      make_parse_trees_from_constraints
+   
    
 
    
