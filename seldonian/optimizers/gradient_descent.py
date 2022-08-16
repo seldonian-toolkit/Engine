@@ -93,7 +93,6 @@ def gradient_descent_adam(
     best_feasible_primary = np.inf # minimizing f so want it to be lowest possible
     best_index = 0  
 
-
     # Get df/dtheta and dg/dtheta
     (grad_primary_theta,
         grad_upper_bound_theta) = setup_gradients(
@@ -123,7 +122,7 @@ def gradient_descent_adam(
         primary_val = primary_objective(theta)
         g_vec = upper_bounds_function(theta)
         g_vec = g_vec.reshape(g_vec.shape[0],1)
-
+        # print("f,g,theta:",primary_val,g_vec,theta)
         # Check if this is best feasible value so far
         if all([g<= 0 for g in g_vec]) and primary_val < best_feasible_primary:
             best_feasible_primary = np.copy(primary_val)

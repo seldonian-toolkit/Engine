@@ -10,6 +10,16 @@ from seldonian.RL.environments.n_step_mountaincar import *
 from seldonian.dataset import Episode
 
 def run_all_trials(hyperparameter_and_setting_dict):
+    """ Run many trials, each of which consist
+    of the same number of episodes.
+    
+    :param hyperparameter_and_setting_dict: Specifies the
+        environment, agent, number of episodes per trial,
+        and number of trials
+    :type hyperparameter_and_setting_dict: dict
+
+    :return: List((List of episodes, agent)_i) for i trials
+    """
     num_trials = hyperparameter_and_setting_dict["num_trials"]
     trials = []
     for trial_num in range(num_trials):
@@ -17,6 +27,14 @@ def run_all_trials(hyperparameter_and_setting_dict):
     return trials
 
 def run_trial(hyperparameter_and_setting_dict):
+    """ Run a single trial consists of an arbitrary number of episodes.
+    
+    :param hyperparameter_and_setting_dict: Specifies the
+        environment, agent and number of episodes to run
+    :type hyperparameter_and_setting_dict: dict
+
+    :return: (List of episodes, agent)
+    """
     agent = create_agent(hyperparameter_and_setting_dict)
     env = create_env(hyperparameter_and_setting_dict)
     episodes = []
@@ -28,6 +46,17 @@ def run_trial(hyperparameter_and_setting_dict):
     return episodes, agent
 
 def run_trial_given_agent_and_env(agent,env,num_episodes):
+    """ A wrapper for run_trial() where parameters 
+    are specified explicity rather than via a dictionary.
+
+    :param agent: RL Agent 
+
+    :param env: RL Environment
+
+    :param num_episodes: Number of episodes to run
+
+    :return: List of episodes
+    """
     episodes = []
 
     for episode_num in range(num_episodes):
@@ -35,6 +64,15 @@ def run_trial_given_agent_and_env(agent,env,num_episodes):
     return episodes
 
 def run_episode(agent, env):
+    """ Run a single episode 
+
+    :param agent: RL Agent 
+
+    :param env: RL Environment 
+
+    :return: RL Episode
+    :rtype: :py:class:`.Episode`
+    """
     observations = []
     actions = []
     rewards = []
@@ -60,6 +98,15 @@ def run_episode(agent, env):
     return Episode(observations, actions, rewards, prob_actions)
 
 def create_agent(hyperparameter_and_setting_dict):
+    """ Create an agent from a dictionary specification
+    
+    :param hyperparameter_and_setting_dict: Specifies the
+        environment, agent, number of episodes per trial,
+        and number of trials
+
+    :return: RL agent
+    :rtype: :py:class:`.Agents.Agent`
+    """
     sample_env = create_env(hyperparameter_and_setting_dict)
     env_desc = sample_env.get_env_description()
     agent_type = hyperparameter_and_setting_dict["agent"]
@@ -75,6 +122,15 @@ def create_agent(hyperparameter_and_setting_dict):
         raise Exception(f"unknown agent type {agent_type}")
 
 def create_env(hyperparameter_and_setting_dict):
+    """ Create an environment from a dictionary specification
+    
+    :param hyperparameter_and_setting_dict: Specifies the
+        environment, agent, number of episodes per trial,
+        and number of trials
+
+    :return: RL environment
+    :rtype: :py:class:`.environments.Environment`
+    """
     env_type = hyperparameter_and_setting_dict["env"]
     if env_type == "gridworld":
         return Gridworld()
