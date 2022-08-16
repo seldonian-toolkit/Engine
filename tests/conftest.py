@@ -93,10 +93,9 @@ def generate_data():
 def synthetic_dataset(generate_data):
     from seldonian.models.models import LinearRegressionModel
     
-    def generate_dataset(constraint_strs,deltas):
+    def generate_dataset(constraint_strs,deltas,numPoints=1000):
         rseed=0
         np.random.seed(rseed) 
-        numPoints=5000
         columns=['feature1','label']
         model_class = LinearRegressionModel
         X,Y = generate_data(

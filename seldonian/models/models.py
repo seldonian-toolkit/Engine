@@ -287,7 +287,6 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		:rtype: float
 		"""
 		n = len(X)
-		print(n)
 		prediction = self.predict(theta,X,Y) # vector of values
 		res = pow(prediction-Y,2)
 		return res
@@ -340,14 +339,15 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		:return: predicted labels
 		:rtype: numpy ndarray
 		"""
-		Y_min,Y_max = min(Y),max(Y)
+		y_min,y_max = min(Y),max(Y)
 		# Want range of Y_hat to be twice that of Y
 		# and want size of interval on either side of Y_min and Y_max
 		# to be the same. The unique solution to this is:
-		Y_hat_min = (3*Y_min - Y_max)/2
-		Y_hat_max =(3*Y_max - Y_min)/2
+		x=1.5
+		y_hat_min = y_min*(1+x)/2 + y_max*(1-x)/2
+		y_hat_max = y_max*(1+x)/2 + y_min*(1-x)/2
 		Z = np.dot(X,theta)
-		return self._sigmoid(Z)*(Y_hat_max-Y_hat_min) + Y_hat_min
+		return self._sigmoid(Z)*(y_hat_max-y_hat_min) + y_hat_min
 
 
 class ClassificationModel(SupervisedModel):

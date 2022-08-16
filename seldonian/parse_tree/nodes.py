@@ -795,30 +795,35 @@ class CVARSQEBaseNode(BaseNode):
 		X = data_dict['features']
 		y = data_dict['labels']
 		y_min,y_max = min(y),max(y)
-		y_hat_min = (3*y_min - y_max)/2
-		y_hat_max =(3*y_max - y_min)/2
+		# try 1.5x the interval size
+		x=1.5
+		y_hat_min = y_min*(1+x)/2 + y_max*(1-x)/2
+		y_hat_max = y_max*(1+x)/2 + y_min*(1-x)/2
 		max_squared_error = max(
 			pow(y_hat_max-y_min,2),
 			pow(y_max - y_hat_min,2))
+		# print(max_squared_error)
+		# max_squared_error = 10
 		min_squared_error = 0
 		
 		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
 		# squared_errors_nosquash = pow(y_hats-y,2)
-		import matplotlib.pyplot as plt
-		fig = plt.figure()
-		# plt.hist(squared_errors)
+		# import matplotlib.pyplot as plt
+		# fig = plt.figure()
+		# # plt.hist(squared_errors)
 		# y_hat = model.predict(theta,X,y)
-		# # plt.scatter(range(len(y)),y-y_hat)
-		# plt.hist(squared_errors)
+		# plt.scatter(y,y_hat)
+		# # # plt.scatter(range(len(y)),y-y_hat)
+		# # plt.hist(squared_errors)
 		# plt.show()
 		# input("Wait")
 		# Need b, the maximum possible squared error,
 		# which would happen if y=0 and y_hat_prime=y_max
 		# or vice versa. Either way result would be y_max**2
+
 		a=min_squared_error
 		b=max_squared_error
-		print(a,b)
-		input("Wait")
+		# print(a,b)
 		# Need to sort them to get Z1, ..., Zn
 		sorted_squared_errors = sorted(squared_errors)
 
@@ -932,7 +937,7 @@ class CVARSQEBaseNode(BaseNode):
 		max_term = np.maximum(
 			np.zeros(n_candidate),
 			(1+np.arange(n_candidate))/n_candidate-2*sqrt_term-(1-self.alpha))
-		upper = Z[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
+		upper = Znew[-1] - (1/self.alpha)*sum(np.diff(Znew)*max_term)
 			
 		return upper
 
@@ -1025,13 +1030,12 @@ class CVARSQEBaseNode(BaseNode):
 		assert(0<delta<=0.5)
 		Znew = Z.copy()
 		Znew.append(b)
-
 		# sqrt term is independent of loop index
 		sqrt_term = np.sqrt((np.log(1/delta))/(2*n_safety))
 		max_term = np.maximum(
 			np.zeros(n_safety),
 			(1+np.arange(n_safety))/n_safety-sqrt_term-(1-self.alpha))
-		upper = Z[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
+		upper = Znew[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
 			
 		return upper
 	
