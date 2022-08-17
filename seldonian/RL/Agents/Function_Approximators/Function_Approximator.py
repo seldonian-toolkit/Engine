@@ -1,5 +1,5 @@
 import autograd.numpy as np
-from utils import *
+from seldonian.utils.RL_utils import *
 
 class Function_Approximator:
     pass

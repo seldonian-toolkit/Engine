@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="seldonian_engine",
-    version="0.2.3",
+    version="0.3.0",
     author="Austin Hoag",
     author_email="austinthomashoag@gmail.com",
     description="Core library for Seldonian algorithms",
@@ -25,7 +25,6 @@ setuptools.setup(
         "autograd>=1.4",
         "cma>=3.2.2",
         "graphviz>=0.19.1",
-        "gym>=0.23.1",
         "matplotlib==3.5.1", 
         "numpy>=1.21.4",
         "pandas>=1.4.1",
@@ -33,7 +32,6 @@ setuptools.setup(
         "scikit_learn>=1.1.1",
         "scipy>=1.7.3",
         "tqdm>=4.64.0",
-        "Werkzeug==2.1.2",
     ],
     packages=setuptools.find_packages(),
     python_requires=">=3.8",

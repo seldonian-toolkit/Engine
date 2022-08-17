@@ -1,5 +1,5 @@
 from seldonian.RL.Env_Description.Spaces import *
-from utils import *
+from seldonian.utils.RL_utils import *
 
 
 class Env_Description:

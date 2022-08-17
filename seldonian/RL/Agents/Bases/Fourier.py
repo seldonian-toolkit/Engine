@@ -1,4 +1,4 @@
-from utils import *
+from seldonian.utils.RL_utils import *
 from math import factorial, pi
 
 class Fourier:

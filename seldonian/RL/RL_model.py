@@ -1,4 +1,4 @@
-from utils import *
+from seldonian.utils.RL_utils import *
 from seldonian.utils.stats_utils import weighted_sum_gamma
 
 class RL_model: #consist of agent, env

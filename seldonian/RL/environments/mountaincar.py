@@ -1,7 +1,7 @@
 from seldonian.RL.environments.Environment import *
 from seldonian.RL.Env_Description.Env_Description import *
 from math import cos
-from utils import *
+from seldonian.utils.RL_utils import *
 
 class Mountaincar(Environment):
     def __init__(self):

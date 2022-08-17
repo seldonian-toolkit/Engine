@@ -4,7 +4,7 @@ from seldonian.dataset import RLDataSet
 from RLinterface2spec import dataset2spec
 from seldonian.RL.hyperparams_and_settings import *
 from seldonian.RL.RL_runner import run_trial
-from utils import *
+from seldonian.utils.RL_utils import *
 
 
 def main():

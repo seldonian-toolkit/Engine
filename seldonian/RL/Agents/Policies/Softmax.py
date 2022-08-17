@@ -1,6 +1,6 @@
 from seldonian.RL.Agents.Policies.Policy import *
 import autograd.numpy as np
-from utils import *
+from seldonian.utils.RL_utils import *
 
 class Softmax(Discrete_Action_Policy):
     def __init__(self, min_action, num_actions):
