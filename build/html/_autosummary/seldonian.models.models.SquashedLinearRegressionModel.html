@@ -45,7 +45,8 @@
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements linear regression 
 with a squashed predict function.
-Overrides several parent methods</p>
+Overrides several parent methods.
+Assumes y-intercept is 0.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -147,7 +148,7 @@ evaluated at theta</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides the original predict
 function to squash predictions</p>
 <dl class="field-list simple">
@@ -211,7 +212,7 @@ function to squash predictions</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.models.SquashedLinearRegressionModel.sample_Squashed_Squared_Error">
 <span class="sig-name descname"><span class="pre">sample_Squashed_Squared_Error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.models.SquashedLinearRegressionModel.sample_Squashed_Squared_Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate sample mean squared error</p>
+<dd><p>Calculate squashed sample mean squared error</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

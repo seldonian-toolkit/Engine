@@ -24,6 +24,8 @@ seldonian.seldonian\_algorithm.SeldonianAlgorithm
    ..
    ..    ~SeldonianAlgorithm.evaluate_primary_objective
    ..
+   ..    ~SeldonianAlgorithm.get_cs_result
+   ..
    ..    ~SeldonianAlgorithm.run
    ..
    ..    ~SeldonianAlgorithm.safety_test
