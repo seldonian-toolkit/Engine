@@ -59,6 +59,7 @@ class CandidateSelection(object):
 		initial_solution=None,
 		regime='supervised',
 		write_logfile=False,
+		store_values=False,
 		**kwargs):
 		self.regime = regime
 		self.model = model
@@ -89,7 +90,8 @@ class CandidateSelection(object):
 		self.initial_solution = initial_solution
 		self.candidate_solution = None
 		self.write_logfile = write_logfile
-		
+		self.store_values = store_values
+
 		if 'reg_coef' in kwargs:
 			self.reg_coef = kwargs['reg_coef']
 
@@ -126,7 +128,7 @@ class CandidateSelection(object):
 			    num_iters=kwargs['num_iters'],
 				theta_init=self.initial_solution,
 				lambda_init=0.5*np.ones(len(self.parse_trees)),
-				store_values=self.write_logfile,
+				store_values=self.write_logfile or self.store_values,
 				verbose=kwargs['verbose'],
 			)
 
@@ -178,6 +180,7 @@ class CandidateSelection(object):
 
 			res = gradient_descent_adam(**gd_kwargs
 				)
+			self.optimization_result = res
 
 			if self.write_logfile:
 				log_counter = 0
@@ -216,6 +219,7 @@ class CandidateSelection(object):
 					args=())
 				
 				candidate_solution=res.x
+				self.optimization_result = res
 
 			elif self.optimizer == 'CMA-ES':
 				import cma
@@ -228,6 +232,7 @@ class CandidateSelection(object):
 				
 				es.optimize(self.objective_with_barrier)
 				candidate_solution=es.result.xbest
+				self.optimization_result = es.result
 			else:
 				raise NotImplementedError(
 					f"Optimizer: {self.optimizer} is not supported")

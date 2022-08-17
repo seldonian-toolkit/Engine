@@ -32,7 +32,7 @@ def generate_data(num_points,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
     Y = X + np.random.normal(loc_Y, sigma_Y, num_points) # Set y to be x, plus noise from a standard normal distribution
     return (X,Y)
 
-def make_synthetic_regression_dataset(num_points):
+def make_synthetic_regression_dataset(num_points,include_intercept_term=True):
     X,Y = generate_data(num_points)
 
     # 2. Define the metadata
@@ -46,6 +46,6 @@ def make_synthetic_regression_dataset(num_points):
     dataset = SupervisedDataSet(df,
         meta_information=columns,
         label_column='label',
-        include_intercept_term=True)
+        include_intercept_term=include_intercept_term)
 
     return dataset

@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	# Load loan spec file
-	# cs_file = '/Users/ahoag/beri/code/engine-repo/examples/german_credit/logs/candidate_selection_log1.p'
-	cs_file = '/Users/ahoag/beri/code/engine-repo/examples/german_credit/logs/candidate_selection_log12.p'
+	cs_file = './logs/candidate_selection_log0.p'
 	savename = './loan_cs.png'
 	solution_dict = load_pickle(cs_file)
-	
+	save=False
+	show= not save
 	fig = plot_gradient_descent(solution_dict,
 		primary_objective_name='log loss',
-		save=True,savename=savename)
-	plt.show()
+		save=save,savename=savename)
+	if show:
+		plt.show()

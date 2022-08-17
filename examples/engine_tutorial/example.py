@@ -36,10 +36,15 @@ if __name__ == "__main__":
 
     # 5. Run seldonian algorithm using the spec object
     SA = SeldonianAlgorithm(spec)
-    passed_safety,solution = SA.run()
+    passed_safety,solution = SA.run(store_cs_values=True)
     print(passed_safety,solution)
 
     # Check the value of the primary objective on the safety dataset
     st_primary_objective = SA.evaluate_primary_objective(theta=solution,
     branch='safety_test')
     print(st_primary_objective)
+
+    cs_dict = SA.get_cs_result() # returns a dictionary with a lot of quantities evaluated at each step of gradient descent
+    print(list(cs_dict.keys()))
+    print(cs_dict['f_vals'])
+    print(cs_dict['g_vals'])

@@ -21,6 +21,9 @@ class SeldonianAlgorithm():
 		:type spec: :py:class:`.Spec` object
 		"""
 		self.spec = spec
+		self.has_been_run = False
+		
+
 		self.parse_trees = self.spec.parse_trees
 		self.base_node_bound_method_dict = self.spec.base_node_bound_method_dict
 
@@ -159,7 +162,9 @@ class SeldonianAlgorithm():
 		if self.spec.primary_objective is None:
 			self.spec.primary_objective = self.model_instance.default_objective	
 
-	def candidate_selection(self,write_cs_logfile=False):
+	def candidate_selection(self,
+		write_cs_logfile=False,
+		store_cs_values=False):
 		""" Creat the candidate selection object """
 		if self.regime == 'supervised':
 			cs_kwargs = dict(
@@ -193,7 +198,7 @@ class SeldonianAlgorithm():
 				cs_kwargs['max_return']=self.RL_environment_obj.max_return
 
 		cs = CandidateSelection(**cs_kwargs,**self.spec.regularization_hyperparams,
-			write_logfile=write_cs_logfile)
+			write_logfile=write_cs_logfile,store_values=store_cs_values)
 
 		return cs
 
@@ -221,7 +226,7 @@ class SeldonianAlgorithm():
 		st = SafetyTest(**st_kwargs)
 		return st
 
-	def run(self,write_cs_logfile=False):
+	def run(self,write_cs_logfile=False,store_cs_values=False):
 		"""
 		Runs seldonian algorithm using spec object
 
@@ -235,10 +240,13 @@ class SeldonianAlgorithm():
 		:rtype: Tuple 
 		"""
 			
-		cs = self.candidate_selection(write_cs_logfile=write_cs_logfile)
+		cs = self.candidate_selection(
+			write_cs_logfile=write_cs_logfile,store_cs_values=store_cs_values)
 		solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn)
+		self.has_been_run = True
+		self.cs_result = cs.optimization_result
 		
 		NSF=False
 		if type(solution) == str and solution == 'NSF':
@@ -252,6 +260,14 @@ class SeldonianAlgorithm():
 			passed_safety = st.run(solution)
 		
 		return passed_safety, solution
+	
+	def get_cs_result(self):
+		if not self.has_been_run:
+			raise ValueError(
+				"Candidate selection has not "
+				"been run yet, so result is not available. "
+				" Call run() first")
+		return self.cs_result
 
 	def evaluate_primary_objective(self,branch,theta):
 		""" Get value of the primary objective given model weights,
