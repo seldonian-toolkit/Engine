@@ -756,29 +756,29 @@ class CVARSQEBaseNode(BaseNode):
 		super().__init__(name,lower,upper,**kwargs)
 		self.alpha = 0.1
 	
-	def calculate_value(self,**kwargs):
-		"""
-		Calculate the actual value of CVAR_alpha,
-		not the bound.
-		""" 
-		model = kwargs['model']
-		theta = kwargs['theta']
-		data_dict = kwargs['data_dict']
+	# def calculate_value(self,**kwargs):
+	# 	"""
+	# 	Calculate the actual value of CVAR_alpha,
+	# 	not the bound.
+	# 	""" 
+	# 	model = kwargs['model']
+	# 	theta = kwargs['theta']
+	# 	data_dict = kwargs['data_dict']
 
-		# Get squashed squared errors
-		y = data_dict['labels']
-		y_min,y_max = min(y),max(y)
-		X = data_dict['features']
-		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
+	# 	# Get squashed squared errors
+	# 	y = data_dict['labels']
+	# 	y_min,y_max = min(y),max(y)
+	# 	X = data_dict['features']
+	# 	squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
 		
-		Z = np.array(sorted(squared_errors))
-		# Now calculate cvar
-		percentile_thresh = (1-self.alpha)*100
-		var_thresh = np.percentile(Z,percentile_thresh)
-		var_mask = Z >= var_thresh
-		Z_var = Z[var_mask]
-		cvar = np.mean(Z_var)
-		return cvar
+	# 	Z = np.array(sorted(squared_errors))
+	# 	# Now calculate cvar
+	# 	percentile_thresh = (1-self.alpha)*100
+	# 	var_thresh = np.percentile(Z,percentile_thresh)
+	# 	var_mask = Z >= var_thresh
+	# 	Z_var = Z[var_mask]
+	# 	cvar = np.mean(Z_var)
+	# 	return cvar
 
 	def calculate_bounds(self,
 		**kwargs):
@@ -794,37 +794,23 @@ class CVARSQEBaseNode(BaseNode):
 		# where y_max is the max value of the label, y
 		X = data_dict['features']
 		y = data_dict['labels']
-		y_min,y_max = min(y),max(y)
-		# try 1.5x the interval size
-		x=1.5
-		y_hat_min = y_min*(1+x)/2 + y_max*(1-x)/2
-		y_hat_max = y_max*(1+x)/2 + y_min*(1-x)/2
+		# clip y to -3,3
+		y_min,y_max = -3,3
+		y_clipped = np.clip(y,y_min,y_max)
+		# Increase bounds of y_hat to s times the size of y bounds
+		s=1.5
+		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
+		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
+		min_squared_error = 0
 		max_squared_error = max(
 			pow(y_hat_max-y_min,2),
 			pow(y_max - y_hat_min,2))
-		# print(max_squared_error)
-		# max_squared_error = 10
-		min_squared_error = 0
 		
-		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
-		# squared_errors_nosquash = pow(y_hats-y,2)
-		# import matplotlib.pyplot as plt
-		# fig = plt.figure()
-		# # plt.hist(squared_errors)
-		# y_hat = model.predict(theta,X,y)
-		# plt.scatter(y,y_hat)
-		# # # plt.scatter(range(len(y)),y-y_hat)
-		# # plt.hist(squared_errors)
-		# plt.show()
-		# input("Wait")
-		# Need b, the maximum possible squared error,
-		# which would happen if y=0 and y_hat_prime=y_max
-		# or vice versa. Either way result would be y_max**2
+		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y_clipped)
 
 		a=min_squared_error
 		b=max_squared_error
-		# print(a,b)
-		# Need to sort them to get Z1, ..., Zn
+		# Need to sort squared errors to get Z1, ..., Zn
 		sorted_squared_errors = sorted(squared_errors)
 
 		bound_kwargs = {

@@ -353,15 +353,18 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 # 	is also correctly calculated.
 # 	"""
 	
-# 	constraint_strs = ['CVARSQE - 10.0']
-# 	deltas = [0.2]
-
+# 	constraint_strs = ['CVARSQE <= 10.0']
+# 	# constraint_strs = ['Mean_Squared_Error <= 10.0']
+# 	deltas = [0.05]
+# 	numPoints=10000
 # 	spec = synthetic_dataset(
 # 		constraint_strs=constraint_strs,
 # 		deltas=deltas,
-# 		numPoints=500000)
+# 		numPoints=numPoints,
+# 		include_intercept_term=True)
 # 	# spec.optimization_hyperparams['alpha_theta'] = 0.005
 # 	# spec.optimization_hyperparams['alpha_lamb'] = 0.005
+# 	spec.optimization_hyperparams['num_iters'] = 200
 	
 # 	spec.model_class = SquashedLinearRegressionModel
 # 	spec.use_builtin_primary_gradient_fn = True
@@ -805,6 +808,75 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
   3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098727e-03,
  -3.82405534e-04,  2.29938169e-04])
 	assert np.allclose(solution,array_to_compare)
+
+def test_get_candidate_selection_result(gpa_regression_dataset):
+	""" Test that the after running the SA on the 
+	gpa regression example, we can get the 
+	full candidate selection solution dictionary
+	from gradient descent as a method call on the
+	SA() object.
+	
+	Also check that before we run SA.run() this same 
+	method gives us an error. 
+	"""
+
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 2.0'] 
+	deltas = [0.05]
+
+	(dataset,model_class,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model_class=model_class,
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		parse_trees=parse_trees,
+		initial_solution_fn=model_class().fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 100,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+
+	# # Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	# Try to get candidate solution result before running
+	with pytest.raises(ValueError) as excinfo:
+		res = SA.get_cs_result()
+	error_str = "Candidate selection has not been run yet, so result is not available.  Call run() first"
+	assert error_str in str(excinfo.value)
+	
+	passed_safety,solution = SA.run(store_cs_values=True)
+	res = SA.get_cs_result()
+	res_keys = res.keys()
+	for key in ['candidate_solution', 'best_index', 'best_feasible_g', 'best_feasible_f', 'solution_found', 'theta_vals', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
+		assert key in res_keys
+	# assert passed_safety == True
+	# array_to_compare = np.array(
+	# 	[ 4.17882259e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
+ #  3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098727e-03,
+ # -3.82405534e-04,  2.29938169e-04])
+	# assert np.allclose(solution,array_to_compare)
+
 
 """ RL based tests """
 

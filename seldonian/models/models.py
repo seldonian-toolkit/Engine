@@ -245,13 +245,14 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 	def __init__(self):
 		""" Implements linear regression 
 		with a squashed predict function.
-		Overrides several parent methods """
+		Overrides several parent methods.
+		Assumes y-intercept is 0. """
 		super().__init__()
 		self.model_class = LinearRegression
 
 	def sample_Squashed_Squared_Error(self,theta,X,Y):
 		"""
-		Calculate sample mean squared error 
+		Calculate squashed sample mean squared error 
 
 		:param theta: The parameter weights
 		:type theta: numpy ndarray
@@ -266,7 +267,7 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		:rtype: float
 		"""
 		n = len(X)
-		prediction = self.predict(theta,X,Y) # vector of values
+		prediction = self.predict(theta,X) # vector of values
 		res = sum(pow(prediction-Y,2))/n
 		return res
 
@@ -287,46 +288,36 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		:rtype: float
 		"""
 		n = len(X)
-		prediction = self.predict(theta,X,Y) # vector of values
+		prediction = self.predict(theta,X) # vector of values
 		res = pow(prediction-Y,2)
 		return res
 
 	def gradient_sample_Squashed_Squared_Error(self,theta,X,Y):
 		n = len(X)
-		Y_min,Y_max = min(Y),max(Y)
-		Y_hat_min = (3*Y_min - Y_max)/2
-		Y_hat_max =(3*Y_max - Y_min)/2
-		c1 = Y_hat_max - Y_hat_min
-		c2 = -Y_hat_min
-		# prediction = sigma(Xw)
-		Y_hat = self.predict(theta,X,Y) # vector of values
-		Y_hat_old = np.dot(X,theta)
-		sig = self._sigmoid(Y_hat_old)
+		y_min,y_max = -3,3
+		# Want range of Y_hat to be twice that of Y
+		# and want size of interval on either side of Y_min and Y_max
+		# to be the same. The unique solution to this is:
+		s=1.5
+		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
+		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
 
-		# print(X[0])
-		# s = 0
-		# for i in range(len(X)):
-		# 	term1=Y[i] - (c1*sig[i]-c2)
-		# 	term2=-c1*sig[i]*(1-sig[i])*X[i]
-		# 	s+=term1*term2
+		c1 = y_hat_max - y_hat_min
+		c2 = -y_hat_min
+
+		Y_hat = self.predict(theta,X) # vector of values
+		Y_hat_old = (Y_hat-y_hat_min)/(y_hat_max-y_hat_min)
+		sig = self._sigmoid(Y_hat_old)
 
 		term1=Y - (c1*sig-c2)
 		term2=-c1*sig*(1-sig)*X[:,0]
-
-		# print(term1.shape)
-		# print(term2.shape)
-		# arg = term1*term2
-		# # print(arg.shape)
 		s = sum(term1*term2)
-		# # print(s.shape)
-		# s = sum(term1*term2)
-		# return 2/n*np.dot(err,prediction)*np.dot(1-prediction,X)
 		return -2/n*s
 
 	def _sigmoid(self,X):
 		return 1/(1+np.exp(X))
 
-	def predict(self,theta,X,Y):
+	def predict(self,theta,X):
 		""" Overrides the original predict
 		function to squash predictions 
 
@@ -339,16 +330,15 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		:return: predicted labels
 		:rtype: numpy ndarray
 		"""
-		y_min,y_max = min(Y),max(Y)
+		y_min,y_max = -3,3
 		# Want range of Y_hat to be twice that of Y
 		# and want size of interval on either side of Y_min and Y_max
 		# to be the same. The unique solution to this is:
-		x=1.5
-		y_hat_min = y_min*(1+x)/2 + y_max*(1-x)/2
-		y_hat_max = y_max*(1+x)/2 + y_min*(1-x)/2
+		s=1.5
+		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
+		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
 		Z = np.dot(X,theta)
 		return self._sigmoid(Z)*(y_hat_max-y_hat_min) + y_hat_min
-
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):

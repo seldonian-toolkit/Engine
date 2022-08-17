@@ -93,13 +93,13 @@ def generate_data():
 def synthetic_dataset(generate_data):
     from seldonian.models.models import LinearRegressionModel
     
-    def generate_dataset(constraint_strs,deltas,numPoints=1000):
+    def generate_dataset(constraint_strs,deltas,numPoints=1000,include_intercept_term=False):
         rseed=0
         np.random.seed(rseed) 
         columns=['feature1','label']
         model_class = LinearRegressionModel
         X,Y = generate_data(
-            numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+            numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=0.2)
         import matplotlib.pyplot as plt
         rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
         df = pd.DataFrame(rows,columns=columns)
@@ -130,7 +130,7 @@ def synthetic_dataset(generate_data):
             label_column='label',
             sensitive_column_names=[],
             include_sensitive_columns=False,
-            include_intercept_term=False
+            include_intercept_term=include_intercept_term
         )
         frac_data_in_safety=0.6
 
