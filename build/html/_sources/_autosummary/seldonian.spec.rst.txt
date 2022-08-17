@@ -9,6 +9,13 @@ seldonian.spec
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:                                         
+   
+      createRLspec
+   
    
 
    
