@@ -77,16 +77,16 @@ class Spec(object):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-            'lambda_init'   : 0.5,
-            'alpha_theta'   : 0.005,
-            'alpha_lamb'    : 0.005,
-            'beta_velocity' : 0.9,
-            'beta_rmsprop'  : 0.95,
-            'num_iters'     : 200,
-            'gradient_library': 'autograd',
-            'hyper_search'  : None,
-            'verbose'       : True,
-        },
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 200,
+			'gradient_library': 'autograd',
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
 		regularization_hyperparams={}
 		):
 		self.dataset = dataset
@@ -180,16 +180,16 @@ class SupervisedSpec(Spec):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-            'lambda_init'   : 0.5,
-            'alpha_theta'   : 0.005,
-            'alpha_lamb'    : 0.005,
-            'beta_velocity' : 0.9,
-            'beta_rmsprop'  : 0.95,
-            'num_iters'     : 200,
-            'gradient_library': "autograd",
-            'hyper_search'  : None,
-            'verbose'       : True,
-        },
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 200,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
 		regularization_hyperparams={},
 		):
 		super().__init__(
@@ -294,16 +294,16 @@ class RLSpec(Spec):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-            'lambda_init'   : 0.5,
-            'alpha_theta'   : 0.005,
-            'alpha_lamb'    : 0.005,
-            'beta_velocity' : 0.9,
-            'beta_rmsprop'  : 0.95,
-            'num_iters'     : 200,
-            'gradient_library': "autograd",
-            'hyper_search'  : None,
-            'verbose'       : True,
-        },
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 200,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
 		regularization_hyperparams={},
 		normalize_returns=False
 		):
@@ -324,4 +324,73 @@ class RLSpec(Spec):
 		self.RL_environment_obj = RL_environment_obj
 		self.RL_agent_obj = RL_agent_obj
 		self.normalize_returns = normalize_returns
+
+def createRLspec(
+	dataset,
+	metadata_pth,
+	agent,
+	constraint_strs,
+	deltas,
+	save_dir,
+	env_kwargs={},
+	verbose=False):
+	import os
+	import importlib 
+
+	from seldonian.utils.io_utils import load_json,save_pickle
+	from seldonian.RL.RL_model import RL_model
+	from seldonian.spec import RLSpec
+	from seldonian.parse_tree.parse_tree import (
+		make_parse_trees_from_constraints)
+	# Load metadata
+	metadata_dict = load_json(metadata_pth)
+	# Create RL environment environment 
+	RL_module_name = metadata_dict['RL_module_name']
+	RL_environment_module = importlib.import_module(
+		f'seldonian.RL.environments.{RL_module_name}')
+	RL_env_class_name = metadata_dict['RL_class_name']
+
+	RL_environment_obj = getattr(
+		RL_environment_module, RL_env_class_name)(**env_kwargs)
+
+	RL_model_instance = RL_model(agent,RL_environment_obj)
+	primary_objective = RL_model_instance.sample_IS_estimate
+
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas,
+		regime='RL',
+		sub_regime='all',
+		delta_weight_method='equal')
+
+	# Save spec object, using defaults where necessary
+	spec = RLSpec(
+		dataset=dataset,
+		model_class=RL_model,
+		frac_data_in_safety=0.6,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		parse_trees=parse_trees,
+		RL_environment_obj=RL_environment_obj,
+		RL_agent_obj=agent,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init': 0.5,
+			'alpha_theta': 0.005,
+			'alpha_lamb': 0.005,
+			'beta_velocity': 0.9,
+			'beta_rmsprop': 0.95,
+			'num_iters': 30,
+			'hyper_search': None,
+			'gradient_library': 'autograd',
+			'verbose': True,
+		},
+		regularization_hyperparams={},
+		normalize_returns=False,
+	)
+
+	spec_save_name = os.path.join(save_dir, 'spec.pkl')
+	save_pickle(spec_save_name,spec,verbose=verbose)
 

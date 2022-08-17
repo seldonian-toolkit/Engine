@@ -233,7 +233,7 @@ class SupervisedDataSet(DataSet):
 	
 	
 class RLDataSet(DataSet):
-	def __init__(self,episodes,meta_information,
+	def __init__(self,episodes,meta_information=['O','A','R','pi'],
 		**kwargs):
 		""" Object for holding RL dataframe and dataset metadata
 	

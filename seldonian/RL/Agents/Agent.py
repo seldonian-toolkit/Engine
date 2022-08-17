@@ -16,6 +16,20 @@ class Agent:
 
     def update(self, observation, next_observation, reward, terminated):
         """ 
+        Updates agent's parameters according to the learning rule
+        To be overriden
+        
+        :param observation: The current observation of the agent,
+            type depends on environment.
+
+        :param next_observation: The observation of the agent after
+            an action is taken
+
+        :param reward: The reward for taking the action 
+
+        :param terminated: Whether next_observation is the 
+            terminal observation
+        :type terminated: bool
         """
         raise NotImplementedError()
 

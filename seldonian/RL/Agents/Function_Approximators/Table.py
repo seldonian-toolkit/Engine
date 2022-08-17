@@ -43,18 +43,19 @@ class Q_Table(Table):
         self.num_actions = num_actions
 
     def get_action_values_given_state(self, state_number_not_zero_indexed):
-        """ Get possible actions given environmental state
+        """ Get possible Q-table values given environmental state
 
         :param state_number_not_zero_indexed: The environment-specific state number
         :type state_number_not_zero_indexed: int
 
-        :return: array of possible actions
+        :return: array of possible Q-table values
         """
+
         zero_indexed_state_number = self.from_environment_state_to_0_indexed_state(state_number_not_zero_indexed)
         return self.get_action_values_given_zero_indexed_state(zero_indexed_state_number)
 
     def get_action_values_given_zero_indexed_state(self, zero_indexed_state_number):
-        """ Get possible actions given 0-indexed state number in the table
+        """ Get possible Q-table values given 0-indexed state number in the table
 
         :param zero_indexed_state_number: The 0-indexed state number in the table
         :type zero_indexed_state_number: int

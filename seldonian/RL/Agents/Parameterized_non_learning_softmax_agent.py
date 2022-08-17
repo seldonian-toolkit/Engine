@@ -44,6 +44,22 @@ class Parameterized_non_learning_softmax_agent(Agent):
         return self.softmax.choose_action(action_values)
 
     def update(self, state, next_state, reward, terminated):
+    	""" 
+        Updates agent's parameters according to the learning rule.
+        Not implemented for this agent.
+        
+        :param observation: The current observation of the agent,
+            type depends on environment.
+
+        :param next_observation: The observation of the agent after
+            an action is taken
+
+        :param reward: The reward for taking the action 
+
+        :param terminated: Whether next_observation is the 
+            terminal observation
+        :type terminated: bool
+        """
         pass
 
     def get_prob_this_action(self, state, action):
