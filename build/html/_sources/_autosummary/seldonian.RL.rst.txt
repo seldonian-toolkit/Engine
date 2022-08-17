@@ -36,4 +36,5 @@ seldonian.RL
    seldonian.RL.RL_runner
    seldonian.RL.environments
    seldonian.RL.hyperparams_and_settings
+   seldonian.RL.profiling_seldonian_RL
 
