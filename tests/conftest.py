@@ -13,7 +13,7 @@ from seldonian.spec import SupervisedSpec
 @pytest.fixture
 def stump():
     def stump_function(operator_type,left_bounds,right_bounds,
-        regime='supervised',sub_regime='classification'):
+        regime='supervised_learning',sub_regime='classification'):
         # A parse tree with a root node and left and right children only
         root = InternalNode(operator_type)
         root.index=0
@@ -55,7 +55,7 @@ def stump():
 @pytest.fixture
 def edge():
     def edge_function(operator_type,left_bounds,
-        regime='supervised',sub_regime='classification'):
+        regime='supervised_learning',sub_regime='classification'):
         # A parse tree with a single edge
         assert operator_type in ['abs','exp']
         root = InternalNode(operator_type)
@@ -112,7 +112,7 @@ def synthetic_dataset(generate_data):
             delta = deltas[ii]
             # Create parse tree object
             parse_tree = ParseTree(delta=delta,
-                regime='supervised',sub_regime='regression',
+                regime='supervised_learning',sub_regime='regression',
                 columns=[])
 
             # Fill out tree
@@ -180,7 +180,7 @@ def gpa_regression_dataset():
                     
         include_sensitive_columns = False
         include_intercept_term = True
-        regime='supervised'
+        regime='supervised_learning'
 
         model_class = LinearRegressionModel
 
@@ -206,7 +206,7 @@ def gpa_regression_dataset():
             delta = deltas[ii]
             # Create parse tree object
             parse_tree = ParseTree(delta=delta,
-                regime='supervised',sub_regime='regression',
+                regime='supervised_learning',sub_regime='regression',
                 columns=sensitive_columns)
 
             # Fill out tree
@@ -240,7 +240,7 @@ def gpa_classification_dataset():
                     
         include_sensitive_columns = False
         include_intercept_term = False
-        regime='supervised'
+        regime='supervised_learning'
 
         model_class = LogisticRegressionModel
 
@@ -266,7 +266,7 @@ def gpa_classification_dataset():
             delta = deltas[ii]
             # Create parse tree object
             parse_tree = ParseTree(delta=delta,
-                regime='supervised',sub_regime='classification',
+                regime='supervised_learning',sub_regime='classification',
                 columns=["M","F"])
 
             # Fill out tree
@@ -291,7 +291,7 @@ def RL_gridworld_dataset():
 
     def generate_dataset(constraint_strs,deltas):
         env = gridworld3x3.Environment()
-        regime='RL'
+        regime='reinforcement_learning'
 
         model_class = TabularSoftmaxModel
         model_instance = model_class(env)
@@ -317,7 +317,7 @@ def RL_gridworld_dataset():
             delta = deltas[ii]
             # Create parse tree object
             parse_tree = ParseTree(delta=delta,
-                regime='RL',sub_regime='all')
+                regime='reinforcement_learning',sub_regime='all')
 
             # Fill out tree
             parse_tree.create_from_ast(constraint_str)

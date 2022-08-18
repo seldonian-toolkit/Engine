@@ -84,7 +84,7 @@ def test_not_enough_data(generate_data):
 		delta = deltas[ii]
 		# Create parse tree object
 		parse_tree = ParseTree(delta=delta,
-			regime='supervised',sub_regime='regression',
+			regime='supervised_learning',sub_regime='regression',
 			columns=[])
 
 		# Fill out tree
@@ -924,7 +924,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 
 # 		delta = deltas[ii]
 # 		# Create parse tree object
-# 		parse_tree = ParseTree(delta=delta,regime='RL',
+# 		parse_tree = ParseTree(delta=delta,regime='reinforcement_learning',
 # 		sub_regime='all')
 
 # 		# Fill out tree

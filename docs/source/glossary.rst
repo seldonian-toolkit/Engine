@@ -26,7 +26,7 @@ Glossary
       The objective function (also called loss function) that the machine learning model optimizes, e.g. mean squared error.  
 
     Regime
-      The machine learning problem type, e.g. supervised learning or reinforcement learning. 
+      The machine learning problem type, e.g., supervised learning or reinforcement learning. 
 
     Safety test
       TBD

@@ -40,7 +40,7 @@ class CandidateSelection(object):
 	:type initial_solution: numpy ndarray
 		
 	:param regime: The category of the machine learning algorithm,
-			e.g. supervised or RL
+			e.g., supervised_learning or reinforcement_learning
 	:type regime: str
 		
 	:param write_logfile: Whether to write outputs of candidate selection 
@@ -57,7 +57,7 @@ class CandidateSelection(object):
 		optimization_technique='barrier_function',
 		optimizer='Powell',
 		initial_solution=None,
-		regime='supervised',
+		regime='supervised_learning',
 		write_logfile=False,
 		store_values=False,
 		**kwargs):
@@ -65,7 +65,7 @@ class CandidateSelection(object):
 		self.model = model
 		self.candidate_dataset = candidate_dataset
 		self.n_safety = n_safety
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			# To evaluate the primary objective we will need
 			# features and labels separated and in the proper form
 
@@ -95,7 +95,7 @@ class CandidateSelection(object):
 		if 'reg_coef' in kwargs:
 			self.reg_coef = kwargs['reg_coef']
 
-		if self.regime == 'RL':
+		if self.regime == 'reinforcement_learning':
 			self.gamma = kwargs['gamma']
 			if kwargs['normalize_returns']==True:
 				self.normalize_returns=True
@@ -135,7 +135,7 @@ class CandidateSelection(object):
 			# Option to use builtin primary gradient (could be faster than autograd)
 			if 'use_builtin_primary_gradient_fn' in kwargs:
 				if kwargs['use_builtin_primary_gradient_fn']==True:
-					if self.regime == 'supervised':
+					if self.regime == 'supervised_learning':
 						# need to know name of primary objective first
 						primary_objective_name = self.primary_objective.__name__
 						grad_primary_objective = getattr(self.model,
@@ -160,7 +160,7 @@ class CandidateSelection(object):
 			# If user specified the gradient of the primary
 			# objective, then pass it here
 			if kwargs['custom_primary_gradient_fn'] !=None:
-				if self.regime == 'supervised':
+				if self.regime == 'supervised_learning':
 					# need to know name of primary objective first
 					grad_primary_objective = kwargs['custom_primary_gradient_fn']
 
@@ -259,11 +259,11 @@ class CandidateSelection(object):
 
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			result = self.primary_objective(theta, 
 				self.features, self.labels)
 
-		elif self.regime == 'RL':
+		elif self.regime == 'reinforcement_learning':
 			data_dict = {'episodes':self.candidate_dataset.episodes}
 			# Want to maximize the importance weight so minimize negative importance weight
 			result = -1.0*self.primary_objective(theta,
@@ -291,7 +291,7 @@ class CandidateSelection(object):
 				n_safety=self.n_safety,
 				regime=self.regime)
 
-			if self.regime == 'RL':
+			if self.regime == 'reinforcement_learning':
 				bounds_kwargs['gamma'] = self.gamma
 				bounds_kwargs['normalize_returns'] = self.normalize_returns
 				if self.normalize_returns:
@@ -334,12 +334,12 @@ class CandidateSelection(object):
 		:type theta: numpy.ndarray
 		"""
 		# Get value of the primary objective given model weights
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			result = self.primary_objective(theta, 
 					self.features.values, self.labels.values)
 			return result
 
-		elif self.regime == 'RL':
+		elif self.regime == 'reinforcement_learning':
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
@@ -378,7 +378,7 @@ class CandidateSelection(object):
 				regime=self.regime
 				)
 
-			if self.regime == 'RL':
+			if self.regime == 'reinforcement_learning':
 				bounds_kwargs['gamma'] = self.gamma
 				bounds_kwargs['normalize_returns'] = self.normalize_returns
 				if self.normalize_returns:

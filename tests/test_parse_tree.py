@@ -363,7 +363,7 @@ def test_parse_tree_from_simple_string():
 	constraint_str = 'FPR - (FNR + PR)*4'
 	delta = 0.05
 	pt = ParseTree(delta,
-		regime='supervised',sub_regime='classification')
+		regime='supervised_learning',sub_regime='classification')
 	pt.create_from_ast(constraint_str)
 	assert pt.n_nodes == 7
 	assert pt.n_base_nodes == 3
@@ -382,7 +382,7 @@ def test_parse_tree_with_inequalities():
 	# First one without inequalities
 	# constraint_str = 'FPR <= 0.5 + 0.3*(PR | [M])'
 	constraint_str = 'FPR - (0.5 + (PR | [M]))'
-	pt = ParseTree(delta=0.05,regime='supervised',
+	pt = ParseTree(delta=0.05,regime='supervised_learning',
 			sub_regime='classification',columns=['M'])
 
 	# Fill out tree
@@ -403,7 +403,7 @@ def test_parse_tree_with_inequalities():
 
 	# Now with <= 
 	constraint_str_lte = 'FPR <= 0.5 + (PR | [M])'
-	pt_lte = ParseTree(delta=0.05,regime='supervised',
+	pt_lte = ParseTree(delta=0.05,regime='supervised_learning',
 			sub_regime='classification',columns=['M'])
 
 	# Fill out tree
@@ -424,7 +424,7 @@ def test_parse_tree_with_inequalities():
 
 	# Now with >= 
 	constraint_str_gte = '0.5 + (PR | [M]) >= FPR'
-	pt_gte = ParseTree(delta=0.05,regime='supervised',
+	pt_gte = ParseTree(delta=0.05,regime='supervised_learning',
 			sub_regime='classification',columns=['M'])
 
 	# Fill out tree
@@ -445,7 +445,7 @@ def test_parse_tree_with_inequalities():
 
 	# <= 0
 	constraint_str_lte0 = 'FPR - (0.5 + (PR | [M])) <= 0'
-	pt_lte0 = ParseTree(delta=0.05,regime='supervised',
+	pt_lte0 = ParseTree(delta=0.05,regime='supervised_learning',
 			sub_regime='classification',columns=['M'])
 
 	# Fill out tree
@@ -466,7 +466,7 @@ def test_parse_tree_with_inequalities():
 	
 	# >= 0
 	constraint_str_gte0 = '0 >= FPR - (0.5 + (PR | [M]))'
-	pt_gte0 = ParseTree(delta=0.05,regime='supervised',
+	pt_gte0 = ParseTree(delta=0.05,regime='supervised_learning',
 			sub_regime='classification',columns=['M'])
 
 	# Fill out tree
@@ -493,7 +493,7 @@ def test_math_functions():
 	constraint_str = 'min((PR | [X]), (PR | [Y]))'
 	delta = 0.05
 	pt = ParseTree(delta,
-		regime='supervised',
+		regime='supervised_learning',
 		sub_regime='classification',
 		columns=['X','Y'])
 	pt.create_from_ast(constraint_str)
@@ -509,7 +509,7 @@ def test_math_functions():
 	constraint_str = 'min((PR | [X]), (PR | [Y]), (PR | [Z]))'
 	delta = 0.05
 	pt = ParseTree(delta,
-		regime='supervised',
+		regime='supervised_learning',
 		sub_regime='classification',
 		columns=['X','Y','Z'])
 	with pytest.raises(RuntimeError) as excinfo:
@@ -522,7 +522,7 @@ def test_math_functions():
 	# constraint_str = 'abs((PR | [X]), (PR | [Y]))'
 	# delta = 0.05
 	# pt = ParseTree(delta,
-	# 	regime='supervised',
+	# 	regime='supervised_learning',
 	# 	sub_regime='classification',
 	# 	columns=['X','Y','Z'])
 	# # with pytest.raises(RuntimeError) as excinfo:
@@ -536,21 +536,21 @@ def test_measure_functions_recognized():
 	delta = 0.05
 
 	constraint_str = 'Mean_Squared_Error - 2.0'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert pt.root.left.measure_function_name == 'Mean_Squared_Error'
 	
 	constraint_str = '(Mean_Error|[M]) - 2.0'
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',columns=['M'])
 	pt.create_from_ast(constraint_str)
 	assert pt.root.left.measure_function_name == 'Mean_Error'
 
 	constraint_str = '(FPR|[A,B]) - 2.0'
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',columns=['A','B'])
 	pt.create_from_ast(constraint_str)
 	assert pt.root.left.measure_function_name == 'FPR'
@@ -559,7 +559,7 @@ def test_measure_functions_recognized():
 	# is not recognized as measure
 	constraint_str = 'X - 2.0'
 
-	pt = ParseTree(delta,regime='supervised',sub_regime='classification')
+	pt = ParseTree(delta,regime='supervised_learning',sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
 	
@@ -571,7 +571,7 @@ def test_measure_functions_recognized():
 	# is not recognized as measure
 	constraint_str = '(X | [A]) - 2.0'
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',columns=['A'])
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -600,7 +600,7 @@ def test_measure_function_with_conditional_bad_syntax_captured():
 		]
 	
 	for constraint_str in bad_constraint_strs:
-		pt = ParseTree(delta,regime='supervised',
+		pt = ParseTree(delta,regime='supervised_learning',
 			sub_regime='regression',columns=['A','B','M','F','L'])
 		with pytest.raises(RuntimeError) as excinfo:
 			pt.create_from_ast(constraint_str)
@@ -615,7 +615,7 @@ def test_measure_function_from_wrong_regime():
 
 	constraint_str = 'Mean_Squared_Error - 2.0'
 
-	pt = ParseTree(delta,regime='supervised',sub_regime='classification')
+	pt = ParseTree(delta,regime='supervised_learning',sub_regime='classification')
 
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -627,7 +627,7 @@ def test_measure_function_from_wrong_regime():
 
 	constraint_str = 'FPR - 0.2'
 
-	pt = ParseTree(delta,regime='supervised',sub_regime='regression')
+	pt = ParseTree(delta,regime='supervised_learning',sub_regime='regression')
 
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -639,7 +639,7 @@ def test_measure_function_from_wrong_regime():
 
 	constraint_str = 'Mean_Squared_Error - 2.0'
 
-	pt = ParseTree(delta,regime='RL',sub_regime='all')
+	pt = ParseTree(delta,regime='reinforcement_learning',sub_regime='all')
 
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -651,7 +651,7 @@ def test_measure_function_from_wrong_regime():
 
 	constraint_str = '(FPR | [M]) - 0.2'
 
-	pt = ParseTree(delta,regime='RL',sub_regime='all',columns=['M'])
+	pt = ParseTree(delta,regime='reinforcement_learning',sub_regime='all',columns=['M'])
 
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -665,7 +665,7 @@ def test_custom_base_nodes():
 	constraint_str = 'MED_MF - 0.1'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert isinstance(pt.root.left,BaseNode)
@@ -676,7 +676,7 @@ def test_custom_base_nodes():
 	constraint_str = 'CVARSQE - 1.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert isinstance(pt.root.left,BaseNode)
@@ -689,7 +689,7 @@ def test_unary_op():
 	delta = 0.05 
 
 	constraint_str = '-10+abs(Mean_Error)'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert pt.root.name == 'add'
@@ -701,7 +701,7 @@ def test_unary_op():
 	assert pt.n_base_nodes == 1
 
 	constraint_str = '-MED_MF'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert pt.root.name == 'mult'
@@ -711,7 +711,7 @@ def test_unary_op():
 
 
 	constraint_str = '-abs(Mean_Error) - 10'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert pt.root.name == 'sub'
@@ -725,7 +725,7 @@ def test_unary_op():
 	assert len(pt.base_node_dict) == 1
 
 	constraint_str = '-abs(Mean_Error | [M]) - 10'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',columns=['M'])
 	pt.create_from_ast(constraint_str)
 	assert pt.root.name == 'sub'
@@ -742,7 +742,7 @@ def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR^4'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -752,7 +752,7 @@ def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR<4'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -762,7 +762,7 @@ def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR>4'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -772,7 +772,7 @@ def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR & FNR'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -782,7 +782,7 @@ def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR//4'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.create_from_ast(constraint_str)
@@ -794,7 +794,7 @@ def test_single_conditional_columns_assigned():
 
 	constraint_str = 'abs(Mean_Error|[X]) - 0.1'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',columns=['X'])
 	pt.create_from_ast(constraint_str)
 	assert pt.n_nodes == 4
@@ -806,7 +806,7 @@ def test_multiple_conditional_columns_assigned():
 
 	constraint_str = 'abs(Mean_Error|[X,Y,Z]) - 0.1'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',columns=['X','Y','Z'])
 	pt.create_from_ast(constraint_str)
 	assert pt.n_nodes == 4
@@ -818,7 +818,7 @@ def test_deltas_assigned_equally():
 	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',columns=['M','F'])
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -838,7 +838,7 @@ def test_deltas_assigned_once_per_unique_basenode():
 	constraint_str = '0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',columns=['M','F'])
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -854,7 +854,7 @@ def test_bounds_needed_assigned_correctly():
 	delta = 0.05 # use for all trees below
 
 	constraint_str = 'FPR'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
@@ -870,7 +870,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.will_upper_bound == True
 
 	constraint_str = '(Mean_Error | [M]) - 0.1'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',columns=['M'])
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
@@ -886,7 +886,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.will_upper_bound == True
 
 	constraint_str = '2.0 - Mean_Squared_Error'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
@@ -902,7 +902,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.right.will_upper_bound == False
 
 	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',columns=['M','F'])
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
@@ -922,7 +922,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.left.right.will_upper_bound == True
 
 	constraint_str = '(FPR * FNR) - 0.25'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
@@ -943,7 +943,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.right.will_upper_bound == True
 
 	constraint_str = '(TPR - FPR) - 0.25'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
@@ -964,7 +964,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.right.will_upper_bound == False
 
 	constraint_str = '(FPR + FNR) - 0.25'
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
@@ -988,7 +988,7 @@ def test_duplicate_base_nodes():
 	constraint_str = 'FPR + 4/FPR - 2.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	pt.create_from_ast(constraint_str)
 	assert pt.n_base_nodes == 2 
@@ -1015,13 +1015,13 @@ def test_ttest_bound(generate_data):
 	
 	candidate_dataset = SupervisedDataSet(candidate_df,
 		meta_information=['feature1','label'],
-		regime='supervised',label_column='label',
+		regime='supervised_learning',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
 
 	safety_dataset = SupervisedDataSet(safety_df,
 		meta_information=['feature1','label'],
-		regime='supervised',label_column='label',
+		regime='supervised_learning',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
 	
@@ -1029,7 +1029,7 @@ def test_ttest_bound(generate_data):
 	constraint_str = 'Mean_Squared_Error - 2.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1048,7 +1048,7 @@ def test_ttest_bound(generate_data):
 		n_safety=len(safety_df),
 		model=model_instance,
 		branch='candidate_selection',
-		regime='supervised')
+		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not bound_computed 
 	assert pt.root.upper == pytest.approx(-0.932847)
 	pt.reset_base_node_dict(reset_data=True)
@@ -1056,7 +1056,7 @@ def test_ttest_bound(generate_data):
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 		model=model_instance,
 		branch='safety_test',
-		regime='supervised')
+		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not computed
 	assert pt.root.upper == pytest.approx(-0.947693)
 
@@ -1064,7 +1064,7 @@ def test_ttest_bound(generate_data):
 	constraint_str = 'abs(Mean_Squared_Error) - 2.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1080,7 +1080,7 @@ def test_ttest_bound(generate_data):
 		n_safety=len(safety_df),
 		model=model_instance,
 		branch='candidate_selection',
-		regime='supervised')
+		regime='supervised_learning')
 	
 	# assert pt.root.lower == float('-inf') # not bound_computed 
 	assert pt.root.upper == pytest.approx(-0.900307)
@@ -1089,7 +1089,7 @@ def test_ttest_bound(generate_data):
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 		model=model_instance,
 		branch='safety_test',
-		regime='supervised')
+		regime='supervised_learning')
 	# assert pt.root.lower == float('-inf') # not computed
 	assert pt.root.upper == pytest.approx(-0.930726)
 
@@ -1110,13 +1110,13 @@ def test_bad_bound_method(generate_data):
 	
 	candidate_dataset = SupervisedDataSet(candidate_df,
 		meta_information=['feature1','label'],
-		regime='supervised',label_column='label',
+		regime='supervised_learning',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
 
 	safety_dataset = SupervisedDataSet(safety_df,
 		meta_information=['feature1','label'],
-		regime='supervised',label_column='label',
+		regime='supervised_learning',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
 	
@@ -1124,7 +1124,7 @@ def test_bad_bound_method(generate_data):
 	constraint_str = 'Mean_Squared_Error - 2.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1146,7 +1146,7 @@ def test_bad_bound_method(generate_data):
 			n_safety=len(safety_df),
 			model=model_instance,
 			branch='candidate_selection',
-			regime='supervised')
+			regime='supervised_learning')
 	
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
@@ -1158,7 +1158,7 @@ def test_bad_bound_method(generate_data):
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 			model=model_instance,
 			branch='safety_test',
-			regime='supervised')
+			regime='supervised_learning')
 
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
@@ -1167,7 +1167,7 @@ def test_bad_bound_method(generate_data):
 	constraint_str = '1.0 - Mean_Squared_Error'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1181,7 +1181,7 @@ def test_bad_bound_method(generate_data):
 			n_safety=len(safety_df),
 			model=model_instance,
 			branch='candidate_selection',
-			regime='supervised')
+			regime='supervised_learning')
 	
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
@@ -1193,7 +1193,7 @@ def test_bad_bound_method(generate_data):
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 			model=model_instance,
 			branch='safety_test',
-			regime='supervised')
+			regime='supervised_learning')
 
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
@@ -1202,7 +1202,7 @@ def test_bad_bound_method(generate_data):
 	constraint_str = 'abs(Mean_Squared_Error) - 2.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1216,7 +1216,7 @@ def test_bad_bound_method(generate_data):
 			n_safety=len(safety_df),
 			model=model_instance,
 			branch='candidate_selection',
-			regime='supervised')
+			regime='supervised_learning')
 	
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
@@ -1228,7 +1228,7 @@ def test_bad_bound_method(generate_data):
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
 			model=model_instance,
 			branch='safety_test',
-			regime='supervised')
+			regime='supervised_learning')
 
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
@@ -1250,7 +1250,7 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	df = pd.DataFrame(rows,columns=['feature1','label'])
 	
 	dataset = SupervisedDataSet(df,meta_information=['feature1','label'],
-		regime='supervised',label_column='label',
+		regime='supervised_learning',label_column='label',
 		include_sensitive_columns=False,
 		include_intercept_term=True)
 	
@@ -1258,7 +1258,7 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	constraint_str = 'Mean_Squared_Error - 2.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 
@@ -1270,7 +1270,7 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	
 	theta = np.array([0,1])
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
-		model=model_instance,regime='supervised',
+		model=model_instance,regime='supervised_learning',
 		branch='safety_test')
 
 	assert pt.root.value == pytest.approx(-1.06248)
@@ -1279,7 +1279,7 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	constraint_str = 'Mean_Error - 2.0'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 
@@ -1291,7 +1291,7 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	
 	theta = np.array([0,1])
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
-		model=model_instance,regime='supervised',
+		model=model_instance,regime='supervised_learning',
 		branch='safety_test')
 
 	assert pt.root.value == pytest.approx(-2.013617)
@@ -1310,7 +1310,7 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	theta = np.zeros(10)
 	pt = parse_trees[0]
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
-		model=model_instance,regime='supervised',
+		model=model_instance,regime='supervised_learning',
 		branch='safety_test')
 	assert pt.root.value == pytest.approx(-6.306852)
 	
@@ -1319,7 +1319,7 @@ def test_reset_parse_tree():
 	constraint_str = '(FPR + FNR) - 0.5'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1365,7 +1365,7 @@ def test_single_conditional_columns_propagated():
 	metadata_dict = load_json(metadata_pth)
 
 	loader = DataSetLoader(
-		regime='supervised')
+		regime='supervised_learning')
 
 	dataset = loader.load_supervised_dataset(
 		filename=data_pth,
@@ -1378,7 +1378,7 @@ def test_single_conditional_columns_propagated():
 
 	constraint_str = 'abs(Mean_Error|[M]) - 0.1'
 	delta = 0.05
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',
 		columns=dataset.df.columns)
 	
@@ -1390,7 +1390,7 @@ def test_single_conditional_columns_propagated():
 	theta = np.random.uniform(-0.05,0.05,10)
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,branch='safety_test',
-		regime='supervised')
+		regime='supervised_learning')
 	assert pt.root.lower == pytest.approx(61.9001779655)
 	assert pt.root.upper == pytest.approx(62.1362236720)
 
@@ -1404,7 +1404,7 @@ def test_build_tree():
 	constraint_str = '(FPR + FNR) - 0.5'
 	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised',
+	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
 
 	# build the tree the original way 
@@ -1420,7 +1420,7 @@ def test_build_tree():
 	assert pt.base_node_dict['FNR']['bound_computed'] == False
 
 	##### build the tree with the convenience function
-	pt2 = ParseTree(delta,regime='supervised',
+	pt2 = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification') 
 	pt2.build_tree(constraint_str=constraint_str,
 		delta_weight_method='equal')

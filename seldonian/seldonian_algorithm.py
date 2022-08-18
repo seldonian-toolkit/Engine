@@ -42,7 +42,7 @@ class SeldonianAlgorithm():
 		self.regime = self.dataset.regime
 		self.column_names = self.dataset.meta_information
 
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			self.model_instance = self.spec.model_class()
 			self.candidate_df, self.safety_df = train_test_split(
 				self.dataset.df, test_size=self.spec.frac_data_in_safety, 
@@ -108,7 +108,7 @@ class SeldonianAlgorithm():
 			print("Initial solution: ")
 			print(self.initial_solution)
 
-		elif self.regime == 'RL':
+		elif self.regime == 'reinforcement_learning':
 			self.RL_environment_obj = self.spec.RL_environment_obj
 			self.normalize_returns = self.spec.normalize_returns
 
@@ -166,7 +166,7 @@ class SeldonianAlgorithm():
 		write_cs_logfile=False,
 		store_cs_values=False):
 		""" Creat the candidate selection object """
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			cs_kwargs = dict(
 				model=self.model_instance,
 				candidate_dataset=self.candidate_dataset,
@@ -178,7 +178,7 @@ class SeldonianAlgorithm():
 				initial_solution=self.initial_solution,
 				regime=self.regime)
 
-		elif self.regime == 'RL':
+		elif self.regime == 'reinforcement_learning':
 			cs_kwargs = dict(
 				model=self.model_instance,
 				candidate_dataset=self.candidate_dataset,
@@ -204,13 +204,13 @@ class SeldonianAlgorithm():
 
 	def safety_test(self):
 		""" Create the safety test object """
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			st_kwargs = dict(
 				safety_dataset=self.safety_dataset,
 				model=self.model_instance,parse_trees=self.spec.parse_trees,
 				regime=self.regime,
 				)	
-		elif self.regime == 'RL':
+		elif self.regime == 'reinforcement_learning':
 			st_kwargs = dict(
 				safety_dataset=self.safety_dataset,
 				model=self.model_instance,parse_trees=self.spec.parse_trees,

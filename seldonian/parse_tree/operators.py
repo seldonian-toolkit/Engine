@@ -72,7 +72,7 @@ from .nodes import *
 
 
 measure_functions_dict = {
-	'supervised': {
+	'supervised_learning': {
 		'classification':
 			[
 			'PR',
@@ -89,7 +89,7 @@ measure_functions_dict = {
 			'Mean_Squared_Error'
 			]
 		},
-	'RL': {'all':['J_pi_new']}
+	'reinforcement_learning': {'all':['J_pi_new']}
 }
 
 custom_base_node_dict = {

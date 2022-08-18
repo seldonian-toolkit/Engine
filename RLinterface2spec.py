@@ -44,7 +44,7 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_strs):
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta, regime='RL',
+        parse_tree = ParseTree(delta=delta, regime='reinforcement_learning',
                                sub_regime='all')
 
         # Fill out tree

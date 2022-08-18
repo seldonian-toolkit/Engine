@@ -188,7 +188,7 @@ class BaseNode(Node):
 		# If in candidate selection want to use safety data size
 		# in bound calculation
 		
-		if regime == 'supervised':
+		if regime == 'supervised_learning':
 			# mask the data using the conditional columns, if present
 			if self.conditional_columns:
 				dataframe = self.mask_dataframe(
@@ -225,7 +225,7 @@ class BaseNode(Node):
 
 			data_dict = {'features':features,'labels':labels}  
 			
-		elif regime == 'RL':
+		elif regime == 'reinforcement_learning':
 			gamma = model.env.gamma
 			episodes = dataset.episodes
 

@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
 		delta = deltas[ii]
 		# Create parse tree object
-		parse_tree = ParseTree(delta=delta,regime='RL',
+		parse_tree = ParseTree(delta=delta,regime='reinforcement_learning',
 		sub_regime='all')
 
 		# Fill out tree

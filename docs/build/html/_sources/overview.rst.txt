@@ -1,9 +1,9 @@
 Overview
 ========
 
-This document provides an overview of how :term:`Seldonian algorithms<Seldonian Algorithm>` (SAs) are implemented using this library. For a detailed description of what SAs are, see `the UMass AI Safety page <http://aisafety.cs.umass.edu/overview.html>`_, specifically `the Science paper <http://aisafety.cs.umass.edu/paper.html>`_. 
+This document provides an overview of how :term:`Seldonian algorithms<Seldonian Algorithm>` (SAs) are implemented using this library. For a detailed description of what SAs are, see `the Seldonian Machine Learning Toolkit page  <https://seldonian.cs.umass.edu/>`_.
 
-At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact within each of these.  
+At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact within each of these parts.  
 
 Interface
 ---------
@@ -35,7 +35,7 @@ Metadata file
 +++++++++++++
 The metadata file is a JSON-formatted file containing important properties about your dataset. It has different required keys depending on the :term:`Regime` of your problem. For supervised learning, the required keys are:
 
-- "regime", which is set to 'supervised' in this case
+- "regime", which is set to 'supervised_learning' in this case
 - "sub_regime", which is either 'classification' or 'regression'
 - "columns", a list of the column names in your `Data file`_. 
 - "label_column", the column that you are trying to predict
@@ -43,7 +43,7 @@ The metadata file is a JSON-formatted file containing important properties about
 
 For reinforcement learning, the required keys are:
 
-- "regime", which is set to 'RL' in this case
+- "regime", which is set to 'reinforcement_learning' in this case
 - "columns", a list of the column names in your `Data file`_. 
 - "RL_environment_name", the name of the module in :py:mod:`.RL.environments` package containing the RL Environment() class you want to use. 
 

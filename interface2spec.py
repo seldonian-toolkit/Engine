@@ -36,7 +36,7 @@ if __name__ == '__main__':
 	columns = metadata_dict['columns']
 	sensitive_columns = metadata_dict['sensitive_columns']
 
-	if regime == 'supervised':
+	if regime == 'supervised_learning':
 		sub_regime = metadata_dict['sub_regime']
 		label_column = metadata_dict['label_column']
 		
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 			raise NotImplementedError(f"{sub_regime} is not a supported "
 				"sub regime of supervised learning")
 	
-	elif regime == 'RL':
+	elif regime == 'reinforcement_learning':
 		# Default model for RL
 		model_class = LinearSoftmaxModel
 

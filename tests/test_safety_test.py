@@ -16,7 +16,7 @@ def test_run_safety_test(generate_data):
     df = pd.DataFrame(rows,columns=['feature1','label'])
     columns = ['feature1','label']
     label_column = 'label'
-    regime = 'supervised'
+    regime = 'supervised_learning'
     include_sensitive_columns=False
     include_intercept_term=True
     dataset = SupervisedDataSet(df,meta_information=columns,
@@ -41,7 +41,7 @@ def test_run_safety_test(generate_data):
     constraint_str1 = 'Mean_Squared_Error - 2.0'
     delta = 0.05 
     parse_trees = []
-    pt = ParseTree(delta,regime='supervised',
+    pt = ParseTree(delta,regime='supervised_learning',
         sub_regime='regression')
     pt.create_from_ast(constraint_str1)
     pt.assign_deltas(weight_method='equal')
@@ -70,7 +70,7 @@ def test_evaluate_primary_objective(generate_data):
     df = pd.DataFrame(rows,columns=['feature1','label'])
     columns = ['feature1','label']
     label_column = 'label'
-    regime = 'supervised'
+    regime = 'supervised_learning'
     include_sensitive_columns=False
     include_intercept_term=True
     dataset = SupervisedDataSet(df,meta_information=columns,
@@ -96,7 +96,7 @@ def test_evaluate_primary_objective(generate_data):
     constraint_str1 = 'Mean_Squared_Error - 2.0'
     delta = 0.05 
     parse_trees = []
-    pt = ParseTree(delta,regime='supervised',
+    pt = ParseTree(delta,regime='supervised_learning',
         sub_regime='regression')
     pt.create_from_ast(constraint_str1)
     pt.assign_deltas(weight_method='equal')

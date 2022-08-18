@@ -50,7 +50,7 @@ def run_interface(
 	columns = metadata_dict['columns']
 	sensitive_columns = metadata_dict['sensitive_columns']
 
-	if regime == 'supervised':
+	if regime == 'supervised_learning':
 		label_column = metadata_dict['label_column']
 
 	# Load dataset from file

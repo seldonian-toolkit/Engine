@@ -1,4 +1,4 @@
-seldonian.spec
+﻿seldonian.spec
 ==============
 
 .. automodule:: seldonian.spec 
@@ -8,6 +8,13 @@ seldonian.spec
    
 
    
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:                                         
+   
+      createRLspec
    
    
 

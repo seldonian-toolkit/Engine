@@ -12,7 +12,7 @@ class DataSetLoader():
 		""" Object for loading datasets from disk into DataSet objects
 		
 		:param regime: The category of the machine learning algorithm,
-			e.g. supervised or RL
+			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
 
 		"""
@@ -181,7 +181,7 @@ class DataSet(object):
 		:type meta_information: List(str)
 
 		:param regime: The category of the machine learning algorithm,
-			e.g. supervised or RL
+			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
 		"""
 		self.meta_information = meta_information
@@ -205,7 +205,7 @@ class SupervisedDataSet(DataSet):
 		:type meta_information: List(str)
 
 		:param regime: The category of the machine learning algorithm,
-			e.g. supervised or RL
+			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
 
 		:param label_column: The column with the target labels 
@@ -224,7 +224,7 @@ class SupervisedDataSet(DataSet):
 		"""
 		super().__init__(
 			meta_information=meta_information,
-			regime='supervised')
+			regime='supervised_learning')
 		self.df = df
 		self.label_column = label_column
 		self.sensitive_column_names = sensitive_column_names
@@ -246,7 +246,7 @@ class RLDataSet(DataSet):
 		"""
 		super().__init__(
 			meta_information=meta_information,
-			regime='RL')
+			regime='reinforcement_learning')
 		self.episodes = episodes
 
 class Episode(object):

@@ -7,7 +7,7 @@ class SafetyTest(object):
 		safety_dataset,
 		model,
 		parse_trees,
-		regime='supervised',
+		regime='supervised_learning',
 		**kwargs):
 		""" 
 		Object for running safety test
@@ -23,7 +23,7 @@ class SafetyTest(object):
 		:type parse_trees: List(:py:class:`.ParseTree` objects)
 
 		:param regime: The category of the machine learning algorithm,
-			e.g. supervised or RL
+			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
 
 		:ivar gamma: The discount factor used to calculate returns.
@@ -48,7 +48,7 @@ class SafetyTest(object):
 		self.parse_trees = parse_trees
 		self.regime = regime
 
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			# To evaluate the primary objective we will need
 			# features and labels separated and in the proper form
 
@@ -65,7 +65,7 @@ class SafetyTest(object):
 			if safety_dataset.include_intercept_term:
 				self.features.insert(0,'offset',1.0) # inserts a column of 1's
 
-		if self.regime == 'RL':
+		if self.regime == 'reinforcement_learning':
 			self.gamma = kwargs['gamma']
 			if kwargs['normalize_returns']==True:
 				self.normalize_returns=True
@@ -100,7 +100,7 @@ class SafetyTest(object):
 				regime=self.regime
 				)
 			
-			if self.regime == 'RL':
+			if self.regime == 'reinforcement_learning':
 				bounds_kwargs['gamma'] = self.gamma
 				bounds_kwargs['normalize_returns'] = self.normalize_returns
 				if self.normalize_returns:
@@ -127,12 +127,12 @@ class SafetyTest(object):
 		"""
 		
 		# Get value of the primary objective given model weights
-		if self.regime == 'supervised':
+		if self.regime == 'supervised_learning':
 			result = primary_objective(theta, 
 					self.features.values, self.labels.values)
 			return result
 
-		elif self.regime == 'RL':
+		elif self.regime == 'reinforcement_learning':
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 

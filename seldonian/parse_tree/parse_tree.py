@@ -26,7 +26,7 @@ class ParseTree(object):
 		:type delta: float
 
 		:param regime: The category of the machine learning algorithm,
-			e.g. supervised or RL
+			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
 
 		:param sub_regime: The sub-category of ml algorithm, e.g. 
@@ -1150,7 +1150,7 @@ class ParseTree(object):
 def make_parse_trees_from_constraints(
     constraint_strs,
     deltas,
-    regime='supervised',
+    regime='supervised_learning',
     sub_regime='regression',
     columns=[],
     delta_weight_method='equal'):

@@ -36,8 +36,8 @@
             
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>This document provides an overview of how <a class="reference internal" href="glossary.html#term-Seldonian-algorithm"><span class="xref std std-term">Seldonian algorithms</span></a> (SAs) are implemented using this library. For a detailed description of what SAs are, see <a class="reference external" href="http://aisafety.cs.umass.edu/overview.html">the UMass AI Safety page</a>, specifically <a class="reference external" href="http://aisafety.cs.umass.edu/paper.html">the Science paper</a>.</p>
-<p>At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact within each of these.</p>
+<p>This document provides an overview of how <a class="reference internal" href="glossary.html#term-Seldonian-algorithm"><span class="xref std std-term">Seldonian algorithms</span></a> (SAs) are implemented using this library. For a detailed description of what SAs are, see <a class="reference external" href="https://seldonian.cs.umass.edu/">the Seldonian Machine Learning Toolkit page</a>.</p>
+<p>At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact within each of these parts.</p>
 <section id="interface">
 <h2>Interface<a class="headerlink" href="#interface" title="Permalink to this headline">¶</a></h2>
 <p>In the interface, the user provides:</p>
@@ -64,7 +64,7 @@
 <h3>Metadata file<a class="headerlink" href="#metadata-file" title="Permalink to this headline">¶</a></h3>
 <p>The metadata file is a JSON-formatted file containing important properties about your dataset. It has different required keys depending on the <a class="reference internal" href="glossary.html#term-Regime"><span class="xref std std-term">Regime</span></a> of your problem. For supervised learning, the required keys are:</p>
 <ul class="simple">
-<li><p>“regime”, which is set to ‘supervised’ in this case</p></li>
+<li><p>“regime”, which is set to ‘supervised_learning’ in this case</p></li>
 <li><p>“sub_regime”, which is either ‘classification’ or ‘regression’</p></li>
 <li><p>“columns”, a list of the column names in your <a class="reference internal" href="#data-file">Data file</a>.</p></li>
 <li><p>“label_column”, the column that you are trying to predict</p></li>
@@ -72,7 +72,7 @@
 </ul>
 <p>For reinforcement learning, the required keys are:</p>
 <ul class="simple">
-<li><p>“regime”, which is set to ‘RL’ in this case</p></li>
+<li><p>“regime”, which is set to ‘reinforcement_learning’ in this case</p></li>
 <li><p>“columns”, a list of the column names in your <a class="reference internal" href="#data-file">Data file</a>.</p></li>
 <li><p>“RL_environment_name”, the name of the module in <a class="reference internal" href="_autosummary/seldonian.RL.environments.html#module-seldonian.RL.environments" title="seldonian.RL.environments"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RL.environments</span></code></a> package containing the RL Environment() class you want to use.</p></li>
 </ul>

@@ -359,7 +359,7 @@ def createRLspec(
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
 		deltas,
-		regime='RL',
+		regime='reinforcement_learning',
 		sub_regime='all',
 		delta_weight_method='equal')
 

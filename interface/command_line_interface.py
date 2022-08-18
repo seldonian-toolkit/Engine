@@ -51,7 +51,7 @@ def run_interface(
 		column_names=columns,
 		regime=regime)
 
-	if regime == 'supervised':
+	if regime == 'supervised_learning':
 		sensitive_columns = metadata_dict['sensitive_columns']
 		label_column = metadata_dict['label_column']
 		sub_regime = metadata_dict['sub_regime']
@@ -76,7 +76,7 @@ def run_interface(
 			default_val=False)
 
 		dataset_kwargs['include_intercept_term'] = include_intercept_term
-	elif regime == 'RL':
+	elif regime == 'reinforcement_learning':
 		sub_regime = 'all'
 		
 	loader = DataSetLoader(**dataset_kwargs
