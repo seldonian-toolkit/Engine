@@ -19,10 +19,11 @@ def main():
 	"""
 	rseed=0
 	np.random.seed(rseed) 
-	constraint_strs = ['CVARSQE <= 10.0']
+	# constraint_strs = ['CVARSQE <= 10.0']
+	constraint_strs = ['Mean_Squared_Error <= 4.0']
 	deltas = [0.05]
 
-	numPoints = 10000
+	numPoints = 50000
 	dataset = make_synthetic_regression_dataset(numPoints,
 		include_intercept_term=True)
 	parse_trees = make_parse_trees_from_constraints(
@@ -35,19 +36,18 @@ def main():
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model_class=SquashedLinearRegressionModel,
-		primary_objective=model_class().sample_Squashed_Squared_Error,
-		use_builtin_primary_gradient_fn=True,
+		primary_objective=model_class().sample_Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=False,
 		parse_trees=parse_trees,
-		initial_solution_fn=model_class().fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
 			'lambda_init'   : np.array([0.5]),
-			'alpha_theta'   : 0.01,
-			'alpha_lamb'    : 0.01,
+			'alpha_theta'   : 0.05,
+			'alpha_lamb'    : 0.05,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 20,
+			'num_iters'     : 100,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -56,7 +56,7 @@ def main():
 	
 	# Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run()
+	passed_safety,solution = SA.run(write_cs_logfile=True)
 	print(passed_safety,solution)
 	# last_theta = np.array([-0.4431018])
 	# candidate_features = np.array(SA.candidate_features)

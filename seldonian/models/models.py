@@ -268,6 +268,7 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		"""
 		n = len(X)
 		prediction = self.predict(theta,X) # vector of values
+		# print(X,prediction)
 		res = sum(pow(prediction-Y,2))/n
 		return res
 
@@ -315,7 +316,7 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		return -2/n*s
 
 	def _sigmoid(self,X):
-		return 1/(1+np.exp(X))
+		return 1/(1+np.exp(-X))
 
 	def predict(self,theta,X):
 		""" Overrides the original predict
@@ -334,11 +335,12 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		# Want range of Y_hat to be twice that of Y
 		# and want size of interval on either side of Y_min and Y_max
 		# to be the same. The unique solution to this is:
-		s=1.5
+		s=1.5 # 1 gives you the same bound size as y
 		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
 		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
 		Z = np.dot(X,theta)
 		return self._sigmoid(Z)*(y_hat_max-y_hat_min) + y_hat_min
+
 
 class ClassificationModel(SupervisedModel):
 	def __init__(self):

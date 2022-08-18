@@ -589,7 +589,9 @@ class MEDCustomBaseNode(BaseNode):
 		Custom base node that calculates pair-wise
 		mean error differences between male and female
 		points. This was used in the Seldonian regression algorithm 
-		in the Thomas et al. 2019 Science paper (see Figure 2).
+		presented by Thomas et al. (2019):
+		https://www.science.org/stoken/author-tokens/ST-119/full
+		see Figure 2.
 
 		Overrides several parent class methods 
 		
@@ -796,17 +798,29 @@ class CVARSQEBaseNode(BaseNode):
 		y = data_dict['labels']
 		# clip y to -3,3
 		y_min,y_max = -3,3
-		y_clipped = np.clip(y,y_min,y_max)
+		# y_clipped = np.clip(y,y_min,y_max)
 		# Increase bounds of y_hat to s times the size of y bounds
 		s=1.5
 		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
 		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
+		# print(y_hat_min,y_hat_max)
 		min_squared_error = 0
 		max_squared_error = max(
 			pow(y_hat_max-y_min,2),
 			pow(y_max - y_hat_min,2))
+		# print(X.shape)
+		# print(y_clipped.shape)
+		# import matplotlib.pyplot as plt
+		# fig = plt.figure()
+		# ax=fig.add_subplot(1,1,1)
+		# ax.scatter(X[:,1],y_clipped,s=5)
+		# test_theta = np.array([0.0,1.0])
+		# y_pred = model.predict(test_theta,X)
+		# ax.scatter(X[:,1],y_pred,color='r',s=5,alpha=0.2)
+		# plt.show()
+		# input("next")
 		
-		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y_clipped)
+		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
 
 		a=min_squared_error
 		b=max_squared_error

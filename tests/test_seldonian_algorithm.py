@@ -870,12 +870,6 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	res_keys = res.keys()
 	for key in ['candidate_solution', 'best_index', 'best_feasible_g', 'best_feasible_f', 'solution_found', 'theta_vals', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
 		assert key in res_keys
-	# assert passed_safety == True
-	# array_to_compare = np.array(
-	# 	[ 4.17882259e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
- #  3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098727e-03,
- # -3.82405534e-04,  2.29938169e-04])
-	# assert np.allclose(solution,array_to_compare)
 
 
 """ RL based tests """

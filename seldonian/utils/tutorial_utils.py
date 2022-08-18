@@ -32,8 +32,38 @@ def generate_data(num_points,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
     Y = X + np.random.normal(loc_Y, sigma_Y, num_points) # Set y to be x, plus noise from a standard normal distribution
     return (X,Y)
 
+
+def generate_clipped_data(num_points,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
+    """ Generate 2D random normal data
+    
+    :param num_points: The number of data points to generate
+    :type num_points: int
+
+    :param loc_X: The center of the normal distribution 
+        in the X dimension
+    :type loc_X: float
+
+    :param loc_Y: The center of the normal distribution 
+        in the Y dimension
+    :type loc_Y: float
+
+    :param sigma_X: The standard deviation of the normal distribution 
+        in the X dimension
+    :type sigma_X: float
+
+    :param sigma_Y: The standard deviation of the normal distribution 
+        in the Y dimension
+    :type sigma_Y: float
+    """
+
+    X =     np.random.normal(loc_X, sigma_X, num_points) # Sample x from a standard normal distribution
+    Y = X + np.random.normal(loc_Y, sigma_Y, num_points) # Set y to be x, plus noise from a standard normal distribution
+    Y = np.clip(Y,-3,3)
+    return (X,Y)
+
+
 def make_synthetic_regression_dataset(num_points,include_intercept_term=True):
-    X,Y = generate_data(num_points)
+    X,Y = generate_clipped_data(num_points)
 
     # 2. Define the metadata
     columns = columns=['feature1','label']
