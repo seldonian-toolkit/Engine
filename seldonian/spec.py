@@ -325,7 +325,7 @@ class RLSpec(Spec):
 		self.RL_agent_obj = RL_agent_obj
 		self.normalize_returns = normalize_returns
 
-def createRLspec(
+def createRLSpec(
 	dataset,
 	metadata_pth,
 	agent,
@@ -334,6 +334,26 @@ def createRLspec(
 	save_dir,
 	env_kwargs={},
 	verbose=False):
+	"""Convenience function for creating RLSpec object. 
+	Saves spec.pkl file in save_dir
+
+	:param dataset: The dataset object containing data and metadata
+	:type dataset: :py:class:`.DataSet`
+	:param metadata_pth: Path to metadata file
+	:type metadata_pth: str
+	:param agent: The agent object 
+	:type agent: :py:class:`.Agent`
+	:param constraint_strs: Constraint strings 
+	:type constraint_strs: List(str)
+	:param deltas: Confidence thresholds
+	:type deltas: List(float)
+	:param save_dir: Directory where to save the spec.pkl file
+	:type save_dir: str
+	:param env_kwargs: Kwargs passed to Environment object upon creation
+	:type env_kwargs: dict
+	:param verbose: Flag to control verbosity 
+	:type verbose: bool
+	"""
 	import os
 	import importlib 
 
@@ -393,4 +413,87 @@ def createRLspec(
 
 	spec_save_name = os.path.join(save_dir, 'spec.pkl')
 	save_pickle(spec_save_name,spec,verbose=verbose)
+
+def createSupervisedSpec(
+	dataset,
+	metadata_pth,
+	constraint_strs,
+	deltas,
+	save_dir,
+	verbose=False):
+	"""Convenience function for creating SupervisedSpec object. 
+	Uses default model.
+	Saves spec.pkl file in save_dir
+
+	:param dataset: The dataset object containing data and metadata
+	:type dataset: :py:class:`.DataSet`
+	:param metadata_pth: Path to metadata file
+	:type metadata_pth: str
+	:param constraint_strs: Constraint strings 
+	:type constraint_strs: List(str)
+	:param deltas: Confidence thresholds
+	:type deltas: List(float)
+	:param save_dir: Directory where to save the spec.pkl file
+	:type save_dir: str
+	:param verbose: Flag to control verbosity 
+	:type verbose: bool
+	"""
+	import os
+	import importlib 
+
+	from seldonian.utils.io_utils import load_json,save_pickle
+	from seldonian.models.models import *
+	from seldonian.spec import RLSpec
+	from seldonian.parse_tree.parse_tree import (
+		make_parse_trees_from_constraints)
+	# Load metadata
+	metadata_dict = load_json(metadata_pth)
+	# Create RL environment environment 
+	regime = metadata_dict['regime']
+	assert regime == 'supervised_learning'
+	sub_regime = metadata_dict['sub_regime']
+
+	if sub_regime == 'regression':
+		model_class = LinearRegressionModel
+	elif sub_regime == 'classification':
+		model_class = LogisticRegressionModel
+
+	primary_objective = model_class().default_objective
+
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas,
+		regime='supervised_learning',
+		sub_regime=sub_regime,
+		delta_weight_method='equal')
+
+	# Save spec object, using defaults where necessary
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model_class=model_class,
+		frac_data_in_safety=0.6,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		parse_trees=parse_trees,
+		initial_solution_fn=model_class().fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init': 0.5,
+			'alpha_theta': 0.005,
+			'alpha_lamb': 0.005,
+			'beta_velocity': 0.9,
+			'beta_rmsprop': 0.95,
+			'num_iters': 500,
+			'hyper_search': None,
+			'gradient_library': 'autograd',
+			'verbose': True,
+		},
+		regularization_hyperparams={},
+		normalize_returns=False,
+	)
+
+	spec_save_name = os.path.join(save_dir, 'spec.pkl')
+	save_pickle(spec_save_name,spec,verbose=verbose)
+
 

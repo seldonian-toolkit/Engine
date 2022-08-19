@@ -1,5 +1,5 @@
 from seldonian.RL.RL_runner import run_trial
-from seldonian.spec import createRLspec
+from seldonian.spec import createRLSpec
 from seldonian.dataset import RLDataSet
 
 hyperparams_and_setting_dict = {}
@@ -18,7 +18,7 @@ def main():
 	constraint_strs = ['J_pi_new >= -0.25']
 	deltas=[0.05]
 
-	createRLspec(
+	createRLSpec(
 		dataset=dataset,
 		metadata_pth=metadata_pth,
 		agent=agent,
