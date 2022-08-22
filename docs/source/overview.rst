@@ -3,7 +3,7 @@ Overview
 
 This document provides an overview of how `Seldonian algorithms <https://seldonian.cs.umass.edu/Tutorials/>`_ (SAs) are implemented using this library. For a detailed description of what SAs are, see the `Seldonian Machine Learning Toolkit homepage  <https://seldonian.cs.umass.edu/>`_.
 
-The most important piece of the Seldonian Engine API is the :py:class:`.SeldonianAlgorithm` class. One can run a Seldonian algorithm using a single API call on this class:
+The most important piece of the Seldonian Engine API is the :py:class:`.SeldonianAlgorithm` class. One can run a Seldonian algorithm using a single API call of this class:
 
 .. code::
 
@@ -16,13 +16,11 @@ The most important piece of the Seldonian Engine API is the :py:class:`.Seldonia
 
 In this overview, we will go over what is in the :code:`spec` object and how to create it. We will also cover what :code:`SA.run()` actually does.
 
-At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact with within each of these parts.  
-
-**Note**: The Engine supports supervised learning and reinforcement learning Seldonian algorithms. Where we could, we unified the code to work for both `regimes <https://seldonian.cs.umass.edu/Tutorials/glossary/#regime>`_. However, you may notice a pattern in the API where there is a regime-independent base class from which two child classes inherit, one for each of the two regimes.  
+**Note**: The Engine supports supervised learning and reinforcement learning (RL) Seldonian algorithms. Where we could, we unified the code to work for both `regimes <https://seldonian.cs.umass.edu/Tutorials/glossary/#regime>`_. However, you may notice a pattern in the API where there is a regime-independent base class from which two child classes inherit, one for each of the two regimes.  
 
 Interface
 ---------
-The interface is a general concept for how the user provides inputs to the SA (for a full  conceptual description, see `the Seldonian Toolkit Overview <https://seldonian.cs.umass.edu/overview/#framework>`_). In the interface, the user provides (at minimum):
+The interface is a general concept for how the user provides inputs to the SA. For a full  conceptual description, see `the Seldonian Toolkit Overview <https://seldonian.cs.umass.edu/overview/#framework>`_. In the interface, the user provides (at minimum):
 
 - the data
 - the metadata
@@ -40,15 +38,25 @@ The "spec" object (short for specification object) contains all of the inputs ne
 - the underlying machine learning model
 - the behavioral constraints 
 
-Each of these is represented by an object in the Engine API. 
+Each of these is represented by an object in the Engine API, as we will discuss below. 
 
 The :py:mod:`.spec` module contains the classes used to define spec objects. For the supervised learning regime, the :py:class:`.SupervisedSpec` class is used, and for the reinforcement learning regime the :py:class:`.RLSpec` class is used. We provide convenience functions to create these objects: :py:func:`.createSupervisedSpec` for supervised learning and :py:func:`.createRLspec` for reinforcement learning. 
 
 Dataset object
 ++++++++++++++
-The :py:mod:`.dataset` module contains the :py:class:`.SupervisedDataSet` (supervised learning) and the :py:class:`.RLDataSet` (reinforcement learning) classes. These objects contain the data points as well as metadata. These objects can be constructed manually, but we also provide a :py:class:`.DataSetLoader` class containing several convenience methods for loading data from files or arrays into the dataset objects. 
+The :py:mod:`.dataset` module contains the :py:class:`.SupervisedDataSet` (supervised learning) and the :py:class:`.RLDataSet` (reinforcement learning) classes. These objects contain the data points as well as metadata. They can be constructed manually, but we also provide a :py:class:`.DataSetLoader` class containing several convenience methods for loading data from files or arrays into the dataset objects. 
 
-For example, one can create a :py:class:`.SupervisedDataSet` from a data file and metadata file using the :py:meth:`.load_supervised_dataset` method. The data file that you provide to this method via the :code:`filename` parameter must consist of rows of numbers that are comma-separated and have no header. Categorical columns must be numerically encoded. For example, the file format might look like:
+For example, one can create a :py:class:`.SupervisedDataSet` from a data file and metadata file using the :py:meth:`.load_supervised_dataset` method, for example:
+
+.. code::
+	
+	from seldonian.dataset import DataSetLoader
+	loader = DataSetLoader(regime='supervised_learning')
+	dataset = loader.load_supervised_dataset(
+		filename,
+		metadata_filename)
+
+The :code:`filename` parameter must point to a data file consisting of rows of numbers that are comma-separated and have no header. Categorical columns must be numerically encoded. For example, the file format might look like:
 
 .. code:: 
 
@@ -62,26 +70,26 @@ where each row represents a different sample and each column is a feature or a l
 
 The metadata file must be a JSON-formatted file containing several required ``key:value`` pairs depending on the regime of your problem. For supervised learning, the required keys are:
 
-- "regime", which is set to 'supervised_learning' in this case
-- "sub_regime", which is either 'classification' or 'regression'
-- "columns", a list of all of the column names in your data file 
-- "label_column", the column that you are trying to predict
-- "sensitive_columns", a list of the column names for the `sensitive attributes <https://seldonian.cs.umass.edu/Tutorials/glossary/#sensitive_attributes>`_ in your dataset
+- :code:`regime`, set to :code:`supervised_learning` in this case
+- :code:`sub_regime`, either :code:`classification` or :code:`regression`
+- :code:`columns`, a list of all of the column names in your data file 
+- :code:`label_column`, the name of the column that you are trying to predict
+- :code:`sensitive_columns`, a list of the column names for the `sensitive attributes <https://seldonian.cs.umass.edu/Tutorials/glossary/#sensitive_attributes>`_ in your dataset
 
 For reinforcement learning, the required keys are:
 
-- "regime", which is set to 'reinforcement_learning' in this case
-- "columns", a list of the column names in your data file
-- "RL_module_name", the name of the module within :py:mod:`.RL.environments` containing the RL environment class you want to use 
-- "RL_class_name", the name of the class representing your environment inside the module you specified via the "RL_module_name" key 
+- :code:`regime`, which is set to 'reinforcement_learning' in this case
+- :code:`columns`, a list of the column names in your data file
+- :code:`RL_module_name`, the name of the module within :py:mod:`.RL.environments` containing the RL environment class you want to use 
+- :code:`RL_class_name`, the name of the class representing your environment inside the module you specified via the "RL_module_name" key 
 
 Model object
 ++++++++++++
-The biggest split between supervised and reinforcement learning in the Engine API is in how the underlying machine learning model is represented. Supervised learning models are represented as classes in the module: :py:mod:`.models.models`. The base class for classification (regression) is: :py:class:`.ClassificationModel` (:py:class:`.RegressionModel`). Any supervised learning model must inherit from either of these classes or one of their child classes. Some useful classes have already been created for running the tutorials, such as :py:class:`.LinearRegressionModel` and :py:class:`.LogisticRegressionModel`. These classes essentially wrap scikitlearn's model classes, for example, their `LinearRegression <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html>`_ model. 
+The biggest split between supervised and reinforcement learning in the Engine API is in how the underlying machine learning model is represented. Supervised learning models are represented as classes in the module: :py:mod:`.models.models`. The base class for classification (regression) is: :py:class:`.ClassificationModel` (:py:class:`.RegressionModel`). Any supervised learning model must inherit from either of these classes or one of their child classes. Some useful classes have already been created for running the tutorials, such as :py:class:`.LinearRegressionModel` and :py:class:`.LogisticRegressionModel`. These classes essentially wrap scikit-learn's model classes, for example, their `LinearRegression <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html>`_ model. 
 
 Unless you are writing your own model, you will likely only need to know which of these models best fits your application. You may also want to choose from the primary objective functions, which are written as methods of the class. The primary objective function is one of the inputs to the spec object, though a default will be chosen if you do not explicitly pass one to the spec object. 
 
-The reinforcement learning model is represented by the :py:class:`.RL_model` class. It is composed of an :py:class:`.Environment` class and an :py:class`.Agent` class, two things which supervised learning models do not have. All of these classes are found within modules of the larger :py:mod:`seldonian.RL` module. 
+The reinforcement learning model is represented by the :py:class:`.RL_model` class. This object takes as input objects containing the RL environment and agent, two things which supervised learning models do not have.  All RL environment descriptions must live in modules within the :py:mod:`.seldonian.RL.environments` module. The class defining the environment must inherit from the :py:class:`.Environment` base class, and can override all parent methods. Likewise, all RL agent descriptions must live in modules within the :py:mod:`.seldonian.RL.Agents` module. The class defining the agent must inherit from the :py:class:`.Agent` base class, and can override all parent methods. An agent inacts a :py:class:`.Policy`. We have provided example environments, such as :py:class:`.Gridworld`, and agents, such as :py:class:`.Parameterized_non_learning_softmax_agent` which inacts the :py:class:`.Softmax` policy, to illustrate how to extend these base classes to create your own RL models.  
 
 Behavioral constraints
 ++++++++++++++++++++++
@@ -103,7 +111,7 @@ Constraint strings contain the mathematical definition of the constraint functio
 - :code:`abs()`
 - :code:`exp()`
 
-3. Constants. These can be integers or floats, such as "4" or "0.239".
+3. Constants. These can be integers or floats, such as :code:`4` or :code:`0.239`.
 
 4. Custom strings that trigger a call to a custom function. There are a set of special strings we call "measure functions" that correspond to statistical functions. For example, if :code:`Mean_Squared_Error` appears in a constraint string, the mean squared error will be calculated internally. Measure functions are specific to the machine learning regime. For a full list of currently supported measure functions, see: :py:mod:`.parse_tree.operators`. We left open the possibility that developers will want to define their own measure functions by adding to the current list. Measure functions are defined to estimate the confidence bounds on the mean value of a quantity. It is possible developers will want to bound something other than the mean, or do it in a way that differs from how we implemented bounds in the Engine. They would do this by creating their own custom base nodes. We wrote the `custom base node tutorial <https://seldonian.cs.umass.edu/Tutorials/tutorials/custom_base_node_tutorial>`_ to instruct new users how to create their own measure functions as well as custom base nodes.
 
@@ -146,36 +154,44 @@ It is permitted to use more than one attribute for a given measure function. For
 
 Note that the constraint strings only make up part of the behavioral constraints. The user must also specify the values of :math:`{\delta}` for each provided constraint string. The Engine bundles the list of behavioral constraints into :py:class:`.ParseTree` objects. The list of parse trees is one of the required inputs to the `Spec object`_.
 
+
+What does :code:`SA.run()` do?
+----------------------------------------------
+The :py:class:`.SeldonianAlgorithm` object takes as input the spec object (required) and some optional parameters. Once this object is created, the Seldonian algorithm can be run via the :py:meth:`.SeldonianAlgorithm.run` method, as shown in the code block at the top of this page. At a broad scope, this method runs candidate selection, followed by the safety test and returns the tuple: :code:`passed_safety, solution`, where :code:`passed_safety` is a boolean indicating whether the safety test passed and :code:`solution` is either the string :code:`"NSF"` standing for "No Solution Found" or an array of model weights of the fitted model if a solution was found.
+
+All of the details of how to run candidate selection and the safety test are passed throught the spec object. We will now go into more detail as to what actually happens in the Engine code during candidate selection and the safety test. 
+
+
 .. _candidate_selection:
 
 Candidate Selection
--------------------
-:py:class:`.seldonian_algorithm.SeldonianAlgorithm` is a central class in the API that handles both candidate selection and the safety test. This class has a method :py:meth:`.seldonian_algorithm.SeldonianAlgorithm.run` that runs candidate selection and then the safety test using the outputs of candidate selection. The inputs to candidate selection are assembled from the spec object provided to the :py:class:`.seldonian_algorithm.SeldonianAlgorithm` object. 
++++++++++++++++++++
+The goal of candidate selection is to find a solution to the Seldonian ML problem which is likely to pass the `safety_test`_. Candidate selection always returns a solution, even if the probability of passing the safety test is low. Candidate selection has a method :py:meth:`.CandidateSelection.run` which runs an optimization process to find the solution. There are currently two supported optimization techniques for candidate selection, controlled by the :code:`optimization_technique` parameter of the spec object. The two supported values of this parameter are:
 
-There are currently two supported optimization techniques for candidate selection: 
+1. :code:`barrier_function`: Black box optimization with a barrier function. In this case, a barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. When this optimization technique is used, the :code:`optimizer` parameter of the spec object can take on of these five values: :code:`Powell`, :code:`CG`, :code:`Nelder-Mead`, :code:`BFGS`, :code:`CMA-ES`. The first four use Scipy's `minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_ function, where the string, e.g., :code:`Powell` refers to the solver method. The :code:`CMA-ES` value refers to `Covariance matrix adaptation evolution strategy <https://en.wikipedia.org/wiki/CMA-ES>`_), which is implemented using the `cma <https://pypi.org/project/cma/>`_ Python package. Optimization hyperparameters for these solvers can be passed via the :code:`optimization_hyperparams` parameter to the spec object.
 
-1. Black box optimization with a barrier function. The barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. 
-
-2. Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_:
+2. :code:`gradient_descent`: Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_:
 
 .. math::
 
-	{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_i^{n} {\lambda_i} g_i(\mathbf{\theta})
+	{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} \text{HCUB}(g_i(\mathbf{\theta}))
 
-where :math:`\mathbf{\theta}` is the vector of model weights, :math:`f(\mathbf{\theta})` is the primary objective function, :math:`g_i(\mathbf{\theta})` is the ith constraint function of :math:`n` constraints, and :math:`\mathbf{\lambda}` is a vector of Lagrange multipliers, such that :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
+where :math:`\mathbf{\theta}` is the array of model weights, :math:`f(\mathbf{\theta})` is the primary objective function, :math:`\text{HCUB}(g_i(\mathbf{\theta}))` is the high confidence upper bound of the ith constraint function out of :math:`n` constraints, and :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
 
-The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L}}` are optima of the constrainted optimization problem:
+The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} h_i` are optima of the constrainted optimization problem:
 
 	Optimize :math:`f({\theta})` subject to:
 		
-		:math:`g_i({\theta}){\leq}0, {\quad} i{\in}\{0{\ldots}n\}`
+		:math:`h_i({\theta}){\leq}0, {\quad} i{\in}\{1{\ldots}n\}`
 
 
-To find the saddle points we use gradient descent to obtain the global minimum over :math:`{\theta}` and simultaneous gradient *ascent* to obtain the global maximum over the multipliers, :math:`{\lambda}`.
+In our case, :math:`h_i({\theta}) = \text{HCUB}(g_i(\mathbf{\theta}))`. To find the saddle points we use gradient descent to obtain the global minimum over :math:`{\theta}` and simultaneous gradient *ascent* to obtain the global maximum over the multipliers, :math:`{\lambda}`.
 
-In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far. 
+In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far. Therefore, :code:`adam` is the only acceptable value for the :code:`optimizer` parameter to the spec object if :code:`optimization_technique="gradient_descent"`.
+
+.. _safety_test:
 
 Safety Test
 -----------
-The safety test is run on the candidate solution returned by candidate selection. Like candidate selection, the safety test is run inside of the :py:func:`.seldonian_algorithm.seldonian_algorithm` function. The inputs to the safety test are assembled from the spec object provided to the function. First, a :py:class:`.SafetyTest` object is created, then :py:meth:`.SafetyTest.run` is called to start the safety test.  
+The safety test is run on the solution found during candidate selection. The safety test has a method :py:meth:`.SafetyTest.run` which runs the safety test and returns a boolean flag :code:`passed` deeming whether the solution found during candidate selection passed the safety test. Like candidate selection, the inputs to the safety test are assembled from the spec object. You should not need to interact with the safety test API directly.  
 

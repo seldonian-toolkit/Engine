@@ -70,43 +70,42 @@ class DataSetLoader():
 			include_intercept_term=include_intercept_term)
 
 	def load_RL_dataset_from_csv(self,
-		filename,
-		metadata_filename):
+		filename,metadata_filename=None):
 		""" Create RLDataSet object from file
 		containing the episodes as a CSV with format:
 
-		state,action,reward,probability_of_action
+		episode_index,state,action,reward,probability_of_action.
 
 		:param filename: The file
 			containing the data you want to load
 		:type filename: str
-
-		:param metadata_filename: The file
-			containing the metadata describing the data in filename
+		:param metadata_filename: Name of metadata file
 		:type metadata_filename: str
 		"""
 
 		# Load metadata
-		metadata_dict = load_json(metadata_filename)
-		columns = metadata_dict['columns']
+		if metadata_filename:
+			metadata_dict = load_json(metadata_filename)
+			column_names = metadata_dict['columns']
+		else:
+			column_names = ['episode_index','O','A','R','pi']
 
 		df = pd.read_csv(filename,header=None)
-
-		df.columns = columns
+		df.columns = column_names
 		episodes=[]
 		
 		for episode_index in df.episode_index.unique():
 			df_ep = df.loc[df.episode_index==episode_index]
-			episode = Episode(states=df_ep.O.values,
-							  actions=df_ep.A.values,
-							  rewards=df_ep.R.values,
-							  pis=df_ep.pi.values)
+			episode = Episode(states=df_ep.iloc[:,1].values,
+							  actions=df_ep.iloc[:,2].values,
+							  rewards=df_ep.iloc[:,3].values,
+							  pis=df_ep.iloc[:,4].values)
 			episodes.append(episode)
 		
 		return RLDataSet(
 			episodes=episodes,
-			meta_information=columns)
-	
+			meta_information=column_names)
+
 	def load_RL_dataset_from_dataframe(self,
 		filename,
 		metadata_filename):
@@ -170,6 +169,7 @@ class DataSetLoader():
 		return RLDataSet(
 			episodes=episodes,
 			meta_information=columns)
+
 		
 class DataSet(object):
 	def __init__(self,meta_information,
@@ -213,7 +213,7 @@ class SupervisedDataSet(DataSet):
 		:type label_column: str
 
 		:param sensitive_column_names: The names of the columns that 
-			contain the :term:`sensitive attributes<Sensitive attribute>`
+			contain the sensitive attributes
 		:type sensitive_column_names: List(str)
 
 		:param include_sensitive_columns: Whether to include 
@@ -248,6 +248,7 @@ class RLDataSet(DataSet):
 			meta_information=meta_information,
 			regime='reinforcement_learning')
 		self.episodes = episodes
+
 
 class Episode(object):
 	def __init__(self,states,actions,rewards,pis):

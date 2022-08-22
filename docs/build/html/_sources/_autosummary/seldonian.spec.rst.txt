@@ -1,4 +1,4 @@
-﻿seldonian.spec
+seldonian.spec
 ==============
 
 .. automodule:: seldonian.spec 
@@ -14,7 +14,8 @@
    .. autosummary::
       :toctree:                                         
    
-      createRLspec
+      createRLSpec
+      createSupervisedSpec
    
    
 

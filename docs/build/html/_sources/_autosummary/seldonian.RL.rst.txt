@@ -1,4 +1,4 @@
-﻿seldonian.RL
+seldonian.RL
 ============
 
 .. automodule:: seldonian.RL 

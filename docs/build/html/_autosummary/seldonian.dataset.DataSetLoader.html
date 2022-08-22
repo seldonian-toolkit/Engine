@@ -68,17 +68,16 @@ e.g., supervised_learning or reinforcement_learning</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv">
-<span class="sig-name descname"><span class="pre">load_RL_dataset_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">load_RL_dataset_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create RLDataSet object from file
 containing the episodes as a CSV with format:</p>
-<p>state,action,reward,probability_of_action</p>
+<p>state,action,reward,probability_of_action.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<em>str</em>) – The file
 containing the data you want to load</p></li>
-<li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
-containing the metadata describing the data in filename</p></li>
+<li><p><strong>metadata_filename</strong> (<em>str</em>) – Name of metadata file</p></li>
 </ul>
 </dd>
 </dl>
@@ -190,7 +189,6 @@ a column of ones in the feature array</p></li>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
 <div class="relations">
