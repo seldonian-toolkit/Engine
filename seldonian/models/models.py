@@ -250,49 +250,6 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		super().__init__()
 		self.model_class = LinearRegression
 
-	def sample_Squashed_Squared_Error(self,theta,X,Y):
-		"""
-		Calculate squashed sample mean squared error 
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param X: The features
-		:type X: numpy ndarray
-
-		:param Y: The labels
-		:type Y: numpy ndarray
-
-		:return: Sample mean squared error
-		:rtype: float
-		"""
-		n = len(X)
-		prediction = self.predict(theta,X) # vector of values
-		# print(X,prediction)
-		res = sum(pow(prediction-Y,2))/n
-		return res
-
-	def vector_Squashed_Squared_Error(self,theta,X,Y):
-		"""
-		Calculate vector of squashed squared errors 
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-
-		:param X: The features
-		:type X: numpy ndarray
-
-		:param Y: The labels
-		:type Y: numpy ndarray
-
-		:return: Sample mean squared error
-		:rtype: float
-		"""
-		n = len(X)
-		prediction = self.predict(theta,X) # vector of values
-		res = pow(prediction-Y,2)
-		return res
-
 	def gradient_sample_Squashed_Squared_Error(self,theta,X,Y):
 		n = len(X)
 		y_min,y_max = -3,3

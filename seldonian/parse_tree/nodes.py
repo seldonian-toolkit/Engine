@@ -820,7 +820,7 @@ class CVARSQEBaseNode(BaseNode):
 		# plt.show()
 		# input("next")
 		
-		squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
+		squared_errors = model.vector_Mean_Squared_Error(theta,X,y)
 
 		a=min_squared_error
 		b=max_squared_error
