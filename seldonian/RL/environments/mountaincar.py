@@ -10,7 +10,7 @@ class Mountaincar(Environment):
         self.time = 0
         self.position = -.5
         self.velocity = 0.0
-        self.max_time = 3000
+        self.max_time = 1000
         self.vis = False
         self.reset()
 
