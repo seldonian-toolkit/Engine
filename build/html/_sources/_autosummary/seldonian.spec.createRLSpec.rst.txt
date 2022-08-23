@@ -1,6 +1,6 @@
-seldonian.spec.createRLspec
+seldonian.spec.createRLSpec
 ===========================
 
 .. currentmodule:: seldonian.spec
 
-.. autofunction:: createRLspec
+.. autofunction:: createRLSpec

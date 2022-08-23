@@ -17,7 +17,7 @@ sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 # -- Project information -----------------------------------------------------
 
 project = 'Seldonian Engine'
-copyright = '2022, University of Massachusetts, Amherst'
+copyright = '2022, University of Massachusetts'
 author = 'Austin Hoag, Philip S. Thomas'
 
 # The full version, including alpha/beta/rc tags

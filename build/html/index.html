@@ -35,22 +35,27 @@
             
   <section id="seldonian-engine-documentation">
 <h1>Seldonian Engine documentation<a class="headerlink" href="#seldonian-engine-documentation" title="Permalink to this heading">¶</a></h1>
-<p>Welcome to the documentation for the Seldonian Engine, the core library for implementing <a class="reference external" href="http://aisafety.cs.umass.edu/overview.html">Seldonian algorithms</a>. The source code is hosted on <a class="reference external" href="https://github.com/seldonian-framework/Engine">GitHub</a>.</p>
+<p>Welcome to the documentation for the Seldonian Engine, the core library of the <a class="reference external" href="https://seldonian.cs.umass.edu/">the Seldonian Machine Learning Toolkit</a>. The source code is hosted on <a class="reference external" href="https://github.com/seldonian-framework/Engine">GitHub</a>.</p>
 <p>If you are completely new to this library, see the <a class="reference internal" href="overview.html"><span class="doc">Overview</span></a>.</p>
-<hr class="docutils" />
 <section id="table-of-contents">
 <h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#interface">Interface</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="overview.html#data-file">Data file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview.html#metadata-file">Metadata file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="overview.html#behavioral-constraints">Behavioral constraints</a></li>
 <li class="toctree-l3"><a class="reference internal" href="overview.html#spec-object">Spec object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#dataset-object">Dataset object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#model-object">Model object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#behavioral-constraints">Behavioral constraints</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="overview.html#constraint-strings">Constraint strings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#candidate-selection">Candidate Selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#what-does-sa-run-do">What does <code class="code docutils literal notranslate"><span class="pre">SA.run()</span></code> do?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#candidate-selection">Candidate Selection</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#safety-test">Safety Test</a></li>
 </ul>
 </li>
@@ -242,7 +247,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/seldonian.spec.html">seldonian.spec</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.createRLspec.html">seldonian.spec.createRLspec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.createRLSpec.html">seldonian.spec.createRLSpec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.createSupervisedSpec.html">seldonian.spec.createSupervisedSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html">seldonian.spec.RLSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.Spec.html">seldonian.spec.Spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html">seldonian.spec.SupervisedSpec</a></li>
@@ -276,6 +282,7 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.utils.tutorial_utils.html">seldonian.utils.tutorial_utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.tutorial_utils.generate_clipped_data.html">seldonian.utils.tutorial_utils.generate_clipped_data</a></li>
 <li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.tutorial_utils.generate_data.html">seldonian.utils.tutorial_utils.generate_data</a></li>
 <li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.utils.tutorial_utils.make_synthetic_regression_dataset.html">seldonian.utils.tutorial_utils.make_synthetic_regression_dataset</a></li>
 </ul>
@@ -293,7 +300,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 </ul>
 </div>
 </section>
@@ -320,7 +326,6 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 </ul>
 
 <div class="relations">
@@ -354,7 +359,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2022, University of Massachusetts, Amherst.
+      &copy;2022, University of Massachusetts.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>

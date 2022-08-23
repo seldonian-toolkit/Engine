@@ -38,15 +38,11 @@ seldonian.models.models.SquashedLinearRegressionModel
    ..
    ..    ~SquashedLinearRegressionModel.sample_Mean_Squared_Error
    ..
-   ..    ~SquashedLinearRegressionModel.sample_Squashed_Squared_Error
-   ..
    ..    ~SquashedLinearRegressionModel.sample_from_statistic
    ..
    ..    ~SquashedLinearRegressionModel.vector_Mean_Error
    ..
    ..    ~SquashedLinearRegressionModel.vector_Mean_Squared_Error
-   ..
-   ..    ~SquashedLinearRegressionModel.vector_Squashed_Squared_Error
    ..
    
    

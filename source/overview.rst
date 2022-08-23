@@ -1,25 +1,62 @@
 Overview
 ========
 
-This document provides an overview of how :term:`Seldonian algorithms<Seldonian Algorithm>` (SAs) are implemented using this library. For a detailed description of what SAs are, see `the UMass AI Safety page <http://aisafety.cs.umass.edu/overview.html>`_, specifically `the Science paper <http://aisafety.cs.umass.edu/paper.html>`_. 
+This document provides an overview of how `Seldonian algorithms <https://seldonian.cs.umass.edu/Tutorials/>`_ (SAs) are implemented using this library. For a detailed description of what SAs are, see the `Seldonian Machine Learning Toolkit homepage  <https://seldonian.cs.umass.edu/>`_.
 
-At the broadest scope, SAs consist of three parts: the interface, candidate selection, and the safety test. Below are the main components of the API that you will interact within each of these.  
+The most important piece of the Seldonian Engine API is the :py:class:`.SeldonianAlgorithm` class. One can run a Seldonian algorithm using a single API call of this class:
+
+.. code::
+
+	from seldonian.seldonian_algorithm import SeldonianAlgorithm
+	from seldonian.utils.io_utils import load_pickle
+	# here, the spec object is loaded from a file
+	spec = load_pickle('spec.pkl')
+	SA = SeldonianAlgorithm(spec)
+	SA.run()
+
+In this overview, we will go over what is in the :code:`spec` object and how to create it. We will also cover what :code:`SA.run()` actually does.
+
+**Note**: The Engine supports supervised learning and reinforcement learning (RL) Seldonian algorithms. Where we could, we unified the code to work for both `regimes <https://seldonian.cs.umass.edu/Tutorials/glossary/#regime>`_. However, you may notice a pattern in the API where there is a regime-independent base class from which two child classes inherit, one for each of the two regimes.  
 
 Interface
 ---------
-In the interface, the user provides:
+The interface is a general concept for how the user provides inputs to the SA. For a full  conceptual description, see `the Seldonian Toolkit Overview <https://seldonian.cs.umass.edu/overview/#framework>`_. In the interface, the user provides (at minimum):
 
-- The `Data file`_.
-- The `Metadata file`_.
-- The `Behavioral constraints`_ you want the SA to satisfy.
+- the data
+- the metadata
+- the Behavioral constraints they want the SA to enforce.
 
-There is currently one option for the interface, :py:mod:`.command_line_interface` (CLI). A graphical user interface (GUI) is currently in development. 
+The interface outputs a `Spec object`_, which consists of a complete specification used to run the seldonian algorithm.  
 
-The interface generates a `Spec object`_ object which consists of a complete specification that can used to run the seldonian algorithm. It is up to the designer of the interface to decide how much of the Spec object the user needs to specify. 
+**Note**: The Engine library is not an interface. In general, it is up to a developer to design the interface for their specific application. We provide some example interfaces as part of the Seldonian Toolkit: a `command line interface <https://github.com/seldonian-toolkit/Engine/blob/main/interface/command_line_interface.py>`_ and a `graphical user interface <https://seldonian-toolkit.github.io/GUI>`_. 
 
-Data file 
-+++++++++
-The data that you provide to the interface must be rows of numbers that are comma-separated and have no header. The rows are separated by newlines. For example, a supervised learning dataset might look like:
+Spec object
++++++++++++
+The "spec" object (short for specification object) contains all of the inputs needed to run the Seldonian algorithm, the most important of which are:
+
+- the dataset
+- the underlying machine learning model
+- the behavioral constraints 
+
+Each of these is represented by an object in the Engine API, as we will discuss below. 
+
+The :py:mod:`.spec` module contains the classes used to define spec objects. For the supervised learning regime, the :py:class:`.SupervisedSpec` class is used, and for the reinforcement learning regime the :py:class:`.RLSpec` class is used. We provide convenience functions to create these objects: :py:func:`.createSupervisedSpec` for supervised learning and :py:func:`.createRLspec` for reinforcement learning. 
+
+Dataset object
+++++++++++++++
+The :py:mod:`.dataset` module contains the :py:class:`.SupervisedDataSet` (supervised learning) and the :py:class:`.RLDataSet` (reinforcement learning) classes. These objects contain the data points as well as metadata. They can be constructed manually, but we also provide a :py:class:`.DataSetLoader` class containing several convenience methods for loading data from files or arrays into the dataset objects. 
+
+For example, one can create a :py:class:`.SupervisedDataSet` from a data file and metadata file using the :py:meth:`.load_supervised_dataset` method, for example:
+
+.. code::
+	
+	from seldonian.dataset import DataSetLoader
+	loader = DataSetLoader(regime='supervised_learning')
+	dataset = loader.load_supervised_dataset(
+		filename,
+		metadata_filename)
+
+The :code:`filename` parameter must point to a data file consisting of rows of numbers that are comma-separated and have no header. Categorical columns must be numerically encoded. For example, the file format might look like:
 
 .. code:: 
 
@@ -29,107 +66,132 @@ The data that you provide to the interface must be rows of numbers that are comm
 	0,1,756.91,679.62,531.28,583.63,534.42,521.4,592.41,783.76,588.26,2.53333
 	...
 
-This file should include *all* of the data you have, i.e. the data you have before splitting into train,test,validation splits. The Seldonian algorithm will partition your data for you. The column names are intentionally excluded from this file and are provided in the `Metadata file`_. 
+where each row represents a different sample and each column is a feature or a label. This file should include *all* of the data you have, i.e., the data before partitioning into train, test, validation splits. The Engine will partition your data internally. The column names are intentionally excluded from this file and are provided in a separate metadata file, via the :code:`metadata_filename` parameter. 
 
-Metadata file 
-+++++++++++++
-The metadata file is a JSON-formatted file containing important properties about your dataset. It has different required keys depending on the :term:`Regime` of your problem. For supervised learning, the required keys are:
+The metadata file must be a JSON-formatted file containing several required ``key:value`` pairs depending on the regime of your problem. For supervised learning, the required keys are:
 
-- "regime", which is set to 'supervised' in this case
-- "sub_regime", which is either 'classification' or 'regression'
-- "columns", a list of the column names in your `Data file`_. 
-- "label_column", the column that you are trying to predict
-- "sensitive_columns", a list of the column names of the :term:`sensitive attributes <Sensitive attribute>` 
+- :code:`regime`, set to :code:`supervised_learning` in this case
+- :code:`sub_regime`, either :code:`classification` or :code:`regression`
+- :code:`columns`, a list of all of the column names in your data file 
+- :code:`label_column`, the name of the column that you are trying to predict
+- :code:`sensitive_columns`, a list of the column names for the `sensitive attributes <https://seldonian.cs.umass.edu/Tutorials/glossary/#sensitive_attributes>`_ in your dataset
 
 For reinforcement learning, the required keys are:
 
-- "regime", which is set to 'RL' in this case
-- "columns", a list of the column names in your `Data file`_. 
-- "RL_environment_name", the name of the module in :py:mod:`.RL.environments` package containing the RL Environment() class you want to use. 
+- :code:`regime`, which is set to 'reinforcement_learning' in this case
+- :code:`columns`, a list of the column names in your data file
+- :code:`RL_module_name`, the name of the module within :py:mod:`.RL.environments` containing the RL environment class you want to use 
+- :code:`RL_class_name`, the name of the class representing your environment inside the module you specified via the "RL_module_name" key 
+
+Model object
+++++++++++++
+The biggest split between supervised and reinforcement learning in the Engine API is in how the underlying machine learning model is represented. Supervised learning models are represented as classes in the module: :py:mod:`.models.models`. The base class for classification (regression) is: :py:class:`.ClassificationModel` (:py:class:`.RegressionModel`). Any supervised learning model must inherit from either of these classes or one of their child classes. Some useful classes have already been created for running the tutorials, such as :py:class:`.LinearRegressionModel` and :py:class:`.LogisticRegressionModel`. These classes essentially wrap scikit-learn's model classes, for example, their `LinearRegression <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html>`_ model. 
+
+Unless you are writing your own model, you will likely only need to know which of these models best fits your application. You may also want to choose from the primary objective functions, which are written as methods of the class. The primary objective function is one of the inputs to the spec object, though a default will be chosen if you do not explicitly pass one to the spec object. 
+
+The reinforcement learning model is represented by the :py:class:`.RL_model` class. This object takes as input objects containing the RL environment and agent, two things which supervised learning models do not have.  All RL environment descriptions must live in modules within the :py:mod:`.seldonian.RL.environments` module. The class defining the environment must inherit from the :py:class:`.Environment` base class, and can override all parent methods. Likewise, all RL agent descriptions must live in modules within the :py:mod:`.seldonian.RL.Agents` module. The class defining the agent must inherit from the :py:class:`.Agent` base class, and can override all parent methods. An agent inacts a :py:class:`.Policy`. We have provided example environments, such as :py:class:`.Gridworld`, and agents, such as :py:class:`.Parameterized_non_learning_softmax_agent` which inacts the :py:class:`.Softmax` policy, to illustrate how to extend these base classes to create your own RL models.  
 
 Behavioral constraints
 ++++++++++++++++++++++
-In the `definition of a Seldonian algorithm <http://aisafety.cs.umass.edu/tutorial1.html>`_, :term:`behavioral constraints<Behavioral constraint>`, :math:`(g_i,{\delta}_i)_{i=1}^n` are of a set of constraint functions, :math:`g_i`, and confidence levels, :math:`{\delta}_i`. Constraint functions are not provided to the interface directly, but are built by the engine from *constraint strings* provided by the user. 
+In the `definition of a Seldonian algorithm <https://seldonian.cs.umass.edu/overview.html#algorithm>`_, `behavioral constraints <https://seldonian.cs.umass.edu/Tutorials/glossary/#behavioral_constraints>`_, :math:`(g_i,{\delta}_i)_{i=1}^n` are of a set of constraint functions, :math:`g_i`, and confidence levels, :math:`{\delta}_i`. Constraint functions need not be provided to the interface directly, but are often built by the engine from *constraint strings* provided by the user. 
 
-Constraint strings contain the mathematical definition of the constraint functions, :math:`g_i`. These strings are written as Python strings and support the following mathematical operators:
+Constraint strings
+##################
 
-- :code:`+,-,*,/`
+Constraint strings contain the mathematical definition of the constraint functions, :math:`g_i`. These strings are written as Python strings and support five different types of sub-strings. 
 
-The following native Python mathematical functions are also supported: 
+1. The following math operators:
+
+- :code:`+`, :code:`-`, :code:`*`, :code:`/`
+
+2. These four native Python math functions: 
 
 - :code:`min()`
 - :code:`max()`
 - :code:`abs()`
 - :code:`exp()`
 
-Certain statistical functions (called "measure functions") have special strings associated with them so that the engine recognizes them when they appear in the constraint string. For example, if :code:`Mean_Squared_Error` appears in the string it will be interpreted correctly by the engine. For a full list of these measure functions, see: :py:mod:`.parse_tree.operators`. 
+3. Constants. These can be integers or floats, such as :code:`4` or :code:`0.239`.
 
-Examples of the most basic constraint strings and their plain English definitions are below. Remember that in the Seldonian framework we want :math:`g_i{\leq}0` to be satisfied. The :math:`{\leq}0` is omitted from the constraint strings. 
+4. Custom strings that trigger a call to a custom function. There are a set of special strings we call "measure functions" that correspond to statistical functions. For example, if :code:`Mean_Squared_Error` appears in a constraint string, the mean squared error will be calculated internally. Measure functions are specific to the machine learning regime. For a full list of currently supported measure functions, see: :py:mod:`.parse_tree.operators`. We left open the possibility that developers will want to define their own measure functions by adding to the current list. Measure functions are defined to estimate the confidence bounds on the mean value of a quantity. It is possible developers will want to bound something other than the mean, or do it in a way that differs from how we implemented bounds in the Engine. They would do this by creating their own custom base nodes. We wrote the `custom base node tutorial <https://seldonian.cs.umass.edu/Tutorials/tutorials/custom_base_node_tutorial>`_ to instruct new users how to create their own measure functions as well as custom base nodes.
+
+
+
+5. The inequality strings "<=" or ">=". These are optional. Recall from `the definition of a Seldonian algorithm <https://seldonian.cs.umass.edu/overview.html#algorithm>`_ that we want :math:`g_i{\leq}0` to be satisfied. However, it can be cumbersome to write all of your constraint strings with a "<= 0" at the end. For convenience, we support constraint strings that both include and exclude the inequality symbols. For example, the four expressions will all be interpreted identically by the engine: 
+
+- "Mean_Squared_Error <= 4.0"
+- "Mean_Squared_Error - 4.0 <= 0"
+- "Mean_Squared_Error - 4.0"
+- "4.0 >= Mean_Squared_Error"
+
+Constraint strings with more than one inequality string or with ">", "<", or "=" by themselves are not supported and will result in an error when the Engine tries to parse the constraint string.
+
+Here are a few examples of basic constraint strings and their plain English interpretation:
 
 - :code:`Mean_Squared_Error - 2.0`: "Ensure that the mean squared error is less than or equal to 2.0". Here, :code:`Mean_Squared_Error` is a special measure function for supervised regression problems. 
 
-- :code:`0.88 - TPR`: "Ensure that the True Positive Rate (TPR) is greater than or equal to 0.88". Here, :code:`TPR` is a measure function for supervised classification problems.
+- :code:`0.88 <= TPR`: "Ensure that the True Positive Rate (TPR) is greater than or equal to 0.88". Here, :code:`TPR` is a measure function for supervised classification problems.
 
-- :code:`0.5 - J_pi_new`: "Ensure that the performance of the new policy (:code:`J_pi_new`) is greater than or equal to 0.5". Here, :code:`J_pi_new` is a measure function for RL problems.
+- :code:`J_pi_new >= 0.5`: "Ensure that the performance of the new policy (:code:`J_pi_new`) is greater than or equal to 0.5". Here, :code:`J_pi_new` is a measure function for reinforcement learning problems.
 
-These basic constraint strings cover a number of use cases. However, they do not use information about the sensitive attributes (columns) in the dataset, which commonly appear in fairness definitions. The generic specification for including sensitive attributes in the constraint string is as follows:
+These basic constraint strings cover a number of use cases. However, they do not use information about the sensitive attributes (columns) in the dataset, which commonly appear in fairness definitions. The Engine supports a specification for filtering the data used to calculate the bound on the quantity defined by the measure function over one or more sensitive attributes. This is only supported for supervised learning datasets. The specification for doing this is as follows:
 
 .. code::
 	
 	(measure_function | [ATR1,ATR2,...])
 
-where :code:`measure_function` is a placeholder for the actual measure function in use and :code:`[ATR1,ATR2,...]` is a placeholder list of attributes (column names) from the dataset. The parentheses surrounding the statement are required in all cases.
+where :code:`measure_function` is a placeholder for the actual measure function in use and :code:`[ATR1,ATR2,...]` is a placeholder list of attributes (column names) from the dataset. The parentheses surrounding the statement are required in all cases.  
 
-The following examples show valid constraint strings that use sensitive attributes of an example dataset with sensitive attributes: :code:`[M,F,R1,R2]`. These only apply for the supervised learning regime. 
+Let's say that an example dataset has four sensitive attributes: :code:`[M,F,R1,R2]`, standing for "male", "female", "race class 1", "race class 2").  The following constraint strings are examples of valid uses of measure functions subject to sensitive attributes. 
 
-- :code:`abs((PR | [M]) - (PR | [F])) - 0.15`: "Ensure that the absolute difference between the positive rate for males (M) and the positive rate (PR, a measure function) for females (F) is less than or equal to 0.15". This constraint is called demographic parity (with a tolerance of 15%). Here, :code:`M` and :code`F` must be columns of the dataset, as specified in the `Metadata file`_. We also see the use of a native Python function, :code:`abs()` in this constraint string. 
+- :code:`abs((PR | [M]) - (PR | [F])) <= 0.15`: "Ensure that the absolute difference between the positive rate (the meaning of the measure function "PR") for males (M) and the positive rate for females (F) is less than or equal to 0.15". This constraint is called demographic parity (with a tolerance of 15%). Here, :code:`M` and :code:`F` must be columns of the dataset, and specified both in the :code:`columns` key and the :code:`sensitive_columns` key in the `Metadata file. We also see the use of a native Python function, :code:`abs()`, in this constraint string. 
 
-- :code:`0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))`: "Ensure that ratio of the positive rate for males (M) to the positive rate for females (F) or the inverse is at least 0.8." This constraint is called disparate impact (with a tolerance of 0.8). We see the use of :code:`min()`, yet another native Python function in this constraint string. 
+- :code:`0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))`: "Ensure that ratio of the positive rate for males (M) to the positive rate for females (F) or the inverse ratio is at least 0.8." This constraint is called disparate impact (with a tolerance of 0.8). We see the use of :code:`min()`, another native Python function in this constraint string. 
 
 It is permitted to use more than one attribute for a given measure function. For example:
 
-- :code:`(FPR | [F,R1]) - 0.2`: "Ensure that the false positive rate (FPR) for females (F) belonging to race class 1 (RL) is less than or equal to 0.2. 
+- :code:`(FPR | [F,R1]) <= 0.2`: "Ensure that the false positive rate (FPR) for females (F) belonging to race class 1 (R1) is less than or equal to 0.2. 
 
-Note that the user must also specify the values of :math:`{\delta}` for each provided constraint string.
+Note that the constraint strings only make up part of the behavioral constraints. The user must also specify the values of :math:`{\delta}` for each provided constraint string. The Engine bundles the list of behavioral constraints into :py:class:`.ParseTree` objects. The list of parse trees is one of the required inputs to the `Spec object`_.
 
 
-Spec object
-+++++++++++
-The :py:class:`.Spec` object (short for specification object) contains all of the inputs needed to run the Seldonian algorithm. The interface creates a spec object from the user's inputs. It is up to the designer of the interface to specify how the user will provide the information needed to complete the spec object. Because the spec object is editable, it may be practical to create a simple interface that generates a spec object with many default values and then require the user to modify the spec object in a custom script. 
+What does :code:`SA.run()` do?
+----------------------------------------------
+The :py:class:`.SeldonianAlgorithm` object takes as input the spec object (required) and some optional parameters. Once this object is created, the Seldonian algorithm can be run via the :py:meth:`.SeldonianAlgorithm.run` method, as shown in the code block at the top of this page. At a broad scope, this method runs candidate selection, followed by the safety test and returns the tuple: :code:`passed_safety, solution`, where :code:`passed_safety` is a boolean indicating whether the safety test passed and :code:`solution` is either the string :code:`"NSF"` standing for "No Solution Found" or an array of model weights of the fitted model if a solution was found.
+
+All of the details of how to run candidate selection and the safety test are passed throught the spec object. We will now go into more detail as to what actually happens in the Engine code during candidate selection and the safety test. 
 
 
 .. _candidate_selection:
 
 Candidate Selection
--------------------
-Candidate selection is run inside of the :py:func:`.seldonian_algorithm.seldonian_algorithm` function. The inputs to candidate selection are assembled from the spec object provided to the function. First, a :py:class:`.CandidateSelection` object is created, then :py:meth:`.CandidateSelection.run` is called to start candidate selection. 
++++++++++++++++++++
+The goal of candidate selection is to find a solution to the Seldonian ML problem which is likely to pass the `safety_test`_. Candidate selection always returns a solution, even if the probability of passing the safety test is low. Candidate selection has a method :py:meth:`.CandidateSelection.run` which runs an optimization process to find the solution. There are currently two supported optimization techniques for candidate selection, controlled by the :code:`optimization_technique` parameter of the spec object. The two supported values of this parameter are:
 
-:code:`run()` returns the :code:`candidate_solution`, the optimized model weights obtained during candidate selection, or :code:`'NSF'` if no solution was found. 
+1. :code:`barrier_function`: Black box optimization with a barrier function. In this case, a barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. When this optimization technique is used, the :code:`optimizer` parameter of the spec object can take on of these five values: :code:`Powell`, :code:`CG`, :code:`Nelder-Mead`, :code:`BFGS`, :code:`CMA-ES`. The first four use Scipy's `minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_ function, where the string, e.g., :code:`Powell` refers to the solver method. The :code:`CMA-ES` value refers to `Covariance matrix adaptation evolution strategy <https://en.wikipedia.org/wiki/CMA-ES>`_), which is implemented using the `cma <https://pypi.org/project/cma/>`_ Python package. Optimization hyperparameters for these solvers can be passed via the :code:`optimization_hyperparams` parameter to the spec object.
 
-There are currently two supported optimization techniques for candidate selection: 
-
-1. Black box optimization with a barrier function. The barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. 
-
-2. Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_:
+2. :code:`gradient_descent`: Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_:
 
 .. math::
 
-	{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_i^{n} {\lambda_i} g_i(\mathbf{\theta})
+	{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} \text{HCUB}(g_i(\mathbf{\theta}))
 
-where :math:`\mathbf{\theta}` is the vector of model weights, :math:`f(\mathbf{\theta})` is the primary objective function, :math:`g_i(\mathbf{\theta})` is the ith constraint function of :math:`n` constraints, and :math:`\mathbf{\lambda}` is a vector of Lagrange multipliers, such that :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
+where :math:`\mathbf{\theta}` is the array of model weights, :math:`f(\mathbf{\theta})` is the primary objective function, :math:`\text{HCUB}(g_i(\mathbf{\theta}))` is the high confidence upper bound of the ith constraint function out of :math:`n` constraints, and :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
 
-The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L}}` are optima of the constrainted optimization problem:
+The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} h_i` are optima of the constrainted optimization problem:
 
 	Optimize :math:`f({\theta})` subject to:
 		
-		:math:`g_i({\theta}){\leq}0, {\quad} i{\in}\{0{\ldots}n\}`
+		:math:`h_i({\theta}){\leq}0, {\quad} i{\in}\{1{\ldots}n\}`
 
 
-To find the saddle points we use gradient descent to obtain the global minimum over :math:`{\theta}` and simultaneous gradient *ascent* to obtain the global maximum over the multipliers, :math:`{\lambda}`.
+In our case, :math:`h_i({\theta}) = \text{HCUB}(g_i(\mathbf{\theta}))`. To find the saddle points we use gradient descent to obtain the global minimum over :math:`{\theta}` and simultaneous gradient *ascent* to obtain the global maximum over the multipliers, :math:`{\lambda}`.
 
-In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far. 
+In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far. Therefore, :code:`adam` is the only acceptable value for the :code:`optimizer` parameter to the spec object if :code:`optimization_technique="gradient_descent"`.
+
+.. _safety_test:
 
 Safety Test
 -----------
-The safety test is run on the candidate solution returned by candidate selection. Like candidate selection, the safety test is run inside of the :py:func:`.seldonian_algorithm.seldonian_algorithm` function. The inputs to the safety test are assembled from the spec object provided to the function. First, a :py:class:`.SafetyTest` object is created, then :py:meth:`.SafetyTest.run` is called to start the safety test.  
+The safety test is run on the solution found during candidate selection. The safety test has a method :py:meth:`.SafetyTest.run` which runs the safety test and returns a boolean flag :code:`passed` deeming whether the solution found during candidate selection passed the safety test. Like candidate selection, the inputs to the safety test are assembled from the spec object. You should not need to interact with the safety test API directly.  
 

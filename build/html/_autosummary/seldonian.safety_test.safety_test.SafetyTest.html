@@ -38,11 +38,11 @@
 <h1>seldonian.safety_test.safety_test.SafetyTest<a class="headerlink" href="#seldonian-safety-test-safety-test-safetytest" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SafetyTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">safety_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SafetyTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">safety_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">safety_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">safety_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object for running safety test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -52,7 +52,7 @@
 <li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
 behavioral constraints</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
-e.g. supervised or RL</p></li>
+e.g., supervised_learning or reinforcement_learning</p></li>
 </ul>
 </dd>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
@@ -160,7 +160,6 @@ the upper bounds of all parse tree root nodes are less than or equal to 0.</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
 </ul>
 
 <div class="relations">
@@ -203,7 +202,7 @@ the upper bounds of all parse tree root nodes are less than or equal to 0.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2022, University of Massachusetts, Amherst.
+      &copy;2022, University of Massachusetts.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>

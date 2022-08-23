@@ -14,6 +14,7 @@ seldonian.utils.tutorial\_utils
    .. autosummary::
       :toctree:                                         
    
+      generate_clipped_data
       generate_data
       make_synthetic_regression_dataset
    

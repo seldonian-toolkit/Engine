@@ -14,7 +14,8 @@ seldonian.spec
    .. autosummary::
       :toctree:                                         
    
-      createRLspec
+      createRLSpec
+      createSupervisedSpec
    
    
 
