@@ -25,7 +25,7 @@ def main():
 
 	numPoints = 100000
 	dataset = make_synthetic_regression_dataset(numPoints,
-		include_intercept_term=True)
+		include_intercept_term=True,clipped=True)
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
 		deltas)
@@ -37,6 +37,7 @@ def main():
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model_class=SquashedLinearRegressionModel,
+		sub_regime='regression',
 		primary_objective=model_class().sample_Mean_Squared_Error,
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,

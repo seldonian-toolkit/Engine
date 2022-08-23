@@ -62,8 +62,11 @@ def generate_clipped_data(num_points,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0
     return (X,Y)
 
 
-def make_synthetic_regression_dataset(num_points,include_intercept_term=True):
-    X,Y = generate_clipped_data(num_points)
+def make_synthetic_regression_dataset(num_points,include_intercept_term=True,clipped=False):
+    if clipped:
+        X,Y = generate_clipped_data(num_points)
+    else: 
+        X,Y = generate_data(num_points)
 
     # 2. Define the metadata
     columns = columns=['feature1','label']

@@ -7,7 +7,7 @@ from seldonian.utils.io_utils import (load_json,
 from seldonian.dataset import (DataSetLoader,
     RLDataSet,SupervisedDataSet)
 from seldonian.spec import SupervisedSpec
-
+from seldonian.models import objectives 
 
 
 @pytest.fixture
@@ -139,10 +139,11 @@ def synthetic_dataset(generate_data):
         spec = SupervisedSpec(
             dataset=dataset,
             model_class=model_class,
-            frac_data_in_safety=frac_data_in_safety,
-            primary_objective=model_class().default_objective,
-            use_builtin_primary_gradient_fn=True,
             parse_trees=parse_trees,
+            sub_regime='regression',
+            frac_data_in_safety=frac_data_in_safety,
+            primary_objective=objectives.Mean_Squared_Error,
+            use_builtin_primary_gradient_fn=True,
             initial_solution_fn=model_class().fit,
             optimization_technique='gradient_descent',
             optimizer='adam',
@@ -185,7 +186,7 @@ def gpa_regression_dataset():
         model_class = LinearRegressionModel
 
         # Mean squared error
-        primary_objective = model_class().default_objective
+        primary_objective = objectives.Mean_Squared_Error
 
         # Load dataset from file
         loader = DataSetLoader(
@@ -245,7 +246,7 @@ def gpa_classification_dataset():
         model_class = LogisticRegressionModel
 
         # Mean squared error
-        primary_objective = model_class().default_objective
+        primary_objective = objectives.logistic_loss
 
         # Load dataset from file
         loader = DataSetLoader(

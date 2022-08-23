@@ -5,6 +5,8 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pandas as pd
 from functools import partial
 
+from seldonian.models import objectives
+
 class CandidateSelection(object):
 	""" Object for running candidate selection
 	
@@ -138,7 +140,7 @@ class CandidateSelection(object):
 					if self.regime == 'supervised_learning':
 						# need to know name of primary objective first
 						primary_objective_name = self.primary_objective.__name__
-						grad_primary_objective = getattr(self.model,
+						grad_primary_objective = getattr(objectives,
 							f'gradient_{primary_objective_name}')
 
 						# Now fix the features and labels so that the function 
@@ -146,6 +148,7 @@ class CandidateSelection(object):
 						
 						def grad_primary_objective_theta(theta):
 							return grad_primary_objective(
+								model=self.model,
 								theta=theta,
 								X=self.features.values,
 								Y=self.labels.values)
@@ -166,8 +169,8 @@ class CandidateSelection(object):
 
 					def grad_primary_objective_theta(theta):
 						return grad_primary_objective(
-							theta=theta,
 							model=self.model,
+							theta=theta,
 							X=self.features.values,
 							Y=self.labels.values)
 
@@ -260,13 +263,13 @@ class CandidateSelection(object):
 		# Get the primary objective evaluated at the given theta
 		# and the entire candidate dataset
 		if self.regime == 'supervised_learning':
-			result = self.primary_objective(theta, 
+			result = self.primary_objective(self.model,theta, 
 				self.features, self.labels)
 
 		elif self.regime == 'reinforcement_learning':
 			data_dict = {'episodes':self.candidate_dataset.episodes}
 			# Want to maximize the importance weight so minimize negative importance weight
-			result = -1.0*self.primary_objective(theta,
+			result = -1.0*self.primary_objective(self.model,theta,
 				data_dict)
 
 			# Optionally adding regularization term so that large thetas
@@ -335,7 +338,7 @@ class CandidateSelection(object):
 		"""
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
-			result = self.primary_objective(theta, 
+			result = self.primary_objective(self.model,theta, 
 					self.features.values, self.labels.values)
 			return result
 
@@ -344,7 +347,7 @@ class CandidateSelection(object):
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
 			data_dict = {'episodes':self.candidate_dataset.episodes}
-			result = -1.0*self.primary_objective(theta,
+			result = -1.0*self.primary_objective(self.model,theta,
 				data_dict)
 
 			if hasattr(self,'reg_coef'):

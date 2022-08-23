@@ -9,6 +9,7 @@ from seldonian.warnings.custom_warnings import *
 from seldonian.dataset import (SupervisedDataSet, RLDataSet)
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
+from seldonian.models import objectives
 
 class SeldonianAlgorithm():
 	def __init__(self,spec):
@@ -23,7 +24,6 @@ class SeldonianAlgorithm():
 		self.spec = spec
 		self.has_been_run = False
 		
-
 		self.parse_trees = self.spec.parse_trees
 		self.base_node_bound_method_dict = self.spec.base_node_bound_method_dict
 
@@ -160,7 +160,13 @@ class SeldonianAlgorithm():
 				cs_kwargs['max_return']=self.RL_environment_obj.max_return
 		
 		if self.spec.primary_objective is None:
-			self.spec.primary_objective = self.model_instance.default_objective	
+			if self.regime == 'reinforcement_learning':
+				self.spec.primary_objective = objectives.IS_estimate
+			elif self.regime == 'supervised_learning':
+				if self.spec.sub_regime == 'classification':
+					self.spec.primary_objective	= objectives.logistic_loss
+				elif self.spec.sub_regime == 'regression':
+					self.spec.primary_objective = objectives.Mean_Squared_Error
 
 	def candidate_selection(self,
 		write_cs_logfile=False,

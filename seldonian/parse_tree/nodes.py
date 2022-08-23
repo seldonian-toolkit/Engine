@@ -3,6 +3,8 @@ from functools import reduce,partial
 import pandas as pd
 import autograd.numpy as np
 
+from seldonian.models.objectives import (
+	sample_from_statistic,evaluate_statistic)
 from seldonian.utils.stats_utils import *
 
 
@@ -142,7 +144,7 @@ class BaseNode(Node):
 		model = kwargs['model']
 		theta = kwargs['theta']
 		data_dict = kwargs['data_dict']
-		value = model.evaluate_statistic(
+		value = evaluate_statistic(model,
 			statistic_name=self.measure_function_name,
 			theta=theta,
 			data_dict=data_dict)
@@ -267,7 +269,7 @@ class BaseNode(Node):
 		:type data_dict: dict
 		"""
 
-		return model.sample_from_statistic(
+		return sample_from_statistic(model,
 			statistic_name=self.measure_function_name,
 			theta=theta,data_dict=data_dict)
 					

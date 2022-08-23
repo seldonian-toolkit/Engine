@@ -128,7 +128,7 @@ class SafetyTest(object):
 		
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
-			result = primary_objective(theta, 
+			result = primary_objective(self.model,theta, 
 					self.features.values, self.labels.values)
 			return result
 
@@ -137,7 +137,7 @@ class SafetyTest(object):
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
 			data_dict = {'episodes':self.safety_dataset.episodes}
-			result = -1.0*primary_objective(theta,
+			result = -1.0*primary_objective(self.model,theta,
 				data_dict)
 
 			if hasattr(self,'reg_coef'):
