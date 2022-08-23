@@ -30,4 +30,5 @@ seldonian.models
 
 
    seldonian.models.models
+   seldonian.models.objectives
 
