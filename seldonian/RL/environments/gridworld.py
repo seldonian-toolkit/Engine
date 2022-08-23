@@ -6,30 +6,17 @@ class Gridworld(Environment):
         """ Square gridworld RL environment of arbitrary size.
         
         :param size: The number of grid cells on a side 
-        :type size: int
-
         :ivar num_states: The number of distinct grid cells
-        :vartype num_states: int
-
-        :ivar env_description: an object for accessing attributes
-            of the environment
+        :ivar env_description: contains attributes describing the environment
         :vartype env_description: :py:class:`.Env_Description`
-
         :ivar state: The current state 
         :vartype state: int
-
         :ivar terminal_state: Whether the terminal state is occupied
         :vartype terminal_state: bool
-
         :ivar time: The current timestep
         :vartype time: int
-
         :ivar max_time: Maximum allowed timestep
         :vartype max_time: int
-
-        :ivar vis: Whether to print state when transitioning states
-        :vartype vis: bool
-
         :ivar gamma: The discount factor in calculating the expected return
         :vartype gamma: float
         """
@@ -40,15 +27,14 @@ class Gridworld(Environment):
         self.terminal_state = False
         self.time = 0
         self.max_time = 101
+        # vis is a flag for visual debugging during state transitions
         self.vis = False
         self.gamma = 0.9
 
     def create_env_description(self, num_states):
-        """ Helper method to __init__() that creates
-        the environment description object.  
+        """ Creates the environment description object.  
 
         :param num_states: The number of states
-
         :return: Environment description for the state and action spaces
         :rtype: :py:class:`.Env_Description`
         """
@@ -63,11 +49,9 @@ class Gridworld(Environment):
         self.terminal_state = False
 
     def transition(self, action):
-        """ Transition from one state to another given an action. 
-        Return a reward
+        """ Transition between states given an action, return a reward. 
         
         :param action: A possible action at the current state
-
         :return: reward for reaching the next state
         """
         reward = 0
