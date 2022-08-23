@@ -6,6 +6,7 @@ from seldonian.RL.Agents.keyboard_gridworld import *
 from seldonian.RL.environments.gridworld import *
 from seldonian.RL.environments.mountaincar import *
 from seldonian.RL.environments.n_step_mountaincar import *
+from seldonian.RL.environments.simglucose_env import *
 
 from seldonian.dataset import Episode
 
@@ -138,5 +139,7 @@ def create_env(hyperparameter_and_setting_dict):
         return Mountaincar()
     elif env_type == "n_step_mountaincar":
         return N_step_mountaincar()
+    elif env_type == "simglucose":
+        return Simglucose()
     else:
         raise Exception(f"unknown agent type {env_type}")
