@@ -1,4 +1,3 @@
-from seldonian.RL.environments.gridworld3x3 import Environment
 from time import time
 from seldonian.dataset import RLDataSet
 from RLinterface2spec import dataset2spec
@@ -28,11 +27,15 @@ def get_metadata_path(env_name):
         return "../../static/datasets/RL/gridworld/gridworld_metadata.json"
     elif env_name == "n_step_mountaincar":
         return "../../static/datasets/RL/mountaincar/n_step_mountaincar_metadata.json"
+    elif env_name == "simglucose":
+        return "../../static/datasets/RL/simglucose/simglucose.json"
     else:
         error(f"unknown env name {env_name}")
 
 def get_constraint_string(env):
     if env == "gridworld":
+        return ['-0.25 - J_pi_new']
+    if env == "simglucose":
         return ['-0.25 - J_pi_new']
     else:
         error(f"Unknown env {env}")
