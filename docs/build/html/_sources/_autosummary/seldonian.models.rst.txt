@@ -1,4 +1,4 @@
-seldonian.models
+﻿seldonian.models
 ================
 
 .. automodule:: seldonian.models 
@@ -30,4 +30,5 @@ seldonian.models
 
 
    seldonian.models.models
+   seldonian.models.objectives
 

@@ -31,7 +31,8 @@ if __name__ == "__main__":
     spec = SupervisedSpec(
         dataset=dataset,
         model_class=model_class,
-        parse_trees=parse_trees
+        parse_trees=parse_trees,
+        sub_regime='regression',
     )
 
     # 5. Run seldonian algorithm using the spec object

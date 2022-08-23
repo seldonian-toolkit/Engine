@@ -1,6 +1,7 @@
 from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
 from seldonian.safety_test.safety_test import SafetyTest
+from seldonian.models import objectives
 from sklearn.model_selection import train_test_split
 import pytest
 
@@ -90,7 +91,7 @@ def test_evaluate_primary_objective(generate_data):
     # Linear regression model
     from seldonian.models.models import LinearRegressionModel
     model_instance = LinearRegressionModel()
-    primary_objective = model_instance.default_objective
+    primary_objective = objectives.Mean_Squared_Error
     
     # One constraint, so one parse tree
     constraint_str1 = 'Mean_Squared_Error - 2.0'

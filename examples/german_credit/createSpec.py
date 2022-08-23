@@ -69,9 +69,10 @@ if __name__ == '__main__':
     spec = SupervisedSpec(
         dataset=dataset,
         model_class=model_class,
+        parse_trees=parse_trees,
+        sub_regime='classification',
         frac_data_in_safety=0.6,
         primary_objective=primary_objective,
-        parse_trees=parse_trees,
         initial_solution_fn=model_class().fit,
         use_builtin_primary_gradient_fn=True,
         optimization_technique='gradient_descent',

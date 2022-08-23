@@ -110,6 +110,10 @@ class SupervisedSpec(Spec):
 		not an instance of the model.
 	:type model_class: :py:class:`.SeldonianModel` or child class
 
+	:param parse_trees: List of parse tree objects containing the 
+			behavioral constraints
+	:param sub_regime: "classification" or "regression"
+	
 	:param frac_data_in_safety: Fraction of data used in safety test.
 		The remaining fraction will be used in candidate selection
 	:type frac_data_in_safety: float
@@ -117,15 +121,9 @@ class SupervisedSpec(Spec):
 	:param primary_objective: The objective function that would
 		be solely optimized in the absence of behavioral constraints,
 		i.e. the loss function
-	:type primary_objective: function or class method
 
 	:param initial_solution_fn: Function to provide 
-		initial model weights in candidate selection 
-	:type initial_solution_fn: function
-
-	:param parse_trees: List of parse tree objects containing the 
-			behavioral constraints
-	:type parse_trees: List(:py:class:`.ParseTree` objects)
+		initial model weights in candidate selection
 	
 	:param use_builtin_primary_gradient_fn: Whether to use the built-in
 		function for the gradient of the primary objective, 
@@ -166,6 +164,7 @@ class SupervisedSpec(Spec):
 		dataset,
 		model_class,
 		parse_trees,
+		sub_regime,
 		primary_objective=None,
 		initial_solution_fn=None,
 		frac_data_in_safety=0.6,
@@ -201,7 +200,7 @@ class SupervisedSpec(Spec):
 			optimizer=optimizer,
 			optimization_hyperparams=optimization_hyperparams,
 			regularization_hyperparams=regularization_hyperparams)
-
+		self.sub_regime = sub_regime
 
 class RLSpec(Spec):
 	""" Specification object for running RL Seldonian algorithms
