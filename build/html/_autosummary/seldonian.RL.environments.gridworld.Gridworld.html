@@ -46,18 +46,16 @@
 <dd><p>Square gridworld RL environment of arbitrary size.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>size</strong> (<em>int</em>) – The number of grid cells on a side</p>
+<dd class="field-odd"><p><strong>size</strong> – The number of grid cells on a side</p>
 </dd>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>num_states</strong> (<em>int</em>) – The number of distinct grid cells</p></li>
-<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
-of the environment</p></li>
+<li><p><strong>num_states</strong> – The number of distinct grid cells</p></li>
+<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – contains attributes describing the environment</p></li>
 <li><p><strong>state</strong> (<em>int</em>) – The current state</p></li>
 <li><p><strong>terminal_state</strong> (<em>bool</em>) – Whether the terminal state is occupied</p></li>
 <li><p><strong>time</strong> (<em>int</em>) – The current timestep</p></li>
 <li><p><strong>max_time</strong> (<em>int</em>) – Maximum allowed timestep</p></li>
-<li><p><strong>vis</strong> (<em>bool</em>) – Whether to print state when transitioning states</p></li>
 <li><p><strong>gamma</strong> (<em>float</em>) – The discount factor in calculating the expected return</p></li>
 </ul>
 </dd>
@@ -78,8 +76,7 @@ of the environment</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.create_env_description">
 <span class="sig-name descname"><span class="pre">create_env_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.create_env_description" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper method to __init__() that creates
-the environment description object.</p>
+<dd><p>Creates the environment description object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>num_states</strong> – The number of states</p>
@@ -144,8 +141,7 @@ Override this method in child class implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.transition">
 <span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.transition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transition from one state to another given an action. 
-Return a reward</p>
+<dd><p>Transition between states given an action, return a reward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>action</strong> – A possible action at the current state</p>
