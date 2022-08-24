@@ -57,13 +57,15 @@ def sample_from_statistic(model,
 		return vector_logistic_loss(
 			model,theta,data_dict['features'],data_dict['labels'])
 
-	raise NotImplementedError(
-		f"Statistic: {statistic_name} is not implemented")
-
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':
 		return vector_IS_estimate(
 			model,theta,data_dict)
+
+	raise NotImplementedError(
+		f"Statistic: {statistic_name} is not implemented")
+
+	
 
 def evaluate_statistic(model,
 	statistic_name,theta,data_dict):
@@ -118,13 +120,15 @@ def evaluate_statistic(model,
 		return logistic_loss(
 			model,theta,data_dict['features'],data_dict['labels'])
 
-	raise NotImplementedError(
-		f"Statistic: {statistic_name} is not implemented")
-
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':
 		return IS_estimate(
 			model,theta,data_dict)
+
+	raise NotImplementedError(
+		f"Statistic: {statistic_name} is not implemented")
+
+	
 
 """ Regression """
 
