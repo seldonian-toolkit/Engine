@@ -149,7 +149,7 @@ def test_load_RL_dataset():
 	assert dataset_fromcsv.meta_information == columns
 	episodes = dataset_fromcsv.episodes
 	assert len(episodes) == 1000
-	assert np.allclose(episodes[0].states,np.array([0,0,3,4,7]))
+	assert np.allclose(episodes[0].observations,np.array([0,0,3,4,7]))
 	assert np.allclose(episodes[0].actions,np.array([2,1,3,1,3]))
 	assert np.allclose(episodes[0].rewards,np.array([0,0,0,-1,1]))
 	assert np.allclose(episodes[0].pis,np.array([0.25,0.25,0.25,0.25,0.25]))
@@ -166,30 +166,8 @@ def test_load_RL_dataset():
 	assert dataset_fromdf.meta_information == columns
 	episodes = dataset_fromdf.episodes
 	assert len(episodes) == 1000
-	assert np.allclose(episodes[0].states,np.array([0,0,3,4,7]))
+	assert np.allclose(episodes[0].observations,np.array([0,0,3,4,7]))
 	assert np.allclose(episodes[0].actions,np.array([2,1,3,1,3]))
 	assert np.allclose(episodes[0].rewards,np.array([0,0,0,-1,1]))
 	assert np.allclose(episodes[0].pis,np.array([0.25,0.25,0.25,0.25,0.25]))
-
-	# Now from pickled episode list
-	data_pth_episode_list = 'static/datasets/RL/gridworld/gridworld3x3_250episodes_list.pkl'
-
-	dataset_from_episode_list = loader.load_RL_dataset_from_episode_list(
-		filename=data_pth_episode_list,
-		metadata_filename=metadata_pth)
-
-	assert dataset_from_episode_list.meta_information == columns
-	episodes = dataset_from_episode_list.episodes
-	assert len(episodes) == 250
-
-	assert np.allclose(episodes[0].states,
-		np.array([[0,0,0,0,1,2,2,2,2,5,5]]))
-
-	assert np.allclose(episodes[0].actions,
-		np.array([[0,2,2,3,3,3,3,0,1,3,1]]))
-
-	assert np.allclose(episodes[0].rewards,
-		np.array([0,0,0,0,0,0,0,0,0,0,1]))
-	assert np.allclose(episodes[0].pis,
-		np.array([0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25]))	
 	

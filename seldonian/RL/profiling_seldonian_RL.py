@@ -95,7 +95,7 @@ def mock_vector_IS_estimate(theta, data_dict, rl_model):
     ep = episodes[0]
 
     #start loop in real function
-    pi_news = rl_model.get_probs_from_observations_and_actions(theta, ep.states, ep.actions)
+    pi_news = rl_model.get_probs_from_observations_and_actions(theta, ep.observations, ep.actions)
     # print("pi news:")
     # print(pi_news)
     pi_ratio_prod = np.prod(pi_news / ep.pis)

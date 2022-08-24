@@ -627,7 +627,7 @@ def IS_estimate(model,theta,data_dict):
 	episodes = data_dict['episodes']
 	IS_estimate = 0
 	for ii, ep in enumerate(episodes):
-		pi_news = model.get_probs_from_observations_and_actions(theta, ep.states, ep.actions)
+		pi_news = model.get_probs_from_observations_and_actions(theta, ep.observations, ep.actions)
 		# print(pi_news,ep.pis)
 		pi_ratios = pi_news / ep.pis
 		# print(pi_ratios)
@@ -659,7 +659,7 @@ def vector_IS_estimate(model, theta, data_dict):
 	# weighted_reward_sums_by_episode = data_dict['reward_sums_by_episode']
 	result = []
 	for ii, ep in enumerate(episodes):
-		pi_news = model.get_probs_from_observations_and_actions(theta, ep.states, ep.actions)
+		pi_news = model.get_probs_from_observations_and_actions(theta, ep.observations, ep.actions)
 		# print("pi news:")
 		# print(pi_news)
 		pi_ratio_prod = np.prod(pi_news / ep.pis)

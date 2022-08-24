@@ -96,7 +96,7 @@ class DataSetLoader():
 		
 		for episode_index in df.episode_index.unique():
 			df_ep = df.loc[df.episode_index==episode_index]
-			episode = Episode(states=df_ep.iloc[:,1].values,
+			episode = Episode(observations=df_ep.iloc[:,1].values,
 							  actions=df_ep.iloc[:,2].values,
 							  rewards=df_ep.iloc[:,3].values,
 							  pis=df_ep.iloc[:,4].values)
@@ -135,7 +135,7 @@ class DataSetLoader():
 		
 		for episode_index in df.episode_index.unique():
 			df_ep = df.loc[df.episode_index==episode_index]
-			episode = Episode(states=df_ep.O.values,
+			episode = Episode(observations=df_ep.O.values,
 							  actions=df_ep.A.values,
 							  rewards=df_ep.R.values,
 							  pis=df_ep.pi.values)
@@ -251,34 +251,23 @@ class RLDataSet(DataSet):
 
 
 class Episode(object):
-	def __init__(self,states,actions,rewards,pis):
+	def __init__(self,observations,actions,rewards,pis):
 		""" Object for holding RL episodes
 		
-		:param states: List of states for each timestep
+		:param observations: List of observations for each timestep
 			in the episode
-		:type states: list
-
-		:param actions: List of actions for each timestep
-			in the episode
-		:type actions: list
-
-		:param rewards: List of rewards for each timestep 
-			in the episode
-		:type rewards: list
-
+		:param actions: List of actions 
+		:param rewards: List of rewards 
 		:param pis: List of action probabilities 
-			for each timestep in the episode
-		:type pis: list
-
 		"""
-		self.states = np.array(states)
+		self.observations = np.array(observations)
 		self.actions = np.array(actions)
 		self.rewards = np.array(rewards)
 		self.pis = np.array(pis)
 
 	def __str__(self):
 		return f"return = {sum(self.rewards)}\n"+\
-	    f"{len(self.states)} states, type of first in array is {type(self.states[0])}: {self.states}\n"\
+	    f"{len(self.observations)} observations, type of first in array is {type(self.observations[0])}: {self.observations}\n"\
 		+ f"{len(self.actions)} actions, type of first in array is {type(self.actions[0])}: {self.actions}\n"\
 		+ f"{len(self.rewards)} rewards, type of first in array is {type(self.rewards[0])}: {self.rewards}\n"\
 		+ f"{len(self.pis)} pis, type of first in array is {type(self.pis[0])}: {self.pis}"
