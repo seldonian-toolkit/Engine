@@ -27,7 +27,7 @@ class Environment:
         return self.env_description
 
     def terminated(self):
-        """ Get the terminal state 
+        """ Get the terminal obs
         """
         return self.terminal_state
 

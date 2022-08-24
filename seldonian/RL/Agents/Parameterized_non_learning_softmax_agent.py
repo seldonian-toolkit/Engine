@@ -4,7 +4,7 @@ from seldonian.RL.Agents.Policies.Softmax import *
 
 class Parameterized_non_learning_softmax_agent(Agent):
 	def __init__(self, env_description, hyperparam_and_setting_dict):
-		""" 
+		"""
 		RL agent that takes actions using parametrized softmax function:
 		:math:`\pi(s,a) = \\frac{e^{p(s,a)}}{\sum_{a'}{e^{p(s,a')}}}`
 
@@ -26,24 +26,24 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		self.softmax = Softmax(env_description.get_min_action(), num_actions)
 		self.env_description = env_description
 
-	def get_action_values(self, state):
-		""" Get all possible actions from this state using the Q table
+	def get_action_values(self, obs):
+		""" Get all possible actions from this state using the FA
 
-		:param state: The current state of the agent, type depends on environment.
+		:param obs: The current observation of the agent, type depends on environment.
 		"""
-		return self.FA.get_action_values_given_state(state)
+		return self.FA.get_action_values_given_state(obs)
 
-	def choose_action(self, state):
-		""" Select an action given a state 
+	def choose_action(self, obs):
+		""" Select an action given a observation
 
-		:param state: The current state of the agent, type depends on environment.
+		:param obs: The current observation of the agent, type depends on environment.
 
 		:return: array of actions
 		"""
-		action_values = self.get_action_values(state)
+		action_values = self.get_action_values(obs)
 		return self.softmax.choose_action(action_values)
 
-	def update(self, state, next_state, reward, terminated):
+	def update(self, observation, next_observation, reward, terminated):
 		""" 
 		Updates agent's parameters according to the learning rule.
 		Not implemented for this agent.
@@ -62,17 +62,17 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		"""
 		pass
 
-	def get_prob_this_action(self, state, action):
-		""" Get the probability of a selected action in a given state
+	def get_prob_this_action(self, observation, action):
+		""" Get the probability of a selected action in a given obs
 
-		:param state: The current state of the agent, type depends on environment.
+		:param observation: The current obs of the agent, type depends on environment.
 
 		:param action: The action selected, type depends on environment
 
 		:return: probability of action
 		:rtype: float
 		"""
-		action_values = self.get_action_values(state)
+		action_values = self.get_action_values(observation)
 		action_probs = self.softmax.get_action_probs_from_action_values(action_values)
 		this_action = self.softmax.from_environment_action_to_0_indexed_action(action)
 		return action_probs[this_action]

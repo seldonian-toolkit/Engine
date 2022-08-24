@@ -1062,7 +1062,7 @@ class ParseTree(object):
 
 	def reset_base_node_dict(self,reset_data=False):
 		""" 
-		Reset base node dict to initial state 
+		Reset base node dict to initial obs
 		
 		:param reset_data: 
 			Whether to reset the cached data 

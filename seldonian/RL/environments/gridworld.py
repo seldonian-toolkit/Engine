@@ -9,9 +9,9 @@ class Gridworld(Environment):
         :ivar num_states: The number of distinct grid cells
         :ivar env_description: contains attributes describing the environment
         :vartype env_description: :py:class:`.Env_Description`
-        :ivar state: The current state 
-        :vartype state: int
-        :ivar terminal_state: Whether the terminal state is occupied
+        :ivar obs: The current obs
+        :vartype obs: int
+        :ivar terminal_state: Whether the terminal obs is occupied
         :vartype terminal_state: bool
         :ivar time: The current timestep
         :vartype time: int
@@ -27,7 +27,7 @@ class Gridworld(Environment):
         self.terminal_state = False
         self.time = 0
         self.max_time = 101
-        # vis is a flag for visual debugging during state transitions
+        # vis is a flag for visual debugging during obs transitions
         self.vis = False
         self.gamma = 0.9
 
@@ -35,7 +35,7 @@ class Gridworld(Environment):
         """ Creates the environment description object.  
 
         :param num_states: The number of states
-        :return: Environment description for the state and action spaces
+        :return: Environment description for the obs and action spaces
         :rtype: :py:class:`.Env_Description`
         """
         observation_space = Discrete_Space(0, num_states-1)
@@ -43,7 +43,7 @@ class Gridworld(Environment):
         return Env_Description(observation_space, action_space)
 
     def reset(self):
-        """ Go back to initial state and timestep """
+        """ Go back to initial obs and timestep """
         self.state = 0
         self.time = 0
         self.terminal_state = False
@@ -51,8 +51,8 @@ class Gridworld(Environment):
     def transition(self, action):
         """ Transition between states given an action, return a reward. 
         
-        :param action: A possible action at the current state
-        :return: reward for reaching the next state
+        :param action: A possible action at the current obs
+        :return: reward for reaching the next obs
         """
         reward = 0
         self.time += 1
@@ -70,14 +70,14 @@ class Gridworld(Environment):
         return reward
 
     def get_observation(self):
-        """ Get the current state """
+        """ Get the current obs """
         return self.state
 
     def update_position(self, action):
         """ Helper function for transition() that updates the 
         current position given an action 
 
-        :param action: A possible action at the current state
+        :param action: A possible action at the current obs
         """
         if action == 0: #up
             if self.state >= self.size: #if not on top row
@@ -95,14 +95,14 @@ class Gridworld(Environment):
             raise Exception(f"invalid gridworld action {action}")
 
     def is_in_goal_state(self):
-        """ Check whether current state is goal state
+        """ Check whether current obs is goal obs
 
-        :return: True if state is in goal state, False if not
+        :return: True if obs is in goal obs, False if not
         """
         return self.state == self.num_states - 1
 
     def visualize(self):
-        """ Print out current state information
+        """ Print out current obs information
         """
         print_state = 0
         for y in range(self.size):

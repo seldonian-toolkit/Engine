@@ -4,7 +4,7 @@ from seldonian.utils.RL_utils import *
 
 class Env_Description:
     def __init__(self, observation_space, action_space):
-        """ Describes an environment's state and action space
+        """ Describes an environment's obs and action space
         and provides convenience methods for accessing the
         environment's attributes 
 
@@ -37,12 +37,12 @@ class Env_Description:
         return self.action_space.min
 
     def get_min_state(self):
-        """ Get first state in the observation space 
+        """ Get first obs in the observation space
         """
         check_space_type(self.action_space, Discrete_Space)
         return self.observation_space.min
 
-    def get_num_state_dims(self):
+    def get_num_observation_dims(self):
         """ Get the number of dimensions in the observation space
         """
         return self.observation_space.get_num_dims()

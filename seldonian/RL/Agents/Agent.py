@@ -45,7 +45,7 @@ class Agent:
     def set_new_params(self, theta):
         raise NotImplementedError()
 
-    def make_state_action_FA(self, env_desciption, hyperparam_and_setting_dict):
+    def make_state_action_FA(self, env_description, hyperparam_and_setting_dict):
         """ Create a function approximator from an environment description and
         dictionary specification
 
@@ -60,12 +60,12 @@ class Agent:
         :return: function approximator, type depends on whether observation 
             space is discrete or continous
         """
-        if type(env_desciption.observation_space) == Discrete_Space and type(env_desciption.action_space) == Discrete_Space:
-            return construct_Q_Table_From_Env_Description(env_desciption)
-        if type(env_desciption.observation_space) == Continuous_Space and type(env_desciption.action_space) == Discrete_Space:
-            return self.construct_basis_and_linear_FA(env_desciption, hyperparam_and_setting_dict)
+        if type(env_description.observation_space) == Discrete_Space and type(env_description.action_space) == Discrete_Space:
+            return construct_Q_Table_From_Env_Description(env_description)
+        if type(env_description.observation_space) == Continuous_Space and type(env_description.action_space) == Discrete_Space:
+            return self.construct_basis_and_linear_FA(env_description, hyperparam_and_setting_dict)
         else:
-            error(f"unhandled state type {type(env_desciption.observation_space)} and action type {type(env_desciption.action_space)} for make_state_action_FA()")
+            error(f"unhandled state type {type(env_description.observation_space)} and action type {type(env_description.action_space)} for make_state_action_FA()")
 
     def construct_basis_and_linear_FA(self, env_description, hyperparam_and_setting_dict):
         """Create a basis and linear function approximator 

@@ -5,7 +5,7 @@ class Table(Function_Approximator):
     def __init__(self, min_state, num_states):
         """ Table holding states, capable of reindexing states
         
-        :param min_state: The smallest state number
+        :param min_state: The smallest obs number
         :type min_state: int
 
         :param num_states: Number of total states
@@ -16,12 +16,12 @@ class Table(Function_Approximator):
 
     def from_environment_state_to_0_indexed_state(self, env_state):
         """
-        Convert environment state to 0 indexed state in the table
+        Convert environment obs to 0 indexed obs in the table
 
-        :param env_state: The environment state you want to convert
+        :param env_state: The environment obs you want to convert
         :type env: int
 
-        :return: 0-indexed state in the table
+        :return: 0-indexed obs in the table
         """
         return env_state - self.min_state
 
@@ -29,13 +29,13 @@ class Q_Table(Table):
     def __init__(self, min_state, num_states, num_actions):
         """ A Q table containing transition probabilities 
 
-        :param min_state: The smallest state number
+        :param min_state: The smallest obs number
         :type min_state: int
 
         :param num_states: Number of total states
         :type num_states: int
 
-        :param num_actions: Number of actions in a given state
+        :param num_actions: Number of actions in a given obs
         :type num_actions: int
         """
         super().__init__(min_state, num_states)
@@ -43,9 +43,9 @@ class Q_Table(Table):
         self.num_actions = num_actions
 
     def get_action_values_given_state(self, state_number_not_zero_indexed):
-        """ Get possible Q-table values given environmental state
+        """ Get possible Q-table values given environmental obs
 
-        :param state_number_not_zero_indexed: The environment-specific state number
+        :param state_number_not_zero_indexed: The environment-specific obs number
         :type state_number_not_zero_indexed: int
 
         :return: array of possible Q-table values
@@ -55,9 +55,9 @@ class Q_Table(Table):
         return self.get_action_values_given_zero_indexed_state(zero_indexed_state_number)
 
     def get_action_values_given_zero_indexed_state(self, zero_indexed_state_number):
-        """ Get possible Q-table values given 0-indexed state number in the table
+        """ Get possible Q-table values given 0-indexed obs number in the table
 
-        :param zero_indexed_state_number: The 0-indexed state number in the table
+        :param zero_indexed_state_number: The 0-indexed obs number in the table
         :type zero_indexed_state_number: int
 
         :return: array of possible actions

@@ -74,7 +74,7 @@ class DataSetLoader():
 		""" Create RLDataSet object from file
 		containing the episodes as a CSV with format:
 
-		episode_index,state,action,reward,probability_of_action.
+		episode_index,obs,action,reward,probability_of_action.
 
 		:param filename: The file
 			containing the data you want to load
