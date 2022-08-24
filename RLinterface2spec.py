@@ -13,7 +13,7 @@ from seldonian.models.models import *
 from seldonian.RL.Agents import *
 from seldonian.RL.environments import *
 from seldonian.RL.RL_model import *
-
+from seldonian.models import objectives
 
 def main_RLinterface2spec():
     save_dir, metadata_pth, data_pth = get_paths_from_args()
@@ -33,7 +33,7 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_strs):
     RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)()
 
     RL_model_instance = RL_model(agent,RL_environment_obj)
-    primary_objective = RL_model_instance.sample_IS_estimate
+    primary_objective = objectives.IS_estimate
 
     deltas = [0.05]
 
