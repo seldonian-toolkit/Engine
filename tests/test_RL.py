@@ -2,6 +2,7 @@ import pytest
 from seldonian.RL.Agents.Function_Approximators.Table import *
 from seldonian.RL.Agents.Policies.Policy import *
 from seldonian.RL.Agents.Policies.Softmax import *
+from seldonian.RL.environments.mountaincar import *
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
 import autograd.numpy as np
 
@@ -104,4 +105,12 @@ def test_spaces_and_env_descriptions():
     assert env_desc.get_min_action() == 1
     assert env_desc.get_min_state() == -10
 
-
+def test_Fourier():
+    hyperparam_and_setting_dict = {}
+    hyperparam_and_setting_dict["order"] = 2
+    hyperparam_and_setting_dict["max_coupled_vars"] = -1
+    env = Mountaincar()
+    env_desc = env.env_description
+    basis = Fourier(hyperparam_and_setting_dict, env_desc)
+    assert basis.num_features == 9
+    assert np.array_equal(basis.basis_matrix, np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]))
