@@ -1,6 +1,7 @@
 """ Objective functions """
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+from seldonian.utils.stats_utils import weighted_sum_gamma
 
 def sample_from_statistic(model,
 	statistic_name,theta,data_dict):
