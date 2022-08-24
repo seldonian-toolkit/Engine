@@ -26,7 +26,7 @@ seldonian.RL.Agents.Bases.Fourier.Fourier
    ..
    ..    ~Fourier.get_features
    ..
-   ..    ~Fourier.get_normalized_state
+   ..    ~Fourier.get_normalized_observation
    ..
    
    

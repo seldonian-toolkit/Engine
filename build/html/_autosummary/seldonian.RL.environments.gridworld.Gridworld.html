@@ -52,8 +52,8 @@
 <dd class="field-even"><ul class="simple">
 <li><p><strong>num_states</strong> – The number of distinct grid cells</p></li>
 <li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – contains attributes describing the environment</p></li>
-<li><p><strong>state</strong> (<em>int</em>) – The current state</p></li>
-<li><p><strong>terminal_state</strong> (<em>bool</em>) – Whether the terminal state is occupied</p></li>
+<li><p><strong>obs</strong> (<em>int</em>) – The current obs</p></li>
+<li><p><strong>terminal_state</strong> (<em>bool</em>) – Whether the terminal obs is occupied</p></li>
 <li><p><strong>time</strong> (<em>int</em>) – The current timestep</p></li>
 <li><p><strong>max_time</strong> (<em>int</em>) – Maximum allowed timestep</p></li>
 <li><p><strong>gamma</strong> (<em>float</em>) – The discount factor in calculating the expected return</p></li>
@@ -82,7 +82,7 @@
 <dd class="field-odd"><p><strong>num_states</strong> – The number of states</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Environment description for the state and action spaces</p>
+<dd class="field-even"><p>Environment description for the obs and action spaces</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a></p>
@@ -100,16 +100,16 @@ Override this method in child class implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.get_observation">
 <span class="sig-name descname"><span class="pre">get_observation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.get_observation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the current state</p>
+<dd><p>Get the current obs</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.is_in_goal_state">
 <span class="sig-name descname"><span class="pre">is_in_goal_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.is_in_goal_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check whether current state is goal state</p>
+<dd><p>Check whether current obs is goal obs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>True if state is in goal state, False if not</p>
+<dd class="field-odd"><p>True if obs is in goal obs, False if not</p>
 </dd>
 </dl>
 </dd></dl>
@@ -117,7 +117,7 @@ Override this method in child class implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.reset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Go back to initial state and timestep</p>
+<dd><p>Go back to initial obs and timestep</p>
 </dd></dl>
 
 <dl class="py method">
@@ -135,7 +135,7 @@ Override this method in child class implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.terminated">
 <span class="sig-name descname"><span class="pre">terminated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.terminated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the terminal state</p>
+<dd><p>Get the terminal obs</p>
 </dd></dl>
 
 <dl class="py method">
@@ -144,10 +144,10 @@ Override this method in child class implementation</p>
 <dd><p>Transition between states given an action, return a reward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>action</strong> – A possible action at the current state</p>
+<dd class="field-odd"><p><strong>action</strong> – A possible action at the current obs</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>reward for reaching the next state</p>
+<dd class="field-even"><p>reward for reaching the next obs</p>
 </dd>
 </dl>
 </dd></dl>
@@ -159,7 +159,7 @@ Override this method in child class implementation</p>
 current position given an action</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>action</strong> – A possible action at the current state</p>
+<dd class="field-odd"><p><strong>action</strong> – A possible action at the current obs</p>
 </dd>
 </dl>
 </dd></dl>
@@ -167,7 +167,7 @@ current position given an action</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.visualize">
 <span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.visualize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print out current state information</p>
+<dd><p>Print out current obs information</p>
 </dd></dl>
 
 </dd></dl>

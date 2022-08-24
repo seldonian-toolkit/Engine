@@ -77,11 +77,11 @@ info about the environment and data generation</p></li>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.choose_action">
-<span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.choose_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Select an action given a state</p>
+<span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.choose_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select an action given a observation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>state</strong> – The current state of the agent, type depends on environment.</p>
+<dd class="field-odd"><p><strong>obs</strong> – The current observation of the agent, type depends on environment.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>array of actions</p>
@@ -109,11 +109,11 @@ and number of trials</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_action_values">
-<span class="sig-name descname"><span class="pre">get_action_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_action_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all possible actions from this state using the Q table</p>
+<span class="sig-name descname"><span class="pre">get_action_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_action_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all possible actions from this state using the FA</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>state</strong> – The current state of the agent, type depends on environment.</p>
+<dd class="field-odd"><p><strong>obs</strong> – The current observation of the agent, type depends on environment.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -131,12 +131,12 @@ and number of trials</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_prob_this_action">
-<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the probability of a selected action in a given state</p>
+<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the probability of a selected action in a given obs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>state</strong> – The current state of the agent, type depends on environment.</p></li>
+<li><p><strong>observation</strong> – The current obs of the agent, type depends on environment.</p></li>
 <li><p><strong>action</strong> – The action selected, type depends on environment</p></li>
 </ul>
 </dd>
@@ -151,7 +151,7 @@ and number of trials</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.make_state_action_FA">
-<span class="sig-name descname"><span class="pre">make_state_action_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_desciption</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.make_state_action_FA" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">make_state_action_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.make_state_action_FA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a function approximator from an environment description and
 dictionary specification</p>
 <dl class="field-list simple">
@@ -184,7 +184,7 @@ space is discrete or continous</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminated</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.update" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminated</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Parameterized_non_learning_softmax_agent.Parameterized_non_learning_softmax_agent.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates agent’s parameters according to the learning rule.
 Not implemented for this agent.</p>
 <dl class="field-list simple">

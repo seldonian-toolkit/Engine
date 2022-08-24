@@ -26,7 +26,7 @@ seldonian.RL.Env\_Description.Env\_Description.Env\_Description
    ..
    ..    ~Env_Description.get_num_actions
    ..
-   ..    ~Env_Description.get_num_state_dims
+   ..    ~Env_Description.get_num_observation_dims
    ..
    ..    ~Env_Description.get_num_states
    ..
