@@ -3,8 +3,8 @@ import autograd.numpy as np
 from seldonian.utils.RL_utils import *
 
 class Softmax(Discrete_Action_Policy):
-    def __init__(self, min_action, num_actions):
-        super().__init__(min_action, num_actions)
+    def __init__(self, env_description, hyperparam_and_setting_dict):
+        super().__init__(hyperparam_and_setting_dict, env_description)
 
     def choose_action(self, action_values):
         if len(action_values) != self.num_actions:
@@ -33,3 +33,20 @@ class Softmax(Discrete_Action_Policy):
         max_value = np.max(action_values)
         e_to_the_something_terms = np.exp(action_values - max_value) #subtract max for numerical stability
         return e_to_the_something_terms
+
+    def get_action_values_given_state(self, obs):
+        return self.FA.get_action_values_given_state(obs)
+
+    def set_new_params(self, new_params):
+        """ Set the parameters of the agent
+
+        :param new_params: array of weights
+        """
+        self.FA.set_new_params(new_params)
+
+    def get_params(self):
+        """ Get the current parameters (weights) of the agent
+
+        :return: array of weights
+        """
+        return self.FA.weights

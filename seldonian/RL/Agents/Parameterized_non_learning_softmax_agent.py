@@ -21,9 +21,8 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		:ivar softmax: The policy
 		:vartype softmax: :py:class:`.Softmax`
 		"""
-		num_actions = env_description.get_num_actions()
-		self.FA = self.make_state_action_FA(env_description, hyperparam_and_setting_dict)
-		self.softmax = Softmax(env_description.get_min_action(), num_actions)
+
+		self.softmax = Softmax(env_description, hyperparam_and_setting_dict)
 		self.env_description = env_description
 
 	def get_action_values(self, obs):
@@ -31,7 +30,7 @@ class Parameterized_non_learning_softmax_agent(Agent):
 
 		:param obs: The current observation of the agent, type depends on environment.
 		"""
-		return self.FA.get_action_values_given_state(obs)
+		return self.softmax.get_action_values_given_state(obs)
 
 	def choose_action(self, obs):
 		""" Select an action given a observation
