@@ -37,8 +37,13 @@ def test_tables():
 def test_Discrete_Action_Policy():
     """test Discrete_Action_Policy action index methods"""
     min_action = -1
-    num_actions = 3
-    p = Discrete_Action_Policy(min_action, num_actions)
+    max_action = 1
+    observation_space = Discrete_Space(-1, 2) #irrelevant for test
+    action_space = Discrete_Space(min_action, max_action)
+    env_description = Env_Description(observation_space, action_space)
+    hyperparam_and_setting_dict = {}
+
+    p = Discrete_Action_Policy(hyperparam_and_setting_dict, env_description)
 
     assert p.from_environment_action_to_0_indexed_action(-1) == 0
     assert p.from_environment_action_to_0_indexed_action(0) == 1
@@ -50,7 +55,14 @@ def test_Discrete_Action_Policy():
 
 def test_Softmax():
     """test Softmax functions"""
-    sm = Softmax(-1, 1)
+    min_action = -1
+    max_action = 1
+    observation_space = Discrete_Space(-1, 2)  # irrelevant for test
+    action_space = Discrete_Space(min_action, max_action)
+    env_description = Env_Description(observation_space, action_space)
+    hyperparam_and_setting_dict = {}
+
+    sm = Softmax(hyperparam_and_setting_dict, env_description)
     e_to_something_stable = np.array([0.1108031584, 0.0040867714, 1.0])
     assert np.allclose(sm.get_e_to_the_something_terms([1.1, -2.2, 3.3]), e_to_something_stable)
     assert np.allclose(sm.get_action_probs_from_action_values([1.1, -2.2, 3.3]), e_to_something_stable / sum(e_to_something_stable))

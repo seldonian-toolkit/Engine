@@ -281,7 +281,7 @@ class RLSpec(Spec):
 		initial_solution_fn,
 		parse_trees,
 		RL_environment_obj,
-		RL_agent_obj,
+		RL_policy_obj,
 		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
@@ -316,14 +316,14 @@ class RLSpec(Spec):
 			optimization_hyperparams,
 			regularization_hyperparams)
 		self.RL_environment_obj = RL_environment_obj
-		self.RL_agent_obj = RL_agent_obj
+		self.RL_policy_obj = RL_policy_obj
 		self.normalize_returns = normalize_returns
 
 
 def createRLSpec(
 	dataset,
 	metadata_pth,
-	agent,
+	policy,
 	constraint_strs,
 	deltas,
 	save_dir,
@@ -336,8 +336,8 @@ def createRLSpec(
 	:type dataset: :py:class:`.DataSet`
 	:param metadata_pth: Path to metadata file
 	:type metadata_pth: str
-	:param agent: The agent object 
-	:type agent: :py:class:`.Agent`
+	:param policy: The policy object
+	:type policy: :py:class:`.Policy`
 	:param constraint_strs: Constraint strings 
 	:type constraint_strs: List(str)
 	:param deltas: Confidence thresholds
@@ -360,7 +360,7 @@ def createRLSpec(
 	RL_environment_obj = getattr(
 		RL_environment_module, RL_env_class_name)(**env_kwargs)
 
-	RL_model_instance = RL_model(agent,RL_environment_obj)
+	RL_model_instance = RL_model(policy,RL_environment_obj)
 	primary_objective = RL_model_instance.sample_IS_estimate
 
 	parse_trees = make_parse_trees_from_constraints(
@@ -379,7 +379,7 @@ def createRLSpec(
 		use_builtin_primary_gradient_fn=False,
 		parse_trees=parse_trees,
 		RL_environment_obj=RL_environment_obj,
-		RL_agent_obj=agent,
+		RL_policy_obj=policy,
 		initial_solution_fn=None,
 		optimization_technique='gradient_descent',
 		optimizer='adam',

@@ -15,7 +15,6 @@ def define_hyperparameter_and_setting_dict():
     the_dict["order"] = 2
     the_dict["max_coupled_vars"] = -1
 
-    the_dict["num_episodes"] = 500
-    the_dict["num_trials"] = 1
+    the_dict["num_episodes"] = 5000
     the_dict["vis"] = False
     return the_dict

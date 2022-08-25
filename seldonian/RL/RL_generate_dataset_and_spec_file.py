@@ -19,7 +19,7 @@ def main():
     metadata_pth = get_metadata_path(hyperparameter_and_setting_dict["env"])
     save_dir = '.'
     constraint_string = get_constraint_string(hyperparameter_and_setting_dict["env"])
-    dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_string)
+    dataset2spec(save_dir, metadata_pth, dataset, agent.get_policy(), constraint_string)
 
 def get_metadata_path(env_name):
     if env_name == "gridworld":
@@ -49,7 +49,7 @@ def print_return_info(episodes):
         if the_return < the_min:
             the_min = the_return
         the_sum += the_return
-        # print(the_return)
+        print(the_return)
     print(f"\navg return = {the_sum / len(episodes)}")
     print(f"lowest return =  {the_min}")
 
