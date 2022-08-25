@@ -22,7 +22,7 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		:vartype softmax: :py:class:`.Softmax`
 		"""
 
-		self.softmax = Softmax(env_description, hyperparam_and_setting_dict)
+		self.softmax = Softmax(hyperparam_and_setting_dict, env_description)
 		self.env_description = env_description
 
 	def get_action_values(self, obs):
@@ -39,8 +39,7 @@ class Parameterized_non_learning_softmax_agent(Agent):
 
 		:return: array of actions
 		"""
-		action_values = self.get_action_values(obs)
-		return self.softmax.choose_action(action_values)
+		return self.softmax.choose_action(obs)
 
 	def update(self, observation, next_observation, reward, terminated):
 		""" 
@@ -71,21 +70,21 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		:return: probability of action
 		:rtype: float
 		"""
-		action_values = self.get_action_values(observation)
-		action_probs = self.softmax.get_action_probs_from_action_values(action_values)
-		this_action = self.softmax.from_environment_action_to_0_indexed_action(action)
-		return action_probs[this_action]
+		return self.softmax.get_prob_this_action(observation, action)
 
 	def set_new_params(self, new_params):
 		""" Set the parameters of the agent
 
 		:param new_params: array of weights
 		"""
-		self.FA.set_new_params(new_params)
+		self.softmax.set_new_params(new_params)
 
 	def get_params(self):
 		""" Get the current parameters (weights) of the agent
 
 		:return: array of weights
 		"""
-		return self.FA.weights
+		return self.softmax.get_params()
+
+	def get_policy(self):
+		return self.softmax

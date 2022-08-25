@@ -61,3 +61,20 @@ class Discrete_Action_Policy(Policy):
         else:
             error("unknown basis type ", basis_type)
         return Linear_state_action_value_FA(basis, env_description)
+
+    def get_action_values_given_state(self, obs):
+        return self.FA.get_action_values_given_state(obs)
+
+    def set_new_params(self, new_params):
+        """ Set the parameters of the agent
+
+        :param new_params: array of weights
+        """
+        self.FA.set_new_params(new_params)
+
+    def get_params(self):
+        """ Get the current parameters (weights) of the agent
+
+        :return: array of weights
+        """
+        return self.FA.weights

@@ -112,10 +112,10 @@ class SeldonianAlgorithm():
 			self.RL_environment_obj = self.spec.RL_environment_obj
 			self.normalize_returns = self.spec.normalize_returns
 
-			self.RL_agent_obj = self.spec.RL_agent_obj
+			self.RL_policy_obj = self.spec.RL_policy_obj
 
 			self.model_instance = self.spec.model_class(
-				self.RL_agent_obj, self.RL_environment_obj)
+				self.RL_policy_obj, self.RL_environment_obj)
 
 			episodes = self.spec.dataset.episodes
 			# Create candidate and safety datasets
@@ -139,7 +139,7 @@ class SeldonianAlgorithm():
 			print(f"Candidate dataset has {self.n_candidate} episodes")
 			
 			# initial solution
-			self.initial_solution = self.RL_agent_obj.get_params()
+			self.initial_solution = self.RL_policy_obj.get_params()
 
 			cs_kwargs = dict(
 				model=self.model_instance,

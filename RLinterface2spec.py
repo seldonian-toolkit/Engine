@@ -10,7 +10,6 @@ from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
 from seldonian.spec import RLSpec
 from seldonian.models.models import *
-from seldonian.RL.Agents import *
 from seldonian.RL.environments import *
 from seldonian.RL.RL_model import *
 from seldonian.models import objectives
@@ -21,7 +20,7 @@ def main_RLinterface2spec():
     dataset2spec(save_dir, metadata_pth, dataset)
 
 
-def dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_strs):
+def dataset2spec(save_dir, metadata_pth, dataset, policy, constraint_strs):
     # Load metadata
     with open(metadata_pth, 'r') as infile:
         metadata_dict = json.load(infile)
@@ -32,7 +31,7 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_strs):
     RL_env_class_name = metadata_dict['RL_class_name']
     RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)()
 
-    RL_model_instance = RL_model(agent,RL_environment_obj)
+    RL_model_instance = RL_model(policy,RL_environment_obj)
     primary_objective = objectives.IS_estimate
 
     deltas = [0.05]
@@ -66,7 +65,7 @@ def dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_strs):
         primary_objective=primary_objective,
         parse_trees=parse_trees,
         RL_environment_obj=RL_environment_obj,
-        RL_agent_obj=agent,
+        RL_policy_obj=policy,
         initial_solution_fn=None,
         optimization_technique='gradient_descent',
         optimizer='adam',

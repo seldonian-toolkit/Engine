@@ -43,3 +43,6 @@ class Agent:
 
     def get_params(self):
         raise NotImplementedError()
+
+    def get_policy(self):
+        raise NotImplementedError()
