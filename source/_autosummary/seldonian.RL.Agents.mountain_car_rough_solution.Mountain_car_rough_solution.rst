@@ -22,13 +22,11 @@ seldonian.RL.Agents.mountain\_car\_rough\_solution.Mountain\_car\_rough\_solutio
    ..
    ..    ~Mountain_car_rough_solution.choose_action
    ..
-   ..    ~Mountain_car_rough_solution.construct_basis_and_linear_FA
-   ..
    ..    ~Mountain_car_rough_solution.get_params
    ..
-   ..    ~Mountain_car_rough_solution.get_prob_this_action
+   ..    ~Mountain_car_rough_solution.get_policy
    ..
-   ..    ~Mountain_car_rough_solution.make_state_action_FA
+   ..    ~Mountain_car_rough_solution.get_prob_this_action
    ..
    ..    ~Mountain_car_rough_solution.set_new_params
    ..

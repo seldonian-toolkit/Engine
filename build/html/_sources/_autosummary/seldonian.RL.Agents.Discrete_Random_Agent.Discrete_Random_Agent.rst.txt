@@ -22,13 +22,11 @@ seldonian.RL.Agents.Discrete\_Random\_Agent.Discrete\_Random\_Agent
    ..
    ..    ~Discrete_Random_Agent.choose_action
    ..
-   ..    ~Discrete_Random_Agent.construct_basis_and_linear_FA
-   ..
    ..    ~Discrete_Random_Agent.get_params
    ..
-   ..    ~Discrete_Random_Agent.get_prob_this_action
+   ..    ~Discrete_Random_Agent.get_policy
    ..
-   ..    ~Discrete_Random_Agent.make_state_action_FA
+   ..    ~Discrete_Random_Agent.get_prob_this_action
    ..
    ..    ~Discrete_Random_Agent.set_new_params
    ..

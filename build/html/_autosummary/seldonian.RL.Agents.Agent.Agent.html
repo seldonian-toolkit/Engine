@@ -71,24 +71,6 @@ type depends on environment.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Agent.Agent.construct_basis_and_linear_FA">
-<span class="sig-name descname"><span class="pre">construct_basis_and_linear_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Agent.Agent.construct_basis_and_linear_FA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a basis and linear function approximator 
-from an environment description and dictionary specification</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
-of the environment</p></li>
-<li><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
-environment, agent, number of episodes per trial,
-and number of trials</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Agent.Agent.get_prob_this_action">
 <span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Agent.Agent.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get probability of a given action provided environment 
@@ -97,28 +79,6 @@ is in a observation. To be overridden</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>observation</strong> – The current observation of the agent,
 type depends on environment.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Agent.Agent.make_state_action_FA">
-<span class="sig-name descname"><span class="pre">make_state_action_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Agent.Agent.make_state_action_FA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a function approximator from an environment description and
-dictionary specification</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
-of the environment</p></li>
-<li><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
-environment, agent, number of episodes per trial,
-and number of trials</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>function approximator, type depends on whether observation 
-space is discrete or continous</p>
 </dd>
 </dl>
 </dd></dl>

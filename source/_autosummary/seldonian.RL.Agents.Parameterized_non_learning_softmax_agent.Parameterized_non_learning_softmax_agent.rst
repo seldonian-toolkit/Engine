@@ -22,15 +22,13 @@ seldonian.RL.Agents.Parameterized\_non\_learning\_softmax\_agent.Parameterized\_
    ..
    ..    ~Parameterized_non_learning_softmax_agent.choose_action
    ..
-   ..    ~Parameterized_non_learning_softmax_agent.construct_basis_and_linear_FA
-   ..
    ..    ~Parameterized_non_learning_softmax_agent.get_action_values
    ..
    ..    ~Parameterized_non_learning_softmax_agent.get_params
    ..
-   ..    ~Parameterized_non_learning_softmax_agent.get_prob_this_action
+   ..    ~Parameterized_non_learning_softmax_agent.get_policy
    ..
-   ..    ~Parameterized_non_learning_softmax_agent.make_state_action_FA
+   ..    ~Parameterized_non_learning_softmax_agent.get_prob_this_action
    ..
    ..    ~Parameterized_non_learning_softmax_agent.set_new_params
    ..

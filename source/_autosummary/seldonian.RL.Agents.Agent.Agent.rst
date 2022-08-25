@@ -22,13 +22,11 @@ seldonian.RL.Agents.Agent.Agent
    ..
    ..    ~Agent.choose_action
    ..
-   ..    ~Agent.construct_basis_and_linear_FA
-   ..
    ..    ~Agent.get_params
    ..
-   ..    ~Agent.get_prob_this_action
+   ..    ~Agent.get_policy
    ..
-   ..    ~Agent.make_state_action_FA
+   ..    ~Agent.get_prob_this_action
    ..
    ..    ~Agent.set_new_params
    ..
