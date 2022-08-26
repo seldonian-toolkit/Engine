@@ -5,6 +5,7 @@ from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import load_json,save_pickle
 from seldonian.spec import SupervisedSpec
 from seldonian.models.models import LogisticRegressionModel
+from seldonian.models import objectives
 
 if __name__ == '__main__':
     data_pth = "../../static/datasets/supervised/GPA/gpa_classification_dataset.csv"
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     model_class = LogisticRegressionModel
     
     # Set the primary objective to be log loss
-    primary_objective = model_class().sample_logistic_loss
+    primary_objective = objectives.logistic_loss
 
     # Load dataset from file
     loader = DataSetLoader(

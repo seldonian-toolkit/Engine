@@ -178,7 +178,7 @@ The goal of candidate selection is to find a solution to the Seldonian ML proble
 
 where :math:`\mathbf{\theta}` is the array of model weights, :math:`f(\mathbf{\theta})` is the primary objective function, :math:`\text{HCUB}(g_i(\mathbf{\theta}))` is the high confidence upper bound of the ith constraint function out of :math:`n` constraints, and :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
 
-The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} h_i` are optima of the constrainted optimization problem:
+The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} h_i(\theta)` are optima of the constrainted optimization problem:
 
 	Optimize :math:`f({\theta})` subject to:
 		
