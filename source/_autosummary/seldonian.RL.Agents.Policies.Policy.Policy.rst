@@ -20,6 +20,14 @@ seldonian.RL.Agents.Policies.Policy.Policy
    .. 
    ..    ~Policy.__init__
    ..
+   ..    ~Policy.choose_action
+   ..
+   ..    ~Policy.get_params
+   ..
+   ..    ~Policy.get_prob_this_action
+   ..
+   ..    ~Policy.set_new_params
+   ..
    
    
 

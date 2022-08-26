@@ -20,6 +20,8 @@ seldonian.RL.Agents.Policies.Policy.Discrete\_Action\_Policy
    .. 
    ..    ~Discrete_Action_Policy.__init__
    ..
+   ..    ~Discrete_Action_Policy.choose_action
+   ..
    ..    ~Discrete_Action_Policy.construct_basis_and_linear_FA
    ..
    ..    ~Discrete_Action_Policy.from_0_indexed_action_to_environment_action
@@ -29,6 +31,8 @@ seldonian.RL.Agents.Policies.Policy.Discrete\_Action\_Policy
    ..    ~Discrete_Action_Policy.get_action_values_given_state
    ..
    ..    ~Discrete_Action_Policy.get_params
+   ..
+   ..    ~Discrete_Action_Policy.get_prob_this_action
    ..
    ..    ~Discrete_Action_Policy.make_state_action_FA
    ..
