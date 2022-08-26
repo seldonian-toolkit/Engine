@@ -183,7 +183,7 @@
 <div class="math notranslate nohighlight">
 \[{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} \text{HCUB}(g_i(\mathbf{\theta}))\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mathbf{\theta}\)</span> is the array of model weights, <span class="math notranslate nohighlight">\(f(\mathbf{\theta})\)</span> is the primary objective function, <span class="math notranslate nohighlight">\(\text{HCUB}(g_i(\mathbf{\theta}))\)</span> is the high confidence upper bound of the ith constraint function out of <span class="math notranslate nohighlight">\(n\)</span> constraints, and <span class="math notranslate nohighlight">\({\lambda_i}\)</span> is the Lagrange multiplier for the ith constraint.</p>
-<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions">KKT</a> Theorem states that the saddle points of <span class="math notranslate nohighlight">\({\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} h_i\)</span> are optima of the constrainted optimization problem:</p>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions">KKT</a> Theorem states that the saddle points of <span class="math notranslate nohighlight">\({\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} h_i(\theta)\)</span> are optima of the constrainted optimization problem:</p>
 <blockquote>
 <div><p>Optimize <span class="math notranslate nohighlight">\(f({\theta})\)</span> subject to:</p>
 <blockquote>
