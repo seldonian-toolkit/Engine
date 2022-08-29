@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>seldonian.parse_tree.parse_tree.ParseTree &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,7 +12,6 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -35,7 +34,7 @@
           <div class="body" role="main">
             
   <section id="seldonian-parse-tree-parse-tree-parsetree">
-<h1>seldonian.parse_tree.parse_tree.ParseTree<a class="headerlink" href="#seldonian-parse-tree-parse-tree-parsetree" title="Permalink to this heading">¶</a></h1>
+<h1>seldonian.parse_tree.parse_tree.ParseTree<a class="headerlink" href="#seldonian-parse-tree-parse-tree-parsetree" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ParseTree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree" title="Permalink to this definition">¶</a></dt>
@@ -45,7 +44,7 @@
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to represent a parse tree for a single behavioral constraint</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level. Specifies the maximum probability 
 that the algorithm can return a solution violat the
@@ -60,7 +59,7 @@ Used to determine if conditional columns provided by user
 are appropriate.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dt class="field-even">Variables</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>root</strong> (<em>nodes.Node object</em>) – Root node which contains the whole tree 
 via left and right child attributes.
@@ -97,6 +96,10 @@ for supervised classification.</p></li>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 </tbody>
 </table>
@@ -105,7 +108,7 @@ for supervised classification.</p></li>
 <span class="sig-name descname"><span class="pre">_abs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._abs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Absolute value of a confidence interval</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p>
 </dd>
 </dl>
@@ -116,7 +119,7 @@ for supervised classification.</p></li>
 <span class="sig-name descname"><span class="pre">_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add two confidence intervals</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
 <li><p><strong>b</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
@@ -132,7 +135,7 @@ for supervised classification.</p></li>
 and assign which bounds we need to calculate 
 on the base nodes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – node in the parse tree</p></li>
 <li><p><strong>lower_needed</strong> (<em>bool</em>) – Whether lower bound needs to be calculated</p></li>
@@ -148,7 +151,7 @@ on the base nodes.</p>
 <dd><p>Helper function to traverse the parse tree 
 and assign delta values to base nodes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – node in the parse tree</p></li>
 <li><p><strong>weight_method</strong> (<em>str</em>) – How you want to assign the deltas to the base nodes</p></li>
@@ -163,7 +166,7 @@ and assign delta values to base nodes.</p>
 <dd><p>From ast.AST node object, create
 one of the node objects from <code class="xref py py-mod docutils literal notranslate"><span class="pre">Nodes</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ast_node</strong> (<em>ast.AST node object</em>) – node in the ast tree</p>
 </dd>
 </dl>
@@ -176,7 +179,7 @@ one of the node objects from <code class="xref py py-mod docutils literal notran
 make a node in the tree and recurse
 to children of this node.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ast_node</strong> (<em>ast.AST node object</em>) – node in the ast tree</p>
 </dd>
 </dl>
@@ -187,7 +190,7 @@ to children of this node.</p>
 <span class="sig-name descname"><span class="pre">_div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._div" title="Permalink to this definition">¶</a></dt>
 <dd><p>Divide two confidence intervals</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
 <li><p><strong>b</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
@@ -202,7 +205,7 @@ to children of this node.</p>
 <dd><p>Helper function for traversing 
 through the tree to evaluate the constraint</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – node in the parse tree</p>
 </dd>
 </dl>
@@ -213,7 +216,7 @@ through the tree to evaluate the constraint</p>
 <span class="sig-name descname"><span class="pre">_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._exp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exponentiate a confidence interval</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p>
 </dd>
 </dl>
@@ -224,7 +227,7 @@ through the tree to evaluate the constraint</p>
 <span class="sig-name descname"><span class="pre">_max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._max" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the maximum of two confidence intervals</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
 <li><p><strong>b</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
@@ -238,7 +241,7 @@ through the tree to evaluate the constraint</p>
 <span class="sig-name descname"><span class="pre">_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._min" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the minimum of two confidence intervals</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
 <li><p><strong>b</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
@@ -252,7 +255,7 @@ through the tree to evaluate the constraint</p>
 <span class="sig-name descname"><span class="pre">_mult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._mult" title="Permalink to this definition">¶</a></dt>
 <dd><p>Multiply two confidence intervals</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
 <li><p><strong>b</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
@@ -268,7 +271,7 @@ through the tree to evaluate the constraint</p>
 pow(a,b) where 
 b and b are both be intervals</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
 <li><p><strong>b</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
@@ -286,14 +289,14 @@ constraint string is in the form: {constraint_str} &lt;= 0</p>
 <p>Also does some validation checks to make sure string
 that was passed is valid</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – mathematical expression written in Python syntax
 from which we build the parse tree</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>String for g</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -304,7 +307,7 @@ from which we build the parse tree</p>
 <span class="sig-name descname"><span class="pre">_propagate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._propagate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for propagating values</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – node in the parse tree</p>
 </dd>
 </dl>
@@ -316,7 +319,7 @@ from which we build the parse tree</p>
 <dd><p>Helper function for traversing 
 through the tree and propagating confidence bounds</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – node in the parse tree</p>
 </dd>
 </dl>
@@ -328,7 +331,7 @@ through the tree and propagating confidence bounds</p>
 <dd><p>Handle nan as negative infinity if in lower bound
 and postitive infinity if in upper bound</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bound</strong> (<em>float</em>) – The value of the upper or lower bound</p></li>
 <li><p><strong>bound_type</strong> (<em>str</em>) – ‘lower’ or ‘upper’</p></li>
@@ -342,7 +345,7 @@ and postitive infinity if in upper bound</p>
 <span class="sig-name descname"><span class="pre">_sub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._sub" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subract two confidence intervals</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
 <li><p><strong>b</strong> (<em>tuple</em>) – Confidence interval like: (lower,upper)</p></li>
@@ -368,7 +371,7 @@ is the upper bound of the root node.</p>
 <span class="sig-name descname"><span class="pre">assign_deltas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_deltas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign the delta values to the base nodes in the tree.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>weight_method</strong> (<em>str</em>) – str, defaults to ‘equal’
 How you want to assign the deltas to the base nodes.
 The default ‘equal’ splits up delta equally
@@ -385,7 +388,7 @@ a constraint string,
 weighting of deltas to each base node, and 
 assigning which nodes need upper and lower bounding</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>constraint_str</strong> (<em>str</em>) – mathematical expression written in Python syntax
 from which we build the parse tree</p></li>
@@ -404,7 +407,7 @@ among unique base nodes</p></li>
 <dd><p>Create the node structure of the tree
 given a mathematical string expression, s</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – mathematical expression written in Python syntax
 from which we build the parse tree</p>
 </dd>
@@ -426,7 +429,7 @@ then propagate bounds using propagation logic</p>
 <span class="sig-name descname"><span class="pre">make_viz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.make_viz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a graphviz diagram from a root node</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>title</strong> (<em>str</em>) – The title you want to display at the top
 of the graph</p>
 </dd>
@@ -440,7 +443,7 @@ of the graph</p>
 Recurses through the parse tree
 and adds nodes and edges to the graph</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>root</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – root of the parse tree</p></li>
 <li><p><strong>graph</strong> (<em>graphviz.Digraph object</em>) – The graphviz graph object</p></li>
@@ -454,7 +457,7 @@ and adds nodes and edges to the graph</p>
 <span class="sig-name descname"><span class="pre">propagate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.propagate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for propagating confidence bounds</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – node in the parse tree</p>
 </dd>
 </dl>
@@ -472,9 +475,9 @@ then propagate bounds using propagation logic</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.reset_base_node_dict">
 <span class="sig-name descname"><span class="pre">reset_base_node_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reset_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.reset_base_node_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset base node dict to initial obs</p>
+<dd><p>Reset base node dict to initial state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>reset_data</strong> (<em>bool</em>) – Whether to reset the cached data 
 for each base node. This is needed less frequently
 than one needs to reset the bounds.</p>
@@ -560,7 +563,7 @@ than one needs to reset the bounds.</p>
     </form>
     </div>
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -577,7 +580,7 @@ than one needs to reset the bounds.</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

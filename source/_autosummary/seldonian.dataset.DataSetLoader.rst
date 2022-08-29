@@ -22,9 +22,7 @@ seldonian.dataset.DataSetLoader
    ..
    ..    ~DataSetLoader.load_RL_dataset_from_csv
    ..
-   ..    ~DataSetLoader.load_RL_dataset_from_dataframe
-   ..
-   ..    ~DataSetLoader.load_RL_dataset_from_episode_list
+   ..    ~DataSetLoader.load_RL_dataset_from_episode_file
    ..
    ..    ~DataSetLoader.load_supervised_dataset
    ..

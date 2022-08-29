@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>seldonian.parse_tree.nodes.CVARSQEBaseNode &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.parse_tree.nodes.CVaRSQeBaseNode &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -35,14 +35,14 @@
           <div class="body" role="main">
             
   <section id="seldonian-parse-tree-nodes-cvarsqebasenode">
-<h1>seldonian.parse_tree.nodes.CVARSQEBaseNode<a class="headerlink" href="#seldonian-parse-tree-nodes-cvarsqebasenode" title="Permalink to this heading">¶</a></h1>
+<h1>seldonian.parse_tree.nodes.CVaRSQeBaseNode<a class="headerlink" href="#seldonian-parse-tree-nodes-cvarsqebasenode" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CVARSQEBaseNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CVaRSQeBaseNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html#seldonian.parse_tree.nodes.BaseNode" title="seldonian.parse_tree.nodes.BaseNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseNode</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom base node that calculates the upper and 
 lower bounds on CVaR_alpha (with alpha fixed to 0.1)
 of the squared error. We are using the positive
@@ -71,8 +71,8 @@ See Theorem 3 for upper bound and Theorem 4 for lower bound</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.__repr__">
-<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.__repr__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.__repr__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides Node.__repr__()</p>
 </dd></dl>
 
@@ -82,22 +82,22 @@ See Theorem 3 for upper bound and Theorem 4 for lower bound</p>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.calculate_bounds">
-<span class="sig-name descname"><span class="pre">calculate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.calculate_bounds" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_bounds">
+<span class="sig-name descname"><span class="pre">calculate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate confidence bounds using the concentration 
 inequalities in Thomas &amp; Miller 2019, Theorem’s 3 and 4.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.calculate_data_forbound">
-<span class="sig-name descname"><span class="pre">calculate_data_forbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.calculate_data_forbound" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_data_forbound">
+<span class="sig-name descname"><span class="pre">calculate_data_forbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_data_forbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare data inputs
 for confidence bound calculation.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.calculate_value">
-<span class="sig-name descname"><span class="pre">calculate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.calculate_value" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_value">
+<span class="sig-name descname"><span class="pre">calculate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the value of the node 
 given model weights, etc. This is
 the expected value of the base variable,
@@ -105,8 +105,8 @@ not the bound.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.compute_HC_lowerbound">
-<span class="sig-name descname"><span class="pre">compute_HC_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.compute_HC_lowerbound" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_lowerbound">
+<span class="sig-name descname"><span class="pre">compute_HC_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower bound
 Used in safety test.</p>
 <dl class="field-list simple">
@@ -122,8 +122,8 @@ Used in safety test.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.compute_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upper_and_lowerbound">
+<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 Used in safety test.</p>
 <p>This is equivalent
@@ -132,8 +132,8 @@ compute_HC_upperbound() independently.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.compute_HC_upperbound">
-<span class="sig-name descname"><span class="pre">compute_HC_upperbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.compute_HC_upperbound" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upperbound">
+<span class="sig-name descname"><span class="pre">compute_HC_upperbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upperbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence upper bound
 Used in safety test</p>
 <dl class="field-list simple">
@@ -149,8 +149,8 @@ Used in safety test</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.mask_dataframe">
-<span class="sig-name descname"><span class="pre">mask_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.mask_dataframe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.mask_dataframe">
+<span class="sig-name descname"><span class="pre">mask_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.mask_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mask dataset’s dataframe using 
 a joint AND mask where each of the
 conditional columns is True.</p>
@@ -172,8 +172,8 @@ the joint AND mask on the dataset</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.predict_HC_lowerbound">
-<span class="sig-name descname"><span class="pre">predict_HC_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.predict_HC_lowerbound" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_lowerbound">
+<span class="sig-name descname"><span class="pre">predict_HC_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower bound
 that we expect to pass the safety test.
 Used in candidate selection</p>
@@ -190,8 +190,8 @@ Used in candidate selection</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.predict_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upper_and_lowerbound">
+<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 that we expect to pass the safety test.
 Used in candidate selection.</p>
@@ -201,8 +201,8 @@ predict_HC_upperbound() independently.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.predict_HC_upperbound">
-<span class="sig-name descname"><span class="pre">predict_HC_upperbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.predict_HC_upperbound" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upperbound">
+<span class="sig-name descname"><span class="pre">predict_HC_upperbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upperbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence upper bound
 that we expect to pass the safety test.
 Used in candidate selection</p>
@@ -219,8 +219,8 @@ Used in candidate selection</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVARSQEBaseNode.zhat">
-<span class="sig-name descname"><span class="pre">zhat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVARSQEBaseNode.zhat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.zhat">
+<span class="sig-name descname"><span class="pre">zhat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.zhat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate an unbiased estimate of the 
 base variable node.</p>
 <dl class="field-list simple">
@@ -269,20 +269,17 @@ such as features and labels</p></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html">seldonian.parse_tree.nodes.BaseNode</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.CVARSQEBaseNode</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.CVaRSQeBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.ConstantNode.html">seldonian.parse_tree.nodes.ConstantNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.InternalNode.html">seldonian.parse_tree.nodes.InternalNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.MEDCustomBaseNode.html">seldonian.parse_tree.nodes.MEDCustomBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.Node.html">seldonian.parse_tree.nodes.Node</a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
 </ul>
@@ -338,7 +335,7 @@ such as features and labels</p></li>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.parse_tree.nodes.CVARSQEBaseNode.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.parse_tree.nodes.CVaRSQeBaseNode.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
