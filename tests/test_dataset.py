@@ -128,11 +128,10 @@ def test_load_RL_dataset():
 	from various formats """
 
 	# Classification 
-	metadata_pth = 'static/datasets/RL/gridworld/gridworld3x3_metadata.json'
+	metadata_pth = 'static/datasets/RL/gridworld/gridworld_metadata.json'
 	metadata_dict = load_json(metadata_pth)
 	regime = metadata_dict['regime']
 	columns = metadata_dict['columns']
-	RL_environment_name = metadata_dict['RL_environment_name']
 
 	loader = DataSetLoader(
 		regime=regime)
@@ -140,7 +139,7 @@ def test_load_RL_dataset():
 	# Load dataset from file
 		
 	# First, from csv
-	data_pth_csv = 'static/datasets/RL/gridworld/gridworld3x3_1000episodes.csv'
+	data_pth_csv = 'static/datasets/RL/gridworld/gridworld_100episodes.csv'
 
 	dataset_fromcsv = loader.load_RL_dataset_from_csv(
 		filename=data_pth_csv,
@@ -148,26 +147,20 @@ def test_load_RL_dataset():
 
 	assert dataset_fromcsv.meta_information == columns
 	episodes = dataset_fromcsv.episodes
-	assert len(episodes) == 1000
-	assert np.allclose(episodes[0].observations,np.array([0,0,3,4,7]))
-	assert np.allclose(episodes[0].actions,np.array([2,1,3,1,3]))
-	assert np.allclose(episodes[0].rewards,np.array([0,0,0,-1,1]))
-	assert np.allclose(episodes[0].pis,np.array([0.25,0.25,0.25,0.25,0.25]))
+	assert len(episodes) == 100
+	assert np.allclose(episodes[0].observations[0:5],np.array([0,0,1,4,5]))
+	assert np.allclose(episodes[0].actions[0:5],np.array([0,1,2,1,0]))
+	assert np.allclose(episodes[0].rewards[0:5],np.array([0,0,0,0,0]))
+	assert np.allclose(episodes[0].pis[0:5],np.array([0.25,0.25,0.25,0.25,0.25]))
 
-	# Now from pickled dataframe
-	# First, from csv
-	data_pth_dataframe = 'static/datasets/RL/gridworld/gridworld3x3_1000episodes_dataframe.pkl'
-
-	dataset_fromdf = loader.load_RL_dataset_from_dataframe(
-		filename=data_pth_dataframe,
-		metadata_filename=metadata_pth)
-
-
-	assert dataset_fromdf.meta_information == columns
-	episodes = dataset_fromdf.episodes
-	assert len(episodes) == 1000
-	assert np.allclose(episodes[0].observations,np.array([0,0,3,4,7]))
-	assert np.allclose(episodes[0].actions,np.array([2,1,3,1,3]))
-	assert np.allclose(episodes[0].rewards,np.array([0,0,0,-1,1]))
-	assert np.allclose(episodes[0].pis,np.array([0.25,0.25,0.25,0.25,0.25]))
+	# Now from pickled episode list
+	data_pth_pkl = 'static/datasets/RL/gridworld/gridworld_100episodes.pkl'
 	
+	dataset_frompkl = loader.load_RL_dataset_from_episode_file(
+		filename=data_pth_pkl)
+	episodes = dataset_frompkl.episodes
+	assert len(episodes) == 100
+	assert np.allclose(episodes[0].observations[0:5],np.array([0,0,1,4,5]))
+	assert np.allclose(episodes[0].actions[0:5],np.array([0,1,2,1,0]))
+	assert np.allclose(episodes[0].rewards[0:5],np.array([0,0,0,0,0]))
+	assert np.allclose(episodes[0].pis[0:5],np.array([0.25,0.25,0.25,0.25,0.25]))

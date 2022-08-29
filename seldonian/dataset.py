@@ -105,64 +105,17 @@ class DataSetLoader():
 		return RLDataSet(
 			episodes=episodes,
 			meta_information=column_names)
-
-	def load_RL_dataset_from_dataframe(self,
-		filename,
-		metadata_filename):
-		""" Create RLDataSet object from file
-		containing pickled pandas dataframe. 
-		The dataframe does not need to have columns
-		assigned already
-
-		:param filename: The file
-			containing the pickled dataframe
-			you want to load
-		:type filename: str
-
-		:param metadata_filename: The file
-			containing the metadata describing the data in filename
-		:type metadata_filename: str
-		"""
-
-		# Load metadata
-		metadata_dict = load_json(metadata_filename)
-		columns = metadata_dict['columns']
-
-		df = load_pickle(filename)
-
-		df.columns = columns
-		episodes=[]
-		
-		for episode_index in df.episode_index.unique():
-			df_ep = df.loc[df.episode_index==episode_index]
-			episode = Episode(observations=df_ep.O.values,
-							  actions=df_ep.A.values,
-							  rewards=df_ep.R.values,
-							  pis=df_ep.pi.values)
-			episodes.append(episode)
-		
-		return RLDataSet(
-			episodes=episodes,
-			meta_information=columns)
-		
+	
 	def load_RL_dataset_from_episode_file(self,
-		filename,
-		metadata_filename):
-		""" Create RLDataSet object from file
+		filename):
+		""" Create RLDataSet object from file 
 
 		:param filename: The file
-			containing the pickled episodes lists
-			you want to load
+			containing the pickled lists of :py:class:`.Episode` objects
 		:type filename: str
-
-		:param metadata_filename: The file
-			containing the metadata describing the data in filename
-		:type metadata_filename: str
 		"""
 
-		# Load metadata
-		metadata_dict = load_json(metadata_filename)
-		columns = metadata_dict['columns']
+		columns = ["O","A","R","pi"]
 
 		episodes = load_pickle(filename)
 		
