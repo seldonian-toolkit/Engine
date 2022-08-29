@@ -4,7 +4,18 @@ from seldonian.RL.Agents.Bases.Fourier import *
 from seldonian.RL.Env_Description.Env_Description import *
 
 class Policy:
-    pass
+    def choose_action(self, obs):
+        raise NotImplementedError()
+
+    def set_new_params(self, new_params):
+        raise NotImplementedError()
+
+    def get_params(self):
+        raise NotImplementedError()
+
+    def get_prob_this_action(self, observation, action):
+        raise NotImplementedError()
+
 
 class Discrete_Action_Policy(Policy):
     def __init__(self, hyperparam_and_setting_dict, env_description):
