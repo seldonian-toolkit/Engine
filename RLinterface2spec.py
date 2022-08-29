@@ -30,8 +30,9 @@ def dataset2spec(save_dir, metadata_pth, dataset, policy, constraint_strs):
         f'seldonian.RL.environments.{RL_module_name}')
     RL_env_class_name = metadata_dict['RL_class_name']
     RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)()
-
-    RL_model_instance = RL_model(policy,RL_environment_obj)
+    env_kwargs = {}
+    env_kwargs['gamma'] = RL_environment_obj.gamma
+    RL_model_instance = RL_model(policy,env_kwargs)
     primary_objective = objectives.IS_estimate
 
     deltas = [0.05]
@@ -64,7 +65,7 @@ def dataset2spec(save_dir, metadata_pth, dataset, policy, constraint_strs):
         frac_data_in_safety=0.6,
         primary_objective=primary_objective,
         parse_trees=parse_trees,
-        RL_environment_obj=RL_environment_obj,
+        env_kwargs=env_kwargs,
         RL_policy_obj=policy,
         initial_solution_fn=None,
         optimization_technique='gradient_descent',
@@ -79,9 +80,9 @@ def dataset2spec(save_dir, metadata_pth, dataset, policy, constraint_strs):
             'hyper_search': None,
             'gradient_library': 'autograd',
             'verbose': True,
+            'debug':False
         },
         regularization_hyperparams={},
-        normalize_returns=False,
     )
 
     spec_save_name = os.path.join(save_dir, 'spec.pkl')
