@@ -2,7 +2,7 @@
 import os
 from seldonian.parse_tree.parse_tree import make_parse_trees_from_constraints
 from seldonian.dataset import DataSetLoader
-from seldonian.utils.io_utils import load_json,save_pickle
+from seldonian.utils.io_utils import load_supervised_metadata,save_pickle
 from seldonian.spec import SupervisedSpec
 from seldonian.models.models import LogisticRegressionModel
 from seldonian.models import objectives
@@ -14,21 +14,18 @@ if __name__ == '__main__':
     # Load metadata
     metadata_dict = load_json(metadata_pth)
 
-    regime = metadata_dict['regime']
-    columns = metadata_dict['columns']
-    sensitive_columns = metadata_dict['sensitive_columns']
-    sub_regime = metadata_dict['sub_regime']
+    (regime, sub_regime, columns,
+        sensitive_columns) = load_supervised_metadata['regime']
     
     # Use logistic regression model
     model_class = LogisticRegressionModel
     
-    # Set the primary objective to be log loss
+    # primary objective = log loss
     primary_objective = objectives.logistic_loss
 
     # Load dataset from file
     loader = DataSetLoader(
         regime=regime)
-
     dataset = loader.load_supervised_dataset(
         filename=data_pth,
         metadata_filename=metadata_pth,

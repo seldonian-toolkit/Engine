@@ -95,3 +95,13 @@ def yes_or_no_input(str_to_show,default_str,default_val):
             print(f'"{result}" was not a valid input. Please try again.')
     return result
 
+def load_supervised_metadata(filename):
+    """ Load metadata from JSON file into a dictionary """
+    metadata_dict = load_json(filename)
+    regime = metadata_dict['regime']
+    columns = metadata_dict['columns']
+    assert regime == 'supervised_learning'
+    sensitive_columns = metadata_dict['sensitive_columns']
+    sub_regime = metadata_dict['sub_regime']
+    return regime, sub_regime, columns, sensitive_columns
+    
