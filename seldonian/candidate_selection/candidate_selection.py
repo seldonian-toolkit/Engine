@@ -99,12 +99,12 @@ class CandidateSelection(object):
 
 		if self.regime == 'reinforcement_learning':
 			self.gamma = kwargs['gamma']
-			if kwargs['normalize_returns']==True:
-				self.normalize_returns=True
-				self.min_return = kwargs['min_return']
-				self.max_return = kwargs['max_return']
-			else:
-				self.normalize_returns=False
+			# if kwargs['normalize_returns']==True:
+			# 	self.normalize_returns=True
+			# 	self.min_return = kwargs['min_return']
+			# 	self.max_return = kwargs['max_return']
+			# else:
+			# 	self.normalize_returns=False
 
 	def run(self,**kwargs):
 		""" Run candidate selection
@@ -132,6 +132,7 @@ class CandidateSelection(object):
 				lambda_init=0.5*np.ones(len(self.parse_trees)),
 				store_values=self.write_logfile or self.store_values,
 				verbose=kwargs['verbose'],
+				debug=kwargs['debug'],
 			)
 
 			# Option to use builtin primary gradient (could be faster than autograd)
@@ -296,10 +297,10 @@ class CandidateSelection(object):
 
 			if self.regime == 'reinforcement_learning':
 				bounds_kwargs['gamma'] = self.gamma
-				bounds_kwargs['normalize_returns'] = self.normalize_returns
-				if self.normalize_returns:
-					bounds_kwargs['min_return'] = self.min_return
-					bounds_kwargs['max_return'] = self.max_return
+				# bounds_kwargs['normalize_returns'] = self.normalize_returns
+				# if self.normalize_returns:
+				# 	bounds_kwargs['min_return'] = self.min_return
+				# 	bounds_kwargs['max_return'] = self.max_return
 				
 
 			pt.propagate_bounds(**bounds_kwargs)
@@ -383,10 +384,10 @@ class CandidateSelection(object):
 
 			if self.regime == 'reinforcement_learning':
 				bounds_kwargs['gamma'] = self.gamma
-				bounds_kwargs['normalize_returns'] = self.normalize_returns
-				if self.normalize_returns:
-					bounds_kwargs['min_return'] = self.min_return
-					bounds_kwargs['max_return'] = self.max_return
+				# bounds_kwargs['normalize_returns'] = self.normalize_returns
+				# if self.normalize_returns:
+				# 	bounds_kwargs['min_return'] = self.min_return
+				# 	bounds_kwargs['max_return'] = self.max_return
 			pt.propagate_bounds(**bounds_kwargs)
 			upper_bounds.append(pt.root.upper)
 

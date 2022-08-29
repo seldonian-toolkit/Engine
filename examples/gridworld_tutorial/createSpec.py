@@ -1,30 +1,36 @@
-from seldonian.RL.RL_runner import run_trial
+from seldonian.RL.Agents.Policies.Softmax import Softmax
+from seldonian.RL.Env_Description.Env_Description import Env_Description
+from seldonian.RL.Env_Description.Spaces import Discrete_Space
 from seldonian.spec import createRLSpec
 from seldonian.dataset import RLDataSet
-
-hyperparams_and_setting_dict = {}
-hyperparams_and_setting_dict["env"] = "gridworld"
-hyperparams_and_setting_dict["agent"] = "Parameterized_non_learning_softmax_agent"
-hyperparams_and_setting_dict["num_episodes"] = 1000
-hyperparams_and_setting_dict["num_trials"] = 1
-hyperparams_and_setting_dict["vis"] = False
+from seldonian.utils.io_utils import load_pickle
 
 def main():
-	episodes, agent = run_trial(hyperparams_and_setting_dict)
+	# episodes, agent = run_trial(hyperparams_and_setting_dict)
+	episodes_file = '../../static/datasets/RL/gridworld/gridworld_1000episodes.pkl'
+	episodes = load_pickle(episodes_file)
 	dataset = RLDataSet(episodes=episodes)
 
+	# Initialize policy
+	num_states = 9
+	observation_space = Discrete_Space(0, num_states-1)
+	action_space = Discrete_Space(0, 3)
+	env_description =  Env_Description(observation_space, action_space)
+	policy = Softmax(hyperparam_and_setting_dict={},env_description=env_description)
+	env_kwargs={'gamma':0.9}
 	metadata_pth = "../../static/datasets/RL/gridworld/gridworld_metadata.json"
 	save_dir = '.'
 	constraint_strs = ['J_pi_new >= -0.25']
 	deltas=[0.05]
 
-	createRLSpec(
+	spec = createRLSpec(
 		dataset=dataset,
-		metadata_pth=metadata_pth,
-		agent=agent,
+		policy=policy,
 		constraint_strs=constraint_strs,
 		deltas=deltas,
-		save_dir=save_dir,
+		env_kwargs=env_kwargs,
+		save=True,
+		save_dir='.',
 		verbose=True)
 
 if __name__ == '__main__':

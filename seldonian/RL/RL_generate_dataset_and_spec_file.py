@@ -4,6 +4,7 @@ from RLinterface2spec import dataset2spec
 from seldonian.RL.hyperparams_and_settings import *
 from seldonian.RL.RL_runner import run_trial
 from seldonian.utils.RL_utils import *
+from seldonian.utils.io_utils import save_pickle
 
 
 def main():
@@ -12,7 +13,9 @@ def main():
     start_time = time()
     episodes, agent = run_trial(hyperparameter_and_setting_dict)
     print(f"data generation took {time() - start_time} seconds")
-
+    # Save episodes to file
+    print(len(episodes))
+    save_pickle("./episodes_1000episodes.pkl",episodes)
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
     # print_return_info(episodes)
 

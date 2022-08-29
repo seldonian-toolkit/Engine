@@ -26,10 +26,6 @@ class SafetyTest(object):
 			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
 
-		:ivar gamma: The discount factor used to calculate returns.
-			Only relevant for the RL regime. 
-		:vartype gamma: float
-
 		:ivar normalize_returns: Whether to normalize returns to be
 			in the interval [0,1]. Only relevant for the RL regime
 		:vartype normalize_returns: bool
@@ -67,12 +63,12 @@ class SafetyTest(object):
 
 		if self.regime == 'reinforcement_learning':
 			self.gamma = kwargs['gamma']
-			if kwargs['normalize_returns']==True:
-				self.normalize_returns=True
-				self.min_return = kwargs['min_return']
-				self.max_return = kwargs['max_return']
-			else:
-				self.normalize_returns=False
+			# if kwargs['normalize_returns']==True:
+			# 	self.normalize_returns=True
+			# 	self.min_return = kwargs['min_return']
+			# 	self.max_return = kwargs['max_return']
+			# else:
+			# 	self.normalize_returns=False
 
 	def run(self,solution,**kwargs):
 		""" Loop over parse trees, calculate the bounds on leaf nodes
@@ -102,10 +98,10 @@ class SafetyTest(object):
 			
 			if self.regime == 'reinforcement_learning':
 				bounds_kwargs['gamma'] = self.gamma
-				bounds_kwargs['normalize_returns'] = self.normalize_returns
-				if self.normalize_returns:
-					bounds_kwargs['min_return'] = self.min_return
-					bounds_kwargs['max_return'] = self.max_return
+				# bounds_kwargs['normalize_returns'] = self.normalize_returns
+				# if self.normalize_returns:
+				# 	bounds_kwargs['min_return'] = self.min_return
+				# 	bounds_kwargs['max_return'] = self.max_return
 
 			pt.propagate_bounds(**bounds_kwargs)
 			# Check if the i-th behavioral constraint is satisfied

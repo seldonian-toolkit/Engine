@@ -2,8 +2,9 @@
 import os
 import importlib 
 
-from seldonian.utils.io_utils import load_json,save_pickle
+from seldonian.utils.io_utils import load_supervised_metadata,save_pickle
 from seldonian.models.models import *
+from seldonian.models import objectives
 from seldonian.parse_tree.parse_tree import (
 	make_parse_trees_from_constraints)
 
@@ -280,8 +281,8 @@ class RLSpec(Spec):
 		primary_objective,
 		initial_solution_fn,
 		parse_trees,
-		RL_environment_obj,
 		RL_policy_obj,
+		env_kwargs={},
 		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
@@ -299,7 +300,6 @@ class RLSpec(Spec):
 			'verbose'       : True,
 		},
 		regularization_hyperparams={},
-		normalize_returns=False
 		):
 		super().__init__(
 			dataset,
@@ -315,54 +315,42 @@ class RLSpec(Spec):
 			optimizer,
 			optimization_hyperparams,
 			regularization_hyperparams)
-		self.RL_environment_obj = RL_environment_obj
 		self.RL_policy_obj = RL_policy_obj
-		self.normalize_returns = normalize_returns
+		self.env_kwargs = env_kwargs
 
 
 def createRLSpec(
 	dataset,
-	metadata_pth,
 	policy,
 	constraint_strs,
 	deltas,
-	save_dir,
 	env_kwargs={},
+	frac_data_in_safety=0.6,
+	initial_solution_fn=None,
+	use_builtin_primary_gradient_fn=False,
+	save=False,
+	save_dir='.',
 	verbose=False):
+	from seldonian.RL.RL_model import RL_model
 	"""Convenience function for creating RLSpec object. 
 	Saves spec.pkl file in save_dir
 
-	:param dataset: The dataset object containing data and metadata
 	:type dataset: :py:class:`.DataSet`
-	:param metadata_pth: Path to metadata file
-	:type metadata_pth: str
-	:param policy: The policy object
 	:type policy: :py:class:`.Policy`
-	:param constraint_strs: Constraint strings 
-	:type constraint_strs: List(str)
-	:param deltas: Confidence thresholds
-	:type deltas: List(float)
-	:param save_dir: Directory where to save the spec.pkl file
-	:type save_dir: str
-	:param env_kwargs: Kwargs passed to Environment object upon creation
+	:param constraint_strs: List of constraint strings 
+	:param deltas: List of confidence thresholds
+	:param save_dir: Directory in which to save the spec.pkl file
+	:param env_kwargs: Kwargs passed to RL_model pertaining to environment, 
+		such as gamma, the discount factor 
 	:type env_kwargs: dict
 	:param verbose: Flag to control verbosity 
 	:type verbose: bool
 	"""
-	# Load metadata
-	metadata_dict = load_json(metadata_pth)
-	# Create RL environment environment 
-	RL_module_name = metadata_dict['RL_module_name']
-	RL_environment_module = importlib.import_module(
-		f'seldonian.RL.environments.{RL_module_name}')
-	RL_env_class_name = metadata_dict['RL_class_name']
+	
+	# Define primary objective
+	primary_objective = objectives.IS_estimate
 
-	RL_environment_obj = getattr(
-		RL_environment_module, RL_env_class_name)(**env_kwargs)
-
-	RL_model_instance = RL_model(policy,RL_environment_obj)
-	primary_objective = RL_model_instance.sample_IS_estimate
-
+	# Create parse trees
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
 		deltas,
@@ -374,13 +362,13 @@ def createRLSpec(
 	spec = RLSpec(
 		dataset=dataset,
 		model_class=RL_model,
-		frac_data_in_safety=0.6,
+		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
-		use_builtin_primary_gradient_fn=False,
+		use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn,
 		parse_trees=parse_trees,
-		RL_environment_obj=RL_environment_obj,
 		RL_policy_obj=policy,
-		initial_solution_fn=None,
+		env_kwargs=env_kwargs,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -392,14 +380,15 @@ def createRLSpec(
 			'num_iters': 30,
 			'hyper_search': None,
 			'gradient_library': 'autograd',
-			'verbose': True,
+			'verbose': verbose,
 		},
 		regularization_hyperparams={},
-		normalize_returns=False,
 	)
 
-	spec_save_name = os.path.join(save_dir, 'spec.pkl')
-	save_pickle(spec_save_name,spec,verbose=verbose)
+	if save:
+		spec_save_name = os.path.join(save_dir, 'spec.pkl')
+		save_pickle(spec_save_name,spec,verbose=verbose)
+	return spec
 
 def createSupervisedSpec(
 	dataset,
@@ -426,9 +415,9 @@ def createSupervisedSpec(
 	:type verbose: bool
 	"""
 	# Load metadata
-	metadata_dict = load_json(metadata_pth)
-	# Create RL environment environment 
-	regime = metadata_dict['regime']
+	(regime, sub_regime, columns,
+        sensitive_columns) = load_supervised_metadata(metadata_pth)
+
 	assert regime == 'supervised_learning'
 	sub_regime = metadata_dict['sub_regime']
 
@@ -458,18 +447,16 @@ def createSupervisedSpec(
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init': 0.5,
-			'alpha_theta': 0.005,
-			'alpha_lamb': 0.005,
-			'beta_velocity': 0.9,
-			'beta_rmsprop': 0.95,
-			'num_iters': 500,
-			'hyper_search': None,
-			'gradient_library': 'autograd',
-			'verbose': True,
+			'lambda_init'   : 0.5,
+            'alpha_theta'   : 0.01,
+            'alpha_lamb'    : 0.01,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'num_iters'     : 1000,
+            'gradient_library': "autograd",
+            'hyper_search'  : None,
+            'verbose'       : True,
 		},
-		regularization_hyperparams={},
-		normalize_returns=False,
 	)
 
 	spec_save_name = os.path.join(save_dir, 'spec.pkl')

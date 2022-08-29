@@ -287,51 +287,41 @@ def gpa_classification_dataset():
 
 @pytest.fixture
 def RL_gridworld_dataset():
-    from seldonian.RL.environments import gridworld3x3
-    from seldonian.models.models import TabularSoftmaxModel
+    from seldonian.RL.environments import gridworld
+    from seldonian.RL.RL_model import RL_model
+    from seldonian.RL.Agents.Policies.Softmax import Softmax
+    from seldonian.RL.Env_Description import Spaces, Env_Description
+    
+    def generate_dataset():
+        np.random.seed(0)
 
-    def generate_dataset(constraint_strs,deltas):
-        env = gridworld3x3.Environment()
-        regime='reinforcement_learning'
-
-        model_class = TabularSoftmaxModel
-        model_instance = model_class(env)
-        # Mean squared error
-        primary_objective = model_instance.sample_IS_estimate
-
-        # Load data into dataset
-        data_pth = 'static/datasets/RL/gridworld/gridworld3x3_250episodes_list.pkl'
-        metadata_pth = 'static/datasets/RL/gridworld/gridworld3x3_metadata.json'
+        # Load data from file into dataset
+        data_pth = 'static/datasets/RL/gridworld/gridworld_100episodes.pkl'
+        metadata_pth = 'static/datasets/RL/gridworld/gridworld_metadata.json'
 
         loader = DataSetLoader(
-            regime=regime)
+            regime="reinforcement_learning")
 
-        dataset = loader.load_RL_dataset_from_episode_list(
+        dataset = loader.load_RL_dataset_from_episode_file(
             filename=data_pth,
             metadata_filename=metadata_pth)
 
-        # For each constraint, make a parse tree
-        parse_trees = []
-        for ii in range(len(constraint_strs)):
-            constraint_str = constraint_strs[ii]
+        # Env description 
+        num_states = 9 # 3x3 gridworld
+        observation_space = Spaces.Discrete_Space(0, num_states-1)
+        action_space = Spaces.Discrete_Space(0, 3)
+        env_description = Env_Description.Env_Description(observation_space, action_space)
+        # RL model. setting dict not needed for discrete observation and action space
+        policy = Softmax(
+            env_description=env_description,
+            hyperparam_and_setting_dict={}
+        )
 
-            delta = deltas[ii]
-            # Create parse tree object
-            parse_tree = ParseTree(delta=delta,
-                regime='reinforcement_learning',sub_regime='all')
+        env_kwargs={'gamma':0.9}
 
-            # Fill out tree
-            parse_tree.create_from_ast(constraint_str)
-            # assign deltas for each base node
-            # use equal weighting for each base node
-            parse_tree.assign_deltas(weight_method='equal')
-
-            # Assign bounds needed on the base nodes
-            parse_tree.assign_bounds_needed()
-            
-            parse_trees.append(parse_tree)
+        primary_objective = objectives.IS_estimate
 
 
-        return dataset,model_class,primary_objective,parse_trees,env
+        return dataset,policy,env_kwargs,primary_objective
     
     return generate_dataset

@@ -66,8 +66,6 @@ def sample_from_statistic(model,
 	raise NotImplementedError(
 		f"Statistic: {statistic_name} is not implemented")
 
-	
-
 def evaluate_statistic(model,
 	statistic_name,theta,data_dict):
 	""" Evaluate a provided statistic for the whole sample provided
@@ -128,8 +126,6 @@ def evaluate_statistic(model,
 
 	raise NotImplementedError(
 		f"Statistic: {statistic_name} is not implemented")
-
-	
 
 """ Regression """
 
@@ -630,16 +626,18 @@ def IS_estimate(model,theta,data_dict):
 	:rtype: float
 	"""
 	episodes = data_dict['episodes']
+	if 'gamma' in model.env_kwargs:
+		gamma = model.env_kwargs['gamma']
+	else:
+		gamma = 1.0
+
 	IS_estimate = 0
 	for ii, ep in enumerate(episodes):
-		pi_news = model.get_probs_from_observations_and_actions(theta, ep.observations, ep.actions)
-		# print(pi_news,ep.pis)
+		pi_news = model.get_probs_from_observations_and_actions(
+			theta, ep.observations, ep.actions)
 		pi_ratios = pi_news / ep.pis
-		# print(pi_ratios)
 		pi_ratio_prod = np.prod(pi_ratios)
-		# print(pi_ratio_prod)
-		weighted_return = weighted_sum_gamma(ep.rewards, gamma=model.env.gamma)
-		# print(weighted_return)
+		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		IS_estimate += pi_ratio_prod * weighted_return
 
 	IS_estimate /= len(episodes)
@@ -661,17 +659,17 @@ def vector_IS_estimate(model, theta, data_dict):
 	:rtype: numpy ndarray(float)
 	"""
 	episodes = data_dict['episodes']
-	# weighted_reward_sums_by_episode = data_dict['reward_sums_by_episode']
+	episodes = data_dict['episodes']
+	if 'gamma' in model.env_kwargs:
+		gamma = model.env_kwargs['gamma']
+	else:
+		gamma = 1.0
 	result = []
 	for ii, ep in enumerate(episodes):
-		pi_news = model.get_probs_from_observations_and_actions(theta, ep.observations, ep.actions)
-		# print("pi news:")
-		# print(pi_news)
+		pi_news = model.get_probs_from_observations_and_actions(
+			theta, ep.observations, ep.actions)
 		pi_ratio_prod = np.prod(pi_news / ep.pis)
-		# print("pi_ratio_prod:")
-		# print(pi_ratio_prod)
-		weighted_return = weighted_sum_gamma(ep.rewards, gamma=model.env.gamma)
-		# result.append(pi_ratio_prod*weighted_reward_sums_by_episode[ii])
+		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		result.append(pi_ratio_prod * weighted_return)
 
 	return np.array(result)

@@ -228,7 +228,7 @@ class BaseNode(Node):
 			data_dict = {'features':features,'labels':labels}  
 			
 		elif regime == 'reinforcement_learning':
-			gamma = model.env.gamma
+			gamma = model.env_kwargs['gamma']
 			episodes = dataset.episodes
 
 			if branch == 'candidate_selection':
@@ -238,11 +238,11 @@ class BaseNode(Node):
 			
 			# Precalculate expected return from behavioral policy
 			returns = [weighted_sum_gamma(ep.rewards,gamma) for ep in episodes]
-			if kwargs['normalize_returns']==True:
-				# normalize returns 
-				min_return = kwargs['min_return']
-				max_return = kwargs['max_return']
-				returns = (returns-min_return)/(max_return-min_return)
+			# if kwargs['normalize_returns']==True:
+			# 	# normalize returns 
+			# 	min_return = kwargs['min_return']
+			# 	max_return = kwargs['max_return']
+			# 	returns = (returns-min_return)/(max_return-min_return)
 
 			data_dict = {
 				'episodes':episodes,
@@ -718,7 +718,7 @@ class MEDCustomBaseNode(BaseNode):
 		return mean_error_male - mean_error_female
 
  
-class CVARSQEBaseNode(BaseNode):
+class CVaRSQeBaseNode(BaseNode):
 	def __init__(self,
 		name,
 		lower=float('-inf'),
@@ -740,19 +740,15 @@ class CVARSQEBaseNode(BaseNode):
 		:param name: 
 			The name of the node
 		:type name: str
-		
 		:param lower: 
 			Lower confidence bound
 		:type lower: float
-		
 		:param upper: 
 			Upper confidence bound
 		:type upper: float
-
 		:ivar delta: 
 			The share of the confidence put into this node
 		:vartype delta: float
-
 		:ivar alpha: 
 			The probability threshold used to define CVAR
 		:vartype alpha: float
@@ -810,17 +806,6 @@ class CVARSQEBaseNode(BaseNode):
 		max_squared_error = max(
 			pow(y_hat_max-y_min,2),
 			pow(y_max - y_hat_min,2))
-		# print(X.shape)
-		# print(y_clipped.shape)
-		# import matplotlib.pyplot as plt
-		# fig = plt.figure()
-		# ax=fig.add_subplot(1,1,1)
-		# ax.scatter(X[:,1],y_clipped,s=5)
-		# test_theta = np.array([0.0,1.0])
-		# y_pred = model.predict(test_theta,X)
-		# ax.scatter(X[:,1],y_pred,color='r',s=5,alpha=0.2)
-		# plt.show()
-		# input("next")
 		
 		squared_errors = model.vector_Mean_Squared_Error(theta,X,y)
 

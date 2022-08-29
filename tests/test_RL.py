@@ -126,3 +126,23 @@ def test_Fourier():
     basis = Fourier(hyperparam_and_setting_dict, env_desc)
     assert basis.num_features == 9
     assert np.array_equal(basis.basis_matrix, np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]))
+
+def test_createRLSpec(RL_gridworld_dataset):
+    from seldonian.spec import createRLSpec
+    constraint_strs = ['J_pi_new <= -0.25']
+    deltas = [0.05]
+
+    (dataset,policy,env_kwargs,
+        primary_objective) = RL_gridworld_dataset()
+
+    spec = createRLSpec(
+        dataset=dataset,
+        policy=policy,
+        env_kwargs=env_kwargs,
+        constraint_strs=constraint_strs,
+        deltas=deltas,
+        save_dir='',
+        verbose=False)
+    
+    assert spec.env_kwargs['gamma'] == 0.9
+    assert isinstance(spec.RL_policy_obj,Softmax)

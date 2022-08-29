@@ -145,7 +145,7 @@ class DataSetLoader():
 			episodes=episodes,
 			meta_information=columns)
 		
-	def load_RL_dataset_from_episode_list(self,
+	def load_RL_dataset_from_episode_file(self,
 		filename,
 		metadata_filename):
 		""" Create RLDataSet object from file

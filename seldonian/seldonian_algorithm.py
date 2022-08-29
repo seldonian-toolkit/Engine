@@ -109,13 +109,13 @@ class SeldonianAlgorithm():
 			print(self.initial_solution)
 
 		elif self.regime == 'reinforcement_learning':
-			self.RL_environment_obj = self.spec.RL_environment_obj
-			self.normalize_returns = self.spec.normalize_returns
+			self.env_kwargs = self.spec.env_kwargs
+			# self.normalize_returns = self.spec.normalize_returns
 
 			self.RL_policy_obj = self.spec.RL_policy_obj
 
 			self.model_instance = self.spec.model_class(
-				self.RL_policy_obj, self.RL_environment_obj)
+				self.RL_policy_obj, self.env_kwargs)
 
 			episodes = self.spec.dataset.episodes
 			# Create candidate and safety datasets
@@ -140,24 +140,6 @@ class SeldonianAlgorithm():
 			
 			# initial solution
 			self.initial_solution = self.RL_policy_obj.get_params()
-
-			cs_kwargs = dict(
-				model=self.model_instance,
-				candidate_dataset=self.candidate_dataset,
-				n_safety=self.n_safety,
-				parse_trees=self.spec.parse_trees,
-				primary_objective=self.spec.primary_objective,
-				optimization_technique=self.spec.optimization_technique,
-				optimizer=self.spec.optimizer,
-				initial_solution=self.initial_solution,
-				regime=self.regime,
-				gamma=self.RL_environment_obj.gamma,
-				normalize_returns=self.normalize_returns
-				)
-
-			if self.normalize_returns:
-				cs_kwargs['min_return']=self.RL_environment_obj.min_return
-				cs_kwargs['max_return']=self.RL_environment_obj.max_return
 		
 		if self.spec.primary_objective is None:
 			if self.regime == 'reinforcement_learning':
@@ -195,13 +177,12 @@ class SeldonianAlgorithm():
 				optimizer=self.spec.optimizer,
 				initial_solution=self.initial_solution,
 				regime=self.regime,
-				gamma=self.RL_environment_obj.gamma,
-				normalize_returns=self.normalize_returns
+				gamma=self.env_kwargs['gamma'],
+				# normalize_returns=self.normalize_returns
 				)
-
-			if self.normalize_returns:
-				cs_kwargs['min_return']=self.RL_environment_obj.min_return
-				cs_kwargs['max_return']=self.RL_environment_obj.max_return
+			# if self.normalize_returns:
+			# 	cs_kwargs['min_return']=self.RL_environment_obj.min_return
+			# 	cs_kwargs['max_return']=self.RL_environment_obj.max_return
 
 		cs = CandidateSelection(**cs_kwargs,**self.spec.regularization_hyperparams,
 			write_logfile=write_cs_logfile,store_values=store_cs_values)
@@ -220,19 +201,18 @@ class SeldonianAlgorithm():
 			st_kwargs = dict(
 				safety_dataset=self.safety_dataset,
 				model=self.model_instance,parse_trees=self.spec.parse_trees,
-				gamma=self.RL_environment_obj.gamma,
+				gamma=self.env_kwargs['gamma'],
 				regime=self.regime,
-				normalize_returns=self.normalize_returns
 				)
 
-			if self.normalize_returns:
-				st_kwargs['min_return']=self.RL_environment_obj.min_return
-				st_kwargs['max_return']=self.RL_environment_obj.max_return
+			# if self.normalize_returns:
+			# 	st_kwargs['min_return']=self.RL_environment_obj.min_return
+			# 	st_kwargs['max_return']=self.RL_environment_obj.max_return
 		
 		st = SafetyTest(**st_kwargs)
 		return st
 
-	def run(self,write_cs_logfile=False,store_cs_values=False):
+	def run(self,write_cs_logfile=False,store_cs_values=False,debug=False):
 		"""
 		Runs seldonian algorithm using spec object
 
@@ -247,10 +227,12 @@ class SeldonianAlgorithm():
 		"""
 			
 		cs = self.candidate_selection(
-			write_cs_logfile=write_cs_logfile,store_cs_values=store_cs_values)
+			write_cs_logfile=write_cs_logfile,
+			store_cs_values=store_cs_values)
 		solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
-			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn)
+			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
+			debug=debug)
 		self.has_been_run = True
 		self.cs_result = cs.optimization_result
 		
