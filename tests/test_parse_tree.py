@@ -485,7 +485,6 @@ def test_parse_tree_with_inequalities():
 	assert pt_gte0.root.right.left.value == 0.5
 	assert pt_gte0.root.right.right.name == 'PR | [M]'
 
-
 def test_math_functions():
 	""" Test that math functions like
 	min(), max(), abs() and exp() get parsed 
@@ -673,14 +672,14 @@ def test_custom_base_nodes():
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1
 
-	constraint_str = 'CVARSQE - 1.0'
+	constraint_str = 'CVaRSQE - 1.0'
 	delta = 0.05 
 
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	assert isinstance(pt.root.left,BaseNode)
-	assert isinstance(pt.root.left,CVARSQEBaseNode)
+	assert isinstance(pt.root.left,CVaRSQeBaseNode)
 	assert pt.root.left.alpha == 0.1
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1

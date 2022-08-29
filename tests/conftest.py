@@ -291,7 +291,7 @@ def RL_gridworld_dataset():
     from seldonian.RL.RL_model import RL_model
     from seldonian.RL.Agents.Policies.Softmax import Softmax
     from seldonian.RL.Env_Description import Spaces, Env_Description
-    
+
     def generate_dataset():
         np.random.seed(0)
 
@@ -303,8 +303,7 @@ def RL_gridworld_dataset():
             regime="reinforcement_learning")
 
         dataset = loader.load_RL_dataset_from_episode_file(
-            filename=data_pth,
-            metadata_filename=metadata_pth)
+            filename=data_pth)
 
         # Env description 
         num_states = 9 # 3x3 gridworld

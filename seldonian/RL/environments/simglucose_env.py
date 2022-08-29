@@ -3,7 +3,12 @@ import gym
 from gym.envs.registration import register
 from seldonian.RL.environments.Environment import *
 from seldonian.RL.Env_Description.Env_Description import *
-import simglucose
+try:
+    import simglucose
+except ImportError:
+    print("\nWARNING: The module 'simglucose' was not imported. "
+        "If you want to use the diabetes simulator, then do:\n"
+        "pip install simglucose\n")
 
 class Simglucose(Environment):
     def __init__(self):
