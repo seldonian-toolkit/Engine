@@ -782,6 +782,7 @@ class CVaRSQeBaseNode(BaseNode):
 
 	def calculate_bounds(self,
 		**kwargs):
+		from seldonian.models import objectives
 		"""Calculate confidence bounds using the concentration 
 		inequalities in Thomas & Miller 2019, Theorem's 3 and 4.
 		""" 
@@ -807,7 +808,7 @@ class CVaRSQeBaseNode(BaseNode):
 			pow(y_hat_max-y_min,2),
 			pow(y_max - y_hat_min,2))
 		
-		squared_errors = model.vector_Mean_Squared_Error(theta,X,y)
+		squared_errors = objectives.vector_Squared_Error(model,theta,X,y)
 
 		a=min_squared_error
 		b=max_squared_error
