@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>seldonian.spec.Spec &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -34,7 +35,7 @@
           <div class="body" role="main">
             
   <section id="seldonian-spec-spec">
-<h1>seldonian.spec.Spec<a class="headerlink" href="#seldonian-spec-spec" title="Permalink to this headline">¶</a></h1>
+<h1>seldonian.spec.Spec<a class="headerlink" href="#seldonian-spec-spec" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.spec.Spec">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_node_bound_method_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_builtin_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gradient_descent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'alpha_lamb':</span> <span class="pre">0.005,</span> <span class="pre">'alpha_theta':</span> <span class="pre">0.005,</span> <span class="pre">'beta_rmsprop':</span> <span class="pre">0.95,</span> <span class="pre">'beta_velocity':</span> <span class="pre">0.9,</span> <span class="pre">'gradient_library':</span> <span class="pre">'autograd',</span> <span class="pre">'hyper_search':</span> <span class="pre">None,</span> <span class="pre">'lambda_init':</span> <span class="pre">0.5,</span> <span class="pre">'num_iters':</span> <span class="pre">200,</span> <span class="pre">'verbose':</span> <span class="pre">True}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_hyperparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.spec.Spec" title="Permalink to this definition">¶</a></dt>
@@ -42,7 +43,7 @@
 <p>Base class for specification object required to
 run the Seldonian algorithm</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – The dataset object containing safety data</p></li>
 <li><p><strong>model_class</strong> (<a class="reference internal" href="seldonian.models.models.SeldonianModel.html#seldonian.models.models.SeldonianModel" title="seldonian.models.models.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> or child class) – The model class for the Seldonian model,
@@ -73,7 +74,7 @@ optimization during candidate selection. See <a class="reference internal" href=
 regularization during candidate selection. See <a class="reference internal" href="../overview.html#candidate-selection"><span class="std std-ref">Candidate Selection</span></a>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Variables</dt>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>usable_opt_dict</strong> (<em>dict</em>) – Shows which optimizers are acceptable
 for a given optimization technique</p>
 </dd>
@@ -91,10 +92,6 @@ for a given optimization technique</p>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 </tbody>
 </table>
@@ -172,7 +169,7 @@ for a given optimization technique</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -189,7 +186,7 @@ for a given optimization technique</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

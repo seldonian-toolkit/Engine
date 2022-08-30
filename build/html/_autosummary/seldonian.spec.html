@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>seldonian.spec &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -34,17 +35,13 @@
           <div class="body" role="main">
             
   <section id="module-seldonian.spec">
-<span id="seldonian-spec"></span><h1>seldonian.spec<a class="headerlink" href="#module-seldonian.spec" title="Permalink to this headline">¶</a></h1>
+<span id="seldonian-spec"></span><h1>seldonian.spec<a class="headerlink" href="#module-seldonian.spec" title="Permalink to this heading">¶</a></h1>
 <p>Module for building the specification object needed to run Seldonian algorithms</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.spec.createRLSpec.html#seldonian.spec.createRLSpec" title="seldonian.spec.createRLSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createRLSpec</span></code></a>(dataset, metadata_pth, agent, ...)</p></td>
-<td><p>Convenience function for creating RLSpec object.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.spec.createRLSpec.html#seldonian.spec.createRLSpec" title="seldonian.spec.createRLSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createRLSpec</span></code></a>(dataset, policy, ...[, ...])</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.spec.createSupervisedSpec.html#seldonian.spec.createSupervisedSpec" title="seldonian.spec.createSupervisedSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createSupervisedSpec</span></code></a>(dataset, metadata_pth, ...)</p></td>
 <td><p>Convenience function for creating SupervisedSpec object.</p></td>
@@ -53,10 +50,6 @@
 </table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.spec.RLSpec.html#seldonian.spec.RLSpec" title="seldonian.spec.RLSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RLSpec</span></code></a>(dataset, model_class, ...[, ...])</p></td>
 <td><p>Specification object for running RL Seldonian algorithms</p></td>
@@ -64,7 +57,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Spec</span></code></a>(dataset, model_class, ...[, ...])</p></td>
 <td><p>Base class for specification object required to run the Seldonian algorithm</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec" title="seldonian.spec.SupervisedSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a>(dataset, model_class, parse_trees)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec" title="seldonian.spec.SupervisedSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a>(dataset, model_class, ...[, ...])</p></td>
 <td><p>Specification object for running Supervised learning Seldonian algorithms</p></td>
 </tr>
 </tbody>
@@ -139,7 +132,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -156,7 +149,7 @@
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
