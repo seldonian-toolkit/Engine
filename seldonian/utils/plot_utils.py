@@ -76,4 +76,6 @@ def plot_gradient_descent(solution,primary_objective_name,save=False,savename='t
     if save:
         plt.savefig(savename,dpi=300)
         print(f"Saved {savename}")
+    else:
+        plt.show()
     return fig

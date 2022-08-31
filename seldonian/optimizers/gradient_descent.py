@@ -30,6 +30,7 @@ def gradient_descent_adam(
     gradient_library="autograd",
     store_values=False,
     verbose=False,
+    debug=False,
     **kwargs):
     """ Implements simultaneous gradient descent/ascent using 
     the "adam" optimizer on a Lagrangian:
@@ -118,11 +119,11 @@ def gradient_descent_adam(
         if verbose:
             if i % 10 == 0:
                 print(f"Iteration {i}")
-        # print("computing f and g")
         primary_val = primary_objective(theta)
         g_vec = upper_bounds_function(theta)
         g_vec = g_vec.reshape(g_vec.shape[0],1)
-        # print("f,g,theta:",primary_val,g_vec,theta)
+        if debug:
+            print("it,f,g,theta,lambda:",i,primary_val,g_vec,theta,lamb)
         # Check if this is best feasible value so far
         if all([g<= 0 for g in g_vec]) and primary_val < best_feasible_primary:
             best_feasible_primary = np.copy(primary_val)

@@ -411,7 +411,7 @@ def test_cvar_custom_base_node():
 	assert passed_safety == True
 	solution_to_compare = np.array([0.0717587])
 	assert np.allclose(solution,solution_to_compare)
-	
+
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 
 	with a two constraints using gradient descent. Make
@@ -443,7 +443,7 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5,0.5]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
@@ -496,7 +496,7 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
@@ -583,7 +583,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 			optimization_technique='gradient_descent',
 			optimizer='adam',
 			optimization_hyperparams={
-				'lambda_init'   : 0.5,
+				'lambda_init'   : np.array([0.5]),
 				'alpha_theta'   : 0.005,
 				'alpha_lamb'    : 0.005,
 				'beta_velocity' : 0.9,
@@ -637,7 +637,7 @@ def test_classification_statistics(gpa_classification_dataset):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
@@ -691,7 +691,7 @@ def test_NSF(gpa_regression_dataset):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
@@ -801,7 +801,7 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
@@ -859,7 +859,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
@@ -967,7 +967,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 # 		optimization_technique='gradient_descent',
 # 		optimizer='adam',
 # 		optimization_hyperparams={
-# 			'lambda_init'   : 0.5,
+# 			'lambda_init'   : np.array([0.5]),
 # 			'alpha_theta'   : 0.005,
 # 			'alpha_lamb'    : 0.005,
 # 			'beta_velocity' : 0.9,
@@ -1006,7 +1006,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 # 		optimization_technique='gradient_descent',
 # 		optimizer='adam',
 # 		optimization_hyperparams={
-# 			'lambda_init'   : 0.5,
+# 			'lambda_init'   : np.array([0.5]),
 # 			'alpha_theta'   : 0.005,
 # 			'alpha_lamb'    : 0.005,
 # 			'beta_velocity' : 0.9,

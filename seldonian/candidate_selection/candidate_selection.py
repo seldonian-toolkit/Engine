@@ -129,7 +129,7 @@ class CandidateSelection(object):
 			    beta_rmsprop=kwargs['beta_rmsprop'],
 			    num_iters=kwargs['num_iters'],
 				theta_init=self.initial_solution,
-				lambda_init=0.5*np.ones(len(self.parse_trees)),
+				lambda_init=kwargs['lambda_init'],
 				store_values=self.write_logfile or self.store_values,
 				verbose=kwargs['verbose'],
 				debug=kwargs['debug'],
