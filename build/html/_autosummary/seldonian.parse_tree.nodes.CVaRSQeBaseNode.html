@@ -98,9 +98,7 @@ for confidence bound calculation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_value">
 <span class="sig-name descname"><span class="pre">calculate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the value of the node 
-given model weights, etc. This is
-the expected value of the base variable,
+<dd><p>Calculate the actual value of CVAR_alpha,
 not the bound.</p>
 </dd></dl>
 
@@ -112,7 +110,7 @@ Used in safety test.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate + 1</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray of length n_safety</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>a</strong> (<em>float</em>) – The minimum possible value of the squared error</p></li>
@@ -123,12 +121,23 @@ Used in safety test.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 Used in safety test.</p>
-<p>This is equivalent
+<p>Depending on the bound_method,
+this is not always equivalent
 to calling compute_HC_lowerbound() and 
 compute_HC_upperbound() independently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -139,7 +148,7 @@ Used in safety test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate + 1</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray of length n_safety</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>b</strong> (<em>float</em>) – The maximum possible value of the squared error</p></li>
@@ -180,7 +189,7 @@ Used in candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate + 1</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>a</strong> (<em>float</em>) – The minimum possible value of the squared error</p></li>
@@ -191,13 +200,24 @@ Used in candidate selection</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 that we expect to pass the safety test.
 Used in candidate selection.</p>
-<p>This is equivalent
+<p>Depending on the bound_method,
+this is not always equivalent
 to calling predict_HC_lowerbound() and 
 predict_HC_upperbound() independently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+evaluated at each observation in dataset</p></li>
+<li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -209,7 +229,7 @@ Used in candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate + 1</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>b</strong> (<em>float</em>) – The maximum possible value of the squared error</p></li>

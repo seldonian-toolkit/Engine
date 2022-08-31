@@ -19,6 +19,7 @@ seldonian.models.models
       :toctree:                                         
       :template: custom-class-template.rst              
    
+      BoundedLinearRegressionModel
       ClassificationModel
       DummyClassifierModel
       LinearRegressionModel
@@ -26,7 +27,6 @@ seldonian.models.models
       RandomClassifierModel
       RegressionModel
       SeldonianModel
-      SquashedLinearRegressionModel
       SupervisedModel
    
    

@@ -24,6 +24,7 @@ seldonian.models.objectives
       True_Negative_Rate
       True_Positive_Rate
       evaluate_statistic
+      gradient_Bounded_Squared_Error
       gradient_Mean_Squared_Error
       gradient_logistic_loss
       logistic_loss
