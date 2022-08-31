@@ -4,14 +4,14 @@ import autograd.numpy as np
 import pandas as pd
 
 from seldonian.utils.io_utils import load_json, load_pickle
-from seldonian.parse_tree.parse_tree import ParseTree
+from seldonian.utils.tutorial_utils import make_synthetic_regression_dataset
+from seldonian.parse_tree.parse_tree import ParseTree,make_parse_trees_from_constraints
 from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet,RLDataSet)
 
 from seldonian.spec import RLSpec, SupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
-from seldonian.models.models import (LinearRegressionModel,
-	SquashedLinearRegressionModel)
+from seldonian.models.models import LinearRegressionModel
 from seldonian.models import objectives
 
 import matplotlib.pyplot as plt
@@ -346,73 +346,72 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 	array_to_compare = np.array(
 		[0.42370182, -0.00469413, -0.00299174,
 		 -0.0045492,  -0.00392318, -0.0047077,
-	  	 0.01771072,  0.0168809,  -0.0052295,
-	  	 -0.00376234])
+		 0.01771072,  0.0168809,  -0.0052295,
+		 -0.00376234])
 
 	assert np.allclose(solution,array_to_compare)
 
-# def test_cvar_custom_base_node(synthetic_dataset):
-# 	""" Test that the gpa regression example runs 
-# 	using the custom base node that calculates 
-# 	CVaR alpha of the squared error. Make
-# 	sure safety test passes and solution is correct.
+def test_cvar_custom_base_node():
+	""" Test that the gpa regression example runs 
+	using the custom base node that calculates 
+	CVaR alpha of the squared error. Make
+	sure safety test passes and solution is correct.
 
-# 	Check that the actual value of the constraint (not the bound)
-# 	is also correctly calculated.
-# 	"""
+	Check that the actual value of the constraint (not the bound)
+	is also correctly calculated.
+	"""
+	from seldonian.models.models import BoundedLinearRegressionModel
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['CVaRSQE <= 40.0']
+	deltas = [0.1]
+
+	numPoints = 5000
+	dataset = make_synthetic_regression_dataset(
+		numPoints,
+		loc_X=0.0,
+		loc_Y=0.0,
+		sigma_X=1.0,
+		sigma_Y=0.2,
+		include_intercept_term=False,clipped=True)
+
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas)
+
+	model_class = BoundedLinearRegressionModel
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model_class=model_class,
+		sub_regime='regression',
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=False,
+		custom_primary_gradient_fn=objectives.gradient_Bounded_Squared_Error,
+		parse_trees=parse_trees,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 5,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run(write_cs_logfile=True,debug=True)
+	assert passed_safety == True
+	solution_to_compare = np.array([0.0717587])
+	assert np.allclose(solution,solution_to_compare)
 	
-# 	constraint_strs = ['CVARSQE <= 10.0']
-# 	# constraint_strs = ['Mean_Squared_Error <= 10.0']
-# 	deltas = [0.05]
-# 	numPoints=10000
-# 	spec = synthetic_dataset(
-# 		constraint_strs=constraint_strs,
-# 		deltas=deltas,
-# 		numPoints=numPoints,
-# 		include_intercept_term=True)
-# 	# spec.optimization_hyperparams['alpha_theta'] = 0.005
-# 	# spec.optimization_hyperparams['alpha_lamb'] = 0.005
-# 	spec.optimization_hyperparams['num_iters'] = 200
-	
-# 	spec.model_class = SquashedLinearRegressionModel
-# 	spec.use_builtin_primary_gradient_fn = True
-# 	spec.primary_objective = SquashedLinearRegressionModel().sample_Squashed_Squared_Error
-# 	# Run seldonian algorithm
-# 	SA = SeldonianAlgorithm(spec)
-# 	passed_safety,solution = SA.run()
-# 	print(passed_safety,solution)
-# 	# last_theta = np.array([[-0.42834993]])
-# 	# candidate_features = np.array(SA.candidate_features)
-# 	# candidate_labels = np.array(SA.candidate_labels)
-# 	# candidate_predictions = spec.model_class().predict(
-# 	# 	last_theta,candidate_features,candidate_labels)
-# 	# fig = plt.figure()
-# 	# ax=fig.add_subplot()
-# 	# ax.scatter(candidate_labels,candidate_predictions)
-# 	# ax.set_xlabel("y (candidate)")
-# 	# ax.set_ylabel("y_hat (candidate)")
-# 	# ax.set_title("Labels vs. predictions after candidate selection")
-# 	# ax.set_xlim(-2,2)
-# 	# ax.set_ylim(-2,2)
-# 	# plt.show()
-# 	# print(candidate_labels)
-# 	# assert passed_safety == True
-# 	# array_to_compare = np.array([-0.27208444])
-# 	# assert np.allclose(solution,array_to_compare)
-
-# 	# # Evaluate CVAR on the safety dataset
-# 	# # safety dataset should still be cached in base_node_dict
-# 	# # after safety test 
-# 	# safety_dataset = SA.safety_dataset
-# 	# spec.parse_trees[0].evaluate_constraint(
-# 	# 	dataset=safety_dataset,
-# 	# 	model=spec.model_class(),theta=solution)
-# 	# # value gets stored in base node
-# 	# cvar = spec.parse_trees[0].root.left.value
-# 	# assert cvar == pytest.approx(4.215009025681028)
-# 	# # graph = spec.parse_trees[0].make_viz(constraint_strs[0])
-# 	# graph.view()
-
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 
 	with a two constraints using gradient descent. Make
@@ -658,8 +657,8 @@ def test_classification_statistics(gpa_classification_dataset):
 	solution_to_compare = np.array(
 		[-0.14932756, -0.04743285,  0.15603878,
 		  0.10953721,  0.08014052,  0.03997749,
-  		  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]
-  	)
+		  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]
+	)
 
 	assert np.allclose(solution,solution_to_compare)
 

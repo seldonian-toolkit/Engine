@@ -163,6 +163,7 @@ def gradient_Mean_Squared_Error(model,theta,X,Y):
 	:return: Sample mean squared error
 	:rtype: float
 	"""
+	print(theta)
 	n = len(X)
 	prediction = model.predict(theta,X) # vector of values
 	err = prediction-Y
@@ -222,6 +223,40 @@ def vector_Error(model,theta,X,Y):
 	"""  
 	prediction = model.predict(theta, X)
 	return prediction-Y
+
+def gradient_Bounded_Squared_Error(model,theta,X,Y):
+	""" Analytical gradient of the bounded squared error
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
+	:return: the gradient evaluated at this theta
+	:rtype: float
+	"""
+	n = len(X)
+	y_min,y_max = -3,3
+	# Want range of Y_hat to be twice that of Y
+	# and want size of interval on either side of Y_min and Y_max
+	# to be the same. The unique solution to this is:
+	s=1.5
+	y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
+	y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
+
+	c1 = y_hat_max - y_hat_min
+	c2 = -y_hat_min
+
+	Y_hat = model.predict(theta,X) # vector of values
+	Y_hat_old = (Y_hat-y_hat_min)/(y_hat_max-y_hat_min)
+	sig = model._sigmoid(Y_hat_old)
+
+	term1=Y - (c1*sig-c2)
+	term2=-c1*sig*(1-sig)*X[:,0]
+	s = sum(term1*term2)
+	return -2/n*s
+
 
 """ Classification """
 

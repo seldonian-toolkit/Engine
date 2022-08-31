@@ -65,36 +65,13 @@ class LinearRegressionModel(RegressionModel):
 		return np.hstack([np.array(reg.intercept_),reg.coef_[1:]])
 
 
-class SquashedLinearRegressionModel(LinearRegressionModel):
+class BoundedLinearRegressionModel(LinearRegressionModel):
 	def __init__(self):
 		""" Implements linear regression 
-		with a squashed predict function.
+		with a bounded predict function.
 		Overrides several parent methods.
 		Assumes y-intercept is 0. """
 		super().__init__()
-		self.model_class = LinearRegression
-
-	def gradient_sample_Squashed_Squared_Error(self,theta,X,Y):
-		n = len(X)
-		y_min,y_max = -3,3
-		# Want range of Y_hat to be twice that of Y
-		# and want size of interval on either side of Y_min and Y_max
-		# to be the same. The unique solution to this is:
-		s=1.5
-		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
-		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
-
-		c1 = y_hat_max - y_hat_min
-		c2 = -y_hat_min
-
-		Y_hat = self.predict(theta,X) # vector of values
-		Y_hat_old = (Y_hat-y_hat_min)/(y_hat_max-y_hat_min)
-		sig = self._sigmoid(Y_hat_old)
-
-		term1=Y - (c1*sig-c2)
-		term2=-c1*sig*(1-sig)*X[:,0]
-		s = sum(term1*term2)
-		return -2/n*s
 
 	def _sigmoid(self,X):
 		return 1/(1+np.exp(-X))
@@ -116,7 +93,7 @@ class SquashedLinearRegressionModel(LinearRegressionModel):
 		# Want range of Y_hat to be twice that of Y
 		# and want size of interval on either side of Y_min and Y_max
 		# to be the same. The unique solution to this is:
-		s=1.5 # 1 gives you the same bound size as y
+		s=2.0 # 1 gives you the same bound size as y
 		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
 		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
 		Z = np.dot(X,theta)

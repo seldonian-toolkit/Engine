@@ -756,29 +756,31 @@ class CVaRSQeBaseNode(BaseNode):
 		super().__init__(name,lower,upper,**kwargs)
 		self.alpha = 0.1
 	
-	# def calculate_value(self,**kwargs):
-	# 	"""
-	# 	Calculate the actual value of CVAR_alpha,
-	# 	not the bound.
-	# 	""" 
-	# 	model = kwargs['model']
-	# 	theta = kwargs['theta']
-	# 	data_dict = kwargs['data_dict']
+	def calculate_value(self,**kwargs):
+		"""
+		Calculate the actual value of CVAR_alpha,
+		not the bound.
+		""" 
+		from seldonian.models import objectives
+		model = kwargs['model']
+		theta = kwargs['theta']
+		data_dict = kwargs['data_dict']
 
-	# 	# Get squashed squared errors
-	# 	y = data_dict['labels']
-	# 	y_min,y_max = min(y),max(y)
-	# 	X = data_dict['features']
-	# 	squared_errors = model.vector_Squashed_Squared_Error(theta,X,y)
-		
-	# 	Z = np.array(sorted(squared_errors))
-	# 	# Now calculate cvar
-	# 	percentile_thresh = (1-self.alpha)*100
-	# 	var_thresh = np.percentile(Z,percentile_thresh)
-	# 	var_mask = Z >= var_thresh
-	# 	Z_var = Z[var_mask]
-	# 	cvar = np.mean(Z_var)
-	# 	return cvar
+		# Get squashed squared errors
+		X = data_dict['features']
+		y = data_dict['labels']
+		squared_errors = objectives.vector_Squared_Error(model,theta,X,y)
+		# sort
+		Z = np.array(sorted(squared_errors))
+		# Now calculate cvar
+		percentile_thresh = (1-self.alpha)*100
+		# calculate var_alpha 
+		var_alpha = np.percentile(Z,percentile_thresh)
+		# cvar is the mean of all values >= var_alpha
+		cvar_mask = Z >= var_alpha
+		Z_cvar = Z[cvar_mask]
+		cvar = np.mean(Z_cvar)
+		return cvar
 
 	def calculate_bounds(self,
 		**kwargs):
@@ -790,19 +792,35 @@ class CVaRSQeBaseNode(BaseNode):
 		model = kwargs['model']
 		theta = kwargs['theta']
 		data_dict = kwargs['data_dict']
-		# Need to get vector of squashed squared errors,
-		# i.e. rescaled to be between 0 and y_max,
-		# where y_max is the max value of the label, y
+
 		X = data_dict['features']
 		y = data_dict['labels']
-		# clip y to -3,3
+
+		# import matplotlib.pyplot as plt
+		# y_hat = model.predict(theta,X)
+		# def MSE(y_true,y_pred):
+		#     N = len(y_true)
+		#     return 1/N*sum(pow(y_true-y_pred,2))
+		# mse = MSE(y,y_hat)
+		# fig = plt.figure()
+		# ax = fig.add_subplot(1,1,1)
+		# ax.scatter(X,y,s=5,label='y clipped')
+		# print(f"MSE = {mse:.5f}")
+		# ax.scatter(X,y_hat,color='r',s=5,alpha=0.1,label='squashed using 1.5x bound inflation')
+		# ax.set_xlabel("X")
+		# ax.set_ylabel("Y")
+		# ax.set_title("X=N(0,1), Y=X+N(0,0.2)")
+		# ax.legend()
+		# plt.show()
+		# input("Wait!")
+		# assume labels have been clipped to -3,3
+		# theoretical min and max (not actual min and max) are:
 		y_min,y_max = -3,3
-		# y_clipped = np.clip(y,y_min,y_max)
 		# Increase bounds of y_hat to s times the size of y bounds
-		s=1.5
+		s=2.0
 		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
 		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
-		# print(y_hat_min,y_hat_max)
+
 		min_squared_error = 0
 		max_squared_error = max(
 			pow(y_hat_max-y_min,2),
@@ -825,11 +843,11 @@ class CVaRSQeBaseNode(BaseNode):
 		
 		if self.will_lower_bound and self.will_upper_bound:
 			if branch == 'candidate_selection':
-				lower,upper = self.predict_HC_upper_and_lowerbound(
-					**bound_kwargs)  
+				lower = self.predict_HC_lowerbound(**bound_kwargs)
+				upper = self.predict_HC_upperbound(**bound_kwargs)  
 			elif branch == 'safety_test':
-				lower,upper = self.compute_HC_upper_and_lowerbound(
-					**bound_kwargs)  
+				lower = self.compute_HC_lowerbound(**bound_kwargs)  
+				upper = self.compute_HC_upperbound(**bound_kwargs)  
 			return {'lower':lower,'upper':upper}
 		
 		elif self.will_lower_bound:
@@ -860,16 +878,13 @@ class CVaRSQeBaseNode(BaseNode):
 
 		:param Z: 
 			Vector containing sorted squared errors
-		:type Z: numpy ndarray of length n_candidate + 1
-		
+		:type Z: numpy ndarray of length n_candidate 
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
-
 		:param n_safety: 
 			The number of observations in the safety dataset
 		:type n_safety: int
-
 		:param a: The minimum possible value of the squared error
 		:type a: float
 		""" 
@@ -882,8 +897,7 @@ class CVaRSQeBaseNode(BaseNode):
 			np.zeros(n_candidate),
 			np.minimum(
 				np.ones(n_candidate),
-				(1+np.arange(n_candidate)
-				)/n_candidate+2*sqrt_term)-(1-self.alpha))
+				np.arange(n_candidate)/n_candidate+2*sqrt_term)-(1-self.alpha))
 		
 		lower = Znew[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
 
@@ -901,16 +915,13 @@ class CVaRSQeBaseNode(BaseNode):
 
 		:param Z: 
 			Vector containing sorted squared errors
-		:type Z: numpy ndarray of length n_candidate + 1
-		
+		:type Z: numpy ndarray of length n_candidate 
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
-
 		:param n_safety: 
 			The number of observations in the safety dataset
 		:type n_safety: int
-
 		:param b: The maximum possible value of the squared error
 		:type b: float
 		"""  
@@ -929,26 +940,6 @@ class CVaRSQeBaseNode(BaseNode):
 			
 		return upper
 
-	def predict_HC_upper_and_lowerbound(self,
-		**kwargs
-		):
-		"""
-		Calculate high confidence lower and upper bounds
-		that we expect to pass the safety test.
-		Used in candidate selection.
-	
-		This is equivalent
-		to calling predict_HC_lowerbound() and 
-		predict_HC_upperbound() independently.
-		""" 
-		
-		lower = self.predict_HC_lowerbound(
-			**kwargs)
-		upper = self.predict_HC_upperbound(
-			**kwargs)
-			
-		return lower,upper
-
 	def compute_HC_lowerbound(self,
 		Z,
 		delta,
@@ -961,19 +952,15 @@ class CVaRSQeBaseNode(BaseNode):
 
 		:param Z: 
 			Vector containing sorted squared errors
-		:type Z: numpy ndarray of length n_candidate + 1
-		
+		:type Z: numpy ndarray of length n_safety		
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
-
 		:param n_safety: 
 			The number of observations in the safety dataset
 		:type n_safety: int
-
 		:param a: The minimum possible value of the squared error
 		:type a: float
-
 		"""  
 		Znew = Z.copy()
 		Znew = np.array([a] + Znew)
@@ -984,8 +971,7 @@ class CVaRSQeBaseNode(BaseNode):
 			np.zeros(n_safety),
 			np.minimum(
 				np.ones(n_safety),
-				(1+np.arange(n_safety)
-				)/n_safety+sqrt_term)-(1-self.alpha))
+				np.arange(n_safety)/n_safety+sqrt_term)-(1-self.alpha))
 		
 		lower = Znew[-1] - 1/self.alpha*sum(np.diff(Znew)*max_term)
 
@@ -1002,16 +988,13 @@ class CVaRSQeBaseNode(BaseNode):
 
 		:param Z: 
 			Vector containing sorted squared errors
-		:type Z: numpy ndarray of length n_candidate + 1
-		
+		:type Z: numpy ndarray of length n_safety
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
-
 		:param n_safety: 
 			The number of observations in the safety dataset
 		:type n_safety: int
-
 		:param b: The maximum possible value of the squared error
 		:type b: float
 		"""
@@ -1027,25 +1010,6 @@ class CVaRSQeBaseNode(BaseNode):
 			
 		return upper
 	
-	def compute_HC_upper_and_lowerbound(self,
-		**kwargs):
-		"""
-		Calculate high confidence lower and upper bounds
-		Used in safety test.
-	
-		This is equivalent
-		to calling compute_HC_lowerbound() and 
-		compute_HC_upperbound() independently.
-
-		"""
-
-		lower = self.compute_HC_lowerbound(
-			**kwargs)
-		upper = self.compute_HC_upperbound(
-			**kwargs)
-
-		return lower,upper
-  
 	
 class ConstantNode(Node):
 	def __init__(self,name,value,**kwargs):
