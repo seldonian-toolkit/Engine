@@ -166,13 +166,10 @@ def gradient_descent_adam(
 
         # update weights
         theta -= alpha_theta*velocity_theta/(np.sqrt(s_theta)+rms_offset) # gradient descent
-        # print(lamb,alpha_lamb,gradient_lamb_vec)
-        # input("next")
         lamb += alpha_lamb*gradient_lamb_vec # element wise update
         
         # If any values in lambda vector dip below 0, force them to be zero
         lamb[lamb<0]=0
-        # print(primary_val,lamb,g_vec,theta)
         if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
             break
 

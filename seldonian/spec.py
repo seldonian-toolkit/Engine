@@ -203,6 +203,7 @@ class SupervisedSpec(Spec):
 			regularization_hyperparams=regularization_hyperparams)
 		self.sub_regime = sub_regime
 
+
 class RLSpec(Spec):
 	""" Specification object for running RL Seldonian algorithms
 

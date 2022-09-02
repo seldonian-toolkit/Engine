@@ -163,7 +163,6 @@ def gradient_Mean_Squared_Error(model,theta,X,Y):
 	:return: Sample mean squared error
 	:rtype: float
 	"""
-	print(theta)
 	n = len(X)
 	prediction = model.predict(theta,X) # vector of values
 	err = prediction-Y

@@ -241,61 +241,6 @@ def test_bad_optimizer(gpa_regression_dataset):
 	error_str = "Optimization technique: bad-opt-technique is not implemented"
 	assert error_str in str(excinfo.value)
 
-def test_gpa_data_regression(gpa_regression_dataset):
-	""" Test that the gpa regression example runs 
-	with a simple non-conflicting constraint. Make
-	sure safety test passes and solution is correct.
-	"""
-	rseed=0
-	np.random.seed(rseed) 
-	# constraint_strs = ['Mean_Squared_Error - 2.0']
-	constraint_strs = ['abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1']
-
-	deltas = [0.05]
-
-	(dataset,model_class,
-		primary_objective,parse_trees) = gpa_regression_dataset(
-		constraint_strs=constraint_strs,
-		deltas=deltas)
-
-	frac_data_in_safety=0.6
-
-	# Create spec object
-	spec = SupervisedSpec(
-		dataset=dataset,
-		model_class=model_class,
-		parse_trees=parse_trees,
-		sub_regime='regression',
-		frac_data_in_safety=frac_data_in_safety,
-		primary_objective=primary_objective,
-		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
-		optimization_technique='gradient_descent',
-		optimizer='adam',
-		optimization_hyperparams={
-			'lambda_init'   : np.array([0.5]),
-			'alpha_theta'   : 0.01,
-			'alpha_lamb'    : 0.01,
-			'beta_velocity' : 0.9,
-			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 600,
-			'gradient_library': "autograd",
-			'hyper_search'  : None,
-			'verbose'       : True,
-		}
-	)
-
-	# Run seldonian algorithm
-	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run()
-	assert passed_safety == True
-	array_to_compare = np.array(
-		[ 4.20776626e-01, -6.68167090e-04,  9.78329737e-04, -1.15722866e-03,
- -1.05315739e-03, -8.12009686e-04,  4.61741069e-03,  3.92829593e-03,
- -1.40006741e-03,  3.41671151e-05])
-
-	assert np.allclose(solution,array_to_compare)
-
 def test_phil_custom_base_node(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 
 	using Phil's custom base node. Make
@@ -332,7 +277,7 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 			'alpha_lamb'    : 0.01,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 600,
+			'num_iters'     : 10,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -341,13 +286,14 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 
 	# Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run()
+	passed_safety,solution = SA.run(debug=True)
 	assert passed_safety == True
+	print(solution)
 	array_to_compare = np.array(
-		[0.42370182, -0.00469413, -0.00299174,
-		 -0.0045492,  -0.00392318, -0.0047077,
-		 0.01771072,  0.0168809,  -0.0052295,
-		 -0.00376234])
+		[ 0.42523186, -0.00285192, -0.00202239,
+		 -0.00241261, -0.00234646, -0.0025831,
+		  0.01924249,  0.01865552, -0.00308212, 
+		 -0.0024446 ])
 
 	assert np.allclose(solution,array_to_compare)
 
@@ -363,10 +309,10 @@ def test_cvar_custom_base_node():
 	from seldonian.models.models import BoundedLinearRegressionModel
 	rseed=0
 	np.random.seed(rseed) 
-	constraint_strs = ['CVaRSQE <= 40.0']
+	constraint_strs = ['CVaRSQE <= 50.0']
 	deltas = [0.1]
 
-	numPoints = 5000
+	numPoints = 2500
 	dataset = make_synthetic_regression_dataset(
 		numPoints,
 		loc_X=0.0,
@@ -407,9 +353,9 @@ def test_cvar_custom_base_node():
 
 	# Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run(write_cs_logfile=True,debug=True)
+	passed_safety,solution = SA.run(debug=True)
 	assert passed_safety == True
-	solution_to_compare = np.array([0.0717587])
+	solution_to_compare = np.array([[0.07197478]])
 	assert np.allclose(solution,solution_to_compare)
 
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
@@ -588,7 +534,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 				'alpha_lamb'    : 0.005,
 				'beta_velocity' : 0.9,
 				'beta_rmsprop'  : 0.95,
-				'num_iters'     : 200,
+				'num_iters'     : 10,
 				'gradient_library': "autograd",
 				'hyper_search'  : None,
 				'verbose'       : True,
@@ -597,7 +543,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 
 		# Run seldonian algorithm
 		SA = SeldonianAlgorithm(spec)
-		passed_safety,solution = SA.run(write_cs_logfile=True)
+		passed_safety,solution = SA.run()
 		assert passed_safety == True
 		print(solution)
 
@@ -642,7 +588,7 @@ def test_classification_statistics(gpa_classification_dataset):
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 200,
+			'num_iters'     : 25,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -709,8 +655,8 @@ def test_NSF(gpa_regression_dataset):
 	assert passed_safety == False
 	assert solution == 'NSF'
 
-def test_black_box_optimizers(gpa_regression_dataset):
-	""" Test that the black box optimizers successfully optimize the GPA 
+def test_cmaes(gpa_regression_dataset):
+	""" Test that the CMA-ES black box optimizers successfully optimize the GPA 
 	regression problem with a simple non-conflicting constraint
 	"""
 	rseed=99
@@ -731,7 +677,8 @@ def test_black_box_optimizers(gpa_regression_dataset):
 		 1.86987938e-03,  1.29098726e-03,
 		 -3.82405534e-04,  2.29938169e-04])
 
-	for optimizer in ['Powell','CG','Nelder-Mead','BFGS','CMA-ES']:
+	# for optimizer in ['Powell','CG','Nelder-Mead','BFGS','CMA-ES']:
+	for optimizer in ['CMA-ES']:
 		spec = SupervisedSpec(
 			dataset=dataset,
 			model_class=model_class,
