@@ -12,8 +12,11 @@ def main():
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
     start_time = time()
     episodes, agent = run_trial(hyperparameter_and_setting_dict)
+    # Save episodes as pkl file:
+    save_pickle("n_step_mountaincar_100episodes.pkl",episodes)
     print(f"data generation took {time() - start_time} seconds")
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
+
     env_name = hyperparameter_and_setting_dict["env"]
     metadata_pth = get_metadata_path(env_name)
     save_dir = '.'
@@ -38,7 +41,7 @@ def get_metadata_path(env_name):
     if env_name == "gridworld":
         return "../../static/datasets/RL/gridworld/gridworld_metadata.json"
     elif env_name == "n_step_mountaincar":
-        return "../../static/datasets/RL/mountaincar/n_step_mountaincar_metadata.json"
+        return "../../static/datasets/RL/n_step_mountaincar/n_step_mountaincar_metadata.json"
     elif env_name == "simglucose":
         return "../../static/datasets/RL/simglucose/simglucose.json"
     else:

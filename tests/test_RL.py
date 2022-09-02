@@ -129,11 +129,11 @@ def test_Fourier():
     assert basis.num_features == 9
     assert np.array_equal(basis.basis_matrix, np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]))
 
-def test_createRLSpec(RL_gridworld_dataset):
+def test_createRLSpec_gridworld(RL_gridworld_dataset):
     """ Test creating RLSpec object
     for default gridworld inputs """
     from seldonian.spec import createRLSpec
-    constraint_strs = ['J_pi_new <= -0.25']
+    constraint_strs = ['J_pi_new >= -0.25']
     deltas = [0.05]
 
     (dataset,policy,env_kwargs,
@@ -149,6 +149,28 @@ def test_createRLSpec(RL_gridworld_dataset):
         verbose=False)
     
     assert spec.env_kwargs['gamma'] == 0.9
+    assert isinstance(spec.RL_policy_obj,Softmax)
+
+def test_createRLSpec_mountaincar(N_step_mountaincar_dataset):
+    """ Test creating RLSpec object
+    for default gridworld inputs """
+    from seldonian.spec import createRLSpec
+    constraint_strs = ['J_pi_new >= -500']
+    deltas = [0.05]
+
+    (dataset,policy,env_kwargs,
+        primary_objective) = N_step_mountaincar_dataset()
+
+    spec = createRLSpec(
+        dataset=dataset,
+        policy=policy,
+        env_kwargs=env_kwargs,
+        constraint_strs=constraint_strs,
+        deltas=deltas,
+        save_dir='',
+        verbose=False)
+    
+    assert spec.env_kwargs['gamma'] == 1.0
     assert isinstance(spec.RL_policy_obj,Softmax)
 
 def test_generate_gridworld_episodes():
@@ -172,12 +194,52 @@ def test_generate_gridworld_episodes():
     assert len(actions) >= 2
     assert len(rewards) >= 2
     assert len(pis) >= 2
-    
+
+    first_observation = observations[0]
+    assert first_observation == 0
+    first_action = actions[0]
+    assert first_action in [0,1,2,3]
+    first_reward = rewards[0]
+    assert first_reward == 0
+    assert all([pi == 0.25 for pi in pis])
+
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
     assert len(dataset.episodes) == 100
-    # # print_return_info(episodes)
 
-    # metadata_pth = get_metadata_path(hyperparameter_and_setting_dict["env"])
-    # save_dir = '.'
-    # constraint_string = get_constraint_string(hyperparameter_and_setting_dict["env"])
-    # dataset2spec(save_dir, metadata_pth, dataset, agent.get_policy(), constraint_string)
+
+
+def test_generate_n_step_mountaincar_episodes():
+    """ Test that we can generate proper episodes for n_step_mountaincar
+    with the behavior policy (uniform random). """
+    hyperparam_and_setting_dict = {}
+    hyperparam_and_setting_dict["env"] = "n_step_mountaincar"
+    hyperparam_and_setting_dict["agent"] = "Parameterized_non_learning_softmax_agent"
+    hyperparam_and_setting_dict["basis"] = "Fourier"
+    hyperparam_and_setting_dict["order"] = 2
+    hyperparam_and_setting_dict["max_coupled_vars"] = -1
+    hyperparam_and_setting_dict["num_episodes"] = 100
+    hyperparam_and_setting_dict["vis"] = False
+
+    episodes, agent = run_trial(hyperparam_and_setting_dict)
+
+    assert len(episodes) == 100
+    first_episode = episodes[0]
+    observations = first_episode.observations
+    actions = first_episode.actions
+    rewards = first_episode.rewards
+    pis = first_episode.pis
+    assert len(observations) >= 2
+    assert len(actions) >= 2
+    assert len(rewards) >= 2
+    assert len(pis) >= 2
+    
+    first_observation = observations[0]
+    assert np.allclose(first_observation,np.array([-0.5,0.0]))
+    first_action = actions[0]
+    assert first_action in [-1,0,1]
+    first_reward = rewards[0]
+    assert first_reward == -20.0
+    assert all([pi == 1/3. for pi in pis])
+
+    dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
+    assert len(dataset.episodes) == 100
