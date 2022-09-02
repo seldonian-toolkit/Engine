@@ -1,6 +1,11 @@
 # WARNING: naming this file "simglucose" causes some very confusing and misleading gym errors (ultimately caused by a silent conflict between that file name and the simglucose package)
-import gym
-from gym.envs.registration import register
+try:
+    import gym
+    from gym.envs.registration import register
+except ImportError:
+    print("\nWARNING: The module 'gym' was not imported. "
+        "If you want to use the diabetes simulator, then do:\n"
+        "pip install gym\n")
 from seldonian.RL.environments.Environment import *
 from seldonian.RL.Env_Description.Env_Description import *
 try:
