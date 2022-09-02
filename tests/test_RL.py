@@ -4,6 +4,8 @@ from seldonian.RL.Agents.Policies.Policy import *
 from seldonian.RL.Agents.Policies.Softmax import *
 from seldonian.RL.environments.mountaincar import *
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
+from seldonian.RL.RL_runner import run_trial
+from seldonian.dataset import RLDataSet
 import autograd.numpy as np
 
 def test_tables():
@@ -128,6 +130,8 @@ def test_Fourier():
     assert np.array_equal(basis.basis_matrix, np.array([[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]))
 
 def test_createRLSpec(RL_gridworld_dataset):
+    """ Test creating RLSpec object
+    for default gridworld inputs """
     from seldonian.spec import createRLSpec
     constraint_strs = ['J_pi_new <= -0.25']
     deltas = [0.05]
@@ -146,3 +150,34 @@ def test_createRLSpec(RL_gridworld_dataset):
     
     assert spec.env_kwargs['gamma'] == 0.9
     assert isinstance(spec.RL_policy_obj,Softmax)
+
+def test_generate_gridworld_episodes():
+    """ Test that we can generate proper episodes for gridworld
+    with the behavior policy (uniform random). """
+    hyperparam_and_setting_dict = {}
+    hyperparam_and_setting_dict["env"] = "gridworld"
+    hyperparam_and_setting_dict["agent"] = "Parameterized_non_learning_softmax_agent"
+    hyperparam_and_setting_dict["num_episodes"] = 100
+    hyperparam_and_setting_dict["vis"] = False
+
+    episodes, agent = run_trial(hyperparam_and_setting_dict)
+
+    assert len(episodes) == 100
+    first_episode = episodes[0]
+    observations = first_episode.observations
+    actions = first_episode.actions
+    rewards = first_episode.rewards
+    pis = first_episode.pis
+    assert len(observations) >= 2
+    assert len(actions) >= 2
+    assert len(rewards) >= 2
+    assert len(pis) >= 2
+    
+    dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
+    assert len(dataset.episodes) == 100
+    # # print_return_info(episodes)
+
+    # metadata_pth = get_metadata_path(hyperparameter_and_setting_dict["env"])
+    # save_dir = '.'
+    # constraint_string = get_constraint_string(hyperparameter_and_setting_dict["env"])
+    # dataset2spec(save_dir, metadata_pth, dataset, agent.get_policy(), constraint_string)

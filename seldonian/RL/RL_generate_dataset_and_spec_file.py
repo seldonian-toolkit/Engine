@@ -1,10 +1,10 @@
 from time import time
 from seldonian.dataset import RLDataSet
-from RLinterface2spec import dataset2spec
 from seldonian.RL.hyperparams_and_settings import *
 from seldonian.RL.RL_runner import run_trial
 from seldonian.utils.RL_utils import *
 from seldonian.utils.io_utils import save_pickle
+from seldonian.spec import createRLSpec
 
 
 def main():
@@ -13,16 +13,26 @@ def main():
     start_time = time()
     episodes, agent = run_trial(hyperparameter_and_setting_dict)
     print(f"data generation took {time() - start_time} seconds")
-    # Save episodes to file
-    print(len(episodes))
-    save_pickle("./episodes_1000episodes.pkl",episodes)
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
-    # print_return_info(episodes)
-
-    metadata_pth = get_metadata_path(hyperparameter_and_setting_dict["env"])
+    env_name = hyperparameter_and_setting_dict["env"]
+    metadata_pth = get_metadata_path(env_name)
     save_dir = '.'
-    constraint_string = get_constraint_string(hyperparameter_and_setting_dict["env"])
-    dataset2spec(save_dir, metadata_pth, dataset, agent.get_policy(), constraint_string)
+    constraint_strs = get_constraint_string(env_name)
+    deltas = [0.05]
+    env_kwargs = get_env_kwargs(env_name)
+    policy = agent.get_policy()
+    createRLSpec(
+        dataset=dataset,
+        policy=policy,
+        constraint_strs=constraint_strs,
+        deltas=deltas,
+        env_kwargs=env_kwargs,
+        frac_data_in_safety=0.6,
+        initial_solution_fn=None,
+        use_builtin_primary_gradient_fn=False,
+        save=True,
+        save_dir=save_dir,
+        verbose=False)
 
 def get_metadata_path(env_name):
     if env_name == "gridworld":
@@ -34,15 +44,31 @@ def get_metadata_path(env_name):
     else:
         error(f"unknown env name {env_name}")
 
-def get_constraint_string(env):
-    if env == "gridworld":
-        return ['-0.25 - J_pi_new']
-    elif env == "n_step_mountaincar":
-        return ['-500 - J_pi_new'] #uniform random policy averaged a return of roughly -500 (sample size was 10k episodes)
-    elif env == "simglucose":
-        return ['-0.25 - J_pi_new'] #needs updating with something reasonable
+def get_constraint_string(env_name):
+    if env_name == "gridworld":
+        return ['J_pi_new >= -0.25']
+    elif env_name == "n_step_mountaincar":
+        return ['J_pi_new >= -500'] #uniform random policy averaged a return of roughly -500 (sample size was 10k episodes)
+    elif env_name == "simglucose":
+        return ['zzzz'] #needs updating with something reasonable
     else:
-        error(f"Unknown env {env}")
+        error(f"Unknown env_name {env_name}")
+
+def get_env_kwargs(env_name):
+    if env_name == "gridworld":
+        from seldonian.RL.environments.gridworld import Gridworld
+        RL_environment = Gridworld()
+        gamma = RL_environment.gamma
+        return {'gamma':gamma}
+    elif env_name == "n_step_mountaincar":
+        from seldonian.RL.environments.n_step_mountaincar import N_step_mountaincar
+        RL_environment = N_step_mountaincar()
+        gamma = RL_environment.gamma
+        return {'gamma':gamma}
+    elif env_name == "simglucose":
+        return {} #needs updating 
+    else:
+        error(f"Unknown env_name {env_name}")
 
 def print_return_info(episodes):
     the_sum = 0.0
