@@ -397,6 +397,7 @@ def createSupervisedSpec(
 	constraint_strs,
 	deltas,
 	save_dir,
+	save=True,
 	verbose=False):
 	"""Convenience function for creating SupervisedSpec object. 
 	Uses default model.
@@ -420,20 +421,20 @@ def createSupervisedSpec(
         sensitive_columns) = load_supervised_metadata(metadata_pth)
 
 	assert regime == 'supervised_learning'
-	sub_regime = metadata_dict['sub_regime']
 
 	if sub_regime == 'regression':
 		model_class = LinearRegressionModel
 	elif sub_regime == 'classification':
 		model_class = LogisticRegressionModel
 
-	primary_objective = model_class().default_objective
+	primary_objective = objectives.logistic_loss
 
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
 		deltas,
 		regime='supervised_learning',
 		sub_regime=sub_regime,
+		columns=columns,
 		delta_weight_method='equal')
 
 	# Save spec object, using defaults where necessary
@@ -444,6 +445,7 @@ def createSupervisedSpec(
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
+		sub_regime=sub_regime,
 		initial_solution_fn=model_class().fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
@@ -461,6 +463,7 @@ def createSupervisedSpec(
 	)
 
 	spec_save_name = os.path.join(save_dir, 'spec.pkl')
-	save_pickle(spec_save_name,spec,verbose=verbose)
+	if save:
+		save_pickle(spec_save_name,spec,verbose=verbose)
 
 
