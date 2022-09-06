@@ -40,8 +40,11 @@
 <dt class="sig sig-object py" id="seldonian.utils.plot_utils.plot_gradient_descent">
 <span class="sig-name descname"><span class="pre">plot_gradient_descent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.plot_utils.plot_gradient_descent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make figure showing evolution of gradient descent.
-Shows the values of the Lagrange multipliers, primary objective,
-constraint functions and the Lagrangian L = f + dot(lambda,g).</p>
+Plots:
+i) primary objective
+ii) lagrange multipliers for each constraint, lambda_i
+iii) each constraint function, g_i
+iv) Lagranian L = f + sum_i^n {lambda_i*g_i}</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -50,6 +53,8 @@ constraint functions and the Lagrangian L = f + dot(lambda,g).</p>
 for the primary objective</p></li>
 <li><p><strong>save</strong> (<em>bool</em>) – Whether to save the plot</p></li>
 <li><p><strong>savename</strong> (<em>str</em>) – The full path where you want to save the plot</p></li>
+<li><p><strong>show</strong> (<em>bool</em>) – Whether to show the plot with plt.show().
+Only relevant when save=False</p></li>
 </ul>
 </dd>
 </dl>

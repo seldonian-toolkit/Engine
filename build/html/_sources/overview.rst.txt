@@ -3,7 +3,7 @@ Overview
 
 This document provides an overview of how `Seldonian algorithms <https://seldonian.cs.umass.edu/Tutorials/>`_ (SAs) are implemented using this library. For a detailed description of what SAs are, see the `Seldonian Machine Learning Toolkit homepage  <https://seldonian.cs.umass.edu/>`_.
 
-The most important piece of the Seldonian Engine API is the :py:class:`.SeldonianAlgorithm` class. One can run a Seldonian algorithm using a single API call of this class:
+The most important piece of the Seldonian Engine API is the :py:class:`.SeldonianAlgorithm` class. One can run a Seldonian algorithm with a single API call using this class:
 
 .. code::
 
@@ -16,7 +16,7 @@ The most important piece of the Seldonian Engine API is the :py:class:`.Seldonia
 
 In this overview, we will go over what is in the :code:`spec` object and how to create it. We will also cover what :code:`SA.run()` actually does.
 
-**Note**: The Engine supports supervised learning and reinforcement learning (RL) Seldonian algorithms. Where we could, we unified the code to work for both `regimes <https://seldonian.cs.umass.edu/Tutorials/glossary/#regime>`_. However, you may notice a pattern in the API where there is a regime-independent base class from which two child classes inherit, one for each of the two regimes.  
+**Note**: The Engine supports supervised learning and reinforcement learning (RL) Seldonian algorithms. Where we could, we unified the code to work for both `regimes <https://seldonian.cs.umass.edu/Tutorials/glossary/#regime>`_. The general pattern in the API is a regime-independent base class from which two child classes inherit, one for each of the two regimes.  
 
 Interface
 ---------
@@ -40,7 +40,7 @@ The "spec" object (short for specification object) contains all of the inputs ne
 
 Each of these is represented by an object in the Engine API, as we will discuss below. 
 
-The :py:mod:`.spec` module contains the classes used to define spec objects. For the supervised learning regime, the :py:class:`.SupervisedSpec` class is used, and for the reinforcement learning regime the :py:class:`.RLSpec` class is used. We provide convenience functions to create these objects: :py:func:`.createSupervisedSpec` for supervised learning and :py:func:`.createRLspec` for reinforcement learning. 
+The :py:mod:`seldonian.spec` module contains the classes used to define spec objects. For the supervised learning regime, the :py:class:`.SupervisedSpec` class is used, and for the reinforcement learning regime the :py:class:`.RLSpec` class is used. We provide convenience functions to create these objects: :py:func:`.createSupervisedSpec` for supervised learning and :py:func:`.createRLspec` for reinforcement learning. 
 
 Dataset object
 ++++++++++++++
@@ -166,28 +166,40 @@ All of the details of how to run candidate selection and the safety test are pas
 
 Candidate Selection
 +++++++++++++++++++
-The goal of candidate selection is to find a solution to the Seldonian ML problem which is likely to pass the `safety_test`_. Candidate selection always returns a solution, even if the probability of passing the safety test is low. Candidate selection has a method :py:meth:`.CandidateSelection.run` which runs an optimization process to find the solution. There are currently two supported optimization techniques for candidate selection, controlled by the :code:`optimization_technique` parameter of the spec object. The two supported values of this parameter are:
+The goal of candidate selection is to find a solution to the Seldonian ML problem which is likely to pass the `safety_test`_. Candidate selection always returns a solution, even if the probability of passing the safety test is small. Candidate selection has a method :py:meth:`.CandidateSelection.run` which runs an optimization process to find the solution. There are currently two supported optimization techniques for candidate selection, controlled by the :code:`optimization_technique` parameter of the spec object. The two supported values of this parameter are:
 
-1. :code:`barrier_function`: Black box optimization with a barrier function. In this case, a barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. When this optimization technique is used, the :code:`optimizer` parameter of the spec object can take on of these five values: :code:`Powell`, :code:`CG`, :code:`Nelder-Mead`, :code:`BFGS`, :code:`CMA-ES`. The first four use Scipy's `minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_ function, where the string, e.g., :code:`Powell` refers to the solver method. The :code:`CMA-ES` value refers to `Covariance matrix adaptation evolution strategy <https://en.wikipedia.org/wiki/CMA-ES>`_), which is implemented using the `cma <https://pypi.org/project/cma/>`_ Python package. Optimization hyperparameters for these solvers can be passed via the :code:`optimization_hyperparams` parameter to the spec object.
+1. :code:`barrier_function`: Black box optimization with a barrier function. In this case, a barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. When this optimization technique is used, the :code:`optimizer` parameter of the spec object can take on of these five values: :code:`"Powell"`, :code:`"CG"`, :code:`"Nelder-Mead"`, :code:`"BFGS"`, :code:`"CMA-ES"`. The first four use Scipy's `minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_ function, where the :code:`optimizer` string, e.g., :code:`"Powell"` refers to the solver method. If :code:`optimizer="CMA-ES"` then a `Covariance matrix adaptation evolution strategy <https://en.wikipedia.org/wiki/CMA-ES>`_) is used, which is implemented using the `cma <https://pypi.org/project/cma/>`_ Python package. Optimization hyperparameters for these solvers can be passed via the :code:`optimization_hyperparams` parameter to the spec object.
 
-2. :code:`gradient_descent`: Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_:
+2. :code:`gradient_descent`: Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_. For details on the form of the Lagrangian and the KKT optimization strategy see the `Algorithm details tutorial <https://seldonian.cs.umass.edu/Tutorials/tutorials/alg_details_tutorial/#kkt>`_ of the Seldonian Toolkit homepage.  
 
-.. math::
+In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far. :code:`optimizer="adam` is the only acceptable value to the spec object if :code:`optimization_technique="gradient_descent"`.
 
-	{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} \text{HCUB}(g_i(\mathbf{\theta}))
+One can visualize the values of :math:`\hat{f}`, :math:`\lambda_i`, :math:`\hat{g}_i`, and the Lagrangian, :math:`\mathcal{L(\theta,\lambda)}` using a plotting utility function. These values are saved in a log file if the following flag is set when the Seldonian algorithm is ran, i.e.,
 
-where :math:`\mathbf{\theta}` is the array of model weights, :math:`f(\mathbf{\theta})` is the primary objective function, :math:`\text{HCUB}(g_i(\mathbf{\theta}))` is the high confidence upper bound of the ith constraint function out of :math:`n` constraints, and :math:`{\lambda_i}` is the Lagrange multiplier for the ith constraint. 
+.. code::
+	
+	SA.run(write_cs_logfile=True)
 
-The `KKT <https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions>`_ Theorem states that the saddle points of :math:`{\mathcal{L(\mathbf{\theta,\lambda})}} = f(\mathbf{\theta}) + {\sum}_{i=1}^{n} {\lambda_i} h_i(\theta)` are optima of the constrainted optimization problem:
+The file is pickled and saved in a :code:`logs/` directory with the naming convention: :code:`candidate_selection_log{N}.p`, where N starts at 0 and then increases such that the log files are not overwritten. These files can be visualized using the function :py:func:`.seldonian.utils.plot_utils.plot_gradient_descent`, for example:
 
-	Optimize :math:`f({\theta})` subject to:
-		
-		:math:`h_i({\theta}){\leq}0, {\quad} i{\in}\{1{\ldots}n\}`
+.. code::
+	
+	from seldonian.utils.io_utils import load_pickle
+	from seldonian.utils.plot_utils import plot_gradient_descent
+	log_file = "candidate_selection_log0.p"
+	cs_dict = load_pickle(log_file)
+	plot_gradient_descent(cs_dict,primary_objective_name="log loss",show=True)
 
+Here is an example of the plot produced using this function:
 
-In our case, :math:`h_i({\theta}) = \text{HCUB}(g_i(\mathbf{\theta}))`. To find the saddle points we use gradient descent to obtain the global minimum over :math:`{\theta}` and simultaneous gradient *ascent* to obtain the global maximum over the multipliers, :math:`{\lambda}`.
+.. figure:: _static/loan_cs.png
+   :width: 100 %
+   :alt: Gradient descent figure
+   :align: left
 
-In situations where the contraints are conflicting with the primary objective, vanilla gradient descent can result in oscillations of the solution near the feasible set boundary. These oscillations can be dampened using momentum in gradient descent. We implemented the adam optimizer as part of our gradient descent method, which includes momentum, and found that it mitigates the oscillations in all problems we have tested so far. Therefore, :code:`adam` is the only acceptable value for the :code:`optimizer` parameter to the spec object if :code:`optimization_technique="gradient_descent"`.
+   **Figure 1**: The evolution of parameters during 1500 iterations of gradient descent for a Seldonian algorithm with a single behavioral constraint. The red area in the right middle plot indicates the region where the constraint is predicted to be violated in the safety test. The dotted black lines indicate where the optimal solution was found. 
+
+In the case of multiple constraints, each constraint gets its own row. The primary objective (left) and Lagrangian (right) subplots are repeated in each row in that case.
 
 .. _safety_test:
 
