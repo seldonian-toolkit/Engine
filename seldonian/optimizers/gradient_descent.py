@@ -89,11 +89,15 @@ def gradient_descent_adam(
     
     # initialize modeling parameters
     theta = theta_init
-    lamb = lambda_init.reshape(lambda_init.shape[0],1) # like [[0.5],[0.5],[0.5],...[0.5]]
+    if type(lambda_init) == float:
+        lamb = lambda_init*np.ones((n_constraints,1))
+    else:
+        lamb = lambda_init.reshape(n_constraints,1) # like [[0.5],[0.5],[0.5],...[0.5]]
+        
     if lamb.shape[0] == 1 and lamb.shape[0] != n_constraints:
         # repeat value for each constraint
         lamb = lamb[0][0]*np.ones((n_constraints,1))
-
+    print(lamb)
     
     velocity_theta, velocity_lamb = 0.0,0.0
     s_theta, s_lamb = 0.0,0.0

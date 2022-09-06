@@ -16,7 +16,7 @@ if __name__ == "__main__":
         loc_X=0,
         loc_Y=0,
         sigma_X=1,
-        sigma_Y=1,)
+        sigma_Y=1)
 
     # 2. Create parse trees from the behavioral constraints 
     # constraint strings:
