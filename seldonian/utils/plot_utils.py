@@ -6,8 +6,11 @@ def plot_gradient_descent(solution,primary_objective_name,
     savename='test.png',
     show=True):
     """ Make figure showing evolution of gradient descent.
-    Shows the values of the Lagrange multipliers, primary objective,
-    constraint functions and the Lagrangian L = f + dot(lambda,g).
+    Plots:
+    i) primary objective
+    ii) lagrange multipliers for each constraint, lambda_i
+    iii) each constraint function, g_i
+    iv) Lagranian L = f + sum_i^n {lambda_i*g_i}
 
     :param solution: The solution dictionary returned by gradient descent
     :type solution: dict
@@ -21,6 +24,10 @@ def plot_gradient_descent(solution,primary_objective_name,
 
     :param savename: The full path where you want to save the plot
     :type savename: str
+
+    :param show: Whether to show the plot with plt.show().
+        Only relevant when save=False
+    :type show: bool
     """
     
     fontsize=10

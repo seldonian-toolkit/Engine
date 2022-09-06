@@ -71,7 +71,7 @@ e.g., supervised_learning or reinforcement_learning</p>
 <span class="sig-name descname"><span class="pre">load_RL_dataset_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create RLDataSet object from file
 containing the episodes as a CSV with format:</p>
-<p>episode_index,state,action,reward,probability_of_action.</p>
+<p>episode_index,obs,action,reward,probability_of_action.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -84,38 +84,13 @@ containing the data you want to load</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_dataframe">
-<span class="sig-name descname"><span class="pre">load_RL_dataset_from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_dataframe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create RLDataSet object from file
-containing pickled pandas dataframe. 
-The dataframe does not need to have columns
-assigned already</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – The file
-containing the pickled dataframe
-you want to load</p></li>
-<li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
-containing the metadata describing the data in filename</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_list">
-<span class="sig-name descname"><span class="pre">load_RL_dataset_from_episode_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_file">
+<span class="sig-name descname"><span class="pre">load_RL_dataset_from_episode_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create RLDataSet object from file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – The file
-containing the pickled episodes lists
-you want to load</p></li>
-<li><p><strong>metadata_filename</strong> (<em>str</em>) – The file
-containing the metadata describing the data in filename</p></li>
-</ul>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The file
+containing the pickled lists of <a class="reference internal" href="seldonian.dataset.Episode.html#seldonian.dataset.Episode" title="seldonian.dataset.Episode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Episode</span></code></a> objects</p>
 </dd>
 </dl>
 </dd></dl>
