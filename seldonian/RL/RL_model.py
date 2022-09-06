@@ -1,6 +1,7 @@
 import autograd.numpy as np
+from seldonian.models.models import SeldonianModel
 
-class RL_model: #consist of agent, env
+class RL_model(SeldonianModel): #consist of agent, env
 	def __init__(self, policy, env_kwargs):
 		self.policy = policy
 		self.env_kwargs = env_kwargs

@@ -108,7 +108,7 @@ def gpa_regression_dataset():
         include_intercept_term = True
         regime='supervised_learning'
 
-        model_class = LinearRegressionModel
+        model = LinearRegressionModel()
 
         # Mean squared error
         primary_objective = objectives.Mean_Squared_Error
@@ -146,7 +146,7 @@ def gpa_regression_dataset():
             
             parse_trees.append(parse_tree)
 
-        return dataset,model_class,primary_objective,parse_trees
+        return dataset,model,primary_objective,parse_trees
     
     return generate_dataset
 
@@ -168,7 +168,7 @@ def gpa_classification_dataset():
         include_intercept_term = False
         regime='supervised_learning'
 
-        model_class = LogisticRegressionModel
+        model = LogisticRegressionModel()
 
         # Mean squared error
         primary_objective = objectives.logistic_loss
@@ -206,7 +206,7 @@ def gpa_classification_dataset():
             
             parse_trees.append(parse_tree)
 
-        return dataset,model_class,primary_objective,parse_trees
+        return dataset,model,primary_objective,parse_trees
     
     return generate_dataset
 

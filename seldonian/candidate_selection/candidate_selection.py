@@ -121,6 +121,7 @@ class CandidateSelection(object):
 
 			gd_kwargs = dict(
 				primary_objective=self.evaluate_primary_objective,
+				n_constraints=len(self.parse_trees),
 				upper_bounds_function=self.get_constraint_upper_bounds,
 				gradient_library=kwargs['gradient_library'],
 				alpha_theta=kwargs['alpha_theta'],

@@ -1300,16 +1300,15 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_classification_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
-	model_instance = model_class()
 
 	theta = np.zeros(10)
 	pt = parse_trees[0]
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
-		model=model_instance,regime='supervised_learning',
+		model=model,regime='supervised_learning',
 		branch='safety_test')
 	assert pt.root.value == pytest.approx(-6.306852)
 	

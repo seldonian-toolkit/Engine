@@ -19,6 +19,7 @@ def setup_gradients(
 
 def gradient_descent_adam(
     primary_objective,
+    n_constraints,
     upper_bounds_function,
     theta_init,
     lambda_init,
@@ -45,6 +46,8 @@ def gradient_descent_adam(
         be solely optimized in the absence of behavioral constraints,
         i.e. the loss function
     :type primary_objective: function or class method
+
+    :param n_constraints: The number of constraints 
 
     :param upper_bounds_function: The function that calculates
         the upper bounds on the constraints
@@ -86,7 +89,12 @@ def gradient_descent_adam(
     
     # initialize modeling parameters
     theta = theta_init
-    lamb = lambda_init.reshape(lambda_init.shape[0],1)
+    lamb = lambda_init.reshape(lambda_init.shape[0],1) # like [[0.5],[0.5],[0.5],...[0.5]]
+    if lamb.shape[0] == 1 and lamb.shape[0] != n_constraints:
+        # repeat value for each constraint
+        lamb = lamb[0][0]*np.ones((n_constraints,1))
+
+    
     velocity_theta, velocity_lamb = 0.0,0.0
     s_theta, s_lamb = 0.0,0.0
     rms_offset = 1e-6 # small offset to make sure we don't take 1/sqrt(very small) in weight update

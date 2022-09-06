@@ -15,9 +15,7 @@ class Spec(object):
 
 	:param dataset: The dataset object containing safety data
 	:type dataset: :py:class:`.DataSet` object
-	:param model_class: The model class for the Seldonian model,
-		not an instance of the model.
-	:type model_class: :py:class:`.SeldonianModel` or child class
+	:param model: The :py:class:`.SeldonianModel` object
 	:param frac_data_in_safety: Fraction of data used in safety test.
 		The remaining fraction will be used in candidate selection
 	:type frac_data_in_safety: float
@@ -62,7 +60,7 @@ class Spec(object):
 	def __init__(
 		self,
 		dataset,
-		model_class,
+		model,
 		frac_data_in_safety,
 		primary_objective,
 		initial_solution_fn,
@@ -86,7 +84,7 @@ class Spec(object):
 		regularization_hyperparams={}
 		):
 		self.dataset = dataset
-		self.model_class = model_class 
+		self.model = model 
 		self.frac_data_in_safety = frac_data_in_safety
 		self.primary_objective = primary_objective
 		self.initial_solution_fn = initial_solution_fn
@@ -107,9 +105,7 @@ class SupervisedSpec(Spec):
 	:param dataset: The dataset object containing safety data
 	:type dataset: :py:class:`.DataSet` object
 
-	:param model_class: The model class for the Seldonian model,
-		not an instance of the model.
-	:type model_class: :py:class:`.SeldonianModel` or child class
+	:param model: The SeldonianModel object
 
 	:param parse_trees: List of parse tree objects containing the 
 			behavioral constraints
@@ -163,7 +159,7 @@ class SupervisedSpec(Spec):
 	"""
 	def __init__(self,
 		dataset,
-		model_class,
+		model,
 		parse_trees,
 		sub_regime,
 		primary_objective=None,
@@ -189,7 +185,7 @@ class SupervisedSpec(Spec):
 		):
 		super().__init__(
 			dataset=dataset,
-			model_class=model_class,
+			model=model,
 			parse_trees=parse_trees,
 			primary_objective=primary_objective,
 			initial_solution_fn=initial_solution_fn,
@@ -210,9 +206,7 @@ class RLSpec(Spec):
 	:param dataset: The dataset object containing safety data
 	:type dataset: :py:class:`.DataSet` object
 
-	:param model_class: The model class for the Seldonian model,
-		not an instance of the model.
-	:type model_class: :py:class:`.SeldonianModel` or child class
+	:param model: The :py:class:`.SeldonianModel` object
 
 	:param frac_data_in_safety: Fraction of data used in safety test.
 		The remaining fraction will be used in candidate selection
@@ -277,13 +271,11 @@ class RLSpec(Spec):
 	def __init__(
 		self,
 		dataset,
-		model_class,
+		model,
 		frac_data_in_safety,
 		primary_objective,
 		initial_solution_fn,
 		parse_trees,
-		RL_policy_obj,
-		env_kwargs={},
 		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
@@ -302,94 +294,21 @@ class RLSpec(Spec):
 		},
 		regularization_hyperparams={},
 		):
+
 		super().__init__(
-			dataset,
-			model_class,
-			frac_data_in_safety,
-			primary_objective,
-			initial_solution_fn,
-			parse_trees,
-			base_node_bound_method_dict,
-			use_builtin_primary_gradient_fn,
-			custom_primary_gradient_fn,
-			optimization_technique,
-			optimizer,
-			optimization_hyperparams,
-			regularization_hyperparams)
-		self.RL_policy_obj = RL_policy_obj
-		self.env_kwargs = env_kwargs
-
-
-def createRLSpec(
-	dataset,
-	policy,
-	constraint_strs,
-	deltas,
-	env_kwargs={},
-	frac_data_in_safety=0.6,
-	initial_solution_fn=None,
-	use_builtin_primary_gradient_fn=False,
-	save=False,
-	save_dir='.',
-	verbose=False):
-	from seldonian.RL.RL_model import RL_model
-	"""Convenience function for creating RLSpec object. 
-	Saves spec.pkl file in save_dir
-
-	:type dataset: :py:class:`.DataSet`
-	:type policy: :py:class:`.Policy`
-	:param constraint_strs: List of constraint strings 
-	:param deltas: List of confidence thresholds
-	:param save_dir: Directory in which to save the spec.pkl file
-	:param env_kwargs: Kwargs passed to RL_model pertaining to environment, 
-		such as gamma, the discount factor 
-	:type env_kwargs: dict
-	:param verbose: Flag to control verbosity 
-	:type verbose: bool
-	"""
-	
-	# Define primary objective
-	primary_objective = objectives.IS_estimate
-
-	# Create parse trees
-	parse_trees = make_parse_trees_from_constraints(
-		constraint_strs,
-		deltas,
-		regime='reinforcement_learning',
-		sub_regime='all',
-		delta_weight_method='equal')
-
-	# Save spec object, using defaults where necessary
-	spec = RLSpec(
-		dataset=dataset,
-		model_class=RL_model,
-		frac_data_in_safety=frac_data_in_safety,
-		primary_objective=primary_objective,
-		use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn,
-		parse_trees=parse_trees,
-		RL_policy_obj=policy,
-		env_kwargs=env_kwargs,
-		initial_solution_fn=initial_solution_fn,
-		optimization_technique='gradient_descent',
-		optimizer='adam',
-		optimization_hyperparams={
-			'lambda_init': 0.5,
-			'alpha_theta': 0.005,
-			'alpha_lamb': 0.005,
-			'beta_velocity': 0.9,
-			'beta_rmsprop': 0.95,
-			'num_iters': 30,
-			'hyper_search': None,
-			'gradient_library': 'autograd',
-			'verbose': verbose,
-		},
-		regularization_hyperparams={},
-	)
-
-	if save:
-		spec_save_name = os.path.join(save_dir, 'spec.pkl')
-		save_pickle(spec_save_name,spec,verbose=verbose)
-	return spec
+			dataset=dataset,
+			model=model,
+			frac_data_in_safety=frac_data_in_safety,
+			primary_objective=primary_objective,
+			initial_solution_fn=initial_solution_fn,
+			parse_trees=initial_solution_fn,
+			base_node_bound_method_dict=base_node_bound_method_dict,
+			use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn,
+			custom_primary_gradient_fn=custom_primary_gradient_fn,
+			optimization_technique=optimization_technique,
+			optimizer=optimizer,
+			optimization_hyperparams=optimization_hyperparams,
+			regularization_hyperparams=regularization_hyperparams)
 
 def createSupervisedSpec(
 	dataset,
@@ -423,9 +342,9 @@ def createSupervisedSpec(
 	assert regime == 'supervised_learning'
 
 	if sub_regime == 'regression':
-		model_class = LinearRegressionModel
+		model = LinearRegressionModel()
 	elif sub_regime == 'classification':
-		model_class = LogisticRegressionModel
+		model = LogisticRegressionModel()
 
 	primary_objective = objectives.logistic_loss
 
@@ -440,13 +359,13 @@ def createSupervisedSpec(
 	# Save spec object, using defaults where necessary
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		frac_data_in_safety=0.6,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
 		sub_regime=sub_regime,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -466,4 +385,73 @@ def createSupervisedSpec(
 	if save:
 		save_pickle(spec_save_name,spec,verbose=verbose)
 
+
+def createRLSpec(
+	dataset,
+	policy,
+	constraint_strs,
+	deltas,
+	env_kwargs={},
+	frac_data_in_safety=0.6,
+	initial_solution_fn=None,
+	use_builtin_primary_gradient_fn=False,
+	save=False,
+	save_dir='.',
+	verbose=False):
+	"""Convenience function for creating RLSpec object. 
+	Saves spec.pkl file in save_dir
+
+	:type dataset: :py:class:`.DataSet`
+	:type policy: :py:class:`.Policy`
+	:param constraint_strs: List of constraint strings 
+	:param deltas: List of confidence thresholds
+	:param save_dir: Directory in which to save the spec.pkl file
+	:param env_kwargs: Kwargs passed to RL_model pertaining to environment, 
+		such as gamma, the discount factor 
+	:type env_kwargs: dict
+	:param verbose: Flag to control verbosity 
+	:type verbose: bool
+	"""
+	from seldonian.RL.RL_model import RL_model
+	# Define primary objective
+	primary_objective = objectives.IS_estimate
+
+	# Create parse trees
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		delta_weight_method='equal')
+
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+	# Save spec object, using defaults where necessary
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn,
+		parse_trees=parse_trees,
+		initial_solution_fn=initial_solution_fn,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init': 0.5,
+			'alpha_theta': 0.005,
+			'alpha_lamb': 0.005,
+			'beta_velocity': 0.9,
+			'beta_rmsprop': 0.95,
+			'num_iters': 30,
+			'hyper_search': None,
+			'gradient_library': 'autograd',
+			'verbose': verbose,
+		},
+		regularization_hyperparams={},
+	)
+
+	if save:
+		spec_save_name = os.path.join(save_dir, 'spec.pkl')
+		save_pickle(spec_save_name,spec,verbose=verbose)
+	return spec
 

@@ -149,7 +149,6 @@ class LogisticRegressionModel(ClassificationModel):
 		:return: fitted model weights
 		:rtype: numpy ndarray(float)
 		"""
-		# self.predictor = LogisticRegression()
 		reg = self.model_class().fit(X, Y)
 		return np.squeeze(np.hstack([reg.intercept_.reshape(-1,1),reg.coef_]))
 
@@ -159,7 +158,6 @@ class DummyClassifierModel(ClassificationModel):
 		""" Implements a classifier that always predicts
 		the positive class, regardless of input """
 		super().__init__()
-		self.model_class = None
 
 	def predict(self,theta,X):
 		""" Predict the probability of 
@@ -184,7 +182,6 @@ class RandomClassifierModel(ClassificationModel):
 		that the positive class has prob=0.5,
 		regardless of input """
 		super().__init__()
-		self.model_class = None
 
 	def predict(self,theta,X):
 		""" Predict the probability of 

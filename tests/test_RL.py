@@ -148,8 +148,8 @@ def test_createRLSpec_gridworld(RL_gridworld_dataset):
         save_dir='',
         verbose=False)
     
-    assert spec.env_kwargs['gamma'] == 0.9
-    assert isinstance(spec.RL_policy_obj,Softmax)
+    assert spec.model.env_kwargs['gamma'] == 0.9
+    assert isinstance(spec.model.policy,Softmax)
 
 def test_createRLSpec_mountaincar(N_step_mountaincar_dataset):
     """ Test creating RLSpec object
@@ -170,8 +170,8 @@ def test_createRLSpec_mountaincar(N_step_mountaincar_dataset):
         save_dir='',
         verbose=False)
     
-    assert spec.env_kwargs['gamma'] == 1.0
-    assert isinstance(spec.RL_policy_obj,Softmax)
+    assert spec.model.env_kwargs['gamma'] == 1.0
+    assert isinstance(spec.model.policy,Softmax)
 
 def test_generate_gridworld_episodes():
     """ Test that we can generate proper episodes for gridworld
@@ -205,8 +205,6 @@ def test_generate_gridworld_episodes():
 
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
     assert len(dataset.episodes) == 100
-
-
 
 def test_generate_n_step_mountaincar_episodes():
     """ Test that we can generate proper episodes for n_step_mountaincar

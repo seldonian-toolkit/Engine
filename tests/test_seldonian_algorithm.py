@@ -23,7 +23,7 @@ def test_base_node_bound_methods_updated(gpa_regression_dataset):
 	np.random.seed(rseed) 
 	constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error']
 	deltas = [0.05,0.05]
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 			constraint_strs=constraint_strs,
 			deltas=deltas)
@@ -41,14 +41,14 @@ def test_base_node_bound_methods_updated(gpa_regression_dataset):
 
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=False,
 		base_node_bound_method_dict=base_node_bound_method_dict,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='barrier_function',
 		optimizer='Powell',
 		optimization_hyperparams={
@@ -70,7 +70,7 @@ def test_not_enough_data(generate_data):
 	np.random.seed(rseed) 
 	numPoints=3
 	columns=['feature1','label']
-	model_class = LinearRegressionModel
+	model = LinearRegressionModel()
 	X,Y = generate_data(
 		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
 	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
@@ -114,13 +114,13 @@ def test_not_enough_data(generate_data):
 	# Will warn because of initial solution trying to fit with not enough data
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=objectives.Mean_Squared_Error,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -142,7 +142,7 @@ def test_not_enough_data(generate_data):
 
 	spec_zeros = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
@@ -177,7 +177,7 @@ def test_bad_optimizer(gpa_regression_dataset):
 	np.random.seed(rseed) 
 	constraint_strs = ['Mean_Squared_Error - 2.0']
 	deltas = [0.05]
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 			constraint_strs=constraint_strs,
 			deltas=deltas)
@@ -189,13 +189,13 @@ def test_bad_optimizer(gpa_regression_dataset):
 
 		bad_spec = SupervisedSpec(
 				dataset=dataset,
-				model_class=model_class,
+				model=model,
 				parse_trees=parse_trees,
 				sub_regime='regression',
 				frac_data_in_safety=frac_data_in_safety,
 				primary_objective=primary_objective,
 				use_builtin_primary_gradient_fn=False,
-				initial_solution_fn=model_class().fit,
+				initial_solution_fn=model.fit,
 				optimization_technique=optimization_technique,
 				optimizer=bad_optimizer,
 				optimization_hyperparams={
@@ -217,13 +217,13 @@ def test_bad_optimizer(gpa_regression_dataset):
 
 	bad_spec = SupervisedSpec(
 			dataset=dataset,
-			model_class=model_class,
+			model=model,
 			parse_trees=parse_trees,
 			sub_regime='regression',
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
 			use_builtin_primary_gradient_fn=False,
-			initial_solution_fn=model_class().fit,
+			initial_solution_fn=model.fit,
 			optimization_technique=bad_optimization_technique,
 			optimizer='adam',
 			optimization_hyperparams={
@@ -252,7 +252,7 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 	constraint_strs = ['MED_MF - 0.1']
 	deltas = [0.05]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -262,13 +262,13 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -325,12 +325,12 @@ def test_cvar_custom_base_node():
 		constraint_strs,
 		deltas)
 
-	model_class = BoundedLinearRegressionModel
+	model = BoundedLinearRegressionModel()
 
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		sub_regime='regression',
 		primary_objective=objectives.Mean_Squared_Error,
 		use_builtin_primary_gradient_fn=False,
@@ -369,7 +369,7 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error']
 	deltas = [0.05,0.1]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -379,13 +379,13 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -422,7 +422,7 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 	constraint_strs = ['MED_MF - 0.2']
 	deltas = [0.05]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -432,13 +432,13 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -511,7 +511,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 		constraint_strs = [constraint_str]
 		deltas = [0.05]
 
-		(dataset,model_class,
+		(dataset,model,
 			primary_objective,parse_trees) = gpa_classification_dataset(
 			constraint_strs=constraint_strs,
 			deltas=deltas)
@@ -519,13 +519,13 @@ def test_gpa_data_classification(gpa_classification_dataset):
 		# Create spec object
 		spec = SupervisedSpec(
 			dataset=dataset,
-			model_class=model_class,
+			model=model,
 			parse_trees=parse_trees,
 			sub_regime='classification',
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
 			use_builtin_primary_gradient_fn=False,
-			initial_solution_fn=model_class().fit,
+			initial_solution_fn=model.fit,
 			optimization_technique='gradient_descent',
 			optimizer='adam',
 			optimization_hyperparams={
@@ -565,7 +565,7 @@ def test_classification_statistics(gpa_classification_dataset):
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_classification_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -573,13 +573,13 @@ def test_classification_statistics(gpa_classification_dataset):
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='classification',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -617,7 +617,7 @@ def test_NSF(gpa_regression_dataset):
 	constraint_strs = ['Mean_Squared_Error + 2.0'] 
 	deltas = [0.05]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -627,13 +627,13 @@ def test_NSF(gpa_regression_dataset):
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -663,7 +663,7 @@ def test_cmaes(gpa_regression_dataset):
 	np.random.seed(rseed) 
 	constraint_strs = ['Mean_Squared_Error - 2.0']
 	deltas = [0.05]
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -681,13 +681,13 @@ def test_cmaes(gpa_regression_dataset):
 	for optimizer in ['CMA-ES']:
 		spec = SupervisedSpec(
 			dataset=dataset,
-			model_class=model_class,
+			model=model,
 			parse_trees=parse_trees,
 			sub_regime='regression',
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
 			use_builtin_primary_gradient_fn=False,
-			initial_solution_fn=model_class().fit,
+			initial_solution_fn=model.fit,
 			optimization_technique='barrier_function',
 			optimizer=optimizer,
 			optimization_hyperparams={
@@ -727,7 +727,7 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 	constraint_strs = ['Mean_Squared_Error - 2.0'] 
 	deltas = [0.05]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -737,14 +737,14 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=False,
 		custom_primary_gradient_fn=gradient_MSE,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -786,7 +786,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	constraint_strs = ['Mean_Squared_Error - 2.0'] 
 	deltas = [0.05]
 
-	(dataset,model_class,
+	(dataset,model,
 		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
@@ -796,13 +796,13 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
-		model_class=model_class,
+		model=model,
 		parse_trees=parse_trees,
 		sub_regime='regression',
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model_class().fit,
+		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={

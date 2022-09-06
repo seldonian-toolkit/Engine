@@ -43,7 +43,7 @@ class SeldonianAlgorithm():
 		self.column_names = self.dataset.meta_information
 
 		if self.regime == 'supervised_learning':
-			self.model_instance = self.spec.model_class()
+			self.model = self.spec.model
 			self.candidate_df, self.safety_df = train_test_split(
 				self.dataset.df, test_size=self.spec.frac_data_in_safety, 
 				shuffle=False)
@@ -114,8 +114,7 @@ class SeldonianAlgorithm():
 
 			self.RL_policy_obj = self.spec.RL_policy_obj
 
-			self.model_instance = self.spec.model_class(
-				self.RL_policy_obj, self.env_kwargs)
+			self.model = self.spec.model
 
 			episodes = self.spec.dataset.episodes
 			# Create candidate and safety datasets
@@ -139,7 +138,7 @@ class SeldonianAlgorithm():
 			print(f"Candidate dataset has {self.n_candidate} episodes")
 			
 			# initial solution
-			self.initial_solution = self.RL_policy_obj.get_params()
+			self.initial_solution = self.model.policy.get_params()
 		
 		if self.spec.primary_objective is None:
 			if self.regime == 'reinforcement_learning':
@@ -156,7 +155,7 @@ class SeldonianAlgorithm():
 		""" Creat the candidate selection object """
 		if self.regime == 'supervised_learning':
 			cs_kwargs = dict(
-				model=self.model_instance,
+				model=self.model,
 				candidate_dataset=self.candidate_dataset,
 				n_safety=self.n_safety,
 				parse_trees=self.spec.parse_trees,
@@ -168,7 +167,7 @@ class SeldonianAlgorithm():
 
 		elif self.regime == 'reinforcement_learning':
 			cs_kwargs = dict(
-				model=self.model_instance,
+				model=self.model,
 				candidate_dataset=self.candidate_dataset,
 				n_safety=self.n_safety,
 				parse_trees=self.spec.parse_trees,
@@ -194,13 +193,13 @@ class SeldonianAlgorithm():
 		if self.regime == 'supervised_learning':
 			st_kwargs = dict(
 				safety_dataset=self.safety_dataset,
-				model=self.model_instance,parse_trees=self.spec.parse_trees,
+				model=self.model,parse_trees=self.spec.parse_trees,
 				regime=self.regime,
 				)	
 		elif self.regime == 'reinforcement_learning':
 			st_kwargs = dict(
 				safety_dataset=self.safety_dataset,
-				model=self.model_instance,parse_trees=self.spec.parse_trees,
+				model=self.model,parse_trees=self.spec.parse_trees,
 				gamma=self.env_kwargs['gamma'],
 				regime=self.regime,
 				)
