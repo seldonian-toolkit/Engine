@@ -1,5 +1,4 @@
- 
-#run_engine_custom_base_node.py
+# run_engine_custom_base_node.py
 import autograd.numpy as np
 from seldonian.utils.tutorial_utils import make_synthetic_regression_dataset
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
@@ -36,12 +35,12 @@ def main():
         constraint_strs,
         deltas)
 
-    model_class = BoundedLinearRegressionModel
+    model = BoundedLinearRegressionModel()
 
     # Create spec object
     spec = SupervisedSpec(
         dataset=dataset,
-        model_class=model_class,
+        model=model,
         sub_regime='regression',
         primary_objective=objectives.Mean_Squared_Error,
         use_builtin_primary_gradient_fn=False,

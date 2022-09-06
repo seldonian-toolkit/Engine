@@ -15,12 +15,6 @@ if __name__ == '__main__':
     # Load metadata
     (regime, sub_regime, columns,
         sensitive_columns) = load_supervised_metadata(metadata_pth)
-    
-    # Use logistic regression model
-    model_class = LogisticRegressionModel
-    
-    # primary objective = log loss
-    primary_objective = objectives.logistic_loss
 
     # Load dataset from file
     loader = DataSetLoader(

@@ -1,5 +1,5 @@
 {
-  "regime": "supervised",
+  "regime": "supervised_learning",
   "sub_regime": "classification",
   "columns": [
     "c__account_status_A11",

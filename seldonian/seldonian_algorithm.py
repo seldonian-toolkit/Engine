@@ -112,8 +112,6 @@ class SeldonianAlgorithm():
 			self.env_kwargs = self.spec.env_kwargs
 			# self.normalize_returns = self.spec.normalize_returns
 
-			self.RL_policy_obj = self.spec.RL_policy_obj
-
 			self.model = self.spec.model
 
 			episodes = self.spec.dataset.episodes

@@ -343,10 +343,10 @@ def createSupervisedSpec(
 
 	if sub_regime == 'regression':
 		model = LinearRegressionModel()
+		primary_objective = objectives.Mean_Squared_Error
 	elif sub_regime == 'classification':
 		model = LogisticRegressionModel()
-
-	primary_objective = objectives.logistic_loss
+		primary_objective = objectives.logistic_loss
 
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,

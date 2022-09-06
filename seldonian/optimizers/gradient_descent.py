@@ -97,7 +97,6 @@ def gradient_descent_adam(
     if lamb.shape[0] == 1 and lamb.shape[0] != n_constraints:
         # repeat value for each constraint
         lamb = lamb[0][0]*np.ones((n_constraints,1))
-    print(lamb)
     
     velocity_theta, velocity_lamb = 0.0,0.0
     s_theta, s_lamb = 0.0,0.0

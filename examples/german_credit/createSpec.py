@@ -2,30 +2,29 @@
 import os
 from seldonian.parse_tree.parse_tree import ParseTree
 from seldonian.dataset import DataSetLoader
-from seldonian.utils.io_utils import load_json,save_pickle
+from seldonian.utils.io_utils import (load_json,save_pickle,
+    load_supervised_metadata)
 from seldonian.spec import SupervisedSpec
 from seldonian.models.models import LogisticRegressionModel
+from seldonian.models import objectives
 
 if __name__ == '__main__':
     data_pth = "../../static/datasets/supervised/german_credit/german_loan_numeric_forseldonian.csv"
     metadata_pth = "../../static/datasets/supervised/german_credit/metadata_german_loan.json"
     # save_dir = '../../../interface_outputs/loan_disparate_impact_fairlearndef'
-    save_dir = '../../../interface_outputs/loan_equalized_odds_seldodef'
+    save_dir = '../../../interface_outputs/loan_disparate_impact_seldodef'
     os.makedirs(save_dir,exist_ok=True)
     # Load metadata
     metadata_dict = load_json(metadata_pth)
 
-    regime = metadata_dict['regime']
-    columns = metadata_dict['columns']
-    sensitive_columns = metadata_dict['sensitive_columns']
-    sub_regime = metadata_dict['sub_regime']
-    label_column = metadata_dict['label_column']
+    (regime, sub_regime, columns,
+        sensitive_columns) = load_supervised_metadata(metadata_pth)
     
     # Use logistic regression model
-    model_class = LogisticRegressionModel
+    model = LogisticRegressionModel()
     
     # Set the primary objective to be log loss
-    primary_objective = model_class().sample_logistic_loss
+    primary_objective = objectives.logistic_loss
 
     # Load dataset from file
     loader = DataSetLoader(
@@ -39,12 +38,12 @@ if __name__ == '__main__':
         file_type='csv')
     
     # Define behavioral constraints
-    # constraint_strs = ['0.9 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))'] 
+    constraint_strs = ['min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M])) >= 0.9'] 
     # constraint_strs = ['0.9 - min((PR | [M])/(PR),(PR)/(PR | [M]))'] 
     # constraint_strs = ['abs((PR | [M]) - PR) - 0.1'] 
     # constraint_strs = ['abs((PR | [M]) - (PR | [F])) - 0.1'] 
     # constraint_strs = ['abs((FPR | [M]) - FPR) - 0.1'] 
-    constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) + abs((FNR | [M]) - (FNR | [F])) - 0.2'] 
+    # constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) + abs((FNR | [M]) - (FNR | [F])) - 0.2'] 
     
     deltas = [0.05]
 
@@ -55,7 +54,7 @@ if __name__ == '__main__':
 
         delta = deltas[ii]
         # Create parse tree object
-        parse_tree = ParseTree(delta=delta,regime='supervised',
+        parse_tree = ParseTree(delta=delta,regime='supervised_learning',
             sub_regime='classification',columns=columns)
 
         # Fill out tree
@@ -68,12 +67,12 @@ if __name__ == '__main__':
     # Save spec object, using defaults where necessary
     spec = SupervisedSpec(
         dataset=dataset,
-        model_class=model_class,
+        model=model,
         parse_trees=parse_trees,
         sub_regime='classification',
         frac_data_in_safety=0.6,
         primary_objective=primary_objective,
-        initial_solution_fn=model_class().fit,
+        initial_solution_fn=model.fit,
         use_builtin_primary_gradient_fn=True,
         optimization_technique='gradient_descent',
         optimizer='adam',
