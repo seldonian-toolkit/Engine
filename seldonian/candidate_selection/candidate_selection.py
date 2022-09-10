@@ -209,12 +209,16 @@ class CandidateSelection(object):
 				candidate_solution = 'NSF'
 				
 		elif self.optimization_technique == 'barrier_function':
+			if self.regime == 'reinforcement_learning':
+				raise NotImplementedError(
+					"barrier_function optimization_technique "
+					"is not supported for reinforcement learning. "
+					"Use gradient_descent instead.")
 			opts = {}
 			if 'maxiter' in kwargs:
 				opts['maxiter'] = kwargs['maxiter']
 
 			if self.optimizer in ['Powell','CG','Nelder-Mead','BFGS']:
-				
 				from scipy.optimize import minimize 
 				res = minimize(
 					self.objective_with_barrier,
@@ -231,7 +235,7 @@ class CandidateSelection(object):
 
 				if 'seed' in kwargs:
 					opts['seed'] = kwargs['seed']
-
+				
 				es = cma.CMAEvolutionStrategy(self.initial_solution,
 					0.2,opts)
 				
