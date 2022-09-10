@@ -245,7 +245,6 @@ def RL_gridworld_dataset():
 
         primary_objective = objectives.IS_estimate
 
-
         return dataset,policy,env_kwargs,primary_objective
     
     return generate_dataset

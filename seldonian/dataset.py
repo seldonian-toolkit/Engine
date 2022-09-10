@@ -88,7 +88,7 @@ class DataSetLoader():
 			metadata_dict = load_json(metadata_filename)
 			column_names = metadata_dict['columns']
 		else:
-			column_names = ['episode_index','O','A','R','pi']
+			column_names = ['episode_index','O','A','R','pi_b']
 
 		df = pd.read_csv(filename,header=None)
 		df.columns = column_names
@@ -115,7 +115,7 @@ class DataSetLoader():
 		:type filename: str
 		"""
 
-		columns = ["O","A","R","pi"]
+		columns = ["O","A","R","pi_b"]
 
 		episodes = load_pickle(filename)
 		
@@ -186,7 +186,7 @@ class SupervisedDataSet(DataSet):
 	
 	
 class RLDataSet(DataSet):
-	def __init__(self,episodes,meta_information=['O','A','R','pi'],
+	def __init__(self,episodes,meta_information=['O','A','R','pi_b'],
 		**kwargs):
 		""" Object for holding RL dataframe and dataset metadata
 	
@@ -194,7 +194,7 @@ class RLDataSet(DataSet):
 		:type episodes: list(:py:class:`.Episode`)
 
 		:param meta_information: List of attribute names in each Episode,
-			e.g. ['o','a','r','pi']
+			e.g. ['o','a','r','pi_b']
 		:type meta_information: list(str)
 		"""
 		super().__init__(
@@ -211,7 +211,7 @@ class Episode(object):
 			in the episode
 		:param actions: List of actions 
 		:param rewards: List of rewards 
-		:param pis: List of action probabilities 
+		:param pis: List of action probabilities from the behavior policy
 		"""
 		self.observations = np.array(observations)
 		self.actions = np.array(actions)

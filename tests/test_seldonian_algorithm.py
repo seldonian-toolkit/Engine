@@ -13,6 +13,7 @@ from seldonian.spec import RLSpec, SupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.models.models import LinearRegressionModel
 from seldonian.models import objectives
+from seldonian.RL.RL_model import RL_model
 
 import matplotlib.pyplot as plt
 
@@ -836,255 +837,207 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 
 """ RL based tests """
 
-# def test_RL_builtin_or_custom_gradient_not_supported():
-# 	""" Test that an error is raised if user tries to 
-# 	use built-in gradient or a custom gradient 
-# 	when doing RL
-# 	"""
-# 	# Load data and metadata
-# 	np.random.seed(0) 
-# 	data_pth = 'static/datasets/RL/gridworld/gridworld3x3_50episodes.csv'
-# 	metadata_pth = 'static/datasets/RL/gridworld/gridworld3x3_metadata.json'
-
-# 	metadata_dict = load_json(metadata_pth)
-# 	regime = metadata_dict['regime']
-# 	columns = metadata_dict['columns']
+def test_RL_builtin_or_custom_gradient_not_supported(
+	RL_gridworld_dataset):
+	""" Test that an error is raised if user tries to 
+	use built-in gradient or a custom gradient 
+	when doing RL
+	"""
+	rseed=99
+	np.random.seed(rseed)
+	constraint_strs = ['-0.25 - J_pi_new']
+	deltas = [0.05]
+	
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+	    deltas,
+	    regime='reinforcement_learning',
+	    sub_regime='all',
+	    columns=[],
+	    delta_weight_method='equal')
+	(dataset,policy,
+		env_kwargs,primary_objective) = RL_gridworld_dataset()
 				
-# 	include_sensitive_columns = False
-# 	include_intercept_term = False
-# 	frac_data_in_safety = 0.6
+	include_sensitive_columns = False
+	include_intercept_term = False
+	frac_data_in_safety = 0.6
 
-# 	# Model
-# 	model_class = TabularSoftmaxModel
+	# Model
 
-# 	# RL environment
-# 	RL_environment_name = metadata_dict['RL_environment_name']
-# 	RL_environment_module = importlib.import_module(
-# 		f'seldonian.RL.environments.{RL_environment_name}')
-# 	RL_environment_obj = RL_environment_module.Environment()    
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
 
-# 	# Primary objective
-# 	model_instance = model_class(RL_environment_obj)
+	# Create spec object
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=True,
+		primary_objective=primary_objective,
+		parse_trees=parse_trees,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
 
-# 	primary_objective = model_instance.default_objective
-# 	# Load dataset from file
-# 	loader = DataSetLoader(
-# 		regime=regime)
-
-# 	dataset = loader.load_RL_dataset_from_csv(
-# 		filename=data_pth,
-# 		metadata_filename=metadata_pth)
-	
-# 	constraint_strs = ['-0.25 - J_pi_new'] 
-	
-# 	deltas = [0.05]
-
-# 	# For each constraint, make a parse tree
-# 	parse_trees = []
-# 	for ii in range(len(constraint_strs)):
-# 		constraint_str = constraint_strs[ii]
-
-# 		delta = deltas[ii]
-# 		# Create parse tree object
-# 		parse_tree = ParseTree(delta=delta,regime='reinforcement_learning',
-# 		sub_regime='all')
-
-# 		# Fill out tree
-# 		parse_tree.create_from_ast(constraint_str)
-# 		# assign deltas for each base node
-# 		# use equal weighting for each base node
-# 		parse_tree.assign_deltas(weight_method='equal')
-
-# 		# Assign bounds needed on the base nodes
-# 		parse_tree.assign_bounds_needed()
+	# Run seldonian algorithm, making sure we capture error
+	error_str = ("Using a builtin primary objective gradient"
+				" is not yet supported for regimes other"
+				" than supervised learning")
+	with pytest.raises(NotImplementedError) as excinfo:
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
 		
-# 		parse_trees.append(parse_tree)
+	assert error_str in str(excinfo.value)
 
-# 	# # Create spec object
-# 	spec = RLSpec(
-# 		dataset=dataset,
-# 		model_class=model_class,
-# 		frac_data_in_safety=0.8,
-# 		use_builtin_primary_gradient_fn=True,
-# 		primary_objective=primary_objective,
-# 		parse_trees=parse_trees,
-# 		RL_environment_obj=RL_environment_obj,
-# 		initial_solution_fn=None,
-# 		bound_method='ttest',
-# 		optimization_technique='gradient_descent',
-# 		optimizer='adam',
-# 		optimization_hyperparams={
-# 			'lambda_init'   : np.array([0.5]),
-# 			'alpha_theta'   : 0.005,
-# 			'alpha_lamb'    : 0.005,
-# 			'beta_velocity' : 0.9,
-# 			'beta_rmsprop'  : 0.95,
-# 			'num_iters'     : 20,
-# 			'gradient_library': "autograd",
-# 			'hyper_search'  : None,
-# 			'verbose'       : True,
-# 		},
-# 		regularization_hyperparams={'reg_coef':0.1},
-# 		normalize_returns=False,
-# 	)
-
-# 	# Run seldonian algorithm, making sure we capture error
-# 	error_str = ("Using a builtin primary objective gradient"
-# 				" is not yet supported for regimes other"
-# 				" than supervised learning")
-# 	with pytest.raises(NotImplementedError) as excinfo:
-# 		SA = SeldonianAlgorithm(spec)
-# 		passed_safety,solution = SA.run()
+	# # # Create spec object
+	spec2 = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=False,
+		custom_primary_gradient_fn=lambda x: x,
+		primary_objective=primary_objective,
+		parse_trees=parse_trees,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+	
+	# Run seldonian algorithm, making sure we capture error
+	error_str2 = ("Using a provided primary objective gradient"
+				" is not yet supported for regimes other"
+				" than supervised learning")
+	with pytest.raises(NotImplementedError) as excinfo2:
+		SA = SeldonianAlgorithm(spec2)
+		passed_safety,solution = SA.run()
 		
-# 	assert error_str in str(excinfo.value)
-
-# 	# # Create spec object
-# 	spec2 = RLSpec(
-# 		dataset=dataset,
-# 		model_class=model_class,
-# 		frac_data_in_safety=0.8,
-# 		use_builtin_primary_gradient_fn=False,
-# 		custom_primary_gradient_fn=lambda x: x,
-# 		primary_objective=primary_objective,
-# 		parse_trees=parse_trees,
-# 		RL_environment_obj=RL_environment_obj,
-# 		initial_solution_fn=None,
-# 		bound_method='ttest',
-# 		optimization_technique='gradient_descent',
-# 		optimizer='adam',
-# 		optimization_hyperparams={
-# 			'lambda_init'   : np.array([0.5]),
-# 			'alpha_theta'   : 0.005,
-# 			'alpha_lamb'    : 0.005,
-# 			'beta_velocity' : 0.9,
-# 			'beta_rmsprop'  : 0.95,
-# 			'num_iters'     : 20,
-# 			'gradient_library': "autograd",
-# 			'hyper_search'  : None,
-# 			'verbose'       : True,
-# 		},
-# 		regularization_hyperparams={'reg_coef':0.1},
-# 		normalize_returns=False,
-# 	)
-
-# 	# Run seldonian algorithm, making sure we capture error
-# 	error_str2 = ("Using a provided primary objective gradient"
-# 				" is not yet supported for regimes other"
-# 				" than supervised learning")
-# 	with pytest.raises(NotImplementedError) as excinfo2:
-# 		SA = SeldonianAlgorithm(spec2)
-# 		passed_safety,solution = SA.run()
-		
-# 	assert error_str2 in str(excinfo2.value)
+	assert error_str2 in str(excinfo2.value)
 	
-# def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
-# 	""" Test that the RL gridworld example runs 
-# 	with a simple performance improvement constraint. Make
-# 	sure safety test passes and solution is correct.
-# 	"""
-# 	# Load data and metadata
-# 	rseed=99
-# 	np.random.seed(rseed)
-# 	constraint_strs = ['-0.25 - J_pi_new']
-# 	deltas = [0.05]
+def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
+	""" Test that the RL gridworld example runs 
+	with a simple performance improvement constraint. Make
+	sure safety test passes and solution is correct.
+	"""
+	# Load data and metadata
+	rseed=99
+	np.random.seed(rseed)
+	constraint_strs = ['-0.25 - J_pi_new']
+	deltas = [0.05]
 	
-# 	(dataset,model_class,
-# 		primary_objective,
-# 		parse_trees,
-# 		RL_environment_obj) = RL_gridworld_dataset(
-# 			constraint_strs=constraint_strs,
-# 			deltas=deltas)
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+	    deltas,
+	    regime='reinforcement_learning',
+	    sub_regime='all',
+	    columns=[],
+	    delta_weight_method='equal')
+	(dataset,policy,
+		env_kwargs,primary_objective) = RL_gridworld_dataset()
 
-# 	frac_data_in_safety = 0.6
-# 	# Create spec object
-# 	spec = RLSpec(
-# 		dataset=dataset,
-# 		model_class=model_class,
-# 		frac_data_in_safety=frac_data_in_safety,
-# 		use_builtin_primary_gradient_fn=False,
-# 		primary_objective=primary_objective,
-# 		parse_trees=parse_trees,
-# 		RL_environment_obj=RL_environment_obj,
-# 		initial_solution_fn=None,
-# 		bound_method='ttest',
-# 		optimization_technique='gradient_descent',
-# 		optimizer='adam',
-# 		optimization_hyperparams={
-# 			'alpha_theta'   : 0.005,
-# 			'alpha_lamb'    : 0.005,
-# 			'beta_velocity' : 0.9,
-# 			'beta_rmsprop'  : 0.95,
-# 			'num_iters'     : 15,
-# 			'gradient_library': "autograd",
-# 			'hyper_search'  : None,
-# 			'verbose'       : True,
-# 		},
-# 		normalize_returns=False,
-# 	)
+	frac_data_in_safety = 0.6
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+	# Create spec object
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=False,
+		primary_objective=primary_objective,
+		parse_trees=parse_trees,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
 
-# 	# # Run seldonian algorithm
-# 	SA = SeldonianAlgorithm(spec)
-# 	passed_safety,solution = SA.run()
-# 	assert passed_safety == True
-# 	array_to_compare = np.array(
-# 	   [ 0.14021112, -0.14216886, -0.13786284, -0.14577261,  0.14013514,  0.13784917,
-#  -0.14094687, -0.13881718,  0.13240779,  0.1411048,  -0.13954501,  0.1277282,
-#   0.14035668, -0.14190627,  0.05335083, -0.13960011,  0.14010328, -0.14035336,
-#   0.13488608,  0.14067562, -0.14114499,  0.14104931, -0.14068246,  0.14011436,
-#  -0.13970751,  0.14057111, -0.1423285,   0.14027992, -0.13829985, -0.1416236,
-#  -0.13949036,  0.14042179])
-# 	assert np.allclose(solution,array_to_compare)
+	# # Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run(store_cs_values=True)
+	assert passed_safety == False
+	g_vals = SA.cs_result['g_vals']
+	assert g_vals[1][0] == pytest.approx(0.24571729)
 
-# def test_RL_gridworld_black_box(RL_gridworld_dataset):
-# 	""" Test that the RL gridworld example runs 
-# 	with a simple performance improvement constraint. Make
-# 	sure safety test passes and solution is correct.
-# 	"""
-# 	# Load data and metadata
-# 	rseed=99
-# 	np.random.seed(rseed)
-# 	constraint_strs = ['-0.25 - J_pi_new']
-# 	deltas = [0.05]
+def test_RL_gridworld_black_box(RL_gridworld_dataset):
+	""" Test that trying to run RL example with 
+	black box optimization gives a NotImplementedError,
+	because it is not yet supported 
+	"""
+	# Load data and metadata
+	rseed=99
+	np.random.seed(rseed)
+	constraint_strs = ['-0.25 - J_pi_new']
+	deltas = [0.05]
 	
-# 	(dataset,model_class,
-# 		primary_objective,
-# 		parse_trees,
-# 		RL_environment_obj) = RL_gridworld_dataset(
-# 			constraint_strs=constraint_strs,
-# 			deltas=deltas)
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+	    deltas,
+	    regime='reinforcement_learning',
+	    sub_regime='all',
+	    columns=[],
+	    delta_weight_method='equal')
+	(dataset,policy,
+		env_kwargs,primary_objective) = RL_gridworld_dataset()
 
-# 	frac_data_in_safety = 0.6
-# 	# Create spec object
-# 	spec = RLSpec(
-# 		dataset=dataset,
-# 		model_class=model_class,
-# 		frac_data_in_safety=frac_data_in_safety,
-# 		use_builtin_primary_gradient_fn=False,
-# 		primary_objective=primary_objective,
-# 		parse_trees=parse_trees,
-# 		RL_environment_obj=RL_environment_obj,
-# 		initial_solution_fn=None,
-# 		bound_method='ttest',
-# 		optimization_technique='barrier_function',
-# 		optimizer='CMA-ES',
-# 		optimization_hyperparams={
-# 				'maxiter'   : 10,
-# 				'seed':rseed,
-# 				'hyper_search'  : None,
-# 				'verbose'       : True,
-# 			},
-# 		normalize_returns=False,
-# 	)
+	frac_data_in_safety = 0.6
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+	# Create spec object
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=False,
+		primary_objective=primary_objective,
+		initial_solution_fn = None,
+		parse_trees=parse_trees,
+		optimization_technique='barrier_function',
+		optimizer='Powell',
+		optimization_hyperparams={
+				'maxiter'   : 1000,
+				'seed':rseed,
+				'hyper_search'  : None,
+				'verbose'       : True,
+			},
+	)
 
-# 	# # Run seldonian algorithm
-# 	SA = SeldonianAlgorithm(spec)
-# 	passed_safety,solution = SA.run()
-# 	assert passed_safety == True
-# 	array_to_compare = np.array(
-# 	   [-0.01478694, -1.52299897,  0.60606259, -0.0475612,  -0.13658868,  0.33656384,
-#  -0.53947718, -0.2725281,   0.44593005,  0.86750493,  0.79728041,  0.10156789,
-#   0.2646691,  -0.66778523,  0.6754071,   0.29783526,  0.49140432, -0.54893211,
-#  -0.6835978,   0.93589933, -0.97537624,  1.19449046, -0.724231,    0.40491889,
-#  -0.6061301,  -0.22444457, -0.76379049,  0.51380723,  0.86515137,  0.2919332,
-#  -0.31993747,  0.27008568])
-# 	assert np.allclose(solution,array_to_compare)
+	# # Run seldonian algorithm
+	with pytest.raises(NotImplementedError) as excinfo:
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
+	error_str = (
+				"barrier_function optimization_technique "
+				"is not supported for reinforcement learning. "
+				"Use gradient_descent instead.")
+
+	assert error_str in str(excinfo.value)

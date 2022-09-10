@@ -109,8 +109,7 @@ class SeldonianAlgorithm():
 			print(self.initial_solution)
 
 		elif self.regime == 'reinforcement_learning':
-			self.env_kwargs = self.spec.env_kwargs
-			# self.normalize_returns = self.spec.normalize_returns
+			self.env_kwargs = self.spec.model.env_kwargs
 
 			self.model = self.spec.model
 
@@ -131,12 +130,17 @@ class SeldonianAlgorithm():
 			self.safety_dataset = RLDataSet(
 				episodes=safety_episodes,
 				meta_information=self.column_names)
-			# assert len(safety_df) == n_safety
+
 			print(f"Safety dataset has {self.n_safety} episodes")
 			print(f"Candidate dataset has {self.n_candidate} episodes")
 			
 			# initial solution
-			self.initial_solution = self.model.policy.get_params()
+			self.initial_solution_fn = self.spec.initial_solution_fn
+
+			if self.initial_solution_fn is None:
+				self.initial_solution = self.model.policy.get_params()
+			else:
+				self.initial_solution = self.initial_solution_fn(self.candidate_dataset)
 		
 		if self.spec.primary_objective is None:
 			if self.regime == 'reinforcement_learning':
@@ -156,7 +160,7 @@ class SeldonianAlgorithm():
 				model=self.model,
 				candidate_dataset=self.candidate_dataset,
 				n_safety=self.n_safety,
-				parse_trees=self.spec.parse_trees,
+				parse_trees=self.parse_trees,
 				primary_objective=self.spec.primary_objective,
 				optimization_technique=self.spec.optimization_technique,
 				optimizer=self.spec.optimizer,
@@ -168,7 +172,7 @@ class SeldonianAlgorithm():
 				model=self.model,
 				candidate_dataset=self.candidate_dataset,
 				n_safety=self.n_safety,
-				parse_trees=self.spec.parse_trees,
+				parse_trees=self.parse_trees,
 				primary_objective=self.spec.primary_objective,
 				optimization_technique=self.spec.optimization_technique,
 				optimizer=self.spec.optimizer,

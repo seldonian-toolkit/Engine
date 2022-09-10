@@ -301,7 +301,7 @@ class RLSpec(Spec):
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
 			initial_solution_fn=initial_solution_fn,
-			parse_trees=initial_solution_fn,
+			parse_trees=parse_trees,
 			base_node_bound_method_dict=base_node_bound_method_dict,
 			use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=custom_primary_gradient_fn,
