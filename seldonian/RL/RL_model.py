@@ -14,12 +14,15 @@ class RL_model(SeldonianModel): #consist of agent, env
 		if num_probs != len(actions):
 			error(f"different number of observations ({observations}) and actions ({actions})")
 
-		probs = [self.get_prob_this_action(observations[index], actions[index]) for index in range(num_probs)]
-		# probs = list(map(self.policy.get_probs_given_states_actions,
-  #                   observations,
-  #                   actions))
-		# self.policy._denom.cache_clear()
-		# self.policy._arg.cache_clear()
+		probs = list(map(self.policy.get_prob_this_action,
+                    observations,
+                    actions))
+		try:
+			self.policy._denom.cache_clear()
+			self.policy._arg.cache_clear()
+		except:
+			pass
+
 		return np.array(probs)
 
 	def get_prob_this_action(self, observation, action):

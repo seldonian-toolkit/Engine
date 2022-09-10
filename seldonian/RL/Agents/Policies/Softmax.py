@@ -1,6 +1,7 @@
 from seldonian.RL.Agents.Policies.Policy import *
 import autograd.numpy as np
 from seldonian.utils.RL_utils import *
+from functools import lru_cache
 
 class Softmax(Discrete_Action_Policy):
     def __init__(self, hyperparam_and_setting_dict, env_description):
@@ -58,3 +59,37 @@ class Softmax(Discrete_Action_Policy):
         action_probs = self.get_action_probs_from_action_values(action_values)
         this_action = self.from_environment_action_to_0_indexed_action(action)
         return action_probs[this_action]
+
+
+
+class DiscreteSoftmax(Softmax):
+    def __init__(self, hyperparam_and_setting_dict, env_description):
+        """ Softmax where observations and actions are discrete.
+        Uses cache for lookups to Q Table """
+        super().__init__(hyperparam_and_setting_dict, env_description)
+
+    @lru_cache
+    def _denom(self,observation):
+        """ Helper function to accelerate action probability calculation 
+
+        :param observation: An observation of the environment
+        :type observation: int
+        """
+        return np.sum(np.exp(self.FA.weights[observation]))
+
+    @lru_cache
+    def _arg(self,observation,action):
+        """ Helper function to accelerate action probability calculation 
+
+        :param observation: A observation of the environment
+        :type observation: int
+
+        :param action: A possible action at the given observation
+        :type action: int
+        """
+        return self.FA.weights[observation][action]
+
+    def get_prob_this_action(self,observation,action):
+        return np.exp(self._arg(observation,action))/self._denom(observation)
+
+

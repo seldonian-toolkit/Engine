@@ -10,9 +10,9 @@ if __name__ == '__main__':
 	spec.optimization_hyperparams['alpha_lamb']=0.01
 	# Run Seldonian algorithm 
 	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run(debug=True)
+	passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
 	if passed_safety:
-		print("Passed safety test")
+		print("Passed safety test!")
 		print("The solution found is:")
 		print(solution)
 	else:

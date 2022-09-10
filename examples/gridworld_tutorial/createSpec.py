@@ -1,4 +1,5 @@
-from seldonian.RL.Agents.Policies.Softmax import Softmax
+# createSpec.py
+from seldonian.RL.Agents.Policies.Softmax import DiscreteSoftmax
 from seldonian.RL.Env_Description.Env_Description import Env_Description
 from seldonian.RL.Env_Description.Spaces import Discrete_Space
 from seldonian.spec import createRLSpec
@@ -6,8 +7,7 @@ from seldonian.dataset import RLDataSet
 from seldonian.utils.io_utils import load_pickle
 
 def main():
-	# episodes, agent = run_trial(hyperparams_and_setting_dict)
-	episodes_file = '../../static/datasets/RL/gridworld/gridworld_1000episodes.pkl'
+	episodes_file = './gridworld_1000episodes.pkl'
 	episodes = load_pickle(episodes_file)
 	dataset = RLDataSet(episodes=episodes)
 
@@ -16,9 +16,9 @@ def main():
 	observation_space = Discrete_Space(0, num_states-1)
 	action_space = Discrete_Space(0, 3)
 	env_description =  Env_Description(observation_space, action_space)
-	policy = Softmax(hyperparam_and_setting_dict={},env_description=env_description)
+	policy = DiscreteSoftmax(hyperparam_and_setting_dict={},
+		env_description=env_description)
 	env_kwargs={'gamma':0.9}
-	metadata_pth = "../../static/datasets/RL/gridworld/gridworld_metadata.json"
 	save_dir = '.'
 	constraint_strs = ['J_pi_new >= -0.25']
 	deltas=[0.05]
