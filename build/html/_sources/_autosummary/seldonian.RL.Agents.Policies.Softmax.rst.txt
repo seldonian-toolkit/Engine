@@ -19,6 +19,7 @@ seldonian.RL.Agents.Policies.Softmax
       :toctree:                                         
       :template: custom-class-template.rst              
    
+      DiscreteSoftmax
       Softmax
    
    

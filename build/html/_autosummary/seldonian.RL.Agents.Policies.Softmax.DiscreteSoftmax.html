@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>seldonian.RL.Agents.Policies.Softmax.Softmax &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.RL.Agents.keyboard_gridworld" href="seldonian.RL.Agents.keyboard_gridworld.html" />
-    <link rel="prev" title="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax" href="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.html" />
+    <link rel="next" title="seldonian.RL.Agents.Policies.Softmax.Softmax" href="seldonian.RL.Agents.Policies.Softmax.Softmax.html" />
+    <link rel="prev" title="seldonian.RL.Agents.Policies.Softmax" href="seldonian.RL.Agents.Policies.Softmax.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,20 +34,22 @@
 
           <div class="body" role="main">
             
-  <section id="seldonian-rl-agents-policies-softmax-softmax">
-<h1>seldonian.RL.Agents.Policies.Softmax.Softmax<a class="headerlink" href="#seldonian-rl-agents-policies-softmax-softmax" title="Permalink to this heading">¶</a></h1>
+  <section id="seldonian-rl-agents-policies-softmax-discretesoftmax">
+<h1>seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax<a class="headerlink" href="#seldonian-rl-agents-policies-softmax-discretesoftmax" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Softmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.html#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy" title="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Discrete_Action_Policy</span></code></a></p>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DiscreteSoftmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.Softmax.html#seldonian.RL.Agents.Policies.Softmax.Softmax" title="seldonian.RL.Agents.Policies.Softmax.Softmax"><code class="xref py py-class docutils literal notranslate"><span class="pre">Softmax</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Softmax where observations and actions are discrete.
+Uses cache for lookups to Q Table</p>
+</dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.__repr__">
-<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.__repr__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.__repr__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return repr(self).</p>
 </dd></dl>
 
@@ -57,8 +59,33 @@
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.choose_action">
-<span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.choose_action" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax._arg">
+<span class="sig-name descname"><span class="pre">_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax._arg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to accelerate action probability calculation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observation</strong> (<em>int</em>) – A observation of the environment</p></li>
+<li><p><strong>action</strong> (<em>int</em>) – A possible action at the given observation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax._denom">
+<span class="sig-name descname"><span class="pre">_denom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax._denom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to accelerate action probability calculation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>observation</strong> (<em>int</em>) – An observation of the environment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.choose_action">
+<span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.choose_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select an action given a observation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -71,8 +98,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.construct_basis_and_linear_FA">
-<span class="sig-name descname"><span class="pre">construct_basis_and_linear_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.construct_basis_and_linear_FA" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.construct_basis_and_linear_FA">
+<span class="sig-name descname"><span class="pre">construct_basis_and_linear_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.construct_basis_and_linear_FA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a basis and linear function approximator
 from an environment description and dictionary specification</p>
 <dl class="field-list simple">
@@ -89,8 +116,8 @@ and number of trials</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_params" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current parameters (weights) of the agent</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -100,8 +127,8 @@ and number of trials</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.get_prob_this_action">
-<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action">
+<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the probability of a selected action in a given obs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -120,8 +147,8 @@ and number of trials</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.make_state_action_FA">
-<span class="sig-name descname"><span class="pre">make_state_action_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.make_state_action_FA" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.make_state_action_FA">
+<span class="sig-name descname"><span class="pre">make_state_action_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.make_state_action_FA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a function approximator from an environment description and
 dictionary specification</p>
 <dl class="field-list simple">
@@ -142,8 +169,8 @@ space is discrete or continous</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.set_new_params">
-<span class="sig-name descname"><span class="pre">set_new_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.set_new_params" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.set_new_params">
+<span class="sig-name descname"><span class="pre">set_new_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.set_new_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of the agent</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -188,8 +215,8 @@ space is discrete or continous</p>
 <li class="toctree-l5 current"><a class="reference internal" href="seldonian.RL.Agents.Policies.html">seldonian.RL.Agents.Policies</a><ul class="current">
 <li class="toctree-l6"><a class="reference internal" href="seldonian.RL.Agents.Policies.Policy.html">seldonian.RL.Agents.Policies.Policy</a></li>
 <li class="toctree-l6 current"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.html">seldonian.RL.Agents.Policies.Softmax</a><ul class="current">
-<li class="toctree-l7"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.html">seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax</a></li>
-<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Policies.Softmax.Softmax</a></li>
+<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax</a></li>
+<li class="toctree-l7"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.Softmax.html">seldonian.RL.Agents.Policies.Softmax.Softmax</a></li>
 </ul>
 </li>
 </ul>
@@ -232,8 +259,8 @@ space is discrete or continous</p>
   <li><a href="seldonian.RL.Agents.html">seldonian.RL.Agents</a><ul>
   <li><a href="seldonian.RL.Agents.Policies.html">seldonian.RL.Agents.Policies</a><ul>
   <li><a href="seldonian.RL.Agents.Policies.Softmax.html">seldonian.RL.Agents.Policies.Softmax</a><ul>
-      <li>Previous: <a href="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.html" title="previous chapter">seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax</a></li>
-      <li>Next: <a href="seldonian.RL.Agents.keyboard_gridworld.html" title="next chapter">seldonian.RL.Agents.keyboard_gridworld</a></li>
+      <li>Previous: <a href="seldonian.RL.Agents.Policies.Softmax.html" title="previous chapter">seldonian.RL.Agents.Policies.Softmax</a></li>
+      <li>Next: <a href="seldonian.RL.Agents.Policies.Softmax.Softmax.html" title="next chapter">seldonian.RL.Agents.Policies.Softmax.Softmax</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -273,7 +300,7 @@ space is discrete or continous</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.RL.Agents.Policies.Softmax.Softmax.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
