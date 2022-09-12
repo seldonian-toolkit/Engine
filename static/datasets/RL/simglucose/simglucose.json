@@ -1,6 +1,4 @@
 {
-	"columns":["episode_index","O","A","R","pi"],
+	"columns":["episode_index","O","A","R","pi_b"],
 	"regime":"RL",
-	"RL_module_name":"simglucose_env",
-	"RL_class_name":"Simglucose"
 }

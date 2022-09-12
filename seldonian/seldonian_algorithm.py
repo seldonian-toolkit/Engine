@@ -98,6 +98,7 @@ class SeldonianAlgorithm():
 					self.initial_solution = self.initial_solution_fn(
 						self.candidate_features,self.candidate_labels)
 				except Exception as e: 
+					# handle off-by-one error due to intercept not being included
 					warning_msg = (
 						"Warning: initial solution function failed with this error:"
 						f" {e}")

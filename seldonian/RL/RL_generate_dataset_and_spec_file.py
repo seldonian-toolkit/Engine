@@ -14,9 +14,11 @@ def main():
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
     start_time = time()
     episodes, agent = run_trial(hyperparameter_and_setting_dict)
+    print("agent:")
+    print(agent)
     # Save episodes as pkl file:
-    save_pickle("n_step_mountaincar_100episodes.pkl",episodes)
-    print(f"data generation took {time() - start_time} seconds")
+    # save_pickle("n_step_mountaincar_100episodes.pkl",episodes)
+    # print(f"data generation took {time() - start_time} seconds")
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
 
     env_name = hyperparameter_and_setting_dict["env"]
@@ -25,7 +27,8 @@ def main():
     constraint_strs = get_constraint_string(env_name)
     deltas = [0.05]
     env_kwargs = get_env_kwargs(env_name)
-    policy = agent.get_policy()
+    # policy = agent.get_policy()
+
     createRLSpec(
         dataset=dataset,
         policy=policy,

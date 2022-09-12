@@ -31,6 +31,7 @@ class Simglucose(Environment):
 
     def reset(self):
         self.observation = self.gym_observation_to_observation(self.gym_env.reset())
+        self.terminal_state = False
 
     def transition(self, action):
         environment_action = action * self.action_multiplier
@@ -45,7 +46,7 @@ class Simglucose(Environment):
         return np.array([gym_obs[0]]) #get the scalar out of the simglucose Observation object, then put it in a numpy array
 
     def create_env_description(self):
-        fake_max = 100.0 #in gym it's technically infinity
+        fake_max = 300.0 #in gym it's technically infinity
         obs_space_bounds = np.array([[0, fake_max]])
         obs_space = Continuous_Space(obs_space_bounds)
         action_space = Discrete_Space(0, self.num_actions-1)
