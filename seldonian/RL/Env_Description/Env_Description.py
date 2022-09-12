@@ -4,13 +4,12 @@ from seldonian.utils.RL_utils import *
 
 class Env_Description:
     def __init__(self, observation_space, action_space):
-        """ Describes an environment's obs and action space
+        """ Describes an environment's observation and action space
         and provides convenience methods for accessing the
         environment's attributes 
 
         :param observation_space: Discrete or continuous space
             describing observations made in the environment
-
         :param action_space: Discrete or continuous space
             describing possible actions taken in the environment
         """
@@ -52,7 +51,6 @@ def check_space_type(space, desired_type):
     """ Validator to ensure space types are equivalent 
     
     :param space: discrete or continous space
-
     :param desired_type: Discrete_Space or Continous_Space
         which we want type(space) to match
     """

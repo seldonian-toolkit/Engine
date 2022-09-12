@@ -1,7 +1,7 @@
 
 class Agent:
-    """ Base class for all RL agents. Many methods
-    require overriding in child classes to be used """
+    """ Base class for all RL agents. Override following methods
+    in child class implementation """
     def choose_action(self, observation):
         """ Choose an action given an observation. To be overridden 
 

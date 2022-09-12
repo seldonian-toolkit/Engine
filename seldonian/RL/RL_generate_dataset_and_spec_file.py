@@ -8,6 +8,8 @@ from seldonian.spec import createRLSpec
 
 
 def main():
+    """ Run a trial of episodes and create RLSpec object, saving to disk.
+    """  
 
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
     start_time = time()
@@ -38,6 +40,7 @@ def main():
         verbose=False)
 
 def get_metadata_path(env_name):
+    """ Given environment name, return path to metadata file """
     if env_name == "gridworld":
         return "../../static/datasets/RL/gridworld/gridworld_metadata.json"
     elif env_name == "n_step_mountaincar":
@@ -47,7 +50,9 @@ def get_metadata_path(env_name):
     else:
         error(f"unknown env name {env_name}")
 
+
 def get_constraint_string(env_name):
+    """ Given environment name, return the default constraint string """
     if env_name == "gridworld":
         return ['J_pi_new >= -0.25']
     elif env_name == "n_step_mountaincar":
@@ -58,6 +63,7 @@ def get_constraint_string(env_name):
         error(f"Unknown env_name {env_name}")
 
 def get_env_kwargs(env_name):
+    """ Given environment name, return the default env kwargs """
     if env_name == "gridworld":
         from seldonian.RL.environments.gridworld import Gridworld
         RL_environment = Gridworld()
@@ -74,6 +80,11 @@ def get_env_kwargs(env_name):
         error(f"Unknown env_name {env_name}")
 
 def print_return_info(episodes):
+    """ Print the return, i.e., the sum of rewards. 
+    Used for debugging
+
+    :param episodes: List of :py:class:`.Episode` objects.
+    """
     the_sum = 0.0
     the_min = 0.0
     for episode in episodes:

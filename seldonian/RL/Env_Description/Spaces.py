@@ -7,7 +7,6 @@ class Discrete_Space:
         
         :param min: Minimum value of the space
         :type min: int
-
         :param max: Maximum value of the space
         :type max: int
         """

@@ -2,6 +2,10 @@ from seldonian.RL.Agents.Function_Approximators.Function_Approximator import *
 
 class Linear_FA(Function_Approximator):
     def __init__(self, basis, env_description):
+        """ Linear function approximator. 
+
+        :param basis: The basis to use for encoding features
+        """
         self.basis = basis
         self.weights = np.zeros((basis.num_features, env_description.get_num_actions()))
 

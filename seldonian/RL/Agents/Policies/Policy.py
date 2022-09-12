@@ -4,29 +4,51 @@ from seldonian.RL.Agents.Bases.Fourier import *
 from seldonian.RL.Env_Description.Env_Description import *
 
 class Policy:
+    """ Base class for policies. Contains four methods which
+    must be overridden in any policy implementation """
+
     def choose_action(self, obs):
+        """ Defines how to select an action given an observation, obs
+        """
         raise NotImplementedError()
 
     def set_new_params(self, new_params):
+        """ Update policy parameters 
+        """
         raise NotImplementedError()
 
     def get_params(self):
+        """ Get current policy parameters 
+        """
         raise NotImplementedError()
 
-    def get_prob_this_action(self, observation, action):
+    def get_prob_this_action(self, obs, action):
+        """ Get probability of taking an action given an observation
+        """
         raise NotImplementedError()
 
 
 class Discrete_Action_Policy(Policy):
     def __init__(self, hyperparam_and_setting_dict, env_description):
+        """ General policy class where actions are discrete
+
+        :param hyperparameter_and_setting_dict: Specifies the
+            environment, agent, number of episodes per trial,
+            and number of trials
+        :param env_description: an object for accessing attributes
+            of the environment
+        :type env_description: :py:class:`.Env_Description`
+        """
         self.min_action = env_description.get_min_action() #e.g., if environment actions are {-1, 0, 1}, then this is -1
         self.num_actions = env_description.get_num_actions()
         self.FA = self.make_state_action_FA(env_description, hyperparam_and_setting_dict)
 
     def from_0_indexed_action_to_environment_action(self, action_0_indexed):
+        """ Convert 0-indexed action to env-specific action """
         return action_0_indexed + self.min_action
 
     def from_environment_action_to_0_indexed_action(self, env_action):
+        """ Convert env-specific action to 0 indexed action """
         return env_action - self.min_action
 
     def make_state_action_FA(self, env_description, hyperparam_and_setting_dict):
@@ -36,7 +58,6 @@ class Discrete_Action_Policy(Policy):
         :param env_description: an object for accessing attributes
             of the environment
         :type env_description: :py:class:`.Env_Description`
-
         :param hyperparameter_and_setting_dict: Specifies the
             environment, agent, number of episodes per trial,
             and number of trials
@@ -60,7 +81,6 @@ class Discrete_Action_Policy(Policy):
         :param env_description: an object for accessing attributes
             of the environment
         :type env_description: :py:class:`.Env_Description`
-
         :param hyperparameter_and_setting_dict: Specifies the
             environment, agent, number of episodes per trial,
             and number of trials
@@ -74,6 +94,8 @@ class Discrete_Action_Policy(Policy):
         return Linear_state_action_value_FA(basis, env_description)
 
     def get_action_values_given_state(self, obs):
+        """ Get all parameter weights possible in a given observation
+        """ 
         return self.FA.get_action_values_given_state(obs)
 
     def set_new_params(self, new_params):

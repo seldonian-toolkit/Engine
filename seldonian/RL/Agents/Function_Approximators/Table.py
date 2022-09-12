@@ -7,7 +7,6 @@ class Table(Function_Approximator):
         
         :param min_state: The smallest obs number
         :type min_state: int
-
         :param num_states: Number of total states
         :type num_states: int
         """

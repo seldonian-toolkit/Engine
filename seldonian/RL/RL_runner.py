@@ -51,9 +51,7 @@ def run_trial_given_agent_and_env(agent,env,num_episodes):
     are specified explicity rather than via a dictionary.
 
     :param agent: RL Agent 
-
     :param env: RL Environment
-
     :param num_episodes: Number of episodes to run
 
     :return: List of episodes
@@ -68,7 +66,6 @@ def run_episode(agent, env):
     """ Run a single episode 
 
     :param agent: RL Agent 
-
     :param env: RL Environment 
 
     :return: RL Episode
