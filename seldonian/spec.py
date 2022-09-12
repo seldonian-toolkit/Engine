@@ -206,7 +206,7 @@ class RLSpec(Spec):
 	:param dataset: The dataset object containing safety data
 	:type dataset: :py:class:`.DataSet` object
 
-	:param model: The :py:class:`.SeldonianModel` object
+	:param model: The :py:class:`.RL_Model` object
 
 	:param frac_data_in_safety: Fraction of data used in safety test.
 		The remaining fraction will be used in candidate selection
@@ -272,10 +272,10 @@ class RLSpec(Spec):
 		self,
 		dataset,
 		model,
-		frac_data_in_safety,
-		primary_objective,
-		initial_solution_fn,
 		parse_trees,
+		frac_data_in_safety=0.6,
+		primary_objective=None,
+		initial_solution_fn=None,
 		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
