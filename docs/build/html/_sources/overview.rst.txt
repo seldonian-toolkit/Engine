@@ -1,7 +1,7 @@
 Overview
 ========
 
-This document provides an overview of how `Seldonian algorithms <https://seldonian.cs.umass.edu/Tutorials/>`_ (SAs) are implemented using this library. For a detailed description of what SAs are, see the `Seldonian Machine Learning Toolkit homepage  <https://seldonian.cs.umass.edu/>`_.
+This document provides an overview of how `Seldonian algorithms <https://seldonian.cs.umass.edu/Tutorials/>`_ (SAs) are implemented using this library. For a detailed description of what SAs are, see the `Seldonian Machine Learning Toolkit homepage  <https://seldonian.cs.umass.edu/>`_. In addition to this overview page, we have created a few hands-on tutorials illustrating how to use this library on simulated datasets and more realistic datasets: `Toolkit tutorials <https://seldonian.cs.umass.edu/Tutorials>`_.
 
 The most important piece of the Seldonian Engine API is the :py:class:`.SeldonianAlgorithm` class. One can run a Seldonian algorithm with a single API call using this class:
 
@@ -66,7 +66,7 @@ The :code:`filename` parameter must point to a data file consisting of rows of n
 	0,1,756.91,679.62,531.28,583.63,534.42,521.4,592.41,783.76,588.26,2.53333
 	...
 
-where each row represents a different data point and each column is a feature or a label.
+where each row represents a different data point and each column is a feature or a label. **Any sensitive attributes must be one-hot encoded.**
 
 For reinforcement learning, one can create a :py:class:`.RLDataSet` object from a data file and (optionally) a metadata file. There are two supported methods, depending on the format of the data file. For example:
 

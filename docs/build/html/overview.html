@@ -36,7 +36,7 @@
             
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>This document provides an overview of how <a class="reference external" href="https://seldonian.cs.umass.edu/Tutorials/">Seldonian algorithms</a> (SAs) are implemented using this library. For a detailed description of what SAs are, see the <a class="reference external" href="https://seldonian.cs.umass.edu/">Seldonian Machine Learning Toolkit homepage</a>.</p>
+<p>This document provides an overview of how <a class="reference external" href="https://seldonian.cs.umass.edu/Tutorials/">Seldonian algorithms</a> (SAs) are implemented using this library. For a detailed description of what SAs are, see the <a class="reference external" href="https://seldonian.cs.umass.edu/">Seldonian Machine Learning Toolkit homepage</a>. In addition to this overview page, we have created a few hands-on tutorials illustrating how to use this library on simulated datasets and more realistic datasets: <a class="reference external" href="https://seldonian.cs.umass.edu/Tutorials">Toolkit tutorials</a>.</p>
 <p>The most important piece of the Seldonian Engine API is the <a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm" title="seldonian.seldonian_algorithm.SeldonianAlgorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianAlgorithm</span></code></a> class. One can run a Seldonian algorithm with a single API call using this class:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">seldonian.seldonian_algorithm</span> <span class="kn">import</span> <span class="n">SeldonianAlgorithm</span>
 <span class="kn">from</span> <span class="nn">seldonian.utils.io_utils</span> <span class="kn">import</span> <span class="n">load_pickle</span>
@@ -88,7 +88,7 @@
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>where each row represents a different data point and each column is a feature or a label.</p>
+<p>where each row represents a different data point and each column is a feature or a label. <strong>Any sensitive attributes must be one-hot encoded.</strong></p>
 <p>For reinforcement learning, one can create a <a class="reference internal" href="_autosummary/seldonian.dataset.RLDataSet.html#seldonian.dataset.RLDataSet" title="seldonian.dataset.RLDataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">RLDataSet</span></code></a> object from a data file and (optionally) a metadata file. There are two supported methods, depending on the format of the data file. For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">seldonian.dataset</span> <span class="kn">import</span> <span class="n">DataSetLoader</span>
 <span class="n">loader</span> <span class="o">=</span> <span class="n">DataSetLoader</span><span class="p">(</span><span class="n">regime</span><span class="o">=</span><span class="s1">&#39;reinforcement_learning&#39;</span><span class="p">)</span>

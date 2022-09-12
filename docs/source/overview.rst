@@ -66,7 +66,7 @@ The :code:`filename` parameter must point to a data file consisting of rows of n
 	0,1,756.91,679.62,531.28,583.63,534.42,521.4,592.41,783.76,588.26,2.53333
 	...
 
-where each row represents a different data point and each column is a feature or a label.
+where each row represents a different data point and each column is a feature or a label. **All sensitive attributes must be one-hot encoded.**
 
 For reinforcement learning, one can create a :py:class:`.RLDataSet` object from a data file and (optionally) a metadata file. There are two supported methods, depending on the format of the data file. For example:
 
