@@ -315,8 +315,8 @@ def createSupervisedSpec(
 	metadata_pth,
 	constraint_strs,
 	deltas,
-	save_dir,
 	save=True,
+	save_dir='.',
 	verbose=False):
 	"""Convenience function for creating SupervisedSpec object. 
 	Uses default model.
@@ -384,7 +384,7 @@ def createSupervisedSpec(
 	spec_save_name = os.path.join(save_dir, 'spec.pkl')
 	if save:
 		save_pickle(spec_save_name,spec,verbose=verbose)
-
+	return spec
 
 def createRLSpec(
 	dataset,
