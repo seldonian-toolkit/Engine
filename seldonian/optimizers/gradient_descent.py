@@ -29,65 +29,52 @@ def gradient_descent_adam(
     beta_rmsprop=0.9,
     num_iters=200,
     gradient_library="autograd",
-    store_values=False,
     verbose=False,
     debug=False,
     **kwargs):
     """ Implements simultaneous gradient descent/ascent using 
-    the "adam" optimizer on a Lagrangian:
+    the Adam optimizer on a Lagrangian:
     L(theta,lambda) = f(theta) + lambda*g(theta),
     where f is the primary objective, lambda is a vector of 
     Lagrange multipliers, and g is a vector of the 
     upper bound functions. Gradient descent is done for theta 
     and gradient ascent is done for lambda to find the saddle 
-    points of L.
+    points of L. Being part of candidate selection, 
+    it is important that this function always returns a solution.
+    The safety test determines if No Solution Found.
 
     :param primary_objective: The objective function that would
         be solely optimized in the absence of behavioral constraints,
-        i.e. the loss function
+        i.e., the loss function
     :type primary_objective: function or class method
-
     :param n_constraints: The number of constraints 
-
     :param upper_bounds_function: The function that calculates
         the upper bounds on the constraints
     :type upper_bounds_function: function or class method
-
     :param theta_init: Initial model weights 
     :type theta_init: numpy ndarray
-
     :param lambda_init: Initial values for Lagrange multiplier terms 
     :type theta_init: float
-
     :param alpha_theta: Initial learning rate for theta
     :type alpha_theta: float
-
     :param alpha_lamb: Learning rate for lambda
     :type alpha_lamb: float
-
     :param beta_velocity: Exponential decay rate for velocity term
     :type beta_velocity: float
-
     :param beta_rmsprop: Exponential decay rate for rmsprop term
     :type beta_rmsprop: float
-
     :param num_iters: The number of iterations of gradient descent to run
     :type num_iters: int
-
     :param gradient_library: The name of the library to use for computing 
         automatic gradients. 
     :type gradient_library: str, defaults to "autograd"
 
-    :param store_values: Whether to include evaluations of various 
-        quantities in the solution dictionary
-    :type store_values: bool
-
     :return: solution, a dictionary containing the solution and metadata 
-        about the gradient descent run, if store_values==True
+        about the gradient descent run
     :rtype: dict
     """
     
-    # initialize modeling parameters
+    # initialize theta, lambda
     theta = theta_init
     if type(lambda_init) == float:
         lamb = lambda_init*np.ones((n_constraints,1))
@@ -98,14 +85,26 @@ def gradient_descent_adam(
         # repeat value for each constraint
         lamb = lamb[0][0]*np.ones((n_constraints,1))
     
+    # initialize Adam parameters
     velocity_theta, velocity_lamb = 0.0,0.0
     s_theta, s_lamb = 0.0,0.0
     rms_offset = 1e-6 # small offset to make sure we don't take 1/sqrt(very small) in weight update
 
-    best_feasible_primary = np.inf # minimizing f so want it to be lowest possible
+    # Initialize params for tracking best solution
+    best_primary = np.inf # minimizing f so want it to be lowest possible
     best_index = 0  
 
-    # Get df/dtheta and dg/dtheta
+    # If we never enter feasible set, we still need to know what the solution was
+    # when g was minimum
+    found_feasible_solution = False
+    # Store values at each step in gradient descent, if requested
+    theta_vals = []
+    lamb_vals = []
+    L_vals = []
+    f_vals = [] # primary
+    g_vals = [] # constraint upper bound values
+
+    # Get df/dtheta and dg/dtheta automatic gradients
     (grad_primary_theta,
         grad_upper_bound_theta) = setup_gradients(
         gradient_library,
@@ -114,18 +113,12 @@ def gradient_descent_adam(
         
     # It is possible user provided the function df/dtheta,
     # which can often speed up computing the gradients.
+    # In that case, override the automatic gradient function
 
     if 'primary_gradient' in kwargs:
         grad_primary_theta = kwargs['primary_gradient']
     
-    if store_values: 
-        # Store results in lists
-        theta_vals = []
-        lamb_vals = []
-        L_vals = []
-        f_vals = [] # primary
-        g_vals = [] # constraint upper bound values
-
+    # Start gradient descent
     for i in range(num_iters):
         if verbose:
             if i % 10 == 0:
@@ -135,22 +128,23 @@ def gradient_descent_adam(
         g_vec = g_vec.reshape(g_vec.shape[0],1)
         if debug:
             print("it,f,g,theta,lambda:",i,primary_val,g_vec,theta,lamb)
+        
         # Check if this is best feasible value so far
-        if all([g<= 0 for g in g_vec]) and primary_val < best_feasible_primary:
-            best_feasible_primary = np.copy(primary_val)
-            best_feasible_g_vec = np.copy(g_vec)
+        if all([g<= 0 for g in g_vec]) and primary_val < best_primary:
+            found_feasible_solution = True
+            best_primary = np.copy(primary_val)
+            best_g_vec = np.copy(g_vec)
             best_index = np.copy(i)
             candidate_solution = np.copy(theta)
-            # print()
 
-        if store_values:
-            theta_vals.append(theta.tolist())
-            lamb_vals.append(np.copy(lamb))
-            f_vals.append(np.copy(primary_val))
-            g_vals.append(np.copy(g_vec))
-            
-            L_val = primary_val + sum(lamb*g_vec) 
-            L_vals.append(L_val)
+        # store values
+        theta_vals.append(theta)
+        lamb_vals.append(np.copy(lamb))
+        f_vals.append(np.copy(primary_val))
+        g_vals.append(np.copy(g_vec))
+        
+        L_val = primary_val + sum(lamb*g_vec) 
+        L_vals.append(L_val)
 
         # Obtain gradients of both terms in Lagrangian 
         # at current values of theta and lambda
@@ -186,22 +180,24 @@ def gradient_descent_adam(
 
     solution = {}
     solution_found = True
-    if np.isinf(best_feasible_primary):
-        solution_found = False
-    else:    
-        # solution['candidate_solution'] = candidate_solution.tolist()
-        solution['candidate_solution'] = candidate_solution
-        solution['best_index'] = best_index
-        solution['best_feasible_g'] = best_feasible_g_vec
-        solution['best_feasible_f'] = best_feasible_primary
 
-    solution['solution_found'] = solution_found
-    
-    if store_values:
-        solution['theta_vals'] = theta_vals
-        solution['f_vals'] = f_vals
-        solution['g_vals'] = g_vals
-        solution['lamb_vals'] = lamb_vals
-        solution['L_vals'] = L_vals
+    # If theta never entered feasible set pick best g
+    if not found_feasible_solution:
+        # best g is when norm of g is minimized
+        best_index = np.argmin(np.linalg.norm(g_vals,axis=1))
+        best_g_vec = g_vals[best_index]
+        best_primary = f_vals[best_index]
+        candidate_solution = theta_vals[best_index]
+
+    solution['candidate_solution'] = candidate_solution
+    solution['best_index'] = best_index
+    solution['best_g'] = best_g_vec
+    solution['best_f'] = best_primary
+    solution['found_feasible_solution'] = found_feasible_solution
+    solution['theta_vals'] = theta_vals
+    solution['f_vals'] = f_vals
+    solution['g_vals'] = g_vals
+    solution['lamb_vals'] = lamb_vals
+    solution['L_vals'] = L_vals
 
     return solution

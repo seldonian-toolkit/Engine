@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     # 5. Run seldonian algorithm using the spec object
     SA = SeldonianAlgorithm(spec)
-    passed_safety,solution = SA.run(store_cs_values=True)
+    passed_safety,solution = SA.run()
     print(passed_safety,solution)
 
     # Check the value of the primary objective on the safety dataset

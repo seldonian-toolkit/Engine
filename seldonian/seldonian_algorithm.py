@@ -151,75 +151,41 @@ class SeldonianAlgorithm():
 				elif self.spec.sub_regime == 'regression':
 					self.spec.primary_objective = objectives.Mean_Squared_Error
 
-	def candidate_selection(self,
-		write_cs_logfile=False,
-		store_cs_values=False):
-		""" Creat the candidate selection object """
-		if self.regime == 'supervised_learning':
-			cs_kwargs = dict(
-				model=self.model,
-				candidate_dataset=self.candidate_dataset,
-				n_safety=self.n_safety,
-				parse_trees=self.parse_trees,
-				primary_objective=self.spec.primary_objective,
-				optimization_technique=self.spec.optimization_technique,
-				optimizer=self.spec.optimizer,
-				initial_solution=self.initial_solution,
-				regime=self.regime)
+	def candidate_selection(self,write_logfile):
+		""" Create the candidate selection object """
+		cs_kwargs = dict(
+			model=self.model,
+			candidate_dataset=self.candidate_dataset,
+			n_safety=self.n_safety,
+			parse_trees=self.parse_trees,
+			primary_objective=self.spec.primary_objective,
+			optimization_technique=self.spec.optimization_technique,
+			optimizer=self.spec.optimizer,
+			initial_solution=self.initial_solution,
+			regime=self.regime,
+			write_logfile=write_logfile)
 
-		elif self.regime == 'reinforcement_learning':
-			cs_kwargs = dict(
-				model=self.model,
-				candidate_dataset=self.candidate_dataset,
-				n_safety=self.n_safety,
-				parse_trees=self.parse_trees,
-				primary_objective=self.spec.primary_objective,
-				optimization_technique=self.spec.optimization_technique,
-				optimizer=self.spec.optimizer,
-				initial_solution=self.initial_solution,
-				regime=self.regime,
-				gamma=self.env_kwargs['gamma'],
-				# normalize_returns=self.normalize_returns
-				)
-			# if self.normalize_returns:
-			# 	cs_kwargs['min_return']=self.RL_environment_obj.min_return
-			# 	cs_kwargs['max_return']=self.RL_environment_obj.max_return
-
-		cs = CandidateSelection(**cs_kwargs,**self.spec.regularization_hyperparams,
-			write_logfile=write_cs_logfile,store_values=store_cs_values)
+		cs = CandidateSelection(**cs_kwargs,**self.spec.regularization_hyperparams)
 
 		return cs
 
 	def safety_test(self):
 		""" Create the safety test object """
-		if self.regime == 'supervised_learning':
-			st_kwargs = dict(
-				safety_dataset=self.safety_dataset,
-				model=self.model,parse_trees=self.spec.parse_trees,
-				regime=self.regime,
-				)	
-		elif self.regime == 'reinforcement_learning':
-			st_kwargs = dict(
-				safety_dataset=self.safety_dataset,
-				model=self.model,parse_trees=self.spec.parse_trees,
-				gamma=self.env_kwargs['gamma'],
-				regime=self.regime,
-				)
-
-			# if self.normalize_returns:
-			# 	st_kwargs['min_return']=self.RL_environment_obj.min_return
-			# 	st_kwargs['max_return']=self.RL_environment_obj.max_return
+		st_kwargs = dict(
+			safety_dataset=self.safety_dataset,
+			model=self.model,parse_trees=self.spec.parse_trees,
+			regime=self.regime,
+			)	
 		
 		st = SafetyTest(**st_kwargs)
 		return st
 
-	def run(self,write_cs_logfile=False,store_cs_values=False,debug=False):
+	def run(self,write_cs_logfile=False,debug=False):
 		"""
 		Runs seldonian algorithm using spec object
 
-		:param write_cs_logfile: Whether to write out the pickle file 
-			containing the evolution of the parameters of candidate selection
-
+		:param write_cs_logfile: Whether to write candidate selection
+			log file
 		:return: (passed_safety, solution). passed_safety 
 			indicates whether solution found during candidate selection
 			passes the safety test. solution is the optimized
@@ -227,27 +193,19 @@ class SeldonianAlgorithm():
 		:rtype: Tuple 
 		"""
 			
-		cs = self.candidate_selection(
-			write_cs_logfile=write_cs_logfile,
-			store_cs_values=store_cs_values)
+		cs = self.candidate_selection(write_logfile=write_cs_logfile)
 		solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
 			debug=debug)
 		self.has_been_run = True
-		self.cs_result = cs.optimization_result
-		
-		NSF=False
-		if type(solution) == str and solution == 'NSF':
-			NSF = True
-
-		if NSF:
-			passed_safety=False
-		else:
-			# Safety test
-			st = self.safety_test()
-			passed_safety = st.run(solution)
-		
+		self.cs_result = cs.optimization_result		
+	
+		# Safety test
+		st = self.safety_test()
+		passed_safety = st.run(solution)
+		if not passed_safety:
+			solution = "NSF"
 		return passed_safety, solution
 	
 	def get_cs_result(self):

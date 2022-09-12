@@ -611,7 +611,8 @@ def test_classification_statistics(gpa_classification_dataset):
 
 def test_NSF(gpa_regression_dataset):
 	""" Test that no solution is found for a constraint
-	that is impossible to satisfy, e.g. negative mean squared error 
+	that is impossible to satisfy, e.g. negative mean squared error.
+	Make sure that candidate selection did return a solution though
 	"""
 	rseed=0
 	np.random.seed(rseed) 
@@ -655,6 +656,10 @@ def test_NSF(gpa_regression_dataset):
 	passed_safety,solution = SA.run()
 	assert passed_safety == False
 	assert solution == 'NSF'
+
+	res = SA.get_cs_result()
+	candidate_solution = res['candidate_solution']
+	assert isinstance(candidate_solution,np.ndarray)
 
 def test_cmaes(gpa_regression_dataset):
 	""" Test that the CMA-ES black box optimizers successfully optimize the GPA 
@@ -828,10 +833,10 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	error_str = "Candidate selection has not been run yet, so result is not available.  Call run() first"
 	assert error_str in str(excinfo.value)
 	
-	passed_safety,solution = SA.run(store_cs_values=True)
+	passed_safety,solution = SA.run()
 	res = SA.get_cs_result()
 	res_keys = res.keys()
-	for key in ['candidate_solution', 'best_index', 'best_feasible_g', 'best_feasible_f', 'solution_found', 'theta_vals', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
+	for key in ['candidate_solution', 'best_index', 'best_g', 'best_f', 'theta_vals', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
 		assert key in res_keys
 
 
@@ -984,7 +989,7 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 
 	# # Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run(store_cs_values=True)
+	passed_safety,solution = SA.run()
 	assert passed_safety == False
 	g_vals = SA.cs_result['g_vals']
 	assert g_vals[1][0] == pytest.approx(0.24571729)

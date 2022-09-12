@@ -61,7 +61,6 @@ class CandidateSelection(object):
 		initial_solution=None,
 		regime='supervised_learning',
 		write_logfile=False,
-		store_values=False,
 		**kwargs):
 		self.regime = regime
 		self.model = model
@@ -92,19 +91,9 @@ class CandidateSelection(object):
 		self.initial_solution = initial_solution
 		self.candidate_solution = None
 		self.write_logfile = write_logfile
-		self.store_values = store_values
 
 		if 'reg_coef' in kwargs:
 			self.reg_coef = kwargs['reg_coef']
-
-		if self.regime == 'reinforcement_learning':
-			self.gamma = kwargs['gamma']
-			# if kwargs['normalize_returns']==True:
-			# 	self.normalize_returns=True
-			# 	self.min_return = kwargs['min_return']
-			# 	self.max_return = kwargs['max_return']
-			# else:
-			# 	self.normalize_returns=False
 
 	def run(self,**kwargs):
 		""" Run candidate selection
@@ -131,7 +120,6 @@ class CandidateSelection(object):
 			    num_iters=kwargs['num_iters'],
 				theta_init=self.initial_solution,
 				lambda_init=kwargs['lambda_init'],
-				store_values=self.write_logfile or self.store_values,
 				verbose=kwargs['verbose'],
 				debug=kwargs['debug'],
 			)
@@ -203,10 +191,8 @@ class CandidateSelection(object):
 					pickle.dump(res,outfile)
 					print(f"Wrote {filename} with candidate selection log info")
 
-			if res['solution_found']:
-				candidate_solution = res['candidate_solution']
-			else:
-				candidate_solution = 'NSF'
+			
+			candidate_solution = res['candidate_solution']
 				
 		elif self.optimization_technique == 'barrier_function':
 			if self.regime == 'reinforcement_learning':
@@ -299,13 +285,6 @@ class CandidateSelection(object):
 				branch='candidate_selection',
 				n_safety=self.n_safety,
 				regime=self.regime)
-
-			if self.regime == 'reinforcement_learning':
-				bounds_kwargs['gamma'] = self.gamma
-				# bounds_kwargs['normalize_returns'] = self.normalize_returns
-				# if self.normalize_returns:
-				# 	bounds_kwargs['min_return'] = self.min_return
-				# 	bounds_kwargs['max_return'] = self.max_return
 				
 
 			pt.propagate_bounds(**bounds_kwargs)
@@ -387,12 +366,6 @@ class CandidateSelection(object):
 				regime=self.regime
 				)
 
-			if self.regime == 'reinforcement_learning':
-				bounds_kwargs['gamma'] = self.gamma
-				# bounds_kwargs['normalize_returns'] = self.normalize_returns
-				# if self.normalize_returns:
-				# 	bounds_kwargs['min_return'] = self.min_return
-				# 	bounds_kwargs['max_return'] = self.max_return
 			pt.propagate_bounds(**bounds_kwargs)
 			upper_bounds.append(pt.root.upper)
 
