@@ -1,4 +1,4 @@
-﻿seldonian.RL.environments
+seldonian.RL.environments
 =========================
 
 .. automodule:: seldonian.RL.environments 

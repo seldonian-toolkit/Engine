@@ -44,9 +44,9 @@ The :py:mod:`seldonian.spec` module contains the classes used to define spec obj
 
 Dataset object
 ++++++++++++++
-The :py:mod:`.dataset` module contains the :py:class:`.SupervisedDataSet` (supervised learning) and the :py:class:`.RLDataSet` (reinforcement learning) classes. These objects contain the data points as well as metadata. They can be constructed manually, but we also provide a :py:class:`.DataSetLoader` class containing several convenience methods for loading data from files or arrays into the dataset objects. 
+The :py:mod:`.dataset` module contains the :py:class:`.SupervisedDataSet` (supervised learning) and the :py:class:`.RLDataSet` (reinforcement learning) classes. These objects contain the data points (supervised learning) or episodes (reinforcement learning) as well as metadata. They can be constructed manually, but we also provide a :py:class:`.DataSetLoader` class containing several convenience methods for loading data from files or arrays into the dataset objects. 
 
-For example, one can create a :py:class:`.SupervisedDataSet` from a data file and metadata file using the :py:meth:`.load_supervised_dataset` method, for example:
+For supervised learning, one can create a :py:class:`.SupervisedDataSet` object from a data file and metadata file using the :py:meth:`.load_supervised_dataset` method, for example:
 
 .. code::
 	
@@ -56,7 +56,7 @@ For example, one can create a :py:class:`.SupervisedDataSet` from a data file an
 		filename,
 		metadata_filename)
 
-The :code:`filename` parameter must point to a data file consisting of rows of numbers that are comma-separated and have no header. Categorical columns must be numerically encoded. For example, the file format might look like:
+The :code:`filename` parameter must point to a data file consisting of rows of numbers that are comma-separated and have no header. Categorical columns must be numerically encoded. For example, a supervised learning data file format might look like:
 
 .. code:: 
 
@@ -66,7 +66,42 @@ The :code:`filename` parameter must point to a data file consisting of rows of n
 	0,1,756.91,679.62,531.28,583.63,534.42,521.4,592.41,783.76,588.26,2.53333
 	...
 
-where each row represents a different sample and each column is a feature or a label. This file should include *all* of the data you have, i.e., the data before partitioning into train, test, validation splits. The Engine will partition your data internally. The column names are intentionally excluded from this file and are provided in a separate metadata file, via the :code:`metadata_filename` parameter. 
+where each row represents a different data point and each column is a feature or a label.
+
+For reinforcement learning, one can create a :py:class:`.RLDataSet` object from a data file and (optionally) a metadata file. There are two supported methods, depending on the format of the data file. For example:
+
+.. code::
+	
+	from seldonian.dataset import DataSetLoader
+	loader = DataSetLoader(regime='reinforcement_learning')
+	# method 1
+	dataset = loader.load_RL_dataset_from_csv(
+		filename)
+	# method 2
+	dataset = loader.load_RL_dataset_from_episode_file(
+		filename)
+
+
+In the first method, the comma-separated file (CSV) must have no header. Each row represents a single timestep and the columns must correspond to the episode index, observation, action, rewards, action probability. An example file with 10 episodes where observations and actions have integer types might look like this: 
+
+.. code:: 
+
+	0,0,0,0,0.25
+	0,0,1,0,0.25
+	0,1,2,0,0.25
+	0,4,1,0,0.25
+	0,5,0,0,0.25
+	...
+	9,1,2,0,0.25
+	9,4,1,0,0.25
+	9,5,0,0,0.25
+	9,2,2,0,0.25
+	9,5,2,1,0.25
+	...
+
+In the second method, the episode file must be a pickle file containing a list of :py:class:`Episode` objects. 
+
+Regardless of the regime and file format, the data file should include *all* of the data you have, i.e., before partitioning into train, test, validation splits. The Engine will partition the data internally. The column names are intentionally excluded from the data files and are provided in a separate metadata file, via the :code:`metadata_filename` parameter. In the RL case, the columns are fixed so column names are not necessary.
 
 The metadata file must be a JSON-formatted file containing several required ``key:value`` pairs depending on the regime of your problem. For supervised learning, the required keys are:
 
@@ -76,12 +111,10 @@ The metadata file must be a JSON-formatted file containing several required ``ke
 - :code:`label_column`, the name of the column that you are trying to predict
 - :code:`sensitive_columns`, a list of the column names for the `sensitive attributes <https://seldonian.cs.umass.edu/Tutorials/glossary/#sensitive_attributes>`_ in your dataset
 
-For reinforcement learning, the required keys are:
+For reinforcement learning, this file is optional, but if provided, the required keys are:
 
 - :code:`regime`, which is set to 'reinforcement_learning' in this case
 - :code:`columns`, a list of the column names in your data file
-- :code:`RL_module_name`, the name of the module within :py:mod:`.RL.environments` containing the RL environment class you want to use 
-- :code:`RL_class_name`, the name of the class representing your environment inside the module you specified via the "RL_module_name" key 
 
 Model object
 ++++++++++++
@@ -89,7 +122,7 @@ The biggest split between supervised and reinforcement learning in the Engine AP
 
 Unless you are writing your own model, you will likely only need to know which of these models best fits your application. You may also want to choose from the primary objective functions, which are written as methods of the class. The primary objective function is one of the inputs to the spec object, though a default will be chosen if you do not explicitly pass one to the spec object. 
 
-The reinforcement learning model is represented by the :py:class:`.RL_model` class. This object takes as input objects containing the RL environment and agent, two things which supervised learning models do not have.  All RL environment descriptions must live in modules within the :py:mod:`.seldonian.RL.environments` module. The class defining the environment must inherit from the :py:class:`.Environment` base class, and can override all parent methods. Likewise, all RL agent descriptions must live in modules within the :py:mod:`.seldonian.RL.Agents` module. The class defining the agent must inherit from the :py:class:`.Agent` base class, and can override all parent methods. An agent inacts a :py:class:`.Policy`. We have provided example environments, such as :py:class:`.Gridworld`, and agents, such as :py:class:`.Parameterized_non_learning_softmax_agent` which inacts the :py:class:`.Softmax` policy, to illustrate how to extend these base classes to create your own RL models.  
+The reinforcement learning model is represented by the :py:class:`.RL_model` class. This object takes as input a policy parameterization and environment-specific information, two things which supervised learning models do not have. The base policy class, :py:class:`.Policy` must be inherited in a user-defined policy class. We have provided example policies, such as the :py:class:`.Softmax` policy and :py:class:`.DiscreteSoftmax` policy, to illustrate how to extend the base classes to create your own RL policies. The environment-specific information is provied via the :code:`env_kwargs` dictionary parameter to the :py:class`.RL_model` object. This dictionary is used to pass parameters such as :math:`{\gamma}`, the discount factor, that are used in calculating importance sampling estimates. 
 
 Behavioral constraints
 ++++++++++++++++++++++
@@ -168,7 +201,7 @@ Candidate Selection
 +++++++++++++++++++
 The goal of candidate selection is to find a solution to the Seldonian ML problem which is likely to pass the `safety_test`_. Candidate selection always returns a solution, even if the probability of passing the safety test is small. Candidate selection has a method :py:meth:`.CandidateSelection.run` which runs an optimization process to find the solution. There are currently two supported optimization techniques for candidate selection, controlled by the :code:`optimization_technique` parameter of the spec object. The two supported values of this parameter are:
 
-1. :code:`barrier_function`: Black box optimization with a barrier function. In this case, a barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. When this optimization technique is used, the :code:`optimizer` parameter of the spec object can take on of these five values: :code:`"Powell"`, :code:`"CG"`, :code:`"Nelder-Mead"`, :code:`"BFGS"`, :code:`"CMA-ES"`. The first four use Scipy's `minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_ function, where the :code:`optimizer` string, e.g., :code:`"Powell"` refers to the solver method. If :code:`optimizer="CMA-ES"` then a `Covariance matrix adaptation evolution strategy <https://en.wikipedia.org/wiki/CMA-ES>`_) is used, which is implemented using the `cma <https://pypi.org/project/cma/>`_ Python package. Optimization hyperparameters for these solvers can be passed via the :code:`optimization_hyperparams` parameter to the spec object.
+1. :code:`barrier_function`: Black box optimization with a barrier function. This is currently only supported for supervised learning problems. In this case, a barrier, which is shaped like the upper bound functions, is added to the cost function when any of the constraints are violated. This forces solutions toward the feasible set. When this optimization technique is used, the :code:`optimizer` parameter of the spec object can take on of these five values: :code:`"Powell"`, :code:`"CG"`, :code:`"Nelder-Mead"`, :code:`"BFGS"`, :code:`"CMA-ES"`. The first four use Scipy's `minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_ function, where the :code:`optimizer` string, e.g., :code:`"Powell"` refers to the solver method. If :code:`optimizer="CMA-ES"` then a `Covariance matrix adaptation evolution strategy <https://en.wikipedia.org/wiki/CMA-ES>`_) is used, which is implemented using the `cma <https://pypi.org/project/cma/>`_ Python package. Optimization hyperparameters for these solvers can be passed via the :code:`optimization_hyperparams` parameter to the spec object.
 
 2. :code:`gradient_descent`: Gradient descent on a `Lagrangian <https://en.wikipedia.org/wiki/Lagrange_multiplier#:~:text=In%20mathematical%20optimization%2C%20the%20method,chosen%20values%20of%20the%20variables).>`_. For details on the form of the Lagrangian and the KKT optimization strategy see the `Algorithm details tutorial <https://seldonian.cs.umass.edu/Tutorials/tutorials/alg_details_tutorial/#kkt>`_ of the Seldonian Toolkit homepage.  
 
