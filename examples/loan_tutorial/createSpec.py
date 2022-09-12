@@ -1,6 +1,8 @@
 # createSpec.py
 import os
-from seldonian.parse_tree.parse_tree import ParseTree
+from seldonian.parse_tree.parse_tree import (ParseTree,
+    make_parse_trees_from_constraints)
+
 from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import (load_json,save_pickle,
     load_supervised_metadata)
@@ -45,24 +47,11 @@ if __name__ == '__main__':
     # constraint_strs = ['abs((FPR | [M]) - FPR) - 0.1'] 
     # constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) + abs((FNR | [M]) - (FNR | [F])) - 0.2'] 
     
-    deltas = [0.05]
-
     # For each constraint (in this case only one), make a parse tree
-    parse_trees = []
-    for ii in range(len(constraint_strs)):
-        constraint_str = constraint_strs[ii]
-
-        delta = deltas[ii]
-        # Create parse tree object
-        parse_tree = ParseTree(delta=delta,regime='supervised_learning',
-            sub_regime='classification',columns=columns)
-
-        # Fill out tree
-        parse_tree.build_tree(
-            constraint_str=constraint_str,
-            delta_weight_method='equal')
-        
-        parse_trees.append(parse_tree)
+    deltas = [0.05]
+    parse_trees = make_parse_trees_from_constraints(
+        constraint_strs,deltas,regime='supervised_learning',
+        sub_regime='classification',columns=columns)
 
     # Save spec object, using defaults where necessary
     spec = SupervisedSpec(
