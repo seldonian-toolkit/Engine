@@ -43,7 +43,19 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>General policy class where actions are discrete</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
+environment, agent, number of episodes per trial,
+and number of trials</p></li>
+<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
+of the environment</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.__repr__">
@@ -56,6 +68,12 @@
 <tbody>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.choose_action">
+<span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.choose_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines how to select an action given an observation, obs</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.construct_basis_and_linear_FA">
 <span class="sig-name descname"><span class="pre">construct_basis_and_linear_FA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.construct_basis_and_linear_FA" title="Permalink to this definition">¶</a></dt>
@@ -75,6 +93,24 @@ and number of trials</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.from_0_indexed_action_to_environment_action">
+<span class="sig-name descname"><span class="pre">from_0_indexed_action_to_environment_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_0_indexed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.from_0_indexed_action_to_environment_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert 0-indexed action to env-specific action</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.from_environment_action_to_0_indexed_action">
+<span class="sig-name descname"><span class="pre">from_environment_action_to_0_indexed_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.from_environment_action_to_0_indexed_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert env-specific action to 0 indexed action</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_action_values_given_state">
+<span class="sig-name descname"><span class="pre">get_action_values_given_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_action_values_given_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all parameter weights possible in a given observation</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current parameters (weights) of the agent</p>
@@ -83,6 +119,12 @@ and number of trials</p></li>
 <dd class="field-odd"><p>array of weights</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_prob_this_action">
+<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get probability of taking an action given an observation</p>
 </dd></dl>
 
 <dl class="py method">
@@ -169,6 +211,7 @@ space is discrete or continous</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>

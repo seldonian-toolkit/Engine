@@ -40,6 +40,8 @@
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Policy</span></span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for policies. Contains four methods which
+must be overridden in any policy implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.__init__" title="Permalink to this definition">¶</a></dt>
@@ -56,6 +58,30 @@
 <tbody>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.choose_action">
+<span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.choose_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines how to select an action given an observation, obs</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current policy parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.get_prob_this_action">
+<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get probability of taking an action given an observation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.set_new_params">
+<span class="sig-name descname"><span class="pre">set_new_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.set_new_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update policy parameters</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -107,6 +133,7 @@
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>

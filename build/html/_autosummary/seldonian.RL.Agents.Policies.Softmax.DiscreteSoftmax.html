@@ -43,8 +43,9 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Softmax where observations and actions are discrete.
-Uses cache for lookups to Q Table</p>
+<dd><p>Softmax where both observations and actions are discrete.
+Faster than just using Softmax class because 
+a cache is used for lookups to Q Table</p>
 </dd></dl>
 
 <dl class="py method">
@@ -86,15 +87,21 @@ Uses cache for lookups to Q Table</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.choose_action">
 <span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.choose_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Select an action given a observation</p>
+<dd><p>Select an action given an observation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>obs</strong> – The current observation of the agent, type depends on environment.</p>
+<dd class="field-odd"><p><strong>obs</strong> – An observation of the environment</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>array of actions</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.choose_action_from_action_values">
+<span class="sig-name descname"><span class="pre">choose_action_from_action_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.choose_action_from_action_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select an action given a list of action values (param weights)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -116,6 +123,36 @@ and number of trials</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.from_0_indexed_action_to_environment_action">
+<span class="sig-name descname"><span class="pre">from_0_indexed_action_to_environment_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_0_indexed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.from_0_indexed_action_to_environment_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert 0-indexed action to env-specific action</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.from_environment_action_to_0_indexed_action">
+<span class="sig-name descname"><span class="pre">from_environment_action_to_0_indexed_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.from_environment_action_to_0_indexed_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert env-specific action to 0 indexed action</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_action_probs_from_action_values">
+<span class="sig-name descname"><span class="pre">get_action_probs_from_action_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_action_probs_from_action_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get action probabilities given a list of action values (param weights)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_action_values_given_state">
+<span class="sig-name descname"><span class="pre">get_action_values_given_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_action_values_given_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all parameter weights possible in a given observation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_e_to_the_something_terms">
+<span class="sig-name descname"><span class="pre">get_e_to_the_something_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_e_to_the_something_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponentiate list of action values (param weights)</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current parameters (weights) of the agent</p>
@@ -129,12 +166,12 @@ and number of trials</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action">
 <span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the probability of a selected action in a given obs</p>
+<dd><p>Get the probability of a selected action in a given obsertavtion</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>observation</strong> – The current obs of the agent, type depends on environment.</p></li>
-<li><p><strong>action</strong> – The action selected, type depends on environment</p></li>
+<li><p><strong>observation</strong> – The current obseravation of the environment</p></li>
+<li><p><strong>action</strong> – The selected action</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -230,6 +267,7 @@ space is discrete or continous</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>

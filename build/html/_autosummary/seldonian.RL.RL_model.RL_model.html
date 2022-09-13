@@ -43,8 +43,16 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.RL_model.RL_model.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_model.RL_model.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parent class for all machine learning models
-used in this library.</p>
+<dd><p>Base class for all RL models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>policy</strong> (<a class="reference internal" href="seldonian.RL.Agents.Policies.Policy.Policy.html#seldonian.RL.Agents.Policies.Policy.Policy" title="seldonian.RL.Agents.Policies.Policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a>) – A policy parameterization</p></li>
+<li><p><strong>env_kwargs</strong> (<em>dict</em>) – Kwargs pertaining to environment
+such as gamma, the discount factor</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -58,6 +66,46 @@ used in this library.</p>
 <tbody>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.RL_model.RL_model.get_prob_this_action">
+<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_model.RL_model.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get action probability given a single observation, action
+pair</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observations</strong> – Array of observations</p></li>
+<li><p><strong>actions</strong> – Array of actions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability of taking this action given observation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.RL_model.RL_model.get_probs_from_observations_and_actions">
+<span class="sig-name descname"><span class="pre">get_probs_from_observations_and_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_model.RL_model.get_probs_from_observations_and_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get action probablities given a list of observations and actions 
+taken given those observations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_params</strong> – Parameter weights to use</p></li>
+<li><p><strong>observations</strong> – Array of observations</p></li>
+<li><p><strong>actions</strong> – Array of actions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of probabilities</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -94,6 +142,7 @@ used in this library.</p>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
