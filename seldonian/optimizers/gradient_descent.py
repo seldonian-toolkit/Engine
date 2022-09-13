@@ -123,6 +123,9 @@ def gradient_descent_adam(
         if verbose:
             if i % 10 == 0:
                 print(f"Iteration {i}")
+        # If any nans or infs appeared in theta, stop gradient descent
+        if np.isnan(theta).any() or np.isinf(theta).any():
+            break
         primary_val = primary_objective(theta)
         g_vec = upper_bounds_function(theta)
         g_vec = g_vec.reshape(g_vec.shape[0],1)

@@ -152,7 +152,7 @@ class SeldonianAlgorithm():
 				elif self.spec.sub_regime == 'regression':
 					self.spec.primary_objective = objectives.Mean_Squared_Error
 
-	def candidate_selection(self,write_logfile):
+	def candidate_selection(self,write_logfile=False):
 		""" Create the candidate selection object """
 		cs_kwargs = dict(
 			model=self.model,
@@ -199,6 +199,7 @@ class SeldonianAlgorithm():
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
 			debug=debug)
+	
 		self.has_been_run = True
 		self.cs_result = cs.optimization_result		
 	
@@ -206,7 +207,12 @@ class SeldonianAlgorithm():
 		st = self.safety_test()
 		passed_safety = st.run(solution)
 		if not passed_safety:
+			if debug:
+				print("Failed safety test")
 			solution = "NSF"
+		else:
+			if debug:
+				print("Passed safety test!")
 		return passed_safety, solution
 	
 	def get_cs_result(self):

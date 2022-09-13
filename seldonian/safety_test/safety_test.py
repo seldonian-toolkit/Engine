@@ -88,7 +88,6 @@ class SafetyTest(object):
 				regime=self.regime
 				)
 			
-
 			pt.propagate_bounds(**bounds_kwargs)
 			# Check if the i-th behavioral constraint is satisfied
 			upperBound = pt.root.upper 
