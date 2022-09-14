@@ -1,5 +1,8 @@
 # WARNING: naming this file "simglucose" causes some very confusing and misleading gym errors (ultimately caused by a silent conflict between that file name and the simglucose package)
-try:
+
+import warnings
+
+try:    
     import gym
     from gym.envs.registration import register
 except ImportError:
@@ -17,13 +20,14 @@ except ImportError:
 
 class Simglucose(Environment):
     def __init__(self):
-        self.num_actions = 5  # how many actions to discretize
+        self.num_actions = 10  # how many actions to discretize
         self.id = 'simglucose-adolescent2-v0'
         self.patient_name = 'adolescent#002'
-
         self.deregister_and_register()
         self.action_multiplier = 30. / (self.num_actions - 1)
-        self.gym_env = gym.make(self.id)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.gym_env = gym.make(self.id)
         self.env_description = self.create_env_description()
         self.terminal_state = False
         self.observation = None

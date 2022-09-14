@@ -14,20 +14,23 @@ def get_max_obs(episodes):
         max_obs = max(max_obs,max_obs_this_ep)
     return max_obs
 
-
-
 def main():
     """ Run a trial of episodes and save to disk
     """  
     n_episodes = 500
     the_dict = {}
     the_dict["env"] = "simglucose"
-    the_dict["agent"] = "discrete_random"
+    # the_dict["agent"] = "discrete_random"
+    the_dict["agent"] = "Parameterized_non_learning_softmax_agent"
+    the_dict["basis"] = "Fourier"
+    the_dict["order"] = 2
+    the_dict["max_coupled_vars"] = -1
     the_dict["num_episodes"] = n_episodes
-    the_dict["vis"] = True
+    the_dict["vis"] = False
     start_time = time()
-    episodes, agent = run_trial(the_dict,parallel=True)
-    save_pickle(f"simglucose_{n_episodes}episodes.pkl",episodes)
+    episodes, agent = run_trial(the_dict,parallel=False)
+    save_pickle(f"simglucose_{n_episodes}episodes_fourier.pkl",episodes)
+    assert len(episodes) == n_episodes
     print(f"data generation took {time() - start_time} seconds")
 
     max_obs = get_max_obs(episodes)

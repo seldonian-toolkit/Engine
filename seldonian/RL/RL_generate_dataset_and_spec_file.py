@@ -61,7 +61,7 @@ def get_constraint_string(env_name):
     elif env_name == "n_step_mountaincar":
         return ['J_pi_new >= -500'] #uniform random policy averaged a return of roughly -500 (sample size was 10k episodes)
     elif env_name == "simglucose":
-        return ['zzzz'] #needs updating with something reasonable
+        return ['J_pi_new >= -6.0'] #needs updating with something reasonable
     else:
         error(f"Unknown env_name {env_name}")
 
