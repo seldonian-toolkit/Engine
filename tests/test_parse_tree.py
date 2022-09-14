@@ -533,18 +533,47 @@ def test_math_functions():
 				"It appears you provided more than one argument")
 	assert str(excinfo.value) == error_str
 
-	# constraint_str = 'abs((PR | [X]), (PR | [Y]))'
-	# delta = 0.05
-	# pt = ParseTree(delta,
-	# 	regime='supervised_learning',
-	# 	sub_regime='classification',
-	# 	columns=['X','Y','Z'])
-	# # with pytest.raises(RuntimeError) as excinfo:
-	# pt.create_from_ast(constraint_str)
+	constraint_str = 'exp((PR | [X]), (PR | [Y]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised_learning',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
 	
-	# error_str = ("Please check the syntax of the function: min()."
-	# 		 " It appears you provided more than two arguments")
-	# assert str(excinfo.value) == error_str
+	error_str = ("Please check the syntax of the function: "
+				f"exp(). "
+				"It appears you provided more than one argument")
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'max((PR | [X]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised_learning',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Please check the syntax of the function: "
+				f"max(). "
+				"This function must take two arguments.")
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'min((PR | [X]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised_learning',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Please check the syntax of the function: "
+				f"min(). "
+				"This function must take two arguments.")
+	assert str(excinfo.value) == error_str
 
 def test_measure_functions_recognized():
 	delta = 0.05

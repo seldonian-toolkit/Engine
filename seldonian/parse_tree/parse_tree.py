@@ -309,6 +309,11 @@ class ParseTree(object):
 					"Please check the syntax of the function:"
 				   f" {new_node.name}()."
 				   " It appears you provided more than one argument")
+			if ast_node.func.id in ['min','max'] and len(ast_node.args) == 1:
+				raise RuntimeError(
+					"Please check the syntax of the function: "
+				   f"{new_node.name}(). "
+				   "This function must take two arguments.")
 			for ii,arg in enumerate(ast_node.args):
 				if ii == 0:
 					new_node.left = self._ast_tree_helper(arg)
