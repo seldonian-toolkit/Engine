@@ -123,9 +123,6 @@ def gradient_descent_adam(
         if verbose:
             if i % 10 == 0:
                 print(f"Iteration {i}")
-        # If any nans or infs appeared in theta, stop gradient descent
-        if np.isnan(theta).any() or np.isinf(theta).any():
-            break
         primary_val = primary_objective(theta)
         g_vec = upper_bounds_function(theta)
         g_vec = g_vec.reshape(g_vec.shape[0],1)
@@ -186,6 +183,11 @@ def gradient_descent_adam(
 
     # If theta never entered feasible set pick best g
     if not found_feasible_solution:
+        if debug:
+            print(
+                "Never found feasible solution. "
+                "Returning solution with lowest sqrt(|g|**2)"
+                )
         # best g is when norm of g is minimized
         best_index = np.argmin(np.linalg.norm(g_vals,axis=1))
         best_g_vec = g_vals[best_index]

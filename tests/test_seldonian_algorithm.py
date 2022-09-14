@@ -839,6 +839,89 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	for key in ['candidate_solution', 'best_index', 'best_g', 'best_f', 'theta_vals', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
 		assert key in res_keys
 
+def test_nans_infs_gradient_descent(gpa_regression_dataset):
+	""" Test that if nans or infs appear in theta in gradient
+	descent then the algorithm returns whatever the best solution 
+	has been so far.
+	"""
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 2.0'] 
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+	# first nans
+	initial_solution_fn_nan = lambda x,y: np.nan*np.ones(10)
+	# Create spec object
+	spec_nan = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=initial_solution_fn_nan,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 200,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# Run seldonian algorithm
+	SA_nan = SeldonianAlgorithm(spec_nan)
+	passed_safety_nan,solution_nan = SA_nan.run(debug=True)
+	assert passed_safety_nan == False
+	assert solution_nan == 'NSF'
+
+	# now infs
+	initial_solution_fn_inf = lambda x,y: np.inf*np.ones(10)
+	# Create spec object
+	spec_inf = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=initial_solution_fn_inf,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 200,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# Run seldonian algorithm
+	SA_inf = SeldonianAlgorithm(spec_inf)
+	passed_safety_inf,solution_inf = SA_inf.run(debug=True)
+	assert passed_safety_inf == False
+	assert solution_inf == 'NSF'
+	
+
 
 """ RL based tests """
 
