@@ -295,7 +295,6 @@ class ParseTree(object):
 				ast_node.func.id not in self.available_measure_functions
 				):
 			if len(ast_node.args) == 0: 
-				
 				raise RuntimeError(
 					"Please check the syntax of the function: "
 				   f" {new_node.name}()."
@@ -305,6 +304,11 @@ class ParseTree(object):
 					"Please check the syntax of the function:"
 				   f" {new_node.name}()."
 				   " It appears you provided more than two arguments")
+			if ast_node.func.id in ['abs','exp'] and len(ast_node.args) > 1:
+				raise RuntimeError(
+					"Please check the syntax of the function:"
+				   f" {new_node.name}()."
+				   " It appears you provided more than one argument")
 			for ii,arg in enumerate(ast_node.args):
 				if ii == 0:
 					new_node.left = self._ast_tree_helper(arg)

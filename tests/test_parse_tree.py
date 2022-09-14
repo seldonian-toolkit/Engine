@@ -518,6 +518,21 @@ def test_math_functions():
 			 " It appears you provided more than two arguments")
 	assert str(excinfo.value) == error_str
 
+
+	constraint_str = 'abs((PR | [X]), (PR | [Y]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised_learning',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Please check the syntax of the function: "
+				f"abs(). "
+				"It appears you provided more than one argument")
+	assert str(excinfo.value) == error_str
+
 	# constraint_str = 'abs((PR | [X]), (PR | [Y]))'
 	# delta = 0.05
 	# pt = ParseTree(delta,
