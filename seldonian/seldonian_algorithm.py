@@ -152,7 +152,7 @@ class SeldonianAlgorithm():
 				elif self.spec.sub_regime == 'regression':
 					self.spec.primary_objective = objectives.Mean_Squared_Error
 
-	def candidate_selection(self,write_logfile):
+	def candidate_selection(self,write_logfile=False):
 		""" Create the candidate selection object """
 		cs_kwargs = dict(
 			model=self.model,
@@ -201,6 +201,10 @@ class SeldonianAlgorithm():
 			debug=debug)
 		self.has_been_run = True
 		self.cs_result = cs.optimization_result		
+		# solution = np.array([
+		# 	[ 0.32139595, -0.32150993,  0.31890747, -0.31550895, -0.32887649,],
+		# 	[ 0.3243031,  -0.31302794,  0.31823579, -0.31966701,  0.31207868,],
+		# 	[-0.32055134,  0.32356196, -0.31955357,  0.31480999,  0.31859902,]])
 	
 		# Safety test
 		st = self.safety_test()

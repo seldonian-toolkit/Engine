@@ -705,5 +705,8 @@ def vector_IS_estimate(model, theta, data_dict):
 		pi_ratio_prod = np.prod(pi_news / ep.pis)
 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		result.append(pi_ratio_prod * weighted_return)
-
+	# import matplotlib.pyplot as plt
+	# plt.hist(result)
+	# plt.show()
+	# input("wait")
 	return np.array(result)

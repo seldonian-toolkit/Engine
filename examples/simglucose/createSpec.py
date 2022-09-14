@@ -15,7 +15,7 @@ from seldonian.RL.environments.simglucose_env import Simglucose
 
 if __name__ == '__main__':
     # Load data file
-    episode_file = "../../static/datasets/RL/simglucose/simglucose_500episodes_fourier.pkl"
+    episode_file = "../../static/datasets/RL/simglucose/simglucose_1000episodes.pkl"
 
     episodes = load_pickle(episode_file)
     dataset = RLDataSet(episodes=episodes)
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     obs_space_bounds = np.array([[0, obs_max]])
     observation_space = Continuous_Space(obs_space_bounds)
     num_actions = env.num_actions # should be >=5
-    assert num_actions == 10
+    assert num_actions == 5
     action_space = Discrete_Space(0, num_actions-1)
     env_description =  Env_Description(observation_space, action_space)
     # Try with same Fourier basis as mountain car

@@ -20,7 +20,7 @@ except ImportError:
 
 class Simglucose(Environment):
     def __init__(self):
-        self.num_actions = 10  # how many actions to discretize
+        self.num_actions = 5  # how many actions to discretize
         self.id = 'simglucose-adolescent2-v0'
         self.patient_name = 'adolescent#002'
         self.deregister_and_register()
