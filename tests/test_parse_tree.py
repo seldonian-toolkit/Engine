@@ -1431,3 +1431,47 @@ def test_build_tree():
 	assert pt2.base_node_dict['FNR']['upper'] == float('inf')
 	assert pt2.base_node_dict['FNR']['bound_computed'] == False
 
+def test_bad_delta():
+	""" Test that supplying delta not in (0,1) raises a ValueError
+	"""
+	constraint_str = 'FPR <= 0.1'
+	delta = 0.0
+	with pytest.raises(ValueError) as excinfo:
+		pt = ParseTree(
+			delta,
+			regime='supervised_learning',
+			sub_regime='classification')	
+
+	error_str = ("delta must be in (0,1)")
+	assert str(excinfo.value) == error_str
+
+	delta = 1.0
+	with pytest.raises(ValueError) as excinfo:
+		pt = ParseTree(
+			delta,
+			regime='supervised_learning',
+			sub_regime='classification')	
+
+	error_str = ("delta must be in (0,1)")
+	assert str(excinfo.value) == error_str
+	
+	delta = -2.5
+	with pytest.raises(ValueError) as excinfo:
+		pt = ParseTree(
+			delta,
+			regime='supervised_learning',
+			sub_regime='classification')	
+
+	error_str = ("delta must be in (0,1)")
+	assert str(excinfo.value) == error_str
+
+	delta = 7
+	with pytest.raises(ValueError) as excinfo:
+		pt = ParseTree(
+			delta,
+			regime='supervised_learning',
+			sub_regime='classification')	
+
+	error_str = ("delta must be in (0,1)")
+	assert str(excinfo.value) == error_str
+	

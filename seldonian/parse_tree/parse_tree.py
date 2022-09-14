@@ -82,6 +82,8 @@ class ParseTree(object):
 			for supervised classification.
 		:vartype available_measure_functions: int
 		"""
+		if not (0.0 < delta < 1.0):
+			raise ValueError("delta must be in (0,1)")
 		self.delta = delta
 		self.regime = regime
 		self.sub_regime = sub_regime
