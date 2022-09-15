@@ -38,7 +38,7 @@ if __name__ == '__main__':
         env_description=env_description)
     env_kwargs={'gamma':1.0}
     save_dir = '.'
-    constraint_strs = ['J_pi_new >= -6.0']
+    constraint_strs = ['J_pi_new >= -5.5']
     deltas=[0.05]
 
     createRLSpec(
@@ -50,6 +50,7 @@ if __name__ == '__main__':
         frac_data_in_safety=0.6,
         initial_solution_fn=None,
         use_builtin_primary_gradient_fn=False,
+        regularization_hyperparams={'reg_coef':0.2},
         save=True,
         save_dir=save_dir,
         verbose=True

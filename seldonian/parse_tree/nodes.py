@@ -379,6 +379,7 @@ class BaseNode(Node):
 			bound_method = kwargs['bound_method']
 
 			if bound_method == 'ttest':
+				# print("CS mean,std",data.mean(),stddev(data))
 				lower = data.mean() - 2*stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
 				raise NotImplementedError(f"Bounding method {bound_method} is not supported")
@@ -490,6 +491,7 @@ class BaseNode(Node):
 		if 'bound_method' in kwargs:
 			bound_method = kwargs['bound_method']
 			if bound_method == 'ttest':	
+				# print("ST mean,std",data.mean(),stddev(data))
 				lower = data.mean() - stddev(data) / np.sqrt(datasize) * tinv(1.0 - delta, datasize - 1)
 			else:
 				raise NotImplementedError(

@@ -151,7 +151,7 @@ class SeldonianAlgorithm():
 					self.spec.primary_objective	= objectives.logistic_loss
 				elif self.spec.sub_regime == 'regression':
 					self.spec.primary_objective = objectives.Mean_Squared_Error
-
+					
 	def candidate_selection(self,write_logfile=False):
 		""" Create the candidate selection object """
 		cs_kwargs = dict(

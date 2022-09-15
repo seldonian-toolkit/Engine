@@ -703,6 +703,13 @@ def vector_IS_estimate(model, theta, data_dict):
 		pi_news = model.get_probs_from_observations_and_actions(
 			theta, ep.observations, ep.actions)
 		pi_ratio_prod = np.prod(pi_news / ep.pis)
+		print("pi_news:")
+		print(pi_news)
+		print("pi_bs:")
+		print(ep.pis)
+		print("pi_ratio_prod:")
+		print(pi_ratio_prod)
+		print()
 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		result.append(pi_ratio_prod * weighted_return)
 	# import matplotlib.pyplot as plt

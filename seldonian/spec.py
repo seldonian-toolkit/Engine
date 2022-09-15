@@ -395,6 +395,7 @@ def createRLSpec(
 	frac_data_in_safety=0.6,
 	initial_solution_fn=None,
 	use_builtin_primary_gradient_fn=False,
+	regularization_hyperparams={},
 	save=False,
 	save_dir='.',
 	verbose=False):
@@ -447,7 +448,7 @@ def createRLSpec(
 			'gradient_library': 'autograd',
 			'verbose': verbose,
 		},
-		regularization_hyperparams={},
+		regularization_hyperparams=regularization_hyperparams,
 	)
 
 	if save:

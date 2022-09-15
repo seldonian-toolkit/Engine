@@ -44,6 +44,8 @@ def run_trial(hyperparameter_and_setting_dict,
     print(f"Have {num_episodes} episodes in trial")
     agent = create_agent(hyperparameter_and_setting_dict)
     if model_params is not None:
+        # print("Setting new model params:")
+        # print(model_params)
         agent.set_new_params(model_params)
 
     env = create_env(hyperparameter_and_setting_dict)
@@ -87,8 +89,11 @@ def run_episode(agent, env):
     while not env.terminated():
         action = agent.choose_action(observation)
         reward = env.transition(action)
+        
         episodic_return += reward
         next_observation = env.get_observation()
+        print("obs,action,reward,next_obs:")
+        print(observation,action,reward,next_observation)
         agent.update(observation, next_observation, reward, env.terminated())
 
         observations.append(observation)
@@ -113,6 +118,7 @@ def run_episode_from_dict(hyperparameter_and_setting_dict,model_params=None):
     env_desc = env.get_env_description()
     agent = create_agent(hyperparameter_and_setting_dict)
     if model_params is not None:
+        # print("Setting new params")
         # set agent's weights to the trained model weights
         agent.set_new_params(model_params)
     observations = []

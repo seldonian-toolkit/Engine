@@ -19,18 +19,22 @@ def get_max_obs(episodes):
 def main():
     """ Run a trial of episodes and save to disk
     """  
-    n_episodes = 10
+    n_episodes = 100
     the_dict = {}
     the_dict["env"] = "simglucose"
-    # the_dict["agent"] = "discrete_random"
     the_dict["agent"] = "Parameterized_non_learning_softmax_agent"
+    the_dict["basis"] = "Fourier"
+    the_dict["order"] = 2
+    the_dict["max_coupled_vars"] = -1
     the_dict["num_episodes"] = n_episodes
+    the_dict["num_trials"] = 1
     the_dict["vis"] = True
     start_time = time()
-    np.random.seed(42)
-    episodes, agent = run_trial(the_dict,parallel=False)
     solution = np.ones((3,5))
-    agent.set_new_params(solution)
+    solution[:,:] = [-1000,0,0,0,0]
+
+    episodes, agent = run_trial(the_dict,parallel=True,model_params=solution)
+    
     # save_pickle(f"simglucose_{n_episodes}episodes.pkl",episodes)
     print(f"data generation took {time() - start_time} seconds")
 

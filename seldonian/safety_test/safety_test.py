@@ -94,6 +94,7 @@ class SafetyTest(object):
 			upperBound = pt.root.upper 
 			if upperBound > 0.0: # If the current constraint was not satisfied, the safety test failed
 				passed = False
+			print(f"Safety test upper bound: {upperBound}")
 			# # reset bounds and data for each base node
 			# pt.reset_base_node_dict(reset_data=True)
 

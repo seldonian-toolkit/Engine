@@ -336,8 +336,8 @@ class CandidateSelection(object):
 				data_dict)
 
 			if hasattr(self,'reg_coef'):
-				# reg_term = self.reg_coef*np.linalg.norm(theta)
-				reg_term = self.reg_coef*np.dot(theta.T,theta)
+				reg_term = self.reg_coef*np.linalg.norm(theta)
+				# reg_term = self.reg_coef*np.dot(theta.T,theta)
 			else:
 				reg_term = 0
 			result += reg_term
