@@ -22,20 +22,20 @@ def main():
     n_episodes = 10
     the_dict = {}
     the_dict["env"] = "simglucose"
-    # the_dict["agent"] = "discrete_random"
-    the_dict["agent"] = "Parameterized_non_learning_softmax_agent"
+    the_dict["agent"] = "discrete_random"
+    # the_dict["agent"] = "Parameterized_non_learning_softmax_agent"
     the_dict["num_episodes"] = n_episodes
-    the_dict["vis"] = True
+    the_dict["vis"] = False
     start_time = time()
     np.random.seed(42)
-    episodes, agent = run_trial(the_dict,parallel=False)
-    solution = np.ones((3,5))
-    agent.set_new_params(solution)
-    # save_pickle(f"simglucose_{n_episodes}episodes.pkl",episodes)
+    episodes, agent = run_trial(the_dict,parallel=True)
+    # solution = np.ones((3,5))
+    # agent.set_new_params(solution)
+    save_pickle(f"simglucose_{n_episodes}episodes_10actions.pkl",episodes)
     print(f"data generation took {time() - start_time} seconds")
 
-    # max_obs = get_max_obs(episodes)
-    # print(f"Max observation over {n_episodes} episodes={max_obs}")
+    max_obs = get_max_obs(episodes)
+    print(f"Max observation over {n_episodes} episodes={max_obs}")
     
     # Calculate J, the discounted sum of rewards
     returns = np.array([weighted_sum_gamma(ep.rewards,gamma=1.0) for ep in episodes])

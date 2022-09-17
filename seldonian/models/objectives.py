@@ -645,6 +645,79 @@ def vector_True_Negative_Rate(model,theta,X,Y):
 	return 1.0 - prediction[pos_mask]
 
 """ RL """
+# def IS_estimate(model,theta,data_dict):
+# 	""" Calculate the unweighted importance sampling estimate
+# 	on all episodes in the dataframe
+	
+# 	:param model: SeldonianModel instance
+# 	:param theta: The parameter weights
+# 	:type theta: numpy ndarray
+
+# 	:param dataset: The object containing data and metadata
+# 	:type dataset: dataset.Dataset object
+
+# 	:return: The IS estimate calculated over all episodes
+# 	:rtype: float
+# 	"""
+# 	episodes = data_dict['episodes']
+# 	if 'gamma' in model.env_kwargs:
+# 		gamma = model.env_kwargs['gamma']
+# 	else:
+# 		gamma = 1.0
+
+# 	IS_estimate = 0
+# 	for ii, ep in enumerate(episodes):
+# 		pi_news = model.get_probs_from_observations_and_actions(
+# 			theta, ep.observations, ep.actions)
+# 		pi_ratios = pi_news / ep.pis
+# 		pi_ratio_prod = np.prod(pi_ratios)
+# 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
+# 		IS_estimate += pi_ratio_prod * weighted_return
+
+# 	IS_estimate /= len(episodes)
+
+# 	return IS_estimate
+
+# def vector_IS_estimate(model, theta, data_dict):
+# 	""" Calculate the unweighted importance sampling estimate
+# 	on each episodes in the dataframe
+	
+# 	:param model: SeldonianModel instance
+# 	:param theta: The parameter weights
+# 	:type theta: numpy ndarray
+
+# 	:param dataframe: Contains the episodes
+# 	:type dataframe: pandas dataframe
+
+# 	:return: A vector of IS estimates calculated for each episode
+# 	:rtype: numpy ndarray(float)
+# 	"""
+# 	episodes = data_dict['episodes']
+# 	episodes = data_dict['episodes']
+# 	if 'gamma' in model.env_kwargs:
+# 		gamma = model.env_kwargs['gamma']
+# 	else:
+# 		gamma = 1.0
+# 	result = []
+# 	for ii, ep in enumerate(episodes):
+# 		pi_news = model.get_probs_from_observations_and_actions(
+# 			theta, ep.observations, ep.actions)
+# 		pi_ratio_prod = np.prod(pi_news / ep.pis)
+# 		# print("pi_news:")
+# 		# print(pi_news)
+# 		# print("pi_bs:")
+# 		# print(ep.pis)
+# 		# print("pi_ratio_prod:")
+# 		# print(pi_ratio_prod)
+# 		# print()
+# 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
+# 		result.append(pi_ratio_prod * weighted_return)
+# 	# import matplotlib.pyplot as plt
+# 	# plt.hist(result)
+# 	# plt.show()
+# 	# input("wait")
+# 	return np.array(result)
+
 def IS_estimate(model,theta,data_dict):
 	""" Calculate the unweighted importance sampling estimate
 	on all episodes in the dataframe
@@ -667,9 +740,9 @@ def IS_estimate(model,theta,data_dict):
 
 	IS_estimate = 0
 	for ii, ep in enumerate(episodes):
-		pi_news = model.get_probs_from_observations_and_actions(
-			theta, ep.observations, ep.actions)
-		pi_ratios = pi_news / ep.pis
+		pi_mixeds = model.get_probs_from_observations_and_actions_and_probabilities(
+			theta, ep.observations, ep.actions, ep.pis)
+		pi_ratios = pi_mixeds / ep.pis
 		pi_ratio_prod = np.prod(pi_ratios)
 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		IS_estimate += pi_ratio_prod * weighted_return
@@ -700,16 +773,16 @@ def vector_IS_estimate(model, theta, data_dict):
 		gamma = 1.0
 	result = []
 	for ii, ep in enumerate(episodes):
-		pi_news = model.get_probs_from_observations_and_actions(
-			theta, ep.observations, ep.actions)
-		pi_ratio_prod = np.prod(pi_news / ep.pis)
-		print("pi_news:")
-		print(pi_news)
-		print("pi_bs:")
-		print(ep.pis)
-		print("pi_ratio_prod:")
-		print(pi_ratio_prod)
-		print()
+		pi_mixeds = model.get_probs_from_observations_and_actions_and_probabilities(
+			theta, ep.observations, ep.actions, ep.pis)
+		pi_ratio_prod = np.prod(pi_mixeds / ep.pis)
+		# print("pi_news:")
+		# print(pi_news)
+		# print("pi_bs:")
+		# print(ep.pis)
+		# print("pi_ratio_prod:")
+		# print(pi_ratio_prod)
+		# print()
 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		result.append(pi_ratio_prod * weighted_return)
 	# import matplotlib.pyplot as plt

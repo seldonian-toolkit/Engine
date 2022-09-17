@@ -47,15 +47,28 @@ class RL_model(SeldonianModel): #consist of agent, env
 
 		return np.array(probs)
 
-	def get_prob_this_action(self, observation, action):
-		""" Get action probability given a single observation, action
-		pair 
+
+	def get_probs_from_observations_and_actions_and_probabilities(
+		self, new_params, observations, actions, pi_bs):
+		""" Get action probablities given a list of observations, actions,
+		and behavior policy probabilities. Used for mixed policies.
 		
+		:param new_params: Parameter weights to use
 		:param observations: Array of observations
 		:param actions: Array of actions
+		:param pi_bs: Array of probabilities of actions under behavior policy
 
-		:return: Probability of taking this action given observation
-		:rtype: float
+		:return: Array of probabilities
 		"""
+		self.policy.set_new_params(new_params)
+		num_obs = len(observations)
+		if num_obs != len(actions):
+			error(f"different number of observations ({observations}) and actions ({actions})")
 
-		return self.policy.get_prob_this_action(observation, action)
+		probs = list(map(self.policy.get_prob_this_action,
+                    observations,
+                    actions,
+                    pi_bs))
+
+		return np.array(probs)
+

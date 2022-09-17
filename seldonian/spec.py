@@ -394,6 +394,7 @@ def createRLSpec(
 	env_kwargs={},
 	frac_data_in_safety=0.6,
 	initial_solution_fn=None,
+	primary_objective=None,
 	use_builtin_primary_gradient_fn=False,
 	regularization_hyperparams={},
 	save=False,
@@ -415,7 +416,8 @@ def createRLSpec(
 	"""
 	from seldonian.RL.RL_model import RL_model
 	# Define primary objective
-	primary_objective = objectives.IS_estimate
+	if primary_objective is None:
+		primary_objective = objectives.IS_estimate
 
 	# Create parse trees
 	parse_trees = make_parse_trees_from_constraints(

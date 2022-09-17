@@ -10,12 +10,14 @@ from seldonian.RL.Env_Description.Env_Description import (
 from seldonian.RL.Env_Description.Spaces import (
     Discrete_Space,Continuous_Space)
 
-from seldonian.RL.Agents.Policies.Softmax import Softmax
+from seldonian.models import objectives
+from seldonian.RL.Agents.Policies.Softmax import (Softmax,
+    MixedSoftmax)
 from seldonian.RL.environments.simglucose_env import Simglucose
 
 if __name__ == '__main__':
     # Load data file
-    episode_file = "../../static/datasets/RL/simglucose/simglucose_1000episodes.pkl"
+    episode_file = "../../static/datasets/RL/simglucose/simglucose_500episodes_10actions.pkl"
 
     episodes = load_pickle(episode_file)
     dataset = RLDataSet(episodes=episodes)
@@ -25,7 +27,7 @@ if __name__ == '__main__':
     obs_space_bounds = np.array([[0, obs_max]])
     observation_space = Continuous_Space(obs_space_bounds)
     num_actions = env.num_actions # should be >=5
-    assert num_actions == 5
+    assert num_actions == 10
     action_space = Discrete_Space(0, num_actions-1)
     env_description =  Env_Description(observation_space, action_space)
     # Try with same Fourier basis as mountain car
@@ -34,8 +36,9 @@ if __name__ == '__main__':
     hyperparam_and_setting_dict["order"] = 2
     hyperparam_and_setting_dict["max_coupled_vars"] = -1
 
-    policy = Softmax(hyperparam_and_setting_dict=hyperparam_and_setting_dict,
-        env_description=env_description)
+    policy = MixedSoftmax(hyperparam_and_setting_dict=hyperparam_and_setting_dict,
+        env_description=env_description,alpha=0.5)
+
     env_kwargs={'gamma':1.0}
     save_dir = '.'
     constraint_strs = ['J_pi_new >= -5.5']
@@ -49,8 +52,9 @@ if __name__ == '__main__':
         env_kwargs=env_kwargs,
         frac_data_in_safety=0.6,
         initial_solution_fn=None,
+        primary_objective=objectives.IS_estimate,
         use_builtin_primary_gradient_fn=False,
-        regularization_hyperparams={'reg_coef':0.2},
+        # regularization_hyperparams={'reg_coef':0.2},
         save=True,
         save_dir=save_dir,
         verbose=True

@@ -76,6 +76,41 @@ class Softmax(Discrete_Action_Policy):
         return action_probs[this_action]
 
 
+class MixedSoftmax(Softmax):
+    def __init__(self, hyperparam_and_setting_dict, env_description,alpha=0.5):
+        """ Softmax mixed policy, as in https://people.cs.umass.edu/~pthomas/papers/Thomas2015b.pdf
+        see equation for mu in last paragraph before Section 2.1. Stationarity
+
+        :param hyperparameter_and_setting_dict: Specifies the
+            environment, agent, number of episodes per trial,
+            and number of trials
+
+        :param env_description: an object for accessing attributes
+            of the environment
+        :type env_description: :py:class:`.Env_Description`
+
+        :param alpha: The mixing hyperparameter. 100%alpha is how far
+            from behavior policy the mixed policy can
+        """
+        super().__init__(hyperparam_and_setting_dict, env_description)
+        self.alpha = alpha
+
+    def get_prob_this_action(self, observation, action, pi_b):
+        """ Get the probability of a selected action in a given obsertavtion
+
+        :param observation: The current obseravation of the environment
+        :param action: The selected action
+
+        :return: probability of action
+        :rtype: float
+        """
+        action_values = self.get_action_values_given_state(observation)
+        action_probs = self.get_action_probs_from_action_values(action_values)
+        this_action = self.from_environment_action_to_0_indexed_action(action)
+        pi_new = action_probs[this_action]
+        pi_mixed = self.alpha*pi_new + (1-self.alpha)*pi_b
+        return pi_mixed
+
 
 class DiscreteSoftmax(Softmax):
     def __init__(self, hyperparam_and_setting_dict, env_description):

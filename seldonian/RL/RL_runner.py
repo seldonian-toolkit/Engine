@@ -92,8 +92,8 @@ def run_episode(agent, env):
         
         episodic_return += reward
         next_observation = env.get_observation()
-        print("obs,action,reward,next_obs:")
-        print(observation,action,reward,next_observation)
+        # print("obs,action,reward,next_obs:")
+        # print(observation,action,reward,next_observation)
         agent.update(observation, next_observation, reward, env.terminated())
 
         observations.append(observation)
