@@ -921,6 +921,65 @@ def test_nans_infs_gradient_descent(gpa_regression_dataset):
 	assert passed_safety_inf == False
 	assert solution_inf == 'NSF'
 	
+def test_run_safety_test_only(gpa_regression_dataset):
+	""" Test that the after running the SA on the 
+	gpa regression example, we can get the 
+	full candidate selection solution dictionary
+	from gradient descent as a method call on the
+	SA() object.
+	
+	Also check that before we run SA.run() this same 
+	method gives us an error. 
+	"""
+
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 2.0'] 
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 100,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# # Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	# Try to get candidate solution result before running
+	test_solution = np.array(
+		[ 4.17882259e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
+  3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098727e-03,
+ -3.82405534e-04,  2.29938169e-04])
+	passed_safety,solution = SA.run_safety_test(test_solution)
+	assert passed_safety == True
+	assert np.allclose(test_solution,solution)
+	
 
 
 """ RL based tests """

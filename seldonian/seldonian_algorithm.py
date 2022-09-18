@@ -195,7 +195,7 @@ class SeldonianAlgorithm():
 		"""
 			
 		cs = self.candidate_selection(write_logfile=write_cs_logfile)
-		solution = cs.run(**self.spec.optimization_hyperparams,
+		candidate_solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
 			debug=debug)
@@ -204,17 +204,32 @@ class SeldonianAlgorithm():
 		self.cs_result = cs.optimization_result		
 	
 		# Safety test
+		passed_safety, solution = self.run_safety_test(
+			candidate_solution,debug=debug)
+		return passed_safety, solution
+	
+	def run_safety_test(self,candidate_solution,debug=False):
+		"""
+		Runs safety test using solution from candidate selection
+
+		:param candidate_solution: model weights from candidate selection
+			or other process
+		"""
+			
+		# Safety test
 		st = self.safety_test()
-		passed_safety = st.run(solution)
+		passed_safety = st.run(candidate_solution)
 		if not passed_safety:
 			if debug:
 				print("Failed safety test")
 			solution = "NSF"
 		else:
+			solution = candidate_solution
 			if debug:
 				print("Passed safety test!")
 		return passed_safety, solution
 	
+
 	def get_cs_result(self):
 		if not self.has_been_run:
 			raise ValueError(
