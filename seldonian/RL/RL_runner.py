@@ -10,6 +10,9 @@ from seldonian.RL.environments.simglucose_env import *
 
 from seldonian.dataset import Episode
 
+import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor
+
 def run_all_trials(hyperparameter_and_setting_dict):
     """ Run many trials, each of which consist
     of the same number of episodes.
@@ -27,23 +30,46 @@ def run_all_trials(hyperparameter_and_setting_dict):
         trials.append(run_trial(hyperparameter_and_setting_dict)[0])
     return trials
 
-def run_trial(hyperparameter_and_setting_dict):
+def run_trial(hyperparameter_and_setting_dict,
+    model_params=None,parallel=False,n_workers=8):
     """ Run a single trial consists of an arbitrary number of episodes.
     
     :param hyperparameter_and_setting_dict: Specifies the
         environment, agent and number of episodes to run
     :type hyperparameter_and_setting_dict: dict
+    :model_params: Policy parameters to set before running the trial
+    :parallel: Whether to use parallel processing
+    :n_workers: Number of cpus if using parallel processing
 
     :return: (List of episodes, agent)
     """
-    agent = create_agent(hyperparameter_and_setting_dict)
-    env = create_env(hyperparameter_and_setting_dict)
     episodes = []
+    num_episodes = hyperparameter_and_setting_dict["num_episodes"]
+    print(f"Have {num_episodes} episodes in trial")
+    agent = create_agent(hyperparameter_and_setting_dict)
+    if model_params is not None:
+        # print("Setting new model params:")
+        # print(model_params)
+        agent.set_new_params(model_params)
 
+    env = create_env(hyperparameter_and_setting_dict)
     if hyperparameter_and_setting_dict["vis"]:
         env.start_visualizing()
-    for episode_num in range(hyperparameter_and_setting_dict["num_episodes"]):
-        episodes.append(run_episode(agent, env))
+
+    if parallel:
+        from concurrent.futures import ProcessPoolExecutor
+        import multiprocessing as mp
+        param1 = (hyperparameter_and_setting_dict for _ in range(num_episodes))
+        param2 = (model_params for _ in range(num_episodes))
+        # run_episode_from_dict(hyperparameter_and_setting_dict,model_params)
+        with ProcessPoolExecutor(max_workers=n_workers,
+            mp_context=mp.get_context('fork')) as ex:
+            results = ex.map(run_episode_from_dict,param1,param2)
+            for ep in results:
+                episodes.append(ep)
+    else:
+        for episode_num in range(num_episodes):
+            episodes.append(run_episode(agent, env))
     return episodes, agent
 
 def run_trial_given_agent_and_env(agent,env,num_episodes):
@@ -71,6 +97,46 @@ def run_episode(agent, env):
     :return: RL Episode
     :rtype: :py:class:`.Episode`
     """
+    observations = []
+    actions = []
+    rewards = []
+    prob_actions = []
+
+    env.reset()
+    observation = env.get_observation()
+    episodic_return = 0.0
+    while not env.terminated():
+        action = agent.choose_action(observation)
+        reward = env.transition(action)
+        episodic_return += reward
+        next_observation = env.get_observation()
+        agent.update(observation, next_observation, reward, env.terminated())
+
+        observations.append(observation)
+        actions.append(action)
+        rewards.append(reward)
+        prob_actions.append(agent.get_prob_this_action(observation, action))
+
+        observation = next_observation
+
+    return Episode(observations, actions, rewards, prob_actions)
+
+def run_episode_from_dict(hyperparameter_and_setting_dict,model_params=None):
+    """ Run a single episode 
+
+    :param agent: RL Agent 
+    :param env: RL Environment 
+
+    :return: RL Episode
+    :rtype: :py:class:`.Episode`
+    """
+    env = create_env(hyperparameter_and_setting_dict)
+    env_desc = env.get_env_description()
+    agent = create_agent(hyperparameter_and_setting_dict)
+    if model_params is not None:
+        # print("Setting new params")
+        # set agent's weights to the trained model weights
+        agent.set_new_params(model_params)
     observations = []
     actions = []
     rewards = []
