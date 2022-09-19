@@ -202,7 +202,12 @@ class SeldonianAlgorithm():
 	
 		self.has_been_run = True
 		self.cs_result = cs.optimization_result		
-	
+		if candidate_solution == 'NSF':
+			# can happen if nan or inf appeared in theta during optimization
+			solution = 'NSF'
+			passed_safety = False
+			return passed_safety,solution
+			
 		# Safety test
 		passed_safety, solution = self.run_safety_test(
 			candidate_solution,debug=debug)

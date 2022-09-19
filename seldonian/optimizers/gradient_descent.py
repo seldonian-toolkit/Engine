@@ -93,6 +93,7 @@ def gradient_descent_adam(
     # Initialize params for tracking best solution
     best_primary = np.inf # minimizing f so want it to be lowest possible
     best_index = 0  
+    candidate_solution = None
 
     # If we never enter feasible set, we still need to know what the solution was
     # when g was minimum
@@ -175,7 +176,11 @@ def gradient_descent_adam(
         
         # If any values in lambda vector dip below 0, force them to be zero
         lamb[lamb<0]=0
+        
+        # if nans or infs appear in any quantities then stop gradient descent
+        # and return NSF
         if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
+            candidate_solution = "NSF"
             break
 
     solution = {}
@@ -183,16 +188,26 @@ def gradient_descent_adam(
 
     # If theta never entered feasible set pick best g
     if not found_feasible_solution:
-        if debug:
-            print(
-                "Never found feasible solution. "
-                "Returning solution with lowest sqrt(|g|**2)"
-                )
-        # best g is when norm of g is minimized
-        best_index = np.argmin(np.linalg.norm(g_vals,axis=1))
-        best_g_vec = g_vals[best_index]
-        best_primary = f_vals[best_index]
-        candidate_solution = theta_vals[best_index]
+        if candidate_solution == 'NSF':
+            if debug:
+                print(
+                    "NaN or Inf appeared in gradient descent terms "
+                    "Returning NSF"
+                    )
+            best_index = None
+            best_g_vec = None
+            best_primary = None
+        else:   
+            if debug:
+                print(
+                    "Never found feasible solution. "
+                    "Returning solution with lowest sqrt(|g|**2)"
+                    )
+            # best g is when norm of g is minimized
+            best_index = np.argmin(np.linalg.norm(g_vals,axis=1))
+            best_g_vec = g_vals[best_index]
+            best_primary = f_vals[best_index]
+            candidate_solution = theta_vals[best_index]
 
     solution['candidate_solution'] = candidate_solution
     solution['best_index'] = best_index

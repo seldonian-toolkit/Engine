@@ -654,6 +654,7 @@ def test_NSF(gpa_regression_dataset):
 	# Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)
 	passed_safety,solution = SA.run()
+	print(f"Solution: {solution}")
 	assert passed_safety == False
 	assert solution == 'NSF'
 
