@@ -95,19 +95,14 @@ class MixedSoftmax(Softmax):
         super().__init__(hyperparam_and_setting_dict, env_description)
         self.alpha = alpha
 
-    def get_prob_this_action(self, observation, action, pi_b):
-        """ Get the probability of a selected action in a given obsertavtion
 
-        :param observation: The current obseravation of the environment
-        :param action: The selected action
-
-        :return: probability of action
-        :rtype: float
+    def get_action_probs_from_action_values(self, action_values):
+        """ Get action probabilities given a list of action values (param weights)
         """
-        action_values = self.get_action_values_given_state(observation)
-        action_probs = self.get_action_probs_from_action_values(action_values)
-        this_action = self.from_environment_action_to_0_indexed_action(action)
-        pi_new = action_probs[this_action]
+        e_to_the_something_terms = self.get_e_to_the_something_terms(action_values)
+        denom = sum(e_to_the_something_terms)
+        pi_new = e_to_the_something_terms / denom
+        pi_b = 1/self.num_actions
         pi_mixed = self.alpha*pi_new + (1-self.alpha)*pi_b
         return pi_mixed
 
