@@ -9,6 +9,7 @@ from seldonian.dataset import (DataSetLoader,
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.utils.io_utils import load_json
 from seldonian.models.models import LinearRegressionModel
+from seldonian.RL.RL_model import RL_model
 
 
 two_interval_options = [
@@ -1276,7 +1277,10 @@ def test_bad_bound_method(generate_data):
 	error_str = (f"Bounding method {bound_method} is not supported")
 	assert str(excinfo.value) == error_str
 
-def test_evaluate_constraint(generate_data,gpa_classification_dataset):
+def test_evaluate_constraint(
+	generate_data,
+	gpa_classification_dataset,
+	RL_gridworld_dataset):
 	# Evaluate constraint mean, not the bound
 	# test all of the statistics in all regimes
 
@@ -1318,27 +1322,6 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 
 	assert pt.root.value == pytest.approx(-1.06248)
 
-	# Mean error
-	constraint_str = 'Mean_Error - 2.0'
-	delta = 0.05 
-
-	pt = ParseTree(delta,regime='supervised_learning',
-		sub_regime='regression')
-	pt.create_from_ast(constraint_str)
-
-	pt.assign_deltas(weight_method='equal')
-	pt.assign_bounds_needed()
-	assert pt.n_nodes == 3
-	assert pt.n_base_nodes == 1
-	assert len(pt.base_node_dict) == 1
-	
-	theta = np.array([0,1])
-	pt.evaluate_constraint(theta=theta,dataset=dataset,
-		model=model_instance,regime='supervised_learning',
-		branch='safety_test')
-
-	assert pt.root.value == pytest.approx(-2.013617)
-
 	### Classification
 	constraint_str = '(PR + NR + FPR + FNR + TPR + TNR + logistic_loss) - 10.0'
 	constraint_strs = [constraint_str]
@@ -1355,6 +1338,34 @@ def test_evaluate_constraint(generate_data,gpa_classification_dataset):
 		model=model,regime='supervised_learning',
 		branch='safety_test')
 	assert pt.root.value == pytest.approx(-6.306852)
+
+	### RL
+	constraint_str = 'J_pi_new >= -0.25'
+	constraint_strs = [constraint_str]
+	deltas = [0.05]
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+	    deltas,
+	    regime='reinforcement_learning',
+	    sub_regime='all',
+	    columns=[],
+	    delta_weight_method='equal')
+
+	(dataset,policy,
+		env_kwargs,primary_objective) = RL_gridworld_dataset()
+				
+	frac_data_in_safety = 0.6
+
+	# Model
+
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+	theta_init = model.policy.get_params()
+	pt = parse_trees[0]
+	pt.evaluate_constraint(theta=theta_init,dataset=dataset,
+		model=model,regime='reinforcement_learning',
+		branch='safety_test')
+	assert pt.root.value == pytest.approx(0.0440292)
+
 	
 def test_reset_parse_tree():
 	

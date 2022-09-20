@@ -258,18 +258,18 @@ class CandidateSelection(object):
 			result = self.primary_objective(self.model,theta, 
 				self.features, self.labels)
 
-		elif self.regime == 'reinforcement_learning':
-			data_dict = {'episodes':self.candidate_dataset.episodes}
-			# Want to maximize the importance weight so minimize negative importance weight
-			result = -1.0*self.primary_objective(self.model,theta,
-				data_dict)
+		# elif self.regime == 'reinforcement_learning':
+		# 	data_dict = {'episodes':self.candidate_dataset.episodes}
+		# 	# Want to maximize the importance weight so minimize negative importance weight
+		# 	result = -1.0*self.primary_objective(self.model,theta,
+		# 		data_dict)
 
-			# Optionally adding regularization term so that large thetas
-			# make this less negative
-			# and therefore worse 
-			if hasattr(self,'reg_coef'):
-				reg_term = self.reg_coef*np.linalg.norm(theta)
-				result += reg_term
+		# Optionally adding regularization term so that large thetas
+		# make this less negative
+		# and therefore worse 
+		if hasattr(self,'reg_coef'):
+			reg_term = self.reg_coef*np.linalg.norm(theta)
+			result += reg_term
 
 		# Prediction of what the safety test will return. 
 		# Initialized to pass
@@ -325,7 +325,6 @@ class CandidateSelection(object):
 		if self.regime == 'supervised_learning':
 			result = self.primary_objective(self.model,theta, 
 					self.features.values, self.labels.values)
-			return result
 
 		elif self.regime == 'reinforcement_learning':
 			# Want to maximize the importance weight so minimize negative importance weight
@@ -335,13 +334,13 @@ class CandidateSelection(object):
 			result = -1.0*self.primary_objective(self.model,theta,
 				data_dict)
 
-			if hasattr(self,'reg_coef'):
-				# reg_term = self.reg_coef*np.linalg.norm(theta)
-				reg_term = self.reg_coef*np.dot(theta.T,theta)
-			else:
-				reg_term = 0
-			result += reg_term
-			return result
+		if hasattr(self,'reg_coef'):
+			# reg_term = self.reg_coef*np.linalg.norm(theta)
+			reg_term = self.reg_coef*np.dot(theta.T,theta)
+		else:
+			reg_term = 0
+		result += reg_term
+		return result
 
 	def get_constraint_upper_bounds(self,theta):
 		"""Get value of the upper bounds of the constraint functions

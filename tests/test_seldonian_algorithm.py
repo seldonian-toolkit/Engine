@@ -1,3 +1,4 @@
+import os
 import pytest
 import importlib
 import autograd.numpy as np
@@ -980,7 +981,196 @@ def test_run_safety_test_only(gpa_regression_dataset):
 	passed_safety,solution = SA.run_safety_test(test_solution)
 	assert passed_safety == True
 	assert np.allclose(test_solution,solution)
-	
+
+def test_reg_coef(gpa_regression_dataset):
+	""" Test that using a regularization coefficient 
+	works
+	"""
+
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 2.0'] 
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+
+	# First gradient descent
+	# Create spec object
+	spec_gs = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 100,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+		regularization_hyperparams={
+			'reg_coef':0.5
+		}
+	)
+
+	# # Run seldonian algorithm
+	SA_gs = SeldonianAlgorithm(spec_gs)
+	# Try to get candidate solution result before running
+	test_solution_gs = np.array(
+		[ 4.17882259e-01, -1.59868384e-04,  6.33766780e-04,  2.64271363e-04,
+  3.08303718e-04,  1.01170148e-04,  1.86987938e-03,  1.29098727e-03,
+ -3.82405534e-04,  2.29938169e-04])
+	passed_safety,solution = SA_gs.run()
+	assert passed_safety == True
+	assert np.allclose(test_solution_gs,solution)
+		
+
+	spec_bb = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='barrier_function',
+		optimizer='Powell',
+		regularization_hyperparams={
+			'reg_coef':0.5
+		}
+	)
+
+	# # Run seldonian algorithm
+	SA_bb = SeldonianAlgorithm(spec_bb)
+	# Try to get candidate solution result before running
+	test_solution_bb = np.array(
+		[ 1.26219949e-04,  3.59203006e-04,  9.26674215e-04,  4.18683641e-04,
+  3.62709523e-04,  3.48171863e-05,  1.90106843e-03,  1.31441205e-03,
+ -6.56374856e-04,  2.12829138e-04])
+	passed_safety,solution = SA_bb.run(debug=True)
+	assert passed_safety == True
+	assert np.allclose(test_solution_bb,solution)
+
+def test_create_logfile(gpa_regression_dataset):
+	""" Test that using a regularization coefficient 
+	works
+	"""
+	# Check how many logs there are before test:
+	logfiles_before = os.listdir('./logs/')
+	n_before = len(logfiles_before)
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 2.0'] 
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+
+	# First gradient descent
+	# Create spec object
+	spec_gs = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# # Run seldonian algorithm
+	SA_gs = SeldonianAlgorithm(spec_gs)
+	# Try to get candidate solution result before running
+	passed_safety,solution = SA_gs.run(write_cs_logfile=True)
+	logfiles_after = os.listdir('./logs/')
+	n_after = len(logfiles_after)
+	assert n_after == n_before + 1
+
+def test_weighted_loss(gpa_classification_dataset):
+	""" Test that using a regularization coefficient 
+	works
+	"""
+	constraint_str = '(PR + NR + FPR + FNR + TPR + TNR + logistic_loss) - 10.0'
+	constraint_strs = [constraint_str]
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_classification_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	primary_objective = objectives.weighted_loss
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='classification',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 25,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	print(passed_safety,solution)
+	solution_to_compare = np.array(
+		[-0.14932756, -0.04743285,  0.15603878,
+		  0.10953721,  0.08014052,  0.03997749,
+		  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]
+	)
+		
 
 
 """ RL based tests """
@@ -1006,8 +1196,6 @@ def test_RL_builtin_or_custom_gradient_not_supported(
 	(dataset,policy,
 		env_kwargs,primary_objective) = RL_gridworld_dataset()
 				
-	include_sensitive_columns = False
-	include_intercept_term = False
 	frac_data_in_safety = 0.6
 
 	# Model

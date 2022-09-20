@@ -318,61 +318,6 @@ def gradient_logistic_loss(model,theta,X,Y):
 	res = (1/len(X))*np.dot(X_withintercept.T, (h - Y))
 	return res
 
-def weighted_loss(model,theta,X,Y):
-	""" Calculate the averaged weighted cost: 
-	sum_i p_(wrong answer for point I) * c_i
-	where c_i is 1 for false positives and 5 for false negatives
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-	:param Y: The labels
-	:type Y: numpy ndarray
-
-	:return: weighted loss such that false negatives 
-		have 5 times the cost as false positives
-	:rtype: float
-	"""
-	# calculate probabilistic false positive rate and false negative rate
-	y_pred = model.predict(model,theta,X)
-	n_points = len(Y)
-	neg_mask = Y!=1 # this includes false positives and true negatives
-	pos_mask = Y==1 # this includes true positives and false negatives
-	fp_values = y_pred[neg_mask] # get just false positives
-	fn_values = 1.0-y_pred[pos_mask] # get just false negatives
-	fpr = 1.0*np.sum(fp_values)
-	fnr = 5.0*np.sum(fn_values)
-	return (fpr + fnr)/n_points
-
-def vector_weighted_loss(model,theta,X,Y):
-	""" Calculate the averaged weighted cost
-	on each observation in sample
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-
-	:param X: The features
-	:type X: numpy ndarray
-
-	:param Y: The labels
-	:type Y: numpy ndarray
-
-	:return: array of weighted losses
-	:rtype: numpy ndarray(float)
-	"""
-	# calculate probabilistic false positive rate and false negative rate
-	y_pred = model.predict(theta,X)
-	fp_mask = np.logical_and(Y!=1,y_pred==1)
-	fn_mask = np.logical_and(Y==1,y_pred!=1)
-	# calculate probabilistic false positive rate and false negative rate
-	res = np.zeros_like(Y)
-	res[fp_mask] = 1.0
-	res[fn_mask] = 5.0
-	return res
-
 def Positive_Rate(model,theta,X):
 	"""
 	Calculate positive rate
