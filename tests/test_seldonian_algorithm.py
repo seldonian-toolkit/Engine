@@ -1120,11 +1120,11 @@ def test_create_logfile(gpa_regression_dataset):
 	n_after = len(logfiles_after)
 	assert n_after == n_before + 1
 
-def test_weighted_loss(gpa_classification_dataset):
+def test_bad_autodiff_method(gpa_classification_dataset):
 	""" Test that using a regularization coefficient 
 	works
 	"""
-	constraint_str = '(PR + NR + FPR + FNR + TPR + TNR + logistic_loss) - 10.0'
+	constraint_str = 'PR >= 0.9'
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 
@@ -1132,9 +1132,7 @@ def test_weighted_loss(gpa_classification_dataset):
 		primary_objective,parse_trees) = gpa_classification_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
-
-	primary_objective = objectives.weighted_loss
-
+	frac_data_in_safety = 0.6
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -1154,7 +1152,7 @@ def test_weighted_loss(gpa_classification_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 25,
-			'gradient_library': "autograd",
+			'gradient_library': "superfast",
 			'hyper_search'  : None,
 			'verbose'       : True,
 		}
@@ -1162,15 +1160,123 @@ def test_weighted_loss(gpa_classification_dataset):
 
 	# Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run()
-	assert passed_safety == True
-	print(passed_safety,solution)
-	solution_to_compare = np.array(
-		[-0.14932756, -0.04743285,  0.15603878,
-		  0.10953721,  0.08014052,  0.03997749,
-		  0.40484586,  0.3045744,  -0.1084586,  -0.05770913]
+	with pytest.raises(NotImplementedError) as excinfo:
+		passed_safety,solution = SA.run()
+
+	error_str = "gradient library: superfast not supported"
+
+	assert str(excinfo.value) == error_str
+
+def test_lambda_init(gpa_regression_dataset):
+	""" Test that the gpa regression example runs 
+	with a two constraints using gradient descent. Make
+	sure safety test passes and solution is correct.
+	"""
+	# Load metadata
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 5.0','2.0 - Mean_Squared_Error']
+	deltas = [0.05,0.1]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+	hyperparams1 = {
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	# Create spec object
+	spec1 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams=hyperparams1
 	)
+
+	# Run seldonian algorithm
+	SA1 = SeldonianAlgorithm(spec1)
+	passed_safety,solution = SA1.run()
+	
+	hyperparams2 = {
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	# Create spec object
+	spec2 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams=hyperparams2
+	)
+
+	# Run seldonian algorithm
+	SA2 = SeldonianAlgorithm(spec2)
+	passed_safety,solution = SA2.run()
 		
+	hyperparams3 = {
+			'lambda_init'   : np.array([[0.5]]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	# Create spec object
+	spec3 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams=hyperparams3
+	)
+
+	# Run seldonian algorithm
+	SA3 = SeldonianAlgorithm(spec3)
+	with pytest.raises(RuntimeError) as excinfo:
+		passed_safety,solution = SA3.run()
+
+	error_str = "lambda has wrong shape. Shape must be (n_constraints,1)"
+	assert str(excinfo.value) == error_str
 
 
 """ RL based tests """
