@@ -1141,7 +1141,9 @@ def test_create_logfile(gpa_regression_dataset):
 	works
 	"""
 	# Check how many logs there are before test:
-	logfiles_before = os.listdir('./logs/')
+	log_dir = "./logs/"
+	os.makedirs(log_dir,exist_ok=True)
+	logfiles_before = os.listdir(log_dir)
 	n_before = len(logfiles_before)
 	rseed=0
 	np.random.seed(rseed) 
@@ -1185,7 +1187,7 @@ def test_create_logfile(gpa_regression_dataset):
 	SA_gs = SeldonianAlgorithm(spec_gs)
 	# Try to get candidate solution result before running
 	passed_safety,solution = SA_gs.run(write_cs_logfile=True)
-	logfiles_after = os.listdir('./logs/')
+	logfiles_after = os.listdir(log_dir)
 	n_after = len(logfiles_after)
 	assert n_after == n_before + 1
 
