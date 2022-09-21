@@ -576,6 +576,19 @@ def test_math_functions():
 				"This function must take two arguments.")
 	assert str(excinfo.value) == error_str
 
+	constraint_str = 'abs()'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised_learning',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Please check the syntax of the function:  abs()."
+			" It appears you provided no arguments")
+	assert str(excinfo.value) == error_str
+
 def test_measure_functions_recognized():
 	delta = 0.05
 
@@ -650,6 +663,15 @@ def test_measure_function_with_conditional_bad_syntax_captured():
 			pt.create_from_ast(constraint_str)
 		
 		assert str(excinfo.value) == error_str
+
+	constraint_str = "(Mean_Error | [G])"
+	pt = ParseTree(delta,regime='supervised_learning',
+			sub_regime='regression')
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	error_str = ("A column provided in your constraint str: G " 
+		"was not in the list of  columns provided: []")
+	assert str(excinfo.value) == error_str	
  
 def test_measure_function_from_wrong_regime():
 	""" Test that if a measure function from the incorrect 
@@ -782,6 +804,25 @@ def test_unary_op():
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1
 
+	constraint_str = '+Mean_Error'
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M'])
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	error_str = ("Error parsing your expression."
+					" A unary operator was used which we do not support: "
+					f"+")
+	assert str(excinfo.value) == error_str
+	# assert pt.root.name == 'sub'
+	# assert pt.root.right.value == 10
+	# assert pt.root.left.name == 'mult'
+	# assert pt.root.left.left.value == -1
+	# assert pt.root.left.right.name == 'abs'
+	# assert pt.root.left.right.left.name == 'Mean_Error | [M]'
+	# assert pt.n_nodes == 6
+	# assert pt.n_base_nodes == 1
+	# assert len(pt.base_node_dict) == 1
+
 def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR^4'
@@ -857,6 +898,44 @@ def test_multiple_conditional_columns_assigned():
 	assert pt.n_base_nodes == 1
 	assert len(pt.base_node_dict) == 1  
 	assert pt.root.left.left.conditional_columns == ['X','Y','Z']
+
+def test_math_functions_propagate():
+	np.random.seed(0)
+	data_pth = 'static/datasets/supervised/GPA/gpa_classification_dataset.csv'
+	metadata_pth = 'static/datasets/supervised/GPA/metadata_classification.json'
+
+	metadata_dict = load_json(metadata_pth)
+
+	loader = DataSetLoader(
+		regime='supervised_learning')
+
+	dataset = loader.load_supervised_dataset(
+		filename=data_pth,
+		metadata_filename=metadata_pth,
+		include_sensitive_columns=False,
+		include_intercept_term=True,
+		file_type='csv')
+
+	model_instance = LinearRegressionModel()
+
+	constraint_str = 'exp(FPR - 0.5)'
+	delta = 0.05
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification',
+		columns=dataset.df.columns)
+	
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+
+	# propagate the bounds with example theta value
+	# theta = np.hstack([np.array([0.0,0.0]),np.random.uniform(-0.05,0.05,10)])
+	theta = np.random.uniform(-0.05,0.05,10)
+	pt.propagate_bounds(theta=theta,dataset=dataset,
+		model=model_instance,branch='safety_test',
+		regime='supervised_learning')
+	assert pt.root.lower == pytest.approx(0.5990300)
+	assert pt.root.upper == pytest.approx(0.5999346)
+
 
 def test_deltas_assigned_equally():
 	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
@@ -1323,7 +1402,7 @@ def test_evaluate_constraint(
 	assert pt.root.value == pytest.approx(-1.06248)
 
 	### Classification
-	constraint_str = '(PR + NR + FPR + FNR + TPR + TNR + logistic_loss) - 10.0'
+	constraint_str = '(abs(PR) + exp(NR*2) + FPR/4.0 + max(FNR,TPR) + min(TNR,logistic_loss)) - 10.0'
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 
@@ -1337,7 +1416,8 @@ def test_evaluate_constraint(
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
 		model=model,regime='supervised_learning',
 		branch='safety_test')
-	assert pt.root.value == pytest.approx(-6.306852)
+	print(pt.root.value)
+	assert pt.root.value == pytest.approx(-5.656718)
 
 	### RL
 	constraint_str = 'J_pi_new >= -0.25'
@@ -1365,7 +1445,6 @@ def test_evaluate_constraint(
 		model=model,regime='reinforcement_learning',
 		branch='safety_test')
 	assert pt.root.value == pytest.approx(0.0440292)
-
 	
 def test_reset_parse_tree():
 	
@@ -1449,7 +1528,7 @@ def test_single_conditional_columns_propagated():
 
 	assert len(pt.base_node_dict["Mean_Error | [M]"]['data_dict']['features']) == 22335
 	pt.reset_base_node_dict()
-	
+
 def test_build_tree():
 	""" Test the convenience function that builds the tree,
 	weights deltas, and assigns bounds all in one """
@@ -1529,4 +1608,29 @@ def test_bad_delta():
 
 	error_str = ("delta must be in (0,1)")
 	assert str(excinfo.value) == error_str
+	
+
+def test_e_assigned_as_constant_node():
+	
+	constraint_str = 'FPR <= e*0.05'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.right.left.name == 'e'
+	assert isinstance(pt.root.right.left,ConstantNode)
+
+def test_base_node_bounding_dict():
+	
+	constraint_str = 'FPR <= 0.25'
+	delta = 0.05 
+
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification')
+	# Fill out tree
+	pt.build_tree(
+		constraint_str=constraint_str,
+		delta_weight_method='equal')
+
 	

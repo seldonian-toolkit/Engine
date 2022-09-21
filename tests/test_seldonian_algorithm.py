@@ -360,6 +360,73 @@ def test_cvar_custom_base_node():
 	solution_to_compare = np.array([[0.07197478]])
 	assert np.allclose(solution,solution_to_compare)
 
+	# Make sure we can evaluate constraint as well
+	pt = parse_trees[0]
+	pt.evaluate_constraint(theta=solution,dataset=dataset,
+		model=model,regime='supervised_learning',
+		branch='safety_test')
+	assert pt.root.value == pytest.approx(-47.35451)
+
+def test_cvar_lower_bound():
+	""" The normal constraint only uses 
+	the CVAR upper bound because we want CVAR < some value. 
+	Test that the lower bound also works
+
+	Check that the actual value of the constraint (not the bound)
+	is also correctly calculated.
+	"""
+	from seldonian.models.models import BoundedLinearRegressionModel
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['CVaRSQE >= 5.0']
+	deltas = [0.1]
+
+	numPoints = 1000
+	dataset = make_synthetic_regression_dataset(
+		numPoints,
+		loc_X=0.0,
+		loc_Y=0.0,
+		sigma_X=1.0,
+		sigma_Y=0.2,
+		include_intercept_term=False,clipped=True)
+
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas)
+
+	model = BoundedLinearRegressionModel()
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		sub_regime='regression',
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=False,
+		custom_primary_gradient_fn=objectives.gradient_Bounded_Squared_Error,
+		parse_trees=parse_trees,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	solution_to_compare = np.array([-0.15467687])
+	assert np.allclose(solution,solution_to_compare)
+
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 
 	with a two constraints using gradient descent. Make
@@ -1278,6 +1345,141 @@ def test_lambda_init(gpa_regression_dataset):
 	error_str = "lambda has wrong shape. Shape must be (n_constraints,1)"
 	assert str(excinfo.value) == error_str
 
+def test_no_primary_provided(gpa_regression_dataset,
+	gpa_classification_dataset,RL_gridworld_dataset):
+	""" Test that if the user does not provide a primary objective,
+	then the default is used in the three different regimes/sub-regimes
+	"""
+	# Regression
+	rseed=99
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.05]
+	(dataset,model,
+		_,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+	frac_data_in_safety=0.6
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=None,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+		
+	)
+	assert spec.primary_objective == None
+
+	# Create seldonian algorithm object, which assigns primary objective
+	SA = SeldonianAlgorithm(spec)
+	assert spec.primary_objective != None
+	assert spec.primary_objective.__name__ == "Mean_Squared_Error"
+
+	# Classification
+	constraint_strs = ["FPR - 0.5"]
+	deltas = [0.05]
+
+	(dataset,model,
+		_,parse_trees) = gpa_classification_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='classification',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=None,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+	assert spec.primary_objective == None
+
+	# Create seldonian algorithm object, which assigns primary objective
+	SA = SeldonianAlgorithm(spec)
+	assert spec.primary_objective != None
+	assert spec.primary_objective.__name__ == "logistic_loss"
+
+	# RL 
+	constraint_strs = ['-0.25 - J_pi_new']
+	deltas = [0.05]
+	
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+	    deltas,
+	    regime='reinforcement_learning',
+	    sub_regime='all',
+	    delta_weight_method='equal')
+	(dataset,policy,
+		env_kwargs,_) = RL_gridworld_dataset()
+				
+	frac_data_in_safety = 0.6
+
+	# Model
+
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+
+	# Create spec object
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=True,
+		primary_objective=None,
+		parse_trees=parse_trees,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+	assert spec.primary_objective == None
+
+	# Create seldonian algorithm object, which assigns primary objective
+	SA = SeldonianAlgorithm(spec)
+	assert spec.primary_objective != None
+	assert spec.primary_objective.__name__ == "IS_estimate"
 
 """ RL based tests """
 
@@ -1385,7 +1587,7 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	# Load data and metadata
 	rseed=99
 	np.random.seed(rseed)
-	constraint_strs = ['-0.25 - J_pi_new']
+	constraint_strs = ['-10.0 - J_pi_new']
 	deltas = [0.05]
 	
 	parse_trees = make_parse_trees_from_constraints(
@@ -1417,7 +1619,7 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 			'alpha_lamb'    : 0.01,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 2,
+			'num_iters'     : 5,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1427,9 +1629,13 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	# # Run seldonian algorithm
 	SA = SeldonianAlgorithm(spec)
 	passed_safety,solution = SA.run()
-	assert passed_safety == False
+	assert passed_safety == True
 	g_vals = SA.cs_result['g_vals']
-	assert g_vals[1][0] == pytest.approx(0.24571729)
+	assert g_vals[1][0] == pytest.approx(-9.50428271)
+
+	#Get primary objective
+	primary_val = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
+	assert primary_val == pytest.approx(0.285780384)
 
 def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	""" Test that trying to run RL example with 

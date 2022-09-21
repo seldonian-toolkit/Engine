@@ -634,11 +634,6 @@ class ParseTree(object):
 					kwargs['data_dict'] = data_dict
 					kwargs['datasize'] = datasize
 				
-				# Check if user specified a bound_method for this node
-				if 'base_node_bounding_dict' in kwargs:
-					if node.name in kwargs['base_node_bounding_dict']:
-						self.base_node_dict[node.name]['bound_method'] = \
-							kwargs['base_node_bounding_dict'][node.name]
 				bound_method = self.base_node_dict[node.name]['bound_method']
 				bound_result = node.calculate_bounds(
 					bound_method=bound_method,

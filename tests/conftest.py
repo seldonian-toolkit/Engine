@@ -214,7 +214,7 @@ def gpa_classification_dataset():
 def RL_gridworld_dataset():
     from seldonian.RL.environments import gridworld
     from seldonian.RL.RL_model import RL_model
-    from seldonian.RL.Agents.Policies.Softmax import Softmax
+    from seldonian.RL.Agents.Policies.Softmax import DiscreteSoftmax
     from seldonian.RL.Env_Description import Spaces, Env_Description
 
     def generate_dataset():
@@ -236,7 +236,7 @@ def RL_gridworld_dataset():
         action_space = Spaces.Discrete_Space(0, 3)
         env_description = Env_Description.Env_Description(observation_space, action_space)
         # RL model. setting dict not needed for discrete observation and action space
-        policy = Softmax(
+        policy = DiscreteSoftmax(
             env_description=env_description,
             hyperparam_and_setting_dict={}
         )
