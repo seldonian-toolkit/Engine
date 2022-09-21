@@ -10,9 +10,10 @@ from seldonian.parse_tree.parse_tree import ParseTree,make_parse_trees_from_cons
 from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet,RLDataSet)
 
-from seldonian.spec import RLSpec, SupervisedSpec
+from seldonian.spec import (RLSpec, SupervisedSpec,
+	createSupervisedSpec)
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
-from seldonian.models.models import LinearRegressionModel
+from seldonian.models.models import *
 from seldonian.models import objectives
 from seldonian.RL.RL_model import RL_model
 
@@ -1402,6 +1403,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 		deltas=deltas)
 
 	# Create spec object
+
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -1438,10 +1440,10 @@ def test_no_primary_provided(gpa_regression_dataset,
 	
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
-	    deltas,
-	    regime='reinforcement_learning',
-	    sub_regime='all',
-	    delta_weight_method='equal')
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		delta_weight_method='equal')
 	(dataset,policy,
 		env_kwargs,_) = RL_gridworld_dataset()
 				
@@ -1481,6 +1483,94 @@ def test_no_primary_provided(gpa_regression_dataset,
 	assert spec.primary_objective != None
 	assert spec.primary_objective.__name__ == "IS_estimate"
 
+
+def test_createSupervisedSpec(gpa_regression_dataset):
+	""" Test that if the user does not provide a primary objective,
+	then the default is used in the three different regimes/sub-regimes
+	"""
+	# Regression
+	data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
+	metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
+
+	metadata_dict = load_json(metadata_pth)
+	regime = metadata_dict['regime']
+	sub_regime = metadata_dict['sub_regime']
+	columns = metadata_dict['columns']
+	sensitive_columns = metadata_dict['sensitive_columns']
+				
+	include_sensitive_columns = False
+	include_intercept_term = True
+	regime='supervised_learning'
+
+	model = LinearRegressionModel()
+
+
+	# Load dataset from file
+	loader = DataSetLoader(
+		regime=regime)
+
+	dataset = loader.load_supervised_dataset(
+		filename=data_pth,
+		metadata_filename=metadata_pth,
+		include_sensitive_columns=include_sensitive_columns,
+		include_intercept_term=include_intercept_term,
+		file_type='csv')
+	
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.05]
+
+	spec = createSupervisedSpec(
+		dataset=dataset,
+		metadata_pth=metadata_pth,
+		constraint_strs=constraint_strs,
+		deltas=deltas,
+		save=False)
+
+	assert spec.primary_objective != None
+	assert spec.primary_objective.__name__ == "Mean_Squared_Error"
+	assert len(spec.parse_trees) == 1
+
+	# Classification
+	data_pth = 'static/datasets/supervised/GPA/gpa_classification_dataset.csv'
+	metadata_pth = 'static/datasets/supervised/GPA/metadata_classification.json'
+
+	metadata_dict = load_json(metadata_pth)
+	regime = metadata_dict['regime']
+	sub_regime = metadata_dict['sub_regime']
+	columns = metadata_dict['columns']
+	sensitive_columns = metadata_dict['sensitive_columns']
+				
+	include_sensitive_columns = False
+	include_intercept_term = True
+	regime='supervised_learning'
+
+	model = LogisticRegressionModel()
+
+	# Load dataset from file
+	loader = DataSetLoader(
+		regime=regime)
+
+	dataset = loader.load_supervised_dataset(
+		filename=data_pth,
+		metadata_filename=metadata_pth,
+		include_sensitive_columns=include_sensitive_columns,
+		include_intercept_term=include_intercept_term,
+		file_type='csv')
+	
+	constraint_strs = ['FPR - 0.5']
+	deltas = [0.05]
+
+	spec = createSupervisedSpec(
+		dataset=dataset,
+		metadata_pth=metadata_pth,
+		constraint_strs=constraint_strs,
+		deltas=deltas,
+		save=False)
+
+	assert spec.primary_objective != None
+	assert spec.primary_objective.__name__ == "logistic_loss"
+	assert len(spec.parse_trees) == 1
+
 """ RL based tests """
 
 def test_RL_builtin_or_custom_gradient_not_supported(
@@ -1496,11 +1586,11 @@ def test_RL_builtin_or_custom_gradient_not_supported(
 	
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
-	    deltas,
-	    regime='reinforcement_learning',
-	    sub_regime='all',
-	    columns=[],
-	    delta_weight_method='equal')
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[],
+		delta_weight_method='equal')
 	(dataset,policy,
 		env_kwargs,primary_objective) = RL_gridworld_dataset()
 				
@@ -1592,11 +1682,11 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
-	    deltas,
-	    regime='reinforcement_learning',
-	    sub_regime='all',
-	    columns=[],
-	    delta_weight_method='equal')
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[],
+		delta_weight_method='equal')
 	(dataset,policy,
 		env_kwargs,primary_objective) = RL_gridworld_dataset()
 
@@ -1653,11 +1743,11 @@ def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
-	    deltas,
-	    regime='reinforcement_learning',
-	    sub_regime='all',
-	    columns=[],
-	    delta_weight_method='equal')
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[],
+		delta_weight_method='equal')
 	(dataset,policy,
 		env_kwargs,primary_objective) = RL_gridworld_dataset()
 
