@@ -39,8 +39,6 @@ seldonian.models.objectives
       vector_True_Negative_Rate
       vector_True_Positive_Rate
       vector_logistic_loss
-      vector_weighted_loss
-      weighted_loss
    
    
 

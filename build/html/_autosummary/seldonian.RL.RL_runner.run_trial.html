@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.RL.RL_runner.run_trial_given_agent_and_env" href="seldonian.RL.RL_runner.run_trial_given_agent_and_env.html" />
-    <link rel="prev" title="seldonian.RL.RL_runner.run_episode" href="seldonian.RL.RL_runner.run_episode.html" />
+    <link rel="prev" title="seldonian.RL.RL_runner.run_episode_from_dict" href="seldonian.RL.RL_runner.run_episode_from_dict.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -38,15 +38,24 @@
 <h1>seldonian.RL.RL_runner.run_trial<a class="headerlink" href="#seldonian-rl-rl-runner-run-trial" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.RL.RL_runner.run_trial">
-<span class="sig-name descname"><span class="pre">run_trial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparameter_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.run_trial" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run_trial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparameter_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.run_trial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run a single trial consists of an arbitrary number of episodes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>hyperparameter_and_setting_dict</strong> (<em>dict</em>) – Specifies the
 environment, agent and number of episodes to run</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(List of episodes, agent)</p>
+<dt class="field-even">Model_params<span class="colon">:</span></dt>
+<dd class="field-even"><p>Policy parameters to set before running the trial</p>
+</dd>
+<dt class="field-odd">Parallel<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether to use parallel processing</p>
+</dd>
+<dt class="field-even">N_workers<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of cpus if using parallel processing</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(List of episodes, agent)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -85,6 +94,7 @@ environment, agent and number of episodes to run</p>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.create_env.html">seldonian.RL.RL_runner.create_env</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_all_trials.html">seldonian.RL.RL_runner.run_all_trials</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_episode.html">seldonian.RL.RL_runner.run_episode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_episode_from_dict.html">seldonian.RL.RL_runner.run_episode_from_dict</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.RL.RL_runner.run_trial</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_trial_given_agent_and_env.html">seldonian.RL.RL_runner.run_trial_given_agent_and_env</a></li>
 </ul>
@@ -119,7 +129,7 @@ environment, agent and number of episodes to run</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.RL.html">seldonian.RL</a><ul>
   <li><a href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a><ul>
-      <li>Previous: <a href="seldonian.RL.RL_runner.run_episode.html" title="previous chapter">seldonian.RL.RL_runner.run_episode</a></li>
+      <li>Previous: <a href="seldonian.RL.RL_runner.run_episode_from_dict.html" title="previous chapter">seldonian.RL.RL_runner.run_episode_from_dict</a></li>
       <li>Next: <a href="seldonian.RL.RL_runner.run_trial_given_agent_and_env.html" title="next chapter">seldonian.RL.RL_runner.run_trial_given_agent_and_env</a></li>
   </ul></li>
   </ul></li>

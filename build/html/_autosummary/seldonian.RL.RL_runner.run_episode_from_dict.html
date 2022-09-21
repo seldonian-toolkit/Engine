@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>seldonian.RL.RL_runner.create_agent &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.RL.RL_runner.run_episode_from_dict &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.RL.RL_runner.create_env" href="seldonian.RL.RL_runner.create_env.html" />
-    <link rel="prev" title="seldonian.RL.RL_runner" href="seldonian.RL.RL_runner.html" />
+    <link rel="next" title="seldonian.RL.RL_runner.run_trial" href="seldonian.RL.RL_runner.run_trial.html" />
+    <link rel="prev" title="seldonian.RL.RL_runner.run_episode" href="seldonian.RL.RL_runner.run_episode.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,23 +34,24 @@
 
           <div class="body" role="main">
             
-  <section id="seldonian-rl-rl-runner-create-agent">
-<h1>seldonian.RL.RL_runner.create_agent<a class="headerlink" href="#seldonian-rl-rl-runner-create-agent" title="Permalink to this heading">¶</a></h1>
+  <section id="seldonian-rl-rl-runner-run-episode-from-dict">
+<h1>seldonian.RL.RL_runner.run_episode_from_dict<a class="headerlink" href="#seldonian-rl-rl-runner-run-episode-from-dict" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="seldonian.RL.RL_runner.create_agent">
-<span class="sig-name descname"><span class="pre">create_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparameter_and_setting_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.create_agent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an agent from a dictionary specification</p>
+<dt class="sig sig-object py" id="seldonian.RL.RL_runner.run_episode_from_dict">
+<span class="sig-name descname"><span class="pre">run_episode_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparameter_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.run_episode_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a single episode</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
-environment, agent, number of episodes per trial,
-and number of trials</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agent</strong> – RL Agent</p></li>
+<li><p><strong>env</strong> – RL Environment</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>RL agent</p>
+<dd class="field-even"><p>RL Episode</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Agents.Agent</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="seldonian.dataset.Episode.html#seldonian.dataset.Episode" title="seldonian.dataset.Episode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Episode</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -85,11 +86,11 @@ and number of trials</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_generate_dataset_and_spec_file.html">seldonian.RL.RL_generate_dataset_and_spec_file</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a><ul class="current">
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.RL.RL_runner.create_agent</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.create_agent.html">seldonian.RL.RL_runner.create_agent</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.create_env.html">seldonian.RL.RL_runner.create_env</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_all_trials.html">seldonian.RL.RL_runner.run_all_trials</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_episode.html">seldonian.RL.RL_runner.run_episode</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_episode_from_dict.html">seldonian.RL.RL_runner.run_episode_from_dict</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.RL.RL_runner.run_episode_from_dict</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_trial.html">seldonian.RL.RL_runner.run_trial</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_trial_given_agent_and_env.html">seldonian.RL.RL_runner.run_trial_given_agent_and_env</a></li>
 </ul>
@@ -124,8 +125,8 @@ and number of trials</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.RL.html">seldonian.RL</a><ul>
   <li><a href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a><ul>
-      <li>Previous: <a href="seldonian.RL.RL_runner.html" title="previous chapter">seldonian.RL.RL_runner</a></li>
-      <li>Next: <a href="seldonian.RL.RL_runner.create_env.html" title="next chapter">seldonian.RL.RL_runner.create_env</a></li>
+      <li>Previous: <a href="seldonian.RL.RL_runner.run_episode.html" title="previous chapter">seldonian.RL.RL_runner.run_episode</a></li>
+      <li>Next: <a href="seldonian.RL.RL_runner.run_trial.html" title="next chapter">seldonian.RL.RL_runner.run_trial</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -163,7 +164,7 @@ and number of trials</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.RL.RL_runner.create_agent.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.RL.RL_runner.run_episode_from_dict.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

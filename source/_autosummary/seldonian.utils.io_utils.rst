@@ -20,7 +20,6 @@ seldonian.utils.io\_utils
       load_supervised_metadata
       save_json
       save_pickle
-      yes_or_no_input
    
    
 

@@ -56,7 +56,7 @@ For supervised learning, one can create a :py:class:`.SupervisedDataSet` object 
 		filename,
 		metadata_filename)
 
-The :code:`filename` parameter must point to a data file consisting of rows of numbers that are comma-separated and have no header. Categorical columns must be numerically encoded. For example, a supervised learning data file format might look like:
+The :code:`filename` parameter must point to a data file consisting of rows of numbers (or arrays) that are comma-separated and have no header. Categorical columns must be numerically encoded. For example, a supervised learning data file format might look like:
 
 .. code:: 
 
@@ -66,9 +66,9 @@ The :code:`filename` parameter must point to a data file consisting of rows of n
 	0,1,756.91,679.62,531.28,583.63,534.42,521.4,592.41,783.76,588.26,2.53333
 	...
 
-where each row represents a different data point and each column is a feature or a label. **All sensitive attributes must be one-hot encoded.**
+where each row represents a different data point and each column is a feature or a label. **All sensitive attributes must be one-hot encoded.** In this example, the first two columns are sensitive attributes, columns 3-11 are features, and the last column is the label column. **The engine currently only supports a single label column for supervised learning**.
 
-For reinforcement learning, one can create a :py:class:`.RLDataSet` object from a data file and (optionally) a metadata file. There are two supported methods, depending on the format of the data file. For example:
+For reinforcement learning, one can create a :py:class:`.RLDataSet` object from a data file and (optionally) a metadata file. There are two supported methods for loading data, depending on the format of the data file. For example:
 
 .. code::
 	
@@ -82,7 +82,7 @@ For reinforcement learning, one can create a :py:class:`.RLDataSet` object from 
 		filename)
 
 
-In the first method, the comma-separated file (CSV) must have no header. Each row represents a single timestep and the columns must correspond to the episode index, observation, action, rewards, action probability. An example file with 10 episodes where observations and actions have integer types might look like this: 
+In the first method, the comma-separated file (CSV) must have no header. Each row represents a single timestep and the columns must correspond to the episode index, observation, action, rewards, action probability. The observations can be arrays or single numbers. An example file with 10 episodes where observations and actions have integer types might look like this: 
 
 .. code:: 
 
@@ -101,7 +101,7 @@ In the first method, the comma-separated file (CSV) must have no header. Each ro
 
 In the second method, the episode file must be a pickle file containing a list of :py:class:`Episode` objects. 
 
-Regardless of the regime and file format, the data file should include *all* of the data you have, i.e., before partitioning into train, test, validation splits. The Engine will partition the data internally. The column names are intentionally excluded from the data files and are provided in a separate metadata file, via the :code:`metadata_filename` parameter. In the RL case, the columns are fixed so column names are not necessary.
+Regardless of the regime and file format, the data file should include *all* of the data you have, i.e., before partitioning into train, test, validation splits. The Engine will partition the data internally into candidate data and safety data in order to run the Seldonian algorithm. The column names are intentionally excluded from the data files and are provided in a separate metadata file, via the :code:`metadata_filename` parameter. In the RL case, the meanings of the columns are fixed so column names are not necessary.
 
 The metadata file must be a JSON-formatted file containing several required ``key:value`` pairs depending on the regime of your problem. For supervised learning, the required keys are:
 
@@ -114,7 +114,7 @@ The metadata file must be a JSON-formatted file containing several required ``ke
 For reinforcement learning, this file is optional, but if provided, the required keys are:
 
 - :code:`regime`, which is set to 'reinforcement_learning' in this case
-- :code:`columns`, a list of the column names in your data file
+- :code:`columns`, (optional) a list of the column names in your data file
 
 Model object
 ++++++++++++

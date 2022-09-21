@@ -18,6 +18,7 @@ seldonian.RL.RL\_runner
       create_env
       run_all_trials
       run_episode
+      run_episode_from_dict
       run_trial
       run_trial_given_agent_and_env
    
