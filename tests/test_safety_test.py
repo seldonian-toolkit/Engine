@@ -2,12 +2,14 @@ from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import *
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
+from seldonian.utils.tutorial_utils import generate_data
+
 from sklearn.model_selection import train_test_split
 import pytest
 
 ### Begin tests
 
-def test_run_safety_test(generate_data):
+def test_run_safety_test():
     # dummy data for linear regression
     np.random.seed(0)
     numPoints=1000
@@ -60,7 +62,7 @@ def test_run_safety_test(generate_data):
     passed_safety = st.run(candidate_solution)
     assert passed_safety == True
 
-def test_evaluate_primary_objective(generate_data):
+def test_evaluate_primary_objective():
     """ Test evaluating the primary objective 
     using solutions on the safety dataset """ 
     np.random.seed(0)

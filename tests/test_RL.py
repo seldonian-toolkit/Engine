@@ -4,6 +4,7 @@ from seldonian.RL.Agents.Policies.Policy import *
 from seldonian.RL.Agents.Policies.Softmax import *
 from seldonian.RL.environments.mountaincar import *
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
+from seldonian.RL.Agents.Discrete_Random_Agent import *
 from seldonian.RL.RL_runner import run_trial
 from seldonian.dataset import RLDataSet
 import autograd.numpy as np
@@ -98,6 +99,35 @@ def test_Parameterized_non_learning_softmax_agent():
     with pytest.raises(Exception):
         agent.set_new_params(bad_params) #make sure throws error with bad shape
 
+def test_Discrete_Random_Agent():
+    """test Discrete Random Agent"""
+    observation_space = Discrete_Space(-1, 2)
+    action_space = Discrete_Space(-1, 1)
+    env_desc = Env_Description(observation_space, action_space)
+    
+    agent = Discrete_Random_Agent(env_desc)
+
+    assert agent.num_actions == 3
+    correct_shape = (4, 3)
+    with pytest.raises(NotImplementedError) as excinfo:
+        params = agent.get_params()
+
+    new_params = np.random.rand(correct_shape[0], correct_shape[1])
+    with pytest.raises(NotImplementedError) as excinfo:
+        agent.set_new_params(new_params)
+
+    # choose action
+    action = agent.choose_action(observation=-1)
+    assert action in [-1,0,1]
+    action = agent.choose_action(observation=1E7)
+    assert action in [-1,0,1]
+    
+    # action probabilities
+    prob = agent.get_prob_this_action(-1,0)
+    assert prob == 1/3
+    prob = agent.get_prob_this_action(1E4,1)
+    assert prob == 1/3
+    
 def test_spaces_and_env_descriptions():
     """test Continuous_Space constructor and methods"""
     cont_space = Continuous_Space(np.array([[0.0, 1.1], [3.3, 4.4], [5.5, 6.6]])) #should be no error

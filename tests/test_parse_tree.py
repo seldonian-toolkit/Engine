@@ -8,6 +8,7 @@ from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet)
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.utils.io_utils import load_json
+from seldonian.utils.tutorial_utils import generate_data
 from seldonian.models.models import LinearRegressionModel
 from seldonian.RL.RL_model import RL_model
 
@@ -1121,7 +1122,7 @@ def test_duplicate_base_nodes():
 	pt.propagate_bounds()
 	assert pt.base_node_dict['FPR']['bound_computed'] == True
 
-def test_ttest_bound(generate_data):
+def test_ttest_bound():
 	# dummy data for linear regression
 	np.random.seed(0)
 	numPoints=1000
@@ -1216,7 +1217,7 @@ def test_ttest_bound(generate_data):
 	# assert pt.root.lower == float('-inf') # not computed
 	assert pt.root.upper == pytest.approx(-0.930726)
 
-def test_bad_bound_method(generate_data):
+def test_bad_bound_method():
 	# dummy data for linear regression
 	np.random.seed(0)
 	numPoints=1000
@@ -1357,7 +1358,6 @@ def test_bad_bound_method(generate_data):
 	assert str(excinfo.value) == error_str
 
 def test_evaluate_constraint(
-	generate_data,
 	gpa_classification_dataset,
 	RL_gridworld_dataset):
 	# Evaluate constraint mean, not the bound

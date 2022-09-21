@@ -5,7 +5,8 @@ import autograd.numpy as np
 import pandas as pd
 
 from seldonian.utils.io_utils import load_json, load_pickle
-from seldonian.utils.tutorial_utils import make_synthetic_regression_dataset
+from seldonian.utils.tutorial_utils import (
+	make_synthetic_regression_dataset,generate_data)
 from seldonian.parse_tree.parse_tree import ParseTree,make_parse_trees_from_constraints
 from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet,RLDataSet)
@@ -67,7 +68,7 @@ def test_base_node_bound_methods_updated(gpa_regression_dataset):
 	assert parse_trees[0].base_node_dict['Mean_Squared_Error']['bound_method'] == 'manual'
 	assert parse_trees[1].base_node_dict['Mean_Squared_Error']['bound_method'] == 'random'
 
-def test_not_enough_data(generate_data):
+def test_not_enough_data():
 	# dummy data for linear regression
 	rseed=0
 	np.random.seed(rseed) 

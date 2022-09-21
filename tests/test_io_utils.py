@@ -2,8 +2,7 @@ import os
 import pytest
 import autograd.numpy as np
 
-from seldonian.utils.io_utils import (dir_path,
-	load_pickle,save_pickle)
+from seldonian.utils.io_utils import *
 
 ### Begin tests
 
@@ -29,12 +28,14 @@ def test_save_pickle():
 	assert os.path.exists(path)
 	os.remove(path)
 
+def test_save_json():
+	""" Test the Bessel's-corrected standard deviation 
+	function """
+	path = "tests/testfile.json"
+	data = {'testkey':1}
+	save_json(path,data)
+	assert os.path.exists(path)
+	os.remove(path)
 
-def test_interactive(monkeypatch):
-	monkeypatch.setattr('builtins.input', lambda _: "Mark")
-
-	# go about using input() like you normally would:
-	i = input("What is your name?")
-	assert i == "Mark"
 
 

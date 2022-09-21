@@ -1,3 +1,5 @@
+import os
+import shutil
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import pytest
 
@@ -80,14 +82,14 @@ def edge():
     return edge_function
 
 @pytest.fixture
-def generate_data():
-    def generate_data_function(numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
-        X =     np.random.normal(loc_X, sigma_X, numPoints) # Sample x from a standard normal distribution
-        Y = X + np.random.normal(loc_Y, sigma_Y, numPoints) # Set y to be x, plus noise from a standard normal distribution
-        return (X,Y)
-    
-    return generate_data_function
-
+def spec_garbage_collector():
+    save_dir = "./tests/specfiles"
+    """ Fixture to create and then remove results_dir and any files it may contain"""
+    print("----------- Setup spec_garbage_collector -----------")
+    os.makedirs(save_dir,exist_ok=True)
+    yield
+    print("----------- Teardown spec_garbage_collector -----------")
+    shutil.rmtree(save_dir)
 
 @pytest.fixture
 def gpa_regression_dataset():
