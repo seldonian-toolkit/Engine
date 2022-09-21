@@ -66,7 +66,7 @@ set of parameters for running the Seldonian algorithm</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection">
-<span class="sig-name descname"><span class="pre">candidate_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">candidate_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the candidate selection object</p>
 </dd></dl>
 
@@ -112,6 +112,18 @@ model weights found during candidate selection or ‘NSF’.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test">
+<span class="sig-name descname"><span class="pre">run_safety_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs safety test using solution from candidate selection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>candidate_solution</strong> – model weights from candidate selection
+or other process</p>
 </dd>
 </dl>
 </dd></dl>

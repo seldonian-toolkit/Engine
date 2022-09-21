@@ -28,6 +28,8 @@ seldonian.seldonian\_algorithm.SeldonianAlgorithm
    ..
    ..    ~SeldonianAlgorithm.run
    ..
+   ..    ~SeldonianAlgorithm.run_safety_test
+   ..
    ..    ~SeldonianAlgorithm.safety_test
    ..
    
