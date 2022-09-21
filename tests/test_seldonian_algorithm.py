@@ -1634,8 +1634,11 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	assert g_vals[1][0] == pytest.approx(-9.50428271)
 
 	#Get primary objective
-	primary_val = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
-	assert primary_val == pytest.approx(0.285780384)
+	primary_val_cs = SA.evaluate_primary_objective(
+		theta=solution,branch='candidate_selection')
+	print(primary_val_cs)
+	primary_val_st = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
+	assert primary_val_st == pytest.approx(0.285780384)
 
 def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	""" Test that trying to run RL example with 
