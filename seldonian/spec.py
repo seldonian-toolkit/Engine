@@ -8,7 +8,6 @@ from seldonian.models import objectives
 from seldonian.parse_tree.parse_tree import (
 	make_parse_trees_from_constraints)
 
-
 class Spec(object):
 	"""Base class for specification object required to
 	run the Seldonian algorithm
@@ -90,13 +89,12 @@ class Spec(object):
 		self.initial_solution_fn = initial_solution_fn
 		self.use_builtin_primary_gradient_fn=use_builtin_primary_gradient_fn
 		self.custom_primary_gradient_fn = custom_primary_gradient_fn
-		self.parse_trees = parse_trees
+		self.parse_trees = validate_parse_trees(parse_trees)
 		self.base_node_bound_method_dict = base_node_bound_method_dict
 		self.optimization_technique = optimization_technique
 		self.optimizer = optimizer
 		self.optimization_hyperparams = optimization_hyperparams
 		self.regularization_hyperparams = regularization_hyperparams
-
 
 class SupervisedSpec(Spec):
 	""" Specification object for running Supervised learning
@@ -455,3 +453,21 @@ def createRLSpec(
 		save_pickle(spec_save_name,spec,verbose=verbose)
 	return spec
 
+
+def validate_parse_trees(parse_trees):
+	""" Ensure that there are no duplicate 
+	constraints in a list of parse trees
+
+	:param parse_trees: List of :py:class:`.ParseTree` objects
+	"""
+	from collections import Counter
+	constraint_strs = [pt.constraint_str for pt in parse_trees]
+	ct_dict = Counter(constraint_strs)
+
+	for constraint_str in ct_dict:
+		if ct_dict[constraint_str] > 1:
+			raise RuntimeError(
+				f"The constraint: '{constraint_str}' "
+				 "appears more than once in the list of constraints. "
+				 "Duplicate constraints are not allowed.")
+	return parse_trees

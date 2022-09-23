@@ -106,7 +106,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	assert spec.primary_objective.__name__ == "logistic_loss"
 	assert len(spec.parse_trees) == 1
 
-
 def test_createRLSpec(RL_gridworld_dataset,
 	spec_garbage_collector):
 	""" Test that if the user does not provide a primary objective,
@@ -139,5 +138,54 @@ def test_createRLSpec(RL_gridworld_dataset,
 	assert spec.primary_objective != None
 	assert spec.primary_objective.__name__ == "IS_estimate"
 	assert len(spec.parse_trees) == 1
+
+def test_duplicate_parse_trees(gpa_regression_dataset):
+	""" Test that entering the same constraint more than once
+	raises an error when making the spec object
+	"""
+	# Regression
+	data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
+	metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
+
+	metadata_dict = load_json(metadata_pth)
+	regime = metadata_dict['regime']
+	sub_regime = metadata_dict['sub_regime']
+	columns = metadata_dict['columns']
+	sensitive_columns = metadata_dict['sensitive_columns']
+				
+	include_sensitive_columns = False
+	include_intercept_term = True
+	regime='supervised_learning'
+
+	# Load dataset from file
+	loader = DataSetLoader(
+		regime=regime)
+
+	dataset = loader.load_supervised_dataset(
+		filename=data_pth,
+		metadata_filename=metadata_pth,
+		include_sensitive_columns=include_sensitive_columns,
+		include_intercept_term=include_intercept_term,
+		file_type='csv')
+	
+	constraint_strs = [
+		'Mean_Squared_Error - 2.0',
+		'Mean_Squared_Error - 2.0'
+	]
+	deltas = [0.05,0.05]
+	
+	with pytest.raises(RuntimeError) as excinfo:
+		spec = createSupervisedSpec(
+			dataset=dataset,
+			metadata_pth=metadata_pth,
+			constraint_strs=constraint_strs,
+			deltas=deltas,
+			save=False,
+			)
+	error_str = (
+				"The constraint: 'Mean_Squared_Error - 2.0' "
+				 "appears more than once in the list of constraints. "
+				 "Duplicate constraints are not allowed.")
+	assert str(excinfo.value) == error_str
 
 	

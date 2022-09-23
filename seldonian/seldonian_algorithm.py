@@ -16,7 +16,6 @@ class SeldonianAlgorithm():
 		""" Object for running the Seldonian algorithm and getting 
 		introspection into candidate selection and safety test 
 
-
 		:param spec: The specification object with the complete 
 			set of parameters for running the Seldonian algorithm
 		:type spec: :py:class:`.Spec` object
@@ -25,8 +24,11 @@ class SeldonianAlgorithm():
 		self.has_been_run = False
 		
 		self.parse_trees = self.spec.parse_trees
+		# user can pass a dictionary that specifies 
+		# the bounding method for each base node
+		# any base nodes not in this dictionary will
+		# be bounded using the default method
 		self.base_node_bound_method_dict = self.spec.base_node_bound_method_dict
-
 		if self.base_node_bound_method_dict != {}:
 			all_pt_constraint_strs = [pt.constraint_str for pt in self.parse_trees]
 			for constraint_str in self.base_node_bound_method_dict:
