@@ -937,7 +937,6 @@ def test_math_functions_propagate():
 	assert pt.root.lower == pytest.approx(0.5990300)
 	assert pt.root.upper == pytest.approx(0.5999346)
 
-
 def test_deltas_assigned_equally():
 	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
 	delta = 0.05 
@@ -1416,7 +1415,6 @@ def test_evaluate_constraint(
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
 		model=model,regime='supervised_learning',
 		branch='safety_test')
-	print(pt.root.value)
 	assert pt.root.value == pytest.approx(-5.656718)
 
 	### RL
@@ -1444,7 +1442,7 @@ def test_evaluate_constraint(
 	pt.evaluate_constraint(theta=theta_init,dataset=dataset,
 		model=model,regime='reinforcement_learning',
 		branch='safety_test')
-	assert pt.root.value == pytest.approx(0.0440292)
+	assert pt.root.value == pytest.approx(0.091136105)
 	
 def test_reset_parse_tree():
 	

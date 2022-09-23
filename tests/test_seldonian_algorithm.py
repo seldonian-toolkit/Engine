@@ -746,7 +746,6 @@ def test_NSF(gpa_regression_dataset):
 
 	assert str(excinfo.value) == "Cannot evaluate primary objective because theta='NSF'"
 
-
 def test_cmaes(gpa_regression_dataset):
 	""" Test that the CMA-ES black box optimizers successfully optimize the GPA 
 	regression problem with a simple non-conflicting constraint
@@ -1738,14 +1737,13 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	passed_safety,solution = SA.run()
 	assert passed_safety == True
 	g_vals = SA.cs_result['g_vals']
-	assert g_vals[1][0] == pytest.approx(-9.50428271)
+	assert g_vals[1][0] == pytest.approx(-9.67469087)
 
 	#Get primary objective
 	primary_val_cs = SA.evaluate_primary_objective(
 		theta=solution,branch='candidate_selection')
-	print(primary_val_cs)
 	primary_val_st = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
-	assert primary_val_st == pytest.approx(0.285780384)
+	assert primary_val_st == pytest.approx(0.42407173678433796)
 
 def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	""" Test that trying to run RL example with 

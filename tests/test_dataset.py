@@ -151,7 +151,7 @@ def test_load_RL_dataset():
 	assert np.allclose(episodes[0].observations[0:5],np.array([0,0,1,4,5]))
 	assert np.allclose(episodes[0].actions[0:5],np.array([0,1,2,1,0]))
 	assert np.allclose(episodes[0].rewards[0:5],np.array([0,0,0,0,0]))
-	assert np.allclose(episodes[0].pis[0:5],np.array([0.25,0.25,0.25,0.25,0.25]))
+	assert np.allclose(episodes[0].action_probs[0:5],np.array([0.25,0.25,0.25,0.25,0.25]))
 
 	# Now from pickled episode list
 	data_pth_pkl = 'static/datasets/RL/gridworld/gridworld_100episodes.pkl'
@@ -161,6 +161,6 @@ def test_load_RL_dataset():
 	episodes = dataset_frompkl.episodes
 	assert len(episodes) == 100
 	assert np.allclose(episodes[0].observations[0:5],np.array([0,0,1,4,5]))
-	assert np.allclose(episodes[0].actions[0:5],np.array([0,1,2,1,0]))
+	assert np.allclose(episodes[0].actions[0:5],np.array([0,1,2,1,3]))
 	assert np.allclose(episodes[0].rewards[0:5],np.array([0,0,0,0,0]))
-	assert np.allclose(episodes[0].pis[0:5],np.array([0.25,0.25,0.25,0.25,0.25]))
+	assert np.allclose(episodes[0].action_probs[0:5],np.array([0.25,0.25,0.25,0.25,0.25]))

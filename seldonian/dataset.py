@@ -99,7 +99,7 @@ class DataSetLoader():
 			episode = Episode(observations=df_ep.iloc[:,1].values,
 							  actions=df_ep.iloc[:,2].values,
 							  rewards=df_ep.iloc[:,3].values,
-							  pis=df_ep.iloc[:,4].values)
+							  action_probs=df_ep.iloc[:,4].values)
 			episodes.append(episode)
 		
 		return RLDataSet(
@@ -204,24 +204,25 @@ class RLDataSet(DataSet):
 
 
 class Episode(object):
-	def __init__(self,observations,actions,rewards,pis):
+	def __init__(self,observations,actions,rewards,action_probs):
 		""" Object for holding RL episodes
 		
 		:param observations: List of observations for each timestep
 			in the episode
 		:param actions: List of actions 
 		:param rewards: List of rewards 
-		:param pis: List of action probabilities from the behavior policy
+		:param action_probs: List of action probabilities 
+			from the behavior policy
 		"""
 		self.observations = np.array(observations)
 		self.actions = np.array(actions)
 		self.rewards = np.array(rewards)
-		self.pis = np.array(pis)
+		self.action_probs = np.array(action_probs)
 
 	def __str__(self):
 		return f"return = {sum(self.rewards)}\n"+\
 	    f"{len(self.observations)} observations, type of first in array is {type(self.observations[0])}: {self.observations}\n"\
 		+ f"{len(self.actions)} actions, type of first in array is {type(self.actions[0])}: {self.actions}\n"\
 		+ f"{len(self.rewards)} rewards, type of first in array is {type(self.rewards[0])}: {self.rewards}\n"\
-		+ f"{len(self.pis)} pis, type of first in array is {type(self.pis[0])}: {self.pis}"
+		+ f"{len(self.action_probs)} action_probs, type of first in array is {type(self.action_probs[0])}: {self.prob_actions}"
 

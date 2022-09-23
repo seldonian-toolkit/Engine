@@ -219,7 +219,7 @@ def test_generate_gridworld_episodes():
     observations = first_episode.observations
     actions = first_episode.actions
     rewards = first_episode.rewards
-    pis = first_episode.pis
+    pis = first_episode.action_probs
     assert len(observations) >= 2
     assert len(actions) >= 2
     assert len(rewards) >= 2
@@ -255,7 +255,7 @@ def test_generate_n_step_mountaincar_episodes():
     observations = first_episode.observations
     actions = first_episode.actions
     rewards = first_episode.rewards
-    pis = first_episode.pis
+    pis = first_episode.action_probs
     assert len(observations) >= 2
     assert len(actions) >= 2
     assert len(rewards) >= 2

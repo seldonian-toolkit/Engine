@@ -614,7 +614,7 @@ def IS_estimate(model,theta,data_dict):
 	for ii, ep in enumerate(episodes):
 		pi_news = model.get_probs_from_observations_and_actions(
 			theta, ep.observations, ep.actions)
-		pi_ratios = pi_news / ep.pis
+		pi_ratios = pi_news / ep.action_probs
 		pi_ratio_prod = np.prod(pi_ratios)
 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		IS_estimate += pi_ratio_prod * weighted_return
@@ -647,7 +647,7 @@ def vector_IS_estimate(model, theta, data_dict):
 	for ii, ep in enumerate(episodes):
 		pi_news = model.get_probs_from_observations_and_actions(
 			theta, ep.observations, ep.actions)
-		pi_ratio_prod = np.prod(pi_news / ep.pis)
+		pi_ratio_prod = np.prod(pi_news / ep.action_probs)
 		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
 		result.append(pi_ratio_prod * weighted_return)
 
