@@ -260,7 +260,8 @@ class SeldonianAlgorithm():
 			value of theta
 		:rtype: float
 		"""
-		
+		if theta == 'NSF':
+			raise ValueError("Cannot evaluate primary objective because theta='NSF'")
 		if branch == 'safety_test':
 			st = self.safety_test()
 			result = st.evaluate_primary_objective(theta,

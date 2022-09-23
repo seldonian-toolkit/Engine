@@ -714,7 +714,7 @@ def test_NSF(gpa_regression_dataset):
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 200,
+			'num_iters'     : 100,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -731,6 +731,21 @@ def test_NSF(gpa_regression_dataset):
 	res = SA.get_cs_result()
 	candidate_solution = res['candidate_solution']
 	assert isinstance(candidate_solution,np.ndarray)
+
+	# Test that evaluate primary objective function raises a value error
+	with pytest.raises(ValueError) as excinfo:
+		SA.evaluate_primary_objective(
+			branch="candidate_solution",theta=solution)
+
+	assert str(excinfo.value) == "Cannot evaluate primary objective because theta='NSF'"
+
+	# Test that evaluate primary objective function raises a value error
+	with pytest.raises(ValueError) as excinfo:
+		SA.evaluate_primary_objective(
+			branch="safety_test",theta=solution)
+
+	assert str(excinfo.value) == "Cannot evaluate primary objective because theta='NSF'"
+
 
 def test_cmaes(gpa_regression_dataset):
 	""" Test that the CMA-ES black box optimizers successfully optimize the GPA 
@@ -1485,7 +1500,6 @@ def test_no_primary_provided(gpa_regression_dataset,
 	SA = SeldonianAlgorithm(spec)
 	assert spec.primary_objective != None
 	assert spec.primary_objective.__name__ == "IS_estimate"
-
 
 def test_createSupervisedSpec(gpa_regression_dataset):
 	""" Test that if the user does not provide a primary objective,
