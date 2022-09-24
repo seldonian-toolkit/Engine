@@ -5,7 +5,12 @@ from seldonian.dataset import SupervisedDataSet
 from seldonian.parse_tree.parse_tree import ParseTree
 
 
-def generate_data(num_points,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0):
+def generate_data(
+    num_points,
+    loc_X=0.0,
+    loc_Y=0.0,
+    sigma_X=1.0,
+    sigma_Y=1.0):
     """ Generate 2D random normal data
     
     :param num_points: The number of data points to generate
@@ -63,10 +68,10 @@ def generate_clipped_data(
 
 def make_synthetic_regression_dataset(
     num_points,
-    loc_X,
-    loc_Y,
-    sigma_X,
-    sigma_Y,
+    loc_X=0.0,
+    loc_Y=0.0,
+    sigma_X=1.0,
+    sigma_Y=1.0,
     include_intercept_term=True,
     clipped=False,
     clip_min=-3,

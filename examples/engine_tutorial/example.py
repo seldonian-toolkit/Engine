@@ -12,11 +12,7 @@ if __name__ == "__main__":
     num_points=1000  
     # 1. Define the data - X ~ N(0,1), Y ~ X + N(0,1)
     dataset = make_synthetic_regression_dataset(
-        num_points=num_points,
-        loc_X=0,
-        loc_Y=0,
-        sigma_X=1,
-        sigma_Y=1)
+        num_points=num_points)
 
     # 2. Create parse trees from the behavioral constraints 
     # constraint strings:
