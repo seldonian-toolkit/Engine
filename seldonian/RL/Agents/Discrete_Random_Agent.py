@@ -4,9 +4,9 @@ import autograd.numpy as np
 class Discrete_Random_Agent(Agent):
     def __init__(self, env_description):
         """ An agent that acts on discrete 
-        observation and discrete action spaces.
+        observation and action spaces.
         Picks actions according to uniform random policy. 
-        Is not capable of learning
+        Is not capable of learning.
 
         :param env_description: an object for accessing attributes
             of the environment

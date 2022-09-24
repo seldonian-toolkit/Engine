@@ -92,28 +92,22 @@ class BaseNode(Node):
 		:param name: 
 			The name of the node
 		:type name: str
-		
 		:param lower: 
 			Lower confidence bound
 		:type lower: float
-
 		:param upper: 
 			Upper confidence bound
 		:type upper: float
-
 		:param conditional_columns: 
 			When calculating confidence bounds on a measure 
 			function, condition on these columns being == 1
 		:type conditional_columns: List(str)
-
 		:ivar node_type: 
 			equal to 'base_node'
 		:vartype node_type: str
-
 		:ivar delta: 
 			The share of the confidence put into this node
 		:vartype delta: float
-
 		:ivar measure_function_name: str
 			The name of the statistical measurement
 			function that this node represents, e.g. "FPR". 
@@ -160,7 +154,6 @@ class BaseNode(Node):
 		:param dataset: 
 			The candidate or safety dataset
 		:type dataset: dataset.Dataset object
-		
 		:param conditional_columns: 
 			List of columns for which to create
 			the joint AND mask on the dataset
@@ -258,11 +251,9 @@ class BaseNode(Node):
 	
 		:param model: The machine learning model
 		:type model: models.SeldonianModel object
-	
 		:param theta: 
 			model weights
 		:type theta: numpy ndarray
-		
 		:param data_dict: 
 			Contains inputs to model, 
 			such as features and labels
@@ -366,11 +357,9 @@ class BaseNode(Node):
 			Vector containing base variable  
 			evaluated at each observation in dataset
 		:type data: numpy ndarray 
-
 		:param datasize: 
 			The number of observations in the safety dataset
 		:type datasize: int
-		
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
@@ -399,11 +388,9 @@ class BaseNode(Node):
 			Vector containing base variable  
 			evaluated at each observation in dataset
 		:type data: numpy ndarray 
-
 		:param datasize: 
 			The number of observations in the safety dataset
 		:type datasize: int
-		
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
@@ -436,11 +423,9 @@ class BaseNode(Node):
 			Vector containing base variable  
 			evaluated at each observation in dataset
 		:type data: numpy ndarray 
-
 		:param datasize: 
 			The number of observations in the safety dataset
 		:type datasize: int
-		
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
@@ -477,12 +462,10 @@ class BaseNode(Node):
 		:param data: 
 			Vector containing base variable  
 			evaluated at each observation in dataset
-		:type data: numpy ndarray 
-
+		:type data: numpy ndarray
 		:param datasize: 
 			The number of observations in the safety dataset
 		:type datasize: int
-		
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
@@ -510,11 +493,9 @@ class BaseNode(Node):
 			Vector containing base variable  
 			evaluated at each observation in dataset
 		:type data: numpy ndarray 
-
 		:param datasize: 
 			The number of observations in the safety dataset
 		:type datasize: int
-		
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
@@ -549,11 +530,9 @@ class BaseNode(Node):
 			Vector containing base variable  
 			evaluated at each observation in dataset
 		:type data: numpy ndarray 
-
 		:param datasize: 
 			The number of observations in the safety dataset
 		:type datasize: int
-		
 		:param delta: 
 			Confidence level, e.g. 0.05
 		:type delta: float
@@ -1021,11 +1000,9 @@ class ConstantNode(Node):
 		:param name: 
 			The name of the node
 		:type name: str
-
 		:param value: 
 			The value of the constant the node represents
 		:type value: float
-
 		:ivar node_type: 
 			'constant_node'
 		:vartype node_type: str
@@ -1049,6 +1026,12 @@ class InternalNode(Node):
 			string representation of the operation 
 			the node performs
 		:type name: str
+		:param lower: 
+			Lower confidence bound
+		:type lower: float
+		:param upper: 
+			Upper confidence bound
+		:type upper: float
 		"""
 		super().__init__(name,lower,upper,**kwargs)
 		self.node_type = 'internal_node'

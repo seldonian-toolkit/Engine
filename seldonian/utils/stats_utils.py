@@ -8,7 +8,6 @@ def stddev(v):
 
     :param v: vector of data
     :type v: Numpy ndarray
-
     :return: Standard deviation with Bessel's correction
     :rtype: float
     """
@@ -25,10 +24,8 @@ def tinv(p, nu):
 
     :param p: Probability
     :type p: float
-
     :param nu: Degrees of freedom
     :type nu: int
-
     :return: Inverse of the Student's t CDF
     :rtype: float
     """
@@ -37,14 +34,13 @@ def tinv(p, nu):
 def weighted_sum_gamma(arr,gamma=0.9):
     """ Calculate weighted sum of an array,
     where weights are gamma**(index of arr). 
-    Used in calculating sum of weighted rewards in RL
+    Used in calculating sum of discounted rewards in RL
 
     :param arr: An input array
     :type arr: Numpy ndarray
-
-    :param gamma: The constant used for weighting the array
+    :param gamma: The constant used for weighting the array,
+        also called the discount factor in RL
     :type gamma: float  
-
     :return: The weighted sum
     :rtype: float  
     """

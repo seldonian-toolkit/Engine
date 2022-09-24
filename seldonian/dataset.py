@@ -14,7 +14,6 @@ class DataSetLoader():
 		:param regime: The category of the machine learning algorithm,
 			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
-
 		"""
 		self.regime = regime
 
@@ -29,19 +28,15 @@ class DataSetLoader():
 		:param filename: The file
 			containing the data you want to load
 		:type filename: str
-
 		:param metadata_filename: The file
 			containing the metadata describing the data in filename
 		:type metadata_filename: str
-
 		:param include_sensitive_columns: Whether to use 
 			sensitive columns during model training
 		:type include_sensitive_columns: bool
-
 		:param include_intercept_term: Whether to pre-append
 			a column of ones in the feature array
 		:type include_intercept_term: bool
-
 		:param file_type: the file extension of filename
 		:type file_type: str, defaults to 'csv'
 		"""
@@ -73,7 +68,6 @@ class DataSetLoader():
 		filename,metadata_filename=None):
 		""" Create RLDataSet object from file
 		containing the episodes as a CSV with format:
-
 		episode_index,obs,action,reward,probability_of_action.
 
 		:param filename: The file
@@ -125,7 +119,8 @@ class DataSetLoader():
 
 		
 class DataSet(object):
-	def __init__(self,meta_information,
+	def __init__(self,
+		meta_information,
 		regime,
 		**kwargs):
 		""" Object for holding dataframe and dataset metadata
@@ -142,7 +137,8 @@ class DataSet(object):
 
 
 class SupervisedDataSet(DataSet):
-	def __init__(self,df,
+	def __init__(self,
+		df,
 		meta_information,
 		label_column,
 		sensitive_column_names=[],
@@ -153,25 +149,16 @@ class SupervisedDataSet(DataSet):
 	
 		:param df: dataframe containing the full dataset 
 		:type df: pandas dataframe
-
 		:param meta_information: list of all column names in the dataframe
 		:type meta_information: List(str)
-
-		:param regime: The category of the machine learning algorithm,
-			e.g., supervised_learning or reinforcement_learning
-		:type regime: str
-
 		:param label_column: The column with the target labels 
 			(supervised learning)
 		:type label_column: str
-
 		:param sensitive_column_names: The names of the columns that 
 			contain the sensitive attributes
 		:type sensitive_column_names: List(str)
-
 		:param include_sensitive_columns: Whether to include 
 			sensitive columns during training/prediction
-
 		:param include_intercept_term: Whether to add 
 			a column of ones as the first column in the dataset.
 		"""
@@ -192,7 +179,6 @@ class RLDataSet(DataSet):
 	
 		:param episodes: List of episodes
 		:type episodes: list(:py:class:`.Episode`)
-
 		:param meta_information: List of attribute names in each Episode,
 			e.g. ['o','a','r','pi_b']
 		:type meta_information: list(str)

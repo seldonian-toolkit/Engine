@@ -19,7 +19,6 @@ class Table(Function_Approximator):
 
         :param env_state: The environment obs you want to convert
         :type env: int
-
         :return: 0-indexed obs in the table
         """
         return env_state - self.min_state
@@ -30,10 +29,8 @@ class Q_Table(Table):
 
         :param min_state: The smallest obs number
         :type min_state: int
-
         :param num_states: Number of total states
         :type num_states: int
-
         :param num_actions: Number of actions in a given obs
         :type num_actions: int
         """
@@ -46,7 +43,6 @@ class Q_Table(Table):
 
         :param state_number_not_zero_indexed: The environment-specific obs number
         :type state_number_not_zero_indexed: int
-
         :return: array of possible Q-table values
         """
 
@@ -58,7 +54,6 @@ class Q_Table(Table):
 
         :param zero_indexed_state_number: The 0-indexed obs number in the table
         :type zero_indexed_state_number: int
-
         :return: array of possible actions
         """
         return self.weights[zero_indexed_state_number, :]
@@ -69,7 +64,6 @@ def construct_Q_Table_From_Env_Description(env_description):
     :param env_description: an object for accessing attributes
             of the environment
     :type env_description: :py:class:`.Env_Description`
-
     :return: A Q Table 
     :rtype: :py:class:`.Q_Table`
     """

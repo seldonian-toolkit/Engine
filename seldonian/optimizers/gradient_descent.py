@@ -6,7 +6,17 @@ def setup_gradients(
     gradient_library,
     primary_objective,
     upper_bounds_function):
+    """ Wrapper to obtain the gradient functions
+    of the primary objective and upper bounds function
+    given a gradient library
 
+    :param gradient_library: The name of the library to use for computing 
+        automatic gradients. 
+    :type gradient_library: str, defaults to "autograd"
+    :param primary_objective: Primary objective function 
+    :param upper_bounds_function: Function for computing upper bounds
+        on the constraints 
+    """
     if gradient_library == "autograd":
         grad_primary_theta = grad(primary_objective,argnum=0)
         grad_upper_bound_theta = jacobian(upper_bounds_function,argnum=0)
@@ -57,7 +67,7 @@ def gradient_descent_adam(
     :type theta_init: float
     :param alpha_theta: Initial learning rate for theta
     :type alpha_theta: float
-    :param alpha_lamb: Learning rate for lambda
+    :param alpha_lamb: Initial learning rate for lambda
     :type alpha_lamb: float
     :param beta_velocity: Exponential decay rate for velocity term
     :type beta_velocity: float
@@ -68,6 +78,8 @@ def gradient_descent_adam(
     :param gradient_library: The name of the library to use for computing 
         automatic gradients. 
     :type gradient_library: str, defaults to "autograd"
+    :param verbose: Boolean flag to control verbosity
+    :param debug: Boolean flag to print out info useful for debugging
 
     :return: solution, a dictionary containing the solution and metadata 
         about the gradient descent run
@@ -85,15 +97,7 @@ def gradient_descent_adam(
             raise RuntimeError(
                 "lambda has wrong shape. Shape must be (n_constraints,1)")
         lamb = lambda_init
-
-    # print()
-        # if lambda_init.shape[0] == 1 and lambda_init.shape[0] != n_constraints:
-        #     # repeat value for each constraint
-        #     lamb = lambda_init[0][0]*np.ones((n_constraints,1))
-        # # lamb = lambda_init.reshape(n_constraints,1) # like [[0.5],[0.5],[0.5],...[0.5]]
         
-    
-    
     # initialize Adam parameters
     velocity_theta, velocity_lamb = 0.0,0.0
     s_theta, s_lamb = 0.0,0.0

@@ -4,8 +4,10 @@ from seldonian.RL.Agents.Bases.Fourier import *
 from seldonian.RL.Env_Description.Env_Description import *
 
 class Policy:
-    """ Base class for policies. Contains four methods which
-    must be overridden in any policy implementation """
+    def __init__(self):
+        """ Base class for policies. Contains four methods which
+        must be overridden in any policy implementation """
+        pass
 
     def choose_action(self, obs):
         """ Defines how to select an action given an observation, obs

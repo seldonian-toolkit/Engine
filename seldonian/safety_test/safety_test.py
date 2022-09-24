@@ -25,19 +25,6 @@ class SafetyTest(object):
 		:param regime: The category of the machine learning algorithm,
 			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
-
-		:ivar normalize_returns: Whether to normalize returns to be
-			in the interval [0,1]. Only relevant for the RL regime
-		:vartype normalize_returns: bool
-
-		:ivar min_return: The minimum possible return. Used 
-			if normalize returns==True. Only relevant for the RL regime
-		:vartype min_return: float
-
-		:ivar max_return: The maximum possible return. Used 
-			if normalize returns==True. Only relevant for the RL regime
-		:vartype max_return: float
-
 		"""
 		self.safety_dataset = safety_dataset
 		self.model = model
@@ -105,6 +92,11 @@ class SafetyTest(object):
 
 		:param theta: model weights
 		:type theta: numpy.ndarray
+
+		:param primary_objective: The primary objective function 
+			you want to evaluate
+
+		:return: The primary objective function evaluated at theta
 		"""
 		
 		# Get value of the primary objective given model weights

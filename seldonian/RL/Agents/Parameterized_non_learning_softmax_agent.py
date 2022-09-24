@@ -11,13 +11,10 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		:param env_description: an object for accessing attributes
 			of the environment
 		:type env_description: :py:class:`.Env_Description`
-
 		:param hyperparam_and_setting_dict: Contains additional 
 			info about the environment and data generation
-
 		:ivar FA: Function approximator
 		:vartype FA: :py:class:`.Q_Table`
-
 		:ivar softmax: The policy
 		:vartype softmax: :py:class:`.Softmax`
 		"""
@@ -28,15 +25,16 @@ class Parameterized_non_learning_softmax_agent(Agent):
 	def get_action_values(self, obs):
 		""" Get all possible actions from this state using the FA
 
-		:param obs: The current observation of the agent, type depends on environment.
+		:param obs: The current observation of the agent,
+			type depends on environment.
 		"""
 		return self.softmax.get_action_values_given_state(obs)
 
 	def choose_action(self, obs):
 		""" Select an action given a observation
 
-		:param obs: The current observation of the agent, type depends on environment.
-
+		:param obs: The current observation of the agent, 
+			type depends on environment
 		:return: array of actions
 		"""
 		return self.softmax.choose_action(obs)
@@ -48,12 +46,9 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		
 		:param observation: The current observation of the agent,
 			type depends on environment.
-
 		:param next_observation: The observation of the agent after
 			an action is taken
-
 		:param reward: The reward for taking the action 
-
 		:param terminated: Whether next_observation is the 
 			terminal observation
 		:type terminated: bool
@@ -64,9 +59,7 @@ class Parameterized_non_learning_softmax_agent(Agent):
 		""" Get the probability of a selected action in a given obs
 
 		:param observation: The current obs of the agent, type depends on environment.
-
 		:param action: The action selected, type depends on environment
-
 		:return: probability of action
 		:rtype: float
 		"""

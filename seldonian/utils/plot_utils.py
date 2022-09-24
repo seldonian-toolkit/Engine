@@ -1,11 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_gradient_descent(solution,primary_objective_name,
+def plot_gradient_descent(
+    solution,
+    primary_objective_name,
     save=False,
     savename='test.png',
     show=True):
     """ Make figure showing evolution of gradient descent.
+    One row per constraint. The primary objective and lagrangian
+    subplots are repeated in each row because they are not
+    changing with the constraint
+
     Plots:
     i) primary objective
     ii) lagrange multipliers for each constraint, lambda_i
@@ -14,17 +20,13 @@ def plot_gradient_descent(solution,primary_objective_name,
 
     :param solution: The solution dictionary returned by gradient descent
     :type solution: dict
-
     :param primary_objective_name: The label you want displayed on the plot
         for the primary objective
     :type primary_objective_name: str
-
     :param save: Whether to save the plot
     :type save: bool
-
     :param savename: The full path where you want to save the plot
     :type savename: str
-
     :param show: Whether to show the plot with plt.show().
         Only relevant when save=False
     :type show: bool

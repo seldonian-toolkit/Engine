@@ -7,22 +7,19 @@ from functools import partial, lru_cache
 
 class SeldonianModel(object):
 	def __init__(self):
-		""" Parent class for all machine learning models
-		used in this library. """
+		""" Parent class for all machine learning models """
 		pass
 
 
 class SupervisedModel(SeldonianModel):
 	def __init__(self):
-		""" Parent class for all supervised machine learning 
-		models used in this library """
+		""" Parent class for all supervised learning models """
 		super().__init__()
 
 
 class RegressionModel(SupervisedModel):
 	def __init__(self):
-		""" Parent class for all regression-based machine learning 
-		models used in this library """ 
+		""" Parent class for all regression-based models """ 
 		super().__init__()
 
 	def predict(self):
@@ -40,10 +37,8 @@ class LinearRegressionModel(RegressionModel):
 
 		:param theta: The parameter weights
 		:type theta: numpy ndarray
-
 		:param X: The features
 		:type X: numpy ndarray
-
 		:return: predicted labels
 		:rtype: numpy ndarray
 		"""
@@ -54,10 +49,8 @@ class LinearRegressionModel(RegressionModel):
 
 		:param X: features 
 		:type X: NxM numpy ndarray 
-
 		:param Y: labels 
 		:type Y: Nx1 numpy ndarray 
-
 		:return: weights from the fitted model
 		:rtype: numpy ndarray
 		"""
@@ -82,10 +75,8 @@ class BoundedLinearRegressionModel(LinearRegressionModel):
 
 		:param theta: The parameter weights
 		:type theta: numpy ndarray
-
 		:param X: The features
 		:type X: numpy ndarray
-
 		:return: predicted labels
 		:rtype: numpy ndarray
 		"""
@@ -103,7 +94,7 @@ class BoundedLinearRegressionModel(LinearRegressionModel):
 class ClassificationModel(SupervisedModel):
 	def __init__(self):
 		""" Parent class for all classification-based 
-		machine learning models used in this library. 
+		machine learning models 
 
 		Currently only supports binary classification
 		"""
@@ -125,10 +116,8 @@ class LogisticRegressionModel(ClassificationModel):
 
 		:param theta: The parameter weights
 		:type theta: numpy ndarray
-
 		:param X: The features
 		:type X: numpy ndarray
-
 		:return: predictions for each observation
 		:rtype: float
 		"""
@@ -142,10 +131,8 @@ class LogisticRegressionModel(ClassificationModel):
 
 		:param X: The features
 		:type X: numpy ndarray
-
 		:param Y: The labels
 		:type Y: numpy ndarray
-
 		:return: fitted model weights
 		:rtype: numpy ndarray(float)
 		"""
@@ -165,10 +152,8 @@ class DummyClassifierModel(ClassificationModel):
 
 		:param theta: The parameter weights
 		:type theta: numpy ndarray
-
 		:param X: The features
 		:type X: numpy ndarray
-
 		:return: predictions for each observation
 		:rtype: float
 		"""
@@ -189,13 +174,10 @@ class RandomClassifierModel(ClassificationModel):
 
 		:param theta: The parameter weights
 		:type theta: numpy ndarray
-
 		:param X: The features
 		:type X: numpy ndarray
-
 		:return: predictions for each observation
 		:rtype: float
 		"""
-
 		return 0.5*np.ones(len(X))
 

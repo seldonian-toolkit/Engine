@@ -24,36 +24,29 @@ class ParseTree(object):
 			that the algorithm can return a solution violat the
 			behavioral constraint.
 		:type delta: float
-
 		:param regime: The category of the machine learning algorithm,
 			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
-
 		:param sub_regime: The sub-category of ml algorithm, e.g. 
 			classification or regression for supervised learning.
 			Use 'all' for RL.
 		:type sub_regime: str
-
 		:param columns: The names of the columns in the dataframe. 
 			Used to determine if conditional columns provided by user
 			are appropriate. 
 		:type columns: List(str)
-
 		:ivar root: 
 			Root node which contains the whole tree 
 			via left and right child attributes.
 			Gets assigned when tree is built
 		:vartype root: nodes.Node object
-		
 		:ivar constraint_str: 
 			The string expression for the behavioral
 			constraint
 		:vartype constraint_str: str
-		
 		:ivar n_nodes: 
 			Total number of nodes in the parse tree
 		:vartype n_nodes: int
-		
 		:ivar n_base_nodes: 
 			Number of base variable nodes in the parse tree.
 			Does not include constants. If a base variable,
@@ -61,7 +54,6 @@ class ParseTree(object):
 			constraint_str each appearance contributes 
 			to n_base_nodes
 		:vartype n_base_nodes: int
-		
 		:ivar base_node_dict: 
 			Keeps track of unique base variable nodes,
 			their confidence bounds and whether 
@@ -70,11 +62,9 @@ class ParseTree(object):
 			Helpful for handling case where we have 
 			duplicate base nodes 
 		:vartype base_node_dict: dict
-		
 		:ivar node_fontsize: 
 			Fontsize used for graphviz visualizations
 		:vartype node_fontsize: int
-
 		:ivar available_measure_functions: 
 			A list of measure functions for the 
 			given regime and sub-regime, e.g. "Mean_Error"
@@ -108,7 +98,6 @@ class ParseTree(object):
 			mathematical expression written in Python syntax
 			from which we build the parse tree
 		:type constraint_str: str
-
 		:param delta_weight_method: str, 
 			How you want to assign the deltas to the base nodes.
 			The default 'equal' splits up delta equally
@@ -160,7 +149,6 @@ class ParseTree(object):
 			mathematical expression written in Python syntax
 			from which we build the parse tree
 		:type s: str
-
 		:return: String for g
 		:rtype: str
 		"""
@@ -203,7 +191,6 @@ class ParseTree(object):
 
 		:param ast_node: node in the ast tree
 		:type ast_node: ast.AST node object
-			
 		"""
 		# base case
 		if ast_node is None:
@@ -455,7 +442,6 @@ class ParseTree(object):
 
 		:param node: node in the parse tree
 		:type node: :py:class:`.Node` object
-		
 		:param weight_method: 
 			How you want to assign the deltas to the base nodes
 		:type weight_method: str
@@ -499,11 +485,9 @@ class ParseTree(object):
 
 		:param node: node in the parse tree
 		:type node: :py:class:`.Node` object
-		
 		:param lower_needed: 
 			Whether lower bound needs to be calculated
 		:type lower_needed: bool
-		
 		:param upper_needed: 
 			Whether upper bound needs to be calculated
 		:type upper_needed: bool
@@ -859,7 +843,6 @@ class ParseTree(object):
 		:param a: 
 			Confidence interval like: (lower,upper)
 		:type a: tuple
-		
 		:param b: 
 			Confidence interval like: (lower,upper)
 		:type b: tuple
@@ -881,7 +864,6 @@ class ParseTree(object):
 		:param a: 
 			Confidence interval like: (lower,upper)
 		:type a: tuple
-		
 		:param b: 
 			Confidence interval like: (lower,upper)
 		:type b: tuple
@@ -903,7 +885,6 @@ class ParseTree(object):
 		:param a: 
 			Confidence interval like: (lower,upper)
 		:type a: tuple
-		
 		:param b: 
 			Confidence interval like: (lower,upper)
 		:type b: tuple
@@ -925,7 +906,6 @@ class ParseTree(object):
 		:param a: 
 			Confidence interval like: (lower,upper)
 		:type a: tuple
-		
 		:param b: 
 			Confidence interval like: (lower,upper)
 		:type b: tuple
@@ -962,7 +942,6 @@ class ParseTree(object):
 		:param a: 
 			Confidence interval like: (lower,upper)
 		:type a: tuple
-		
 		:param b: 
 			Confidence interval like: (lower,upper)
 		:type b: tuple
@@ -999,7 +978,6 @@ class ParseTree(object):
 		:param a: 
 			Confidence interval like: (lower,upper)
 		:type a: tuple
-		
 		:param b: 
 			Confidence interval like: (lower,upper)
 		:type b: tuple
@@ -1015,7 +993,6 @@ class ParseTree(object):
 		:param a: 
 			Confidence interval like: (lower,upper)
 		:type a: tuple
-		
 		:param b: 
 			Confidence interval like: (lower,upper)
 		:type b: tuple
@@ -1115,7 +1092,6 @@ class ParseTree(object):
 		:param root: 
 			root of the parse tree
 		:type root: :py:class:`.Node` object
-		
 		:param graph: 
 			The graphviz graph object
 		:type graph: graphviz.Digraph object
@@ -1154,30 +1130,48 @@ class ParseTree(object):
 			self.make_viz_helper(root.right,graph)   
 
 def make_parse_trees_from_constraints(
-    constraint_strs,
-    deltas,
-    regime='supervised_learning',
-    sub_regime='regression',
-    columns=[],
-    delta_weight_method='equal'):
-    parse_trees = []
-    for ii in range(len(constraint_strs)):
-        constraint_str = constraint_strs[ii]
+	constraint_strs,
+	deltas,
+	regime='supervised_learning',
+	sub_regime='regression',
+	columns=[],
+	delta_weight_method='equal'):
+	"""
+	Convenience function for creating parse trees
+	given constraint strings and deltas
 
-        delta = deltas[ii]
+	:param constraint_strs: List of constraint strings
+	:param deltas: List of deltas corresponding to each constraint
+	:param regime: The category of the machine learning algorithm,
+		e.g., supervised_learning or reinforcement_learning
+	:type regime: str, defaults to "supervised_learning"
+	:param sub_regime: The sub-category of the machine learning algorithm,
+		e.g., classifiction or regression
+	:type sub_regime: str, defults to "regression"
+	:param columns: list of columns in the dataset, needed
+		if constraints condition on any of these columns
+	:param delta_weight_method: The method for weighting deltas
+		across the base nodes. 
+	:type delta_weight_method: str, defults to "equal"
+	"""
+	parse_trees = []
+	for ii in range(len(constraint_strs)):
+		constraint_str = constraint_strs[ii]
 
-        # Create parse tree object
-        pt = ParseTree(
-            delta=delta,
-            regime=regime,
-            sub_regime=sub_regime,
-            columns=columns)
+		delta = deltas[ii]
 
-        # Fill out tree
-        pt.build_tree(
-            constraint_str=constraint_str,
-            delta_weight_method=delta_weight_method)
+		# Create parse tree object
+		pt = ParseTree(
+			delta=delta,
+			regime=regime,
+			sub_regime=sub_regime,
+			columns=columns)
 
-        parse_trees.append(pt)
-        
-    return parse_trees
+		# Fill out tree
+		pt.build_tree(
+			constraint_str=constraint_str,
+			delta_weight_method=delta_weight_method)
+
+		parse_trees.append(pt)
+		
+	return parse_trees

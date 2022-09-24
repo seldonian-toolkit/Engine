@@ -2,6 +2,8 @@ from seldonian.RL.Agents.Agent import *
 
 class Keyboard_gridworld(Agent):
     def __init__(self, env_description):
+        """ An agent used for debugging the gridworld
+        environment. Not intended for public use. """
         pass
 
     def choose_action(self, observation):

@@ -3,6 +3,18 @@ from math import factorial, pi
 
 class Fourier:
     def __init__(self, hyperparam_and_setting_dict, env_desc):
+        """ Fourier basis used for linear value function 
+        approximation. See http://irl.cs.brown.edu/fb.php for
+        a reference
+
+        :param hyperparameter_and_setting_dict: Specifies the
+            environment, agent, number of episodes per trial,
+            and number of trials
+
+        :param env_description: an object for accessing attributes
+            of the environment
+        :type env_description: :py:class:`.Env_Description`
+        """
         self.num_observation_dims = env_desc.get_num_observation_dims()
         self.order = hyperparam_and_setting_dict["order"]
         if self.order <= 0:
@@ -27,12 +39,15 @@ class Fourier:
         self.basis_matrix = self.construct_basis_matrix()
 
     def calculate_num_features(self, order, max_coupled_vars, num_obs_dims):
+        """ Determine the number of features in the basis 
+        """
         num_features = (order + 1) ** num_obs_dims
         for mandatory_0_observation_variables in range(max_coupled_vars+1, num_obs_dims + 1):
             num_features -= order ** mandatory_0_observation_variables * factorial(num_obs_dims) / factorial(num_obs_dims - mandatory_0_observation_variables) / factorial(mandatory_0_observation_variables)
         return num_features
 
     def construct_basis_matrix(self):
+        """ Create the basis matrix """
         basis_matrix = np.zeros((self.num_features, self.num_observation_dims), dtype=int)
         row = 0  # row of the matrix corresponds to the features
         fully_coupled_num_features = (self.order + 1) ** self.num_observation_dims
@@ -54,12 +69,14 @@ class Fourier:
         return basis_matrix
 
     def get_features(self, obs):
+        """ Get the basis feature given an observation """
         normalized_obs = self.get_normalized_observation(obs)
         ret_matrix = np.dot(self.basis_matrix, normalized_obs)
         ret_matrix = np.cos(pi*ret_matrix)
         return ret_matrix
 
     def get_normalized_observation(self, obs):
+        """ Get the normalized observation given an observation """
         norm_obs = np.zeros(self.num_observation_dims)
         for obs_dim in range(self.num_observation_dims):
             norm_obs[obs_dim] = (obs[obs_dim] - self.mins[obs_dim]) / self.ranges[obs_dim]

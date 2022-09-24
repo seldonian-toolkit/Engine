@@ -217,6 +217,7 @@ def vector_Error(model,theta,X,Y):
 	:type X: numpy ndarray
 	:param Y: The labels
 	:type Y: numpy ndarray
+
 	:return: vector of mean error values
 	:rtype: numpy ndarray(float)
 	"""  
@@ -232,6 +233,7 @@ def gradient_Bounded_Squared_Error(model,theta,X,Y):
 	:type X: numpy ndarray
 	:param Y: The labels
 	:type Y: numpy ndarray
+
 	:return: the gradient evaluated at this theta
 	:rtype: float
 	"""
@@ -325,12 +327,10 @@ def Positive_Rate(model,theta,X):
 	This is the sum of probability of each 
 	sample being in the positive class
 	normalized to the number of predictions 
-	
 		
-		:param model: SeldonianModel instance:param model: SeldonianModel instance
+	:param model: SeldonianModel instance:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -351,7 +351,6 @@ def Negative_Rate(model,theta,X):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -373,7 +372,6 @@ def False_Positive_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -398,7 +396,6 @@ def False_Negative_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -423,7 +420,6 @@ def True_Positive_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -448,7 +444,6 @@ def True_Negative_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -471,7 +466,6 @@ def vector_Positive_Rate(model,theta,X):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -491,7 +485,6 @@ def vector_Negative_Rate(model,theta,X):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -513,7 +506,6 @@ def vector_False_Positive_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -537,7 +529,6 @@ def vector_False_Negative_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -559,7 +550,6 @@ def vector_True_Positive_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -578,7 +568,6 @@ def vector_True_Negative_Rate(model,theta,X,Y):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
 	:param X: The features
 	:type X: numpy ndarray
 
@@ -597,9 +586,7 @@ def IS_estimate(model,theta,data_dict):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
-	:param dataset: The object containing data and metadata
-	:type dataset: dataset.Dataset object
+	:param data_dict: The object containing data and metadata
 
 	:return: The IS estimate calculated over all episodes
 	:rtype: float
@@ -630,9 +617,7 @@ def vector_IS_estimate(model, theta, data_dict):
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-
-	:param dataframe: Contains the episodes
-	:type dataframe: pandas dataframe
+	:param data_dict: The object containing data and metadata
 
 	:return: A vector of IS estimates calculated for each episode
 	:rtype: numpy ndarray(float)

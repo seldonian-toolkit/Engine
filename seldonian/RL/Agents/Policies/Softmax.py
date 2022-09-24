@@ -10,7 +10,6 @@ class Softmax(Discrete_Action_Policy):
         :param hyperparameter_and_setting_dict: Specifies the
             environment, agent, number of episodes per trial,
             and number of trials
-
         :param env_description: an object for accessing attributes
             of the environment
         :type env_description: :py:class:`.Env_Description`

@@ -155,7 +155,11 @@ class SeldonianAlgorithm():
 					self.spec.primary_objective = objectives.Mean_Squared_Error
 
 	def candidate_selection(self,write_logfile=False):
-		""" Create the candidate selection object """
+		""" Create the candidate selection object 
+
+		:param write_logfile: Whether to write out a pickle file
+			containing details of candidate selection 
+		"""
 		cs_kwargs = dict(
 			model=self.model,
 			candidate_dataset=self.candidate_dataset,
@@ -189,6 +193,7 @@ class SeldonianAlgorithm():
 
 		:param write_cs_logfile: Whether to write candidate selection
 			log file
+		:param debug: Whether to print out debugging info
 		:return: (passed_safety, solution). passed_safety 
 			indicates whether solution found during candidate selection
 			passes the safety test. solution is the optimized
@@ -218,12 +223,18 @@ class SeldonianAlgorithm():
 	def run_safety_test(self,candidate_solution,debug=False):
 		"""
 		Runs safety test using solution from candidate selection
+		or some other means
 
 		:param candidate_solution: model weights from candidate selection
 			or other process
+		:param debug: Whether to print out debugging info
+		:return: (passed_safety, solution). passed_safety 
+			indicates whether solution found during candidate selection
+			passes the safety test. solution is the optimized
+			model weights found during candidate selection or 'NSF'.
+		:rtype: Tuple 
 		"""
 			
-		# Safety test
 		st = self.safety_test()
 		passed_safety = st.run(candidate_solution)
 		if not passed_safety:
@@ -236,8 +247,10 @@ class SeldonianAlgorithm():
 				print("Passed safety test!")
 		return passed_safety, solution
 	
-
 	def get_cs_result(self):
+		""" Get the dictionary 
+		returned from running candidate selection
+		"""
 		if not self.has_been_run:
 			raise ValueError(
 				"Candidate selection has not "
@@ -253,11 +266,9 @@ class SeldonianAlgorithm():
 
 		:param branch: 'candidate_selection' or 'safety_test'
 		:type branch: str
-
 		:param theta: model weights
 		:type theta: numpy.ndarray
-
-		:return: result, the value of the primary objective 
+		:return: the value of the primary objective 
 			evaluated for the given branch at the provided
 			value of theta
 		:rtype: float

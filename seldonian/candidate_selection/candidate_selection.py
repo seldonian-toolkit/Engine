@@ -8,48 +8,6 @@ from functools import partial
 from seldonian.models import objectives
 
 class CandidateSelection(object):
-	""" Object for running candidate selection
-	
-	:param model: The Seldonian model object 
-	:type model: models.model.SeldonianModel object
-	
-	:param candidate_dataset: The dataset object containing candidate data
-	:type candidate_dataset: dataset.Dataset object
-		
-	:param n_safety: The length of the safety dataset, used 
-		when predicting confidence bounds during candidate selection
-	:type n_safety: int
-		
-	:param parse_trees: List of parse tree objects containing the 
-		behavioral constraints
-	:type parse_trees: List(parse_tree.ParseTree objects)
-		
-	:param primary_objective: The objective function that would
-		be solely optimized in the absence of behavioral constraints,
-		i.e. the loss function
-	:type primary_objective: function or class method
-		
-	:param optimization_technique: The method for optimization during 
-		candidate selection. E.g. 'gradient_descent', 'barrier_function'
-	:type optimization_technique: str
-
-	:param optimizer: The string name of the optimizer used 
-		during candidate selection
-	:type optimizer: str
-		
-	:param initial_solution: The model weights used to initialize 
-		the optimizer
-	:type initial_solution: numpy ndarray
-		
-	:param regime: The category of the machine learning algorithm,
-			e.g., supervised_learning or reinforcement_learning
-	:type regime: str
-		
-	:param write_logfile: Whether to write outputs of candidate selection 
-		to disk
-	:type write_logfile: bool
-		
-	"""
 	def __init__(self,
 		model,
 		candidate_dataset,
@@ -62,6 +20,48 @@ class CandidateSelection(object):
 		regime='supervised_learning',
 		write_logfile=False,
 		**kwargs):
+		""" Object for running candidate selection
+		
+		:param model: The Seldonian model object 
+		:type model: models.model.SeldonianModel object
+		
+		:param candidate_dataset: The dataset object containing candidate data
+		:type candidate_dataset: dataset.Dataset object
+			
+		:param n_safety: The length of the safety dataset, used 
+			when predicting confidence bounds during candidate selection
+		:type n_safety: int
+			
+		:param parse_trees: List of parse tree objects containing the 
+			behavioral constraints
+		:type parse_trees: List(parse_tree.ParseTree objects)
+			
+		:param primary_objective: The objective function that would
+			be solely optimized in the absence of behavioral constraints,
+			i.e. the loss function
+		:type primary_objective: function or class method
+			
+		:param optimization_technique: The method for optimization during 
+			candidate selection. E.g. 'gradient_descent', 'barrier_function'
+		:type optimization_technique: str
+
+		:param optimizer: The string name of the optimizer used 
+			during candidate selection
+		:type optimizer: str
+			
+		:param initial_solution: The model weights used to initialize 
+			the optimizer
+		:type initial_solution: array
+			
+		:param regime: The category of the machine learning algorithm,
+				e.g., supervised_learning or reinforcement_learning
+		:type regime: str
+			
+		:param write_logfile: Whether to write outputs of candidate selection 
+			to disk
+		:type write_logfile: bool
+			
+		"""
 		self.regime = regime
 		self.model = model
 		self.candidate_dataset = candidate_dataset
@@ -99,7 +99,7 @@ class CandidateSelection(object):
 		""" Run candidate selection
 
 		:return: Optimized model weights or 'NSF'
-		:rtype: numpy ndarray or str 
+		:rtype: array or str 
 		"""
 		if self.optimization_technique == 'gradient_descent':
 			if self.optimizer != "adam":
@@ -250,6 +250,9 @@ class CandidateSelection(object):
 
 		:param theta: model weights
 		:type theta: numpy.ndarray
+
+		:return: the value of the objective function 
+			evaluated at theta
 		"""
 
 		# Get the primary objective evaluated at the given theta
@@ -320,6 +323,9 @@ class CandidateSelection(object):
 
 		:param theta: model weights
 		:type theta: numpy.ndarray
+
+		:return: The value of the primary objective function
+			evaluated at theta
 		"""
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
@@ -350,7 +356,7 @@ class CandidateSelection(object):
 		:type theta: numpy.ndarray
 
 		:return: Array of upper bounds on the constraint
-		:rtype: numpy ndarray 
+		:rtype: array
 		"""
 		upper_bounds = []
 		for pt in self.parse_trees:

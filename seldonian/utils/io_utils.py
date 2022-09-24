@@ -28,9 +28,9 @@ def save_pickle(filename,data,verbose=False):
 
     :param filename: A filename for the saved pickle file
     :type filename: str
-
     :param data: The object you want to pickle
     :type data: Pickle-able object
+    :param verbose: Boolean verbosity flag
     """
     with open(filename,'wb') as outfile:
         pickle.dump(data,outfile,protocol=pickle.HIGHEST_PROTOCOL)
@@ -48,9 +48,9 @@ def load_json(filename):
     return data
 
 def save_json(filename,data,indent=2,verbose=False):
-    """ A wrapper for loading an object from a JSON file
+    """ A wrapper for saving an object to a JSON file
 
-    :param filename: An input filename pointing to a JSON file
+    :param filename: A filename where the JSON file will be saved
     :type filename: str
     """
     with open(filename,'w') as outfile:
@@ -59,7 +59,10 @@ def save_json(filename,data,indent=2,verbose=False):
         print(f"Saved {filename}\n")
 
 def load_supervised_metadata(filename):
-    """ Load metadata from JSON file into a dictionary """
+    """ Load metadata from JSON file into a dictionary
+
+    :param filename: The file to load
+    """
     metadata_dict = load_json(filename)
     regime = metadata_dict['regime']
     columns = metadata_dict['columns']

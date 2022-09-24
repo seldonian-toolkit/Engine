@@ -20,7 +20,7 @@ class Spec(object):
 	:type frac_data_in_safety: float
 	:param primary_objective: The objective function that would
 		be solely optimized in the absence of behavioral constraints,
-		i.e. the loss function
+		i.e., the loss function
 	:type primary_objective: function or class method
 	:param initial_solution_fn: Function to provide 
 		initial model weights in candidate selection 
@@ -28,6 +28,9 @@ class Spec(object):
 	:param parse_trees: List of parse tree objects containing the 
 			behavioral constraints
 	:type parse_trees: List(:py:class:`.ParseTree` objects)
+	:param base_node_bound_method_dict: A dictionary specifying the
+		bounding method to use for each base node
+	:type base_node_bound_method_dict: dict, defaults to {}
 	:param use_builtin_primary_gradient_fn: Whether to use the built-in
 		function for the gradient of the primary objective, 
 		if one exists. If False, uses autograd
@@ -36,9 +39,6 @@ class Spec(object):
 		the gradient of the primary objective. If None,
 		falls back on builtin function or autograd
 	:type custom_primary_gradient_fn: function, defaults to None 
-	:param bound_method: 
-		The statistical method for calculating the confidence bounds
-	:type bound_method: str, defaults to 'ttest'
 	:param optimization_technique: The method for optimization during 
 		candidate selection. E.g. 'gradient_descent', 'barrier_function'
 	:type optimization_technique: str, defaults to 'gradient_descent'
@@ -51,9 +51,6 @@ class Spec(object):
 	:param regularization_hyperparams: Hyperparameters for 
 		regularization during candidate selection. See :ref:`candidate_selection`.
 	:type regularization_hyperparams: dict
-	:ivar usable_opt_dict: Shows which optimizers are acceptable
-		for a given optimization technique
-	:vartype usable_opt_dict: dict
 	"""
 
 	def __init__(
@@ -102,67 +99,50 @@ class SupervisedSpec(Spec):
 
 	:param dataset: The dataset object containing safety data
 	:type dataset: :py:class:`.DataSet` object
-
 	:param model: The SeldonianModel object
-
 	:param parse_trees: List of parse tree objects containing the 
 			behavioral constraints
 	:param sub_regime: "classification" or "regression"
-	
 	:param frac_data_in_safety: Fraction of data used in safety test.
 		The remaining fraction will be used in candidate selection
 	:type frac_data_in_safety: float
-
 	:param primary_objective: The objective function that would
 		be solely optimized in the absence of behavioral constraints,
 		i.e. the loss function
-
 	:param initial_solution_fn: Function to provide 
 		initial model weights in candidate selection
-	
+	:param base_node_bound_method_dict: A dictionary specifying the
+		bounding method to use for each base node
+	:type base_node_bound_method_dict: dict, defaults to {}
 	:param use_builtin_primary_gradient_fn: Whether to use the built-in
 		function for the gradient of the primary objective, 
 		if one exists. If False, uses autograd
 	:type use_builtin_primary_gradient_fn: bool, defaults to True
-
 	:param custom_primary_gradient_fn: A function for computing 
 		the gradient of the primary objective. If None,
 		falls back on builtin function or autograd
 	:type custom_primary_gradient_fn: function, defaults to None 
-
-	:param bound_method: 
-		The statistical method for calculating the confidence bounds
-	:type bound_method: str, defaults to 'ttest'
-
 	:param optimization_technique: The method for optimization during 
 		candidate selection. E.g. 'gradient_descent', 'barrier_function'
 	:type optimization_technique: str, defaults to 'gradient_descent'
-
 	:param optimizer: The string name of the optimizer used 
 		during candidate selection
 	:type optimizer: str, defaults to 'adam'
-
 	:param optimization_hyperparams: Hyperparameters for 
 		optimization during candidate selection. See :ref:`candidate_selection`.
 	:type optimization_hyperparams: dict
-
 	:param regularization_hyperparams: Hyperparameters for 
 		regularization during candidate selection. See :ref:`candidate_selection`.
 	:type regularization_hyperparams: dict
-
-	:ivar usable_opt_dict: Shows which optimizers are acceptable
-		for a given optimization technique
-	:vartype usable_opt_dict: dict
-
 	"""
 	def __init__(self,
 		dataset,
 		model,
 		parse_trees,
 		sub_regime,
+		frac_data_in_safety=0.6,
 		primary_objective=None,
 		initial_solution_fn=None,
-		frac_data_in_safety=0.6,
 		base_node_bound_method_dict={},
 		use_builtin_primary_gradient_fn=True,
 		custom_primary_gradient_fn=None,
@@ -206,6 +186,10 @@ class RLSpec(Spec):
 
 	:param model: The :py:class:`.RL_Model` object
 
+	:param parse_trees: List of parse tree objects containing the 
+			behavioral constraints
+	:type parse_trees: List(:py:class:`.ParseTree` objects)
+	
 	:param frac_data_in_safety: Fraction of data used in safety test.
 		The remaining fraction will be used in candidate selection
 	:type frac_data_in_safety: float
@@ -218,14 +202,11 @@ class RLSpec(Spec):
 	:param initial_solution_fn: Function to provide 
 		initial model weights in candidate selection 
 	:type initial_solution_fn: function
-
-	:param parse_trees: List of parse tree objects containing the 
-			behavioral constraints
-	:type parse_trees: List(:py:class:`.ParseTree` objects)
 	
-	:param RL_environment_obj: Environment class from an RL
-		module in this library (see :py:mod:`seldonian.RL.environments`)
-
+	:param base_node_bound_method_dict: A dictionary specifying the
+		bounding method to use for each base node
+	:type base_node_bound_method_dict: dict, defaults to {}
+	
 	:param use_builtin_primary_gradient_fn: Whether to use the built-in
 		function for the gradient of the primary objective, 
 		if one exists. If False, uses autograd
@@ -235,10 +216,6 @@ class RLSpec(Spec):
 		the gradient of the primary objective. If None,
 		falls back on builtin function or autograd
 	:type custom_primary_gradient_fn: function, defaults to None 
-
-	:param bound_method: 
-		The statistical method for calculating the confidence bounds
-	:type bound_method: str, defaults to 'ttest'
 
 	:param optimization_technique: The method for optimization during 
 		candidate selection. E.g. 'gradient_descent', 'barrier_function'
@@ -257,14 +234,6 @@ class RLSpec(Spec):
 		regularization during candidate selection. See 
 		:ref:`candidate_selection`.
 	:type regularization_hyperparams: dict
-
-	:param normalize_returns: Whether to normalize the returns to [0,1]
-	:type normalize_returns: bool, defaults to False
-
-	:ivar usable_opt_dict: Shows which optimizers are acceptable
-		for a given optimization technique
-	:vartype usable_opt_dict: dict
-
 	"""
 	def __init__(
 		self,
@@ -328,10 +297,10 @@ def createSupervisedSpec(
 	:type constraint_strs: List(str)
 	:param deltas: Confidence thresholds
 	:type deltas: List(float)
+	:param save: Boolean flag determining whether to save to a file
 	:param save_dir: Directory where to save the spec.pkl file
 	:type save_dir: str
-	:param verbose: Flag to control verbosity 
-	:type verbose: bool
+	:param verbose: Boolean glag to control verbosity 
 	"""
 	# Load metadata
 	(regime, sub_regime, columns,
@@ -403,12 +372,23 @@ def createRLSpec(
 	:type policy: :py:class:`.Policy`
 	:param constraint_strs: List of constraint strings 
 	:param deltas: List of confidence thresholds
-	:param save_dir: Directory in which to save the spec.pkl file
 	:param env_kwargs: Kwargs passed to RL_model pertaining to environment, 
 		such as gamma, the discount factor 
 	:type env_kwargs: dict
-	:param verbose: Flag to control verbosity 
-	:type verbose: bool
+	:param frac_data_in_safety: Fraction of data used in safety test.
+		The remaining fraction will be used in candidate selection
+	:type frac_data_in_safety: float
+	:param initial_solution_fn: Function to provide 
+		initial model weights in candidate selection 
+	:type initial_solution_fn: function
+	:param use_builtin_primary_gradient_fn: Whether to use the built-in
+		function for the gradient of the primary objective, 
+		if one exists. If False, uses autograd
+	:type use_builtin_primary_gradient_fn: bool, defaults to True
+	:param save: Boolean flag determining whether to save to a file
+	:param save_dir: Directory where to save the spec.pkl file
+	:type save_dir: str
+	:param verbose: Boolean glag to control verbosity 
 	"""
 	from seldonian.RL.RL_model import RL_model
 	# Define primary objective

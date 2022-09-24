@@ -1,7 +1,9 @@
 
 class Agent:
-    """ Base class for all RL agents. Override following methods
-    in child class implementation """
+    def __init__(self):
+        pass
+        """ Base class for all RL agents. Override all methods
+        below in child class implementation """
     def choose_action(self, observation):
         """ Choose an action given an observation. To be overridden 
 
@@ -39,9 +41,15 @@ class Agent:
         raise NotImplementedError()
 
     def set_new_params(self, theta):
+        """ Update the parameters of the agent's policy 
+
+        :param theta: model parameters
+        """
         raise NotImplementedError()
 
     def get_params(self):
+        """ Retrieve the parameters of the agent's policy
+        """
         raise NotImplementedError()
 
     def get_policy(self):
