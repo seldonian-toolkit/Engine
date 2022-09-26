@@ -59,7 +59,8 @@ def plot_gradient_descent(
         ax_f = axes_this_constraint[0]
         ax_f.plot(np.arange(len(f_vals)),f_vals,linewidth=2)
         ax_f.set_xlabel("Iteration")
-        ax_f.set_ylabel(rf"$\hat{{f}}(\theta)$: {primary_objective_name}",fontsize=fontsize)
+
+        ax_f.set_ylabel(rf"$\hat{{f}}(\theta,D_\mathrm{{cand}})$: {primary_objective_name}",fontsize=fontsize)
         ax_f.axvline(x=best_index,linestyle='--',color='k')
         ax_f.axhline(y=best_f,linestyle='--',color='k')
 
@@ -97,7 +98,7 @@ def plot_gradient_descent(
         best_L = L_vals[best_index]
         ax_L.axhline(y=best_L,linestyle='--',color='k')
     
-    title = rf"KKT optimization for $L(\theta,\lambda) = \hat{{f}}(\theta) + \sum_{{k=1}}^{{{n_constraints}}}{{\lambda_k}} \mathrm{{HCUB}}(\hat{{g}}_k(\theta)) $"
+    title = rf"KKT optimization for $L(\theta,\lambda) = \hat{{f}}(\theta,D_\mathrm{{cand}}) + \sum_{{k=1}}^{{{n_constraints}}}{{\lambda_k}} \mathrm{{HCUB}}(\hat{{g}}_k(\theta,D_\mathrm{{cand}})) $"
     plt.suptitle(title)
     plt.tight_layout()
     if save:

@@ -7,8 +7,8 @@ if __name__ == '__main__':
 	cs_file = './logs/candidate_selection_log0.p'
 	savename = './loan_cs.png'
 	solution_dict = load_pickle(cs_file)
-	save=True
-	show= not save
+	save=False
+	show=not save
 	fig = plot_gradient_descent(solution_dict,
 		primary_objective_name='log loss',
 		save=save,savename=savename)
