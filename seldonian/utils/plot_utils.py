@@ -82,7 +82,7 @@ def plot_gradient_descent(
         g_vals_this_constraint = [x[constraint_index][0] for x in g_vals]
         ax_g.plot(np.arange(len(g_vals)),g_vals_this_constraint,linewidth=2)
         ax_g.set_xlabel("Iteration")
-        ax_g.set_ylabel(rf"$\mathrm{{HCUB}}(\hat{{g}}_{{{row_number}}})$",fontsize=fontsize)
+        ax_g.set_ylabel(rf"$\mathrm{{HCUB}}(\hat{{g}}_{{{row_number}}}(\theta,D_\mathrm{{cand}}))$",fontsize=fontsize)
         ax_g.fill_between(np.arange(len(g_vals)),0.0,1e6,color='r',zorder=0,alpha=0.5)
         ax_g.set_ylim(min(-0.25,min(g_vals_this_constraint)),max(0.25,max(g_vals_this_constraint)*1.2))
         ax_g.axvline(x=best_index,linestyle='--',color='k')
