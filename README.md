@@ -2,8 +2,6 @@
 
 [![Docs](https://github.com/seldonian-framework/Engine/actions/workflows/gh-pages.yaml/badge.svg)](https://github.com/seldonian-framework/Engine/actions/workflows/gh-pages.yaml)
 
-## Disclaimer: This repository is under active development and is not yet suitable for public use. We are currently working on an alpha release and will remove this disclaimer at the time of release. 
-
 # Engine
 
 This is the source code repository for a framework for creating and running [Seldonian](http://aisafety.cs.umass.edu/) algorithms. 
