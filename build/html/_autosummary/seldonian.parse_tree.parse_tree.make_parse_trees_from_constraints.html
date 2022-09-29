@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.parse_tree.parse_tree.ParseTree" href="seldonian.parse_tree.parse_tree.ParseTree.html" />
@@ -39,7 +40,25 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints">
 <span class="sig-name descname"><span class="pre">make_parse_trees_from_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_strs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'regression'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Convenience function for creating parse trees
+given constraint strings and deltas</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>constraint_strs</strong> – List of constraint strings</p></li>
+<li><p><strong>deltas</strong> – List of deltas corresponding to each constraint</p></li>
+<li><p><strong>regime</strong> (<em>str</em><em>, </em><em>defaults to &quot;supervised_learning&quot;</em>) – The category of the machine learning algorithm,
+e.g., supervised_learning or reinforcement_learning</p></li>
+<li><p><strong>sub_regime</strong> (<em>str</em><em>, </em><em>defults to &quot;regression&quot;</em>) – The sub-category of the machine learning algorithm,
+e.g., classifiction or regression</p></li>
+<li><p><strong>columns</strong> – list of columns in the dataset, needed
+if constraints condition on any of these columns</p></li>
+<li><p><strong>delta_weight_method</strong> (<em>str</em><em>, </em><em>defults to &quot;equal&quot;</em>) – The method for weighting deltas
+across the base nodes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
@@ -74,7 +93,10 @@
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a><ul class="current">
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints"><code class="docutils literal notranslate"><span class="pre">make_parse_trees_from_constraints()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html">seldonian.parse_tree.parse_tree.ParseTree</a></li>
 </ul>
 </li>
@@ -134,7 +156,7 @@
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

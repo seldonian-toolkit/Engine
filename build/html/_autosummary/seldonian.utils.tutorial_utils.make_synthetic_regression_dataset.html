@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.warnings" href="seldonian.warnings.html" />
@@ -38,8 +39,29 @@
 <h1>seldonian.utils.tutorial_utils.make_synthetic_regression_dataset<a class="headerlink" href="#seldonian-utils-tutorial-utils-make-synthetic-regression-dataset" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.utils.tutorial_utils.make_synthetic_regression_dataset">
-<span class="sig-name descname"><span class="pre">make_synthetic_regression_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.tutorial_utils.make_synthetic_regression_dataset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">make_synthetic_regression_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.tutorial_utils.make_synthetic_regression_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate 2D dataset from random normal distributions,
+with optional clipping</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_points</strong> (<em>int</em>) – The number of data points to generate</p></li>
+<li><p><strong>loc_X</strong> (<em>float</em>) – The mean of the normal distribution 
+in the X dimension</p></li>
+<li><p><strong>loc_Y</strong> (<em>float</em>) – The mean of the normal distribution 
+in the Y dimension</p></li>
+<li><p><strong>sigma_X</strong> (<em>float</em>) – The standard deviation of the normal distribution 
+in the X dimension</p></li>
+<li><p><strong>sigma_Y</strong> (<em>float</em>) – The standard deviation of the normal distribution 
+in the Y dimension</p></li>
+<li><p><strong>include_intercept_term</strong> – Whether to add a column of ones
+as first column for an offset term</p></li>
+<li><p><strong>clipped</strong> – Boolean flag controlling whether to use clipping</p></li>
+<li><p><strong>clip_min</strong> – Clip values to be &gt;= this value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
@@ -82,7 +104,10 @@
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.utils.tutorial_utils.html">seldonian.utils.tutorial_utils</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.utils.tutorial_utils.generate_clipped_data.html">seldonian.utils.tutorial_utils.generate_clipped_data</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.utils.tutorial_utils.generate_data.html">seldonian.utils.tutorial_utils.generate_data</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.tutorial_utils.make_synthetic_regression_dataset</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.tutorial_utils.make_synthetic_regression_dataset</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.utils.tutorial_utils.make_synthetic_regression_dataset"><code class="docutils literal notranslate"><span class="pre">make_synthetic_regression_dataset()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -137,7 +162,7 @@
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.RL.Agents.Discrete_Random_Agent" href="seldonian.RL.Agents.Discrete_Random_Agent.html" />
@@ -43,7 +44,21 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Bases.Fourier.Fourier.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_desc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Fourier basis used for linear value function 
+approximation. See <a class="reference external" href="http://irl.cs.brown.edu/fb.php">http://irl.cs.brown.edu/fb.php</a> for
+a reference</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
+environment, agent, number of episodes per trial,
+and number of trials</p></li>
+<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
+of the environment</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Bases.Fourier.Fourier.__repr__">
@@ -56,6 +71,30 @@
 <tbody>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Bases.Fourier.Fourier.calculate_num_features">
+<span class="sig-name descname"><span class="pre">calculate_num_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_coupled_vars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_obs_dims</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.calculate_num_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the number of features in the basis</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Bases.Fourier.Fourier.construct_basis_matrix">
+<span class="sig-name descname"><span class="pre">construct_basis_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.construct_basis_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the basis matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Bases.Fourier.Fourier.get_features">
+<span class="sig-name descname"><span class="pre">get_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.get_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the basis feature given an observation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Bases.Fourier.Fourier.get_normalized_observation">
+<span class="sig-name descname"><span class="pre">get_normalized_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.get_normalized_observation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the normalized observation given an observation</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -87,7 +126,18 @@
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.Agents.Agent.html">seldonian.RL.Agents.Agent</a></li>
 <li class="toctree-l5 current"><a class="reference internal" href="seldonian.RL.Agents.Bases.html">seldonian.RL.Agents.Bases</a><ul class="current">
 <li class="toctree-l6 current"><a class="reference internal" href="seldonian.RL.Agents.Bases.Fourier.html">seldonian.RL.Agents.Bases.Fourier</a><ul class="current">
-<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Bases.Fourier.Fourier</a></li>
+<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Bases.Fourier.Fourier</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Bases.Fourier.Fourier"><code class="docutils literal notranslate"><span class="pre">Fourier</span></code></a><ul>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.__init__"><code class="docutils literal notranslate"><span class="pre">Fourier.__init__()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.__repr__"><code class="docutils literal notranslate"><span class="pre">Fourier.__repr__()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.calculate_num_features"><code class="docutils literal notranslate"><span class="pre">Fourier.calculate_num_features()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.construct_basis_matrix"><code class="docutils literal notranslate"><span class="pre">Fourier.construct_basis_matrix()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.get_features"><code class="docutils literal notranslate"><span class="pre">Fourier.get_features()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Bases.Fourier.Fourier.get_normalized_observation"><code class="docutils literal notranslate"><span class="pre">Fourier.get_normalized_observation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -105,6 +155,7 @@
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
@@ -173,7 +224,7 @@
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

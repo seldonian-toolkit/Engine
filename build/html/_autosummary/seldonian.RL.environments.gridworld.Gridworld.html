@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.RL.environments.mountaincar" href="seldonian.RL.environments.mountaincar.html" />
@@ -205,7 +206,25 @@ current position given an action</p>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.environments.Environment.html">seldonian.RL.environments.Environment</a></li>
 <li class="toctree-l5 current"><a class="reference internal" href="seldonian.RL.environments.gridworld.html">seldonian.RL.environments.gridworld</a><ul class="current">
-<li class="toctree-l6 current"><a class="current reference internal" href="#">seldonian.RL.environments.gridworld.Gridworld</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">seldonian.RL.environments.gridworld.Gridworld</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld"><code class="docutils literal notranslate"><span class="pre">Gridworld</span></code></a><ul>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.__init__"><code class="docutils literal notranslate"><span class="pre">Gridworld.__init__()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.__repr__"><code class="docutils literal notranslate"><span class="pre">Gridworld.__repr__()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.create_env_description"><code class="docutils literal notranslate"><span class="pre">Gridworld.create_env_description()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.get_env_description"><code class="docutils literal notranslate"><span class="pre">Gridworld.get_env_description()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.get_observation"><code class="docutils literal notranslate"><span class="pre">Gridworld.get_observation()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.is_in_goal_state"><code class="docutils literal notranslate"><span class="pre">Gridworld.is_in_goal_state()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.reset"><code class="docutils literal notranslate"><span class="pre">Gridworld.reset()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.start_visualizing"><code class="docutils literal notranslate"><span class="pre">Gridworld.start_visualizing()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.stop_visualizing"><code class="docutils literal notranslate"><span class="pre">Gridworld.stop_visualizing()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.terminated"><code class="docutils literal notranslate"><span class="pre">Gridworld.terminated()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.transition"><code class="docutils literal notranslate"><span class="pre">Gridworld.transition()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.update_position"><code class="docutils literal notranslate"><span class="pre">Gridworld.update_position()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.environments.gridworld.Gridworld.visualize"><code class="docutils literal notranslate"><span class="pre">Gridworld.visualize()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.environments.mountaincar.html">seldonian.RL.environments.mountaincar</a></li>
@@ -213,6 +232,7 @@ current position given an action</p>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.environments.simglucose_env.html">seldonian.RL.environments.simglucose_env</a></li>
 </ul>
 </li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
@@ -279,7 +299,7 @@ current position given an action</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

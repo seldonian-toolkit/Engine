@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.models" href="seldonian.models.html" />
@@ -49,8 +50,6 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pandas dataframe</em>) – dataframe containing the full dataset</p></li>
 <li><p><strong>meta_information</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – list of all column names in the dataframe</p></li>
-<li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
-e.g., supervised_learning or reinforcement_learning</p></li>
 <li><p><strong>label_column</strong> (<em>str</em>) – The column with the target labels 
 (supervised learning)</p></li>
 <li><p><strong>sensitive_column_names</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – The names of the columns that 
@@ -108,7 +107,14 @@ a column of ones as the first column in the dataset.</p></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.Episode.html">seldonian.dataset.Episode</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.SupervisedDataSet</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.SupervisedDataSet</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#seldonian.dataset.SupervisedDataSet"><code class="docutils literal notranslate"><span class="pre">SupervisedDataSet</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.dataset.SupervisedDataSet.__init__"><code class="docutils literal notranslate"><span class="pre">SupervisedDataSet.__init__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.dataset.SupervisedDataSet.__repr__"><code class="docutils literal notranslate"><span class="pre">SupervisedDataSet.__repr__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>
@@ -166,7 +172,7 @@ a column of ones as the first column in the dataset.</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

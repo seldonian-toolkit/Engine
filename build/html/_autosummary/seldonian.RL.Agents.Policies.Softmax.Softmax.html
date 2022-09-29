@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.RL.Agents.keyboard_gridworld" href="seldonian.RL.Agents.keyboard_gridworld.html" />
@@ -237,7 +238,26 @@ space is discrete or continous</p>
 <li class="toctree-l6"><a class="reference internal" href="seldonian.RL.Agents.Policies.Policy.html">seldonian.RL.Agents.Policies.Policy</a></li>
 <li class="toctree-l6 current"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.html">seldonian.RL.Agents.Policies.Softmax</a><ul class="current">
 <li class="toctree-l7"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.html">seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax</a></li>
-<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Policies.Softmax.Softmax</a></li>
+<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Policies.Softmax.Softmax</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax"><code class="docutils literal notranslate"><span class="pre">Softmax</span></code></a><ul>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.__init__"><code class="docutils literal notranslate"><span class="pre">Softmax.__init__()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.__repr__"><code class="docutils literal notranslate"><span class="pre">Softmax.__repr__()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.choose_action"><code class="docutils literal notranslate"><span class="pre">Softmax.choose_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.choose_action_from_action_values"><code class="docutils literal notranslate"><span class="pre">Softmax.choose_action_from_action_values()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.construct_basis_and_linear_FA"><code class="docutils literal notranslate"><span class="pre">Softmax.construct_basis_and_linear_FA()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.from_0_indexed_action_to_environment_action"><code class="docutils literal notranslate"><span class="pre">Softmax.from_0_indexed_action_to_environment_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.from_environment_action_to_0_indexed_action"><code class="docutils literal notranslate"><span class="pre">Softmax.from_environment_action_to_0_indexed_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_action_probs_from_action_values"><code class="docutils literal notranslate"><span class="pre">Softmax.get_action_probs_from_action_values()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_action_values_given_state"><code class="docutils literal notranslate"><span class="pre">Softmax.get_action_values_given_state()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_e_to_the_something_terms"><code class="docutils literal notranslate"><span class="pre">Softmax.get_e_to_the_something_terms()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_params"><code class="docutils literal notranslate"><span class="pre">Softmax.get_params()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">Softmax.get_prob_this_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.make_state_action_FA"><code class="docutils literal notranslate"><span class="pre">Softmax.make_state_action_FA()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.set_new_params"><code class="docutils literal notranslate"><span class="pre">Softmax.set_new_params()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -251,6 +271,7 @@ space is discrete or continous</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
@@ -319,7 +340,7 @@ space is discrete or continous</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

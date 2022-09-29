@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.parse_tree.nodes.ConstantNode" href="seldonian.parse_tree.nodes.ConstantNode.html" />
@@ -110,7 +111,7 @@ Used in safety test.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_safety</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray</em><em> of </em><em>length n_safety</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>a</strong> (<em>float</em>) – The minimum possible value of the squared error</p></li>
@@ -148,7 +149,7 @@ Used in safety test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_safety</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray</em><em> of </em><em>length n_safety</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>b</strong> (<em>float</em>) – The maximum possible value of the squared error</p></li>
@@ -189,7 +190,7 @@ Used in candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray</em><em> of </em><em>length n_candidate</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>a</strong> (<em>float</em>) – The minimum possible value of the squared error</p></li>
@@ -229,7 +230,7 @@ Used in candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Z</strong> (<em>numpy ndarray of length n_candidate</em>) – Vector containing sorted squared errors</p></li>
+<li><p><strong>Z</strong> (<em>numpy ndarray</em><em> of </em><em>length n_candidate</em>) – Vector containing sorted squared errors</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>b</strong> (<em>float</em>) – The maximum possible value of the squared error</p></li>
@@ -289,7 +290,25 @@ such as features and labels</p></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html">seldonian.parse_tree.nodes.BaseNode</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.CVaRSQeBaseNode</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.CVaRSQeBaseNode</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.__init__"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.__repr__"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.__repr__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_bounds"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.calculate_bounds()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_data_forbound"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.calculate_data_forbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_value"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.calculate_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_lowerbound"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.compute_HC_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upper_and_lowerbound"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.compute_HC_upper_and_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.compute_HC_upperbound"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.compute_HC_upperbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.mask_dataframe"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.mask_dataframe()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_lowerbound"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.predict_HC_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upper_and_lowerbound"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.predict_HC_upper_and_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.predict_HC_upperbound"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.predict_HC_upperbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.zhat"><code class="docutils literal notranslate"><span class="pre">CVaRSQeBaseNode.zhat()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.ConstantNode.html">seldonian.parse_tree.nodes.ConstantNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.InternalNode.html">seldonian.parse_tree.nodes.InternalNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.MEDCustomBaseNode.html">seldonian.parse_tree.nodes.MEDCustomBaseNode</a></li>
@@ -354,7 +373,7 @@ such as features and labels</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

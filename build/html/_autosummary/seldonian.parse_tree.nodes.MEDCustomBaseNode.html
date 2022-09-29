@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.parse_tree.nodes.Node" href="seldonian.parse_tree.nodes.Node.html" />
@@ -305,7 +306,26 @@ such as features and labels</p></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.CVaRSQeBaseNode.html">seldonian.parse_tree.nodes.CVaRSQeBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.ConstantNode.html">seldonian.parse_tree.nodes.ConstantNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.InternalNode.html">seldonian.parse_tree.nodes.InternalNode</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.MEDCustomBaseNode</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.MEDCustomBaseNode</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.__init__"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.__repr__"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.__repr__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_bounds"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.calculate_bounds()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_data_forbound"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.calculate_data_forbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.calculate_value"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.calculate_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_lowerbound"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.compute_HC_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_upper_and_lowerbound"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.compute_HC_upper_and_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.compute_HC_upperbound"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.compute_HC_upperbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.mask_dataframe"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.mask_dataframe()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.precalculate_data"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.precalculate_data()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_lowerbound"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.predict_HC_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_upper_and_lowerbound"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.predict_HC_upper_and_lowerbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.predict_HC_upperbound"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.predict_HC_upperbound()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.MEDCustomBaseNode.zhat"><code class="docutils literal notranslate"><span class="pre">MEDCustomBaseNode.zhat()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.Node.html">seldonian.parse_tree.nodes.Node</a></li>
 </ul>
 </li>
@@ -367,7 +387,7 @@ such as features and labels</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

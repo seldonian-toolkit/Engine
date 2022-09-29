@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.models.objectives.Mean_Error" href="seldonian.models.objectives.Mean_Error.html" />
@@ -46,7 +47,7 @@ on all episodes in the dataframe</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – SeldonianModel instance</p></li>
 <li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
-<li><p><strong>dataset</strong> (<em>dataset.Dataset object</em>) – The object containing data and metadata</p></li>
+<li><p><strong>data_dict</strong> – The object containing data and metadata</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -90,7 +91,10 @@ on all episodes in the dataframe</p>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.objectives.html">seldonian.models.objectives</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.False_Negative_Rate.html">seldonian.models.objectives.False_Negative_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.False_Positive_Rate.html">seldonian.models.objectives.False_Positive_Rate</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.objectives.IS_estimate</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.objectives.IS_estimate</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.models.objectives.IS_estimate"><code class="docutils literal notranslate"><span class="pre">IS_estimate()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Mean_Error.html">seldonian.models.objectives.Mean_Error</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Mean_Squared_Error.html">seldonian.models.objectives.Mean_Squared_Error</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Negative_Rate.html">seldonian.models.objectives.Negative_Rate</a></li>
@@ -173,7 +177,7 @@ on all episodes in the dataframe</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

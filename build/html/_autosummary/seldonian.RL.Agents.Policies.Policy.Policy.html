@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.RL.Agents.Policies.Softmax" href="seldonian.RL.Agents.Policies.Softmax.html" />
@@ -40,12 +41,12 @@
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Policy</span></span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Base class for policies. Contains four methods which
-must be overridden in any policy implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Base class for policies. Contains four methods which
+must be overridden in any policy implementation</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.__repr__">
@@ -118,7 +119,18 @@ must be overridden in any policy implementation</p>
 <li class="toctree-l5 current"><a class="reference internal" href="seldonian.RL.Agents.Policies.html">seldonian.RL.Agents.Policies</a><ul class="current">
 <li class="toctree-l6 current"><a class="reference internal" href="seldonian.RL.Agents.Policies.Policy.html">seldonian.RL.Agents.Policies.Policy</a><ul class="current">
 <li class="toctree-l7"><a class="reference internal" href="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.html">seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy</a></li>
-<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Policies.Policy.Policy</a></li>
+<li class="toctree-l7 current"><a class="current reference internal" href="#">seldonian.RL.Agents.Policies.Policy.Policy</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy"><code class="docutils literal notranslate"><span class="pre">Policy</span></code></a><ul>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.__init__"><code class="docutils literal notranslate"><span class="pre">Policy.__init__()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.__repr__"><code class="docutils literal notranslate"><span class="pre">Policy.__repr__()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.choose_action"><code class="docutils literal notranslate"><span class="pre">Policy.choose_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_params"><code class="docutils literal notranslate"><span class="pre">Policy.get_params()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">Policy.get_prob_this_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.set_new_params"><code class="docutils literal notranslate"><span class="pre">Policy.set_new_params()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.html">seldonian.RL.Agents.Policies.Softmax</a></li>
@@ -133,6 +145,7 @@ must be overridden in any policy implementation</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
@@ -201,7 +214,7 @@ must be overridden in any policy implementation</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

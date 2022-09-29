@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.dataset.RLDataSet" href="seldonian.dataset.RLDataSet.html" />
@@ -38,11 +39,11 @@
 <h1>seldonian.dataset.Episode<a class="headerlink" href="#seldonian-dataset-episode" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.dataset.Episode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Episode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Episode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.Episode.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object for holding RL episodes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -51,7 +52,8 @@
 in the episode</p></li>
 <li><p><strong>actions</strong> – List of actions</p></li>
 <li><p><strong>rewards</strong> – List of rewards</p></li>
-<li><p><strong>pis</strong> – List of action probabilities from the behavior policy</p></li>
+<li><p><strong>action_probs</strong> – List of action probabilities 
+from the behavior policy</p></li>
 </ul>
 </dd>
 </dl>
@@ -99,7 +101,14 @@ in the episode</p></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSet.html">seldonian.dataset.DataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.Episode</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.Episode</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#seldonian.dataset.Episode"><code class="docutils literal notranslate"><span class="pre">Episode</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.dataset.Episode.__init__"><code class="docutils literal notranslate"><span class="pre">Episode.__init__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.dataset.Episode.__repr__"><code class="docutils literal notranslate"><span class="pre">Episode.__repr__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.SupervisedDataSet.html">seldonian.dataset.SupervisedDataSet</a></li>
 </ul>
@@ -159,7 +168,7 @@ in the episode</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

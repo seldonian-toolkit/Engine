@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.spec.createSupervisedSpec" href="seldonian.spec.createSupervisedSpec.html" />
@@ -46,10 +47,18 @@ Saves spec.pkl file in save_dir</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>constraint_strs</strong> – List of constraint strings</p></li>
 <li><p><strong>deltas</strong> – List of confidence thresholds</p></li>
-<li><p><strong>save_dir</strong> – Directory in which to save the spec.pkl file</p></li>
 <li><p><strong>env_kwargs</strong> (<em>dict</em>) – Kwargs passed to RL_model pertaining to environment, 
 such as gamma, the discount factor</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – Flag to control verbosity</p></li>
+<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – Fraction of data used in safety test.
+The remaining fraction will be used in candidate selection</p></li>
+<li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide 
+initial model weights in candidate selection</p></li>
+<li><p><strong>use_builtin_primary_gradient_fn</strong> (<em>bool</em><em>, </em><em>defaults to True</em>) – Whether to use the built-in
+function for the gradient of the primary objective, 
+if one exists. If False, uses autograd</p></li>
+<li><p><strong>save</strong> – Boolean flag determining whether to save to a file</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em>) – Directory where to save the spec.pkl file</p></li>
+<li><p><strong>verbose</strong> – Boolean glag to control verbosity</p></li>
 </ul>
 </dd>
 </dl>
@@ -88,8 +97,12 @@ such as gamma, the discount factor</p></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.spec.createRLSpec</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.spec.createRLSpec</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#seldonian.spec.createRLSpec"><code class="docutils literal notranslate"><span class="pre">createRLSpec()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.createSupervisedSpec.html">seldonian.spec.createSupervisedSpec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.spec.validate_parse_trees.html">seldonian.spec.validate_parse_trees</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.RLSpec.html">seldonian.spec.RLSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.Spec.html">seldonian.spec.Spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.SupervisedSpec.html">seldonian.spec.SupervisedSpec</a></li>
@@ -144,7 +157,7 @@ such as gamma, the discount factor</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

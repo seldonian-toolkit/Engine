@@ -35,6 +35,7 @@ seldonian.RL
    seldonian.RL.RL_model
    seldonian.RL.RL_runner
    seldonian.RL.environments
+   seldonian.RL.generate_gridworld_episodes
    seldonian.RL.generate_mountaincar_episodes
    seldonian.RL.generate_simglucose_episodes
    seldonian.RL.hyperparams_and_settings

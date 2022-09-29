@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.optimizers.gradient_descent.gradient_descent_adam" href="seldonian.optimizers.gradient_descent.gradient_descent_adam.html" />
@@ -43,7 +44,7 @@
 <td><p>Implements simultaneous gradient descent/ascent using  the Adam optimizer on a Lagrangian: L(theta,lambda) = f(theta) + lambda*g(theta), where f is the primary objective, lambda is a vector of  Lagrange multipliers, and g is a vector of the  upper bound functions.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.optimizers.gradient_descent.setup_gradients.html#seldonian.optimizers.gradient_descent.setup_gradients" title="seldonian.optimizers.gradient_descent.setup_gradients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_gradients</span></code></a>(gradient_library, ...)</p></td>
-<td><p></p></td>
+<td><p>Wrapper to obtain the gradient functions of the primary objective and upper bounds function given a gradient library</p></td>
 </tr>
 </tbody>
 </table>
@@ -136,7 +137,7 @@
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

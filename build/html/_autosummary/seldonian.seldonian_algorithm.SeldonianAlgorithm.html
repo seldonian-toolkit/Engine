@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.spec" href="seldonian.spec.html" />
@@ -68,6 +69,12 @@ set of parameters for running the Seldonian algorithm</p>
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection">
 <span class="sig-name descname"><span class="pre">candidate_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the candidate selection object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>write_logfile</strong> – Whether to write out a pickle file
+containing details of candidate selection</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -85,7 +92,7 @@ primary_objective where data is fixed.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>result, the value of the primary objective 
+<dd class="field-even"><p>the value of the primary objective 
 evaluated for the given branch at the provided
 value of theta</p>
 </dd>
@@ -96,13 +103,23 @@ value of theta</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result">
+<span class="sig-name descname"><span class="pre">get_cs_result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the dictionary 
+returned from running candidate selection</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_cs_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs seldonian algorithm using spec object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>write_cs_logfile</strong> – Whether to write candidate selection
-log file</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>write_cs_logfile</strong> – Whether to write candidate selection
+log file</p></li>
+<li><p><strong>debug</strong> – Whether to print out debugging info</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(passed_safety, solution). passed_safety 
@@ -119,11 +136,24 @@ model weights found during candidate selection or ‘NSF’.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test">
 <span class="sig-name descname"><span class="pre">run_safety_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs safety test using solution from candidate selection</p>
+<dd><p>Runs safety test using solution from candidate selection
+or some other means</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>candidate_solution</strong> – model weights from candidate selection
-or other process</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>candidate_solution</strong> – model weights from candidate selection
+or other process</p></li>
+<li><p><strong>debug</strong> – Whether to print out debugging info</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(passed_safety, solution). passed_safety 
+indicates whether solution found during candidate selection
+passes the safety test. solution is the optimized
+model weights found during candidate selection or ‘NSF’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple</p>
 </dd>
 </dl>
 </dd></dl>
@@ -168,7 +198,20 @@ or other process</p>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.seldonian_algorithm.SeldonianAlgorithm</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.seldonian_algorithm.SeldonianAlgorithm</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__init__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__repr__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__repr__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_selection()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.evaluate_primary_objective()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_cs_result()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run_safety_test()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.safety_test"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.safety_test()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
@@ -221,7 +264,7 @@ or other process</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

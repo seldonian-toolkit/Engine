@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.utils.stats_utils" href="seldonian.utils.stats_utils.html" />
@@ -40,7 +41,10 @@
 <dt class="sig sig-object py" id="seldonian.utils.plot_utils.plot_gradient_descent">
 <span class="sig-name descname"><span class="pre">plot_gradient_descent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.plot_utils.plot_gradient_descent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make figure showing evolution of gradient descent.
-Plots:
+One row per constraint. The primary objective and lagrangian
+subplots are repeated in each row because they are not
+changing with the constraint</p>
+<p>Plots:
 i) primary objective
 ii) lagrange multipliers for each constraint, lambda_i
 iii) each constraint function, g_i
@@ -97,7 +101,10 @@ Only relevant when save=False</p></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.utils.RL_utils.html">seldonian.utils.RL_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.utils.io_utils.html">seldonian.utils.io_utils</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.utils.plot_utils.html">seldonian.utils.plot_utils</a><ul class="current">
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.plot_utils.plot_gradient_descent</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.plot_utils.plot_gradient_descent</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.utils.plot_utils.plot_gradient_descent"><code class="docutils literal notranslate"><span class="pre">plot_gradient_descent()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.utils.stats_utils.html">seldonian.utils.stats_utils</a></li>
@@ -154,7 +161,7 @@ Only relevant when save=False</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

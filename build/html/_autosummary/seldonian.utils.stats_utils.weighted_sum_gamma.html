@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.utils.tutorial_utils" href="seldonian.utils.tutorial_utils.html" />
@@ -41,12 +42,13 @@
 <span class="sig-name descname"><span class="pre">weighted_sum_gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.stats_utils.weighted_sum_gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate weighted sum of an array,
 where weights are gamma**(index of arr). 
-Used in calculating sum of weighted rewards in RL</p>
+Used in calculating sum of discounted rewards in RL</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>arr</strong> (<em>Numpy ndarray</em>) – An input array</p></li>
-<li><p><strong>gamma</strong> (<em>float</em>) – The constant used for weighting the array</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – The constant used for weighting the array,
+also called the discount factor in RL</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -98,7 +100,10 @@ Used in calculating sum of weighted rewards in RL</p>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.utils.stats_utils.html">seldonian.utils.stats_utils</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.utils.stats_utils.stddev.html">seldonian.utils.stats_utils.stddev</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.utils.stats_utils.tinv.html">seldonian.utils.stats_utils.tinv</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.stats_utils.weighted_sum_gamma</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.stats_utils.weighted_sum_gamma</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.utils.stats_utils.weighted_sum_gamma"><code class="docutils literal notranslate"><span class="pre">weighted_sum_gamma()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.utils.tutorial_utils.html">seldonian.utils.tutorial_utils</a></li>
@@ -154,7 +159,7 @@ Used in calculating sum of weighted rewards in RL</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

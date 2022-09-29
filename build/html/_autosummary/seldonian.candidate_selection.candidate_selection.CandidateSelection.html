@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.dataset" href="seldonian.dataset.html" />
@@ -40,7 +41,10 @@
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CandidateSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'barrier_function'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Powell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Object for running candidate selection</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'barrier_function'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Powell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object for running candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -57,7 +61,7 @@ i.e. the loss function</p></li>
 candidate selection. E.g. ‘gradient_descent’, ‘barrier_function’</p></li>
 <li><p><strong>optimizer</strong> (<em>str</em>) – The string name of the optimizer used 
 during candidate selection</p></li>
-<li><p><strong>initial_solution</strong> (<em>numpy ndarray</em>) – The model weights used to initialize 
+<li><p><strong>initial_solution</strong> (<em>array</em>) – The model weights used to initialize 
 the optimizer</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
 e.g., supervised_learning or reinforcement_learning</p></li>
@@ -66,10 +70,7 @@ to disk</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'barrier_function'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Powell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.__repr__">
@@ -92,6 +93,10 @@ data is fixed. Used as input to gradient descent</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value of the primary objective function
+evaluated at theta</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -108,7 +113,7 @@ given model weights, theta. Used as input to gradient descent.</p>
 <dd class="field-even"><p>Array of upper bounds on the constraint</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy ndarray</p>
+<dd class="field-odd"><p>array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -123,6 +128,10 @@ large penalty when any of the constraints are violated.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the value of the objective function 
+evaluated at theta</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -135,7 +144,7 @@ large penalty when any of the constraints are violated.</p>
 <dd class="field-odd"><p>Optimized model weights or ‘NSF’</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>numpy ndarray or str</p>
+<dd class="field-even"><p>array or str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -169,7 +178,18 @@ large penalty when any of the constraints are violated.</p>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.candidate_selection.candidate_selection.html">seldonian.candidate_selection.candidate_selection</a><ul class="current">
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.candidate_selection.candidate_selection.CandidateSelection</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.candidate_selection.candidate_selection.CandidateSelection</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection"><code class="docutils literal notranslate"><span class="pre">CandidateSelection</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__repr__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__repr__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.evaluate_primary_objective()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.get_constraint_upper_bounds()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.objective_with_barrier()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.run"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -232,7 +252,7 @@ large penalty when any of the constraints are violated.</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.safety_test" href="seldonian.safety_test.html" />
@@ -518,7 +519,42 @@ than one needs to reset the bounds.</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints.html">seldonian.parse_tree.parse_tree.make_parse_trees_from_constraints</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.parse_tree.ParseTree</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.parse_tree.ParseTree</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree"><code class="docutils literal notranslate"><span class="pre">ParseTree</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.__init__"><code class="docutils literal notranslate"><span class="pre">ParseTree.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.__repr__"><code class="docutils literal notranslate"><span class="pre">ParseTree.__repr__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._abs"><code class="docutils literal notranslate"><span class="pre">ParseTree._abs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._add"><code class="docutils literal notranslate"><span class="pre">ParseTree._add()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._assign_bounds_helper"><code class="docutils literal notranslate"><span class="pre">ParseTree._assign_bounds_helper()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._assign_deltas_helper"><code class="docutils literal notranslate"><span class="pre">ParseTree._assign_deltas_helper()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._ast2pt_node"><code class="docutils literal notranslate"><span class="pre">ParseTree._ast2pt_node()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._ast_tree_helper"><code class="docutils literal notranslate"><span class="pre">ParseTree._ast_tree_helper()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._div"><code class="docutils literal notranslate"><span class="pre">ParseTree._div()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._evaluator_helper"><code class="docutils literal notranslate"><span class="pre">ParseTree._evaluator_helper()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._exp"><code class="docutils literal notranslate"><span class="pre">ParseTree._exp()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._max"><code class="docutils literal notranslate"><span class="pre">ParseTree._max()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._min"><code class="docutils literal notranslate"><span class="pre">ParseTree._min()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._mult"><code class="docutils literal notranslate"><span class="pre">ParseTree._mult()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._pow"><code class="docutils literal notranslate"><span class="pre">ParseTree._pow()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str"><code class="docutils literal notranslate"><span class="pre">ParseTree._preprocess_constraint_str()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._propagate_value"><code class="docutils literal notranslate"><span class="pre">ParseTree._propagate_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._propagator_helper"><code class="docutils literal notranslate"><span class="pre">ParseTree._propagator_helper()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._protect_nan"><code class="docutils literal notranslate"><span class="pre">ParseTree._protect_nan()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._sub"><code class="docutils literal notranslate"><span class="pre">ParseTree._sub()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed"><code class="docutils literal notranslate"><span class="pre">ParseTree.assign_bounds_needed()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_deltas"><code class="docutils literal notranslate"><span class="pre">ParseTree.assign_deltas()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.build_tree"><code class="docutils literal notranslate"><span class="pre">ParseTree.build_tree()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.create_from_ast"><code class="docutils literal notranslate"><span class="pre">ParseTree.create_from_ast()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.evaluate_constraint"><code class="docutils literal notranslate"><span class="pre">ParseTree.evaluate_constraint()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.make_viz"><code class="docutils literal notranslate"><span class="pre">ParseTree.make_viz()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.make_viz_helper"><code class="docutils literal notranslate"><span class="pre">ParseTree.make_viz_helper()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.propagate"><code class="docutils literal notranslate"><span class="pre">ParseTree.propagate()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.propagate_bounds"><code class="docutils literal notranslate"><span class="pre">ParseTree.propagate_bounds()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.reset_base_node_dict"><code class="docutils literal notranslate"><span class="pre">ParseTree.reset_base_node_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -577,7 +613,7 @@ than one needs to reset the bounds.</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

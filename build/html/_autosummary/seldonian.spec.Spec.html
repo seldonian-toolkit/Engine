@@ -14,6 +14,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.spec.SupervisedSpec" href="seldonian.spec.SupervisedSpec.html" />
@@ -51,18 +52,19 @@ run the Seldonian algorithm</p>
 The remaining fraction will be used in candidate selection</p></li>
 <li><p><strong>primary_objective</strong> (<em>function</em><em> or </em><em>class method</em>) – The objective function that would
 be solely optimized in the absence of behavioral constraints,
-i.e. the loss function</p></li>
+i.e., the loss function</p></li>
 <li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide 
 initial model weights in candidate selection</p></li>
 <li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
 behavioral constraints</p></li>
+<li><p><strong>base_node_bound_method_dict</strong> (<em>dict</em><em>, </em><em>defaults to {}</em>) – A dictionary specifying the
+bounding method to use for each base node</p></li>
 <li><p><strong>use_builtin_primary_gradient_fn</strong> (<em>bool</em><em>, </em><em>defaults to True</em>) – Whether to use the built-in
 function for the gradient of the primary objective, 
 if one exists. If False, uses autograd</p></li>
 <li><p><strong>custom_primary_gradient_fn</strong> (<em>function</em><em>, </em><em>defaults to None</em>) – A function for computing 
 the gradient of the primary objective. If None,
 falls back on builtin function or autograd</p></li>
-<li><p><strong>bound_method</strong> (<em>str</em><em>, </em><em>defaults to 'ttest'</em>) – The statistical method for calculating the confidence bounds</p></li>
 <li><p><strong>optimization_technique</strong> (<em>str</em><em>, </em><em>defaults to 'gradient_descent'</em>) – The method for optimization during 
 candidate selection. E.g. ‘gradient_descent’, ‘barrier_function’</p></li>
 <li><p><strong>optimizer</strong> (<em>str</em><em>, </em><em>defaults to 'adam'</em>) – The string name of the optimizer used 
@@ -72,10 +74,6 @@ optimization during candidate selection. See <a class="reference internal" href=
 <li><p><strong>regularization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for 
 regularization during candidate selection. See <a class="reference internal" href="../overview.html#candidate-selection"><span class="std std-ref">Candidate Selection</span></a>.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Variables<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>usable_opt_dict</strong> (<em>dict</em>) – Shows which optimizers are acceptable
-for a given optimization technique</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -131,8 +129,16 @@ for a given optimization technique</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.createRLSpec.html">seldonian.spec.createRLSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.createSupervisedSpec.html">seldonian.spec.createSupervisedSpec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.spec.validate_parse_trees.html">seldonian.spec.validate_parse_trees</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.RLSpec.html">seldonian.spec.RLSpec</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.spec.Spec</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.spec.Spec</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#seldonian.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.spec.Spec.__init__"><code class="docutils literal notranslate"><span class="pre">Spec.__init__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.spec.Spec.__repr__"><code class="docutils literal notranslate"><span class="pre">Spec.__repr__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.SupervisedSpec.html">seldonian.spec.SupervisedSpec</a></li>
 </ul>
 </li>
@@ -185,7 +191,7 @@ for a given optimization technique</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
