@@ -48,6 +48,6 @@ if __name__ == '__main__':
             metadata_pth=metadata_pth,
             constraint_strs=constraint_strs,
             deltas=deltas,
-            save_dir=save_base_dir,
+            save_dir=save_dir,
             save=True,
             verbose=True)
