@@ -116,7 +116,7 @@
 </pre></div>
 </div>
 <p>In the second method, the episode file must be a pickle file containing a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Episode</span></code> objects.</p>
-<p>Regardless of the regime and file format, the data file should include <em>all</em> of the data you have, i.e., before partitioning into train, test, validation splits. The Engine will partition the data internally. The column names are intentionally excluded from the data files and are provided in a separate metadata file, via the <code class="code docutils literal notranslate"><span class="pre">metadata_filename</span></code> parameter. In the RL case, the columns are fixed so column names are not necessary.</p>
+<p>Regardless of the regime and file format, the data file should include <em>all</em> of the data you have, i.e., before partitioning into train, test, validation splits. The Engine will partition the data internally into candidate data and safety data in order to run the Seldonian algorithm. The column names are intentionally excluded from the data files and are provided in a separate metadata file, via the <code class="code docutils literal notranslate"><span class="pre">metadata_filename</span></code> parameter. In the RL case, the meanings of the columns are fixed so column names are not necessary.</p>
 <p>The metadata file must be a JSON-formatted file containing several required <code class="docutils literal notranslate"><span class="pre">key:value</span></code> pairs depending on the regime of your problem. For supervised learning, the required keys are:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">regime</span></code>, set to <code class="code docutils literal notranslate"><span class="pre">supervised_learning</span></code> in this case</p></li>
@@ -128,7 +128,7 @@
 <p>For reinforcement learning, this file is optional, but if provided, the required keys are:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">regime</span></code>, which is set to ‘reinforcement_learning’ in this case</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">columns</span></code>, a list of the column names in your data file</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">columns</span></code>, (optional) a list of the column names in your data file</p></li>
 </ul>
 </section>
 <section id="model-object">

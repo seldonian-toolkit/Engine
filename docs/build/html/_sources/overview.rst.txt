@@ -101,7 +101,7 @@ In the first method, the comma-separated file (CSV) must have no header. Each ro
 
 In the second method, the episode file must be a pickle file containing a list of :py:class:`Episode` objects. 
 
-Regardless of the regime and file format, the data file should include *all* of the data you have, i.e., before partitioning into train, test, validation splits. The Engine will partition the data internally. The column names are intentionally excluded from the data files and are provided in a separate metadata file, via the :code:`metadata_filename` parameter. In the RL case, the columns are fixed so column names are not necessary.
+Regardless of the regime and file format, the data file should include *all* of the data you have, i.e., before partitioning into train, test, validation splits. The Engine will partition the data internally into candidate data and safety data in order to run the Seldonian algorithm. The column names are intentionally excluded from the data files and are provided in a separate metadata file, via the :code:`metadata_filename` parameter. In the RL case, the meanings of the columns are fixed so column names are not necessary.
 
 The metadata file must be a JSON-formatted file containing several required ``key:value`` pairs depending on the regime of your problem. For supervised learning, the required keys are:
 
@@ -114,7 +114,7 @@ The metadata file must be a JSON-formatted file containing several required ``ke
 For reinforcement learning, this file is optional, but if provided, the required keys are:
 
 - :code:`regime`, which is set to 'reinforcement_learning' in this case
-- :code:`columns`, a list of the column names in your data file
+- :code:`columns`, (optional) a list of the column names in your data file
 
 Model object
 ++++++++++++

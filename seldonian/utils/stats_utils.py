@@ -46,3 +46,6 @@ def weighted_sum_gamma(arr,gamma=0.9):
     """
     weights = np.power(gamma,range(len(arr)))
     return np.average(arr,weights=weights)*np.sum(weights)
+
+def softmax(x):
+    return np.exp(x)/sum(np.exp(x))

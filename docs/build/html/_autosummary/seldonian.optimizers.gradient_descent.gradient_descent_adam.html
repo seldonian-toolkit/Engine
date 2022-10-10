@@ -60,12 +60,14 @@ the upper bounds on the constraints</p></li>
 <li><p><strong>theta_init</strong> (<em>float</em>) – Initial model weights</p></li>
 <li><p><strong>lambda_init</strong> – Initial values for Lagrange multiplier terms</p></li>
 <li><p><strong>alpha_theta</strong> (<em>float</em>) – Initial learning rate for theta</p></li>
-<li><p><strong>alpha_lamb</strong> (<em>float</em>) – Learning rate for lambda</p></li>
+<li><p><strong>alpha_lamb</strong> (<em>float</em>) – Initial learning rate for lambda</p></li>
 <li><p><strong>beta_velocity</strong> (<em>float</em>) – Exponential decay rate for velocity term</p></li>
 <li><p><strong>beta_rmsprop</strong> (<em>float</em>) – Exponential decay rate for rmsprop term</p></li>
 <li><p><strong>num_iters</strong> (<em>int</em>) – The number of iterations of gradient descent to run</p></li>
 <li><p><strong>gradient_library</strong> (<em>str</em><em>, </em><em>defaults to &quot;autograd&quot;</em>) – The name of the library to use for computing 
 automatic gradients.</p></li>
+<li><p><strong>verbose</strong> – Boolean flag to control verbosity</p></li>
+<li><p><strong>debug</strong> – Boolean flag to print out info useful for debugging</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

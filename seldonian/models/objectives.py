@@ -1,10 +1,11 @@
 """ Objective functions """
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+
 from seldonian.utils.stats_utils import weighted_sum_gamma
 
 def sample_from_statistic(model,
-	statistic_name,theta,data_dict):
+	statistic_name,theta,data_dict,**kwargs):
 	""" Evaluate a provided statistic for each observation 
 	in the sample
 
@@ -54,9 +55,12 @@ def sample_from_statistic(model,
 		return vector_True_Negative_Rate(
 			model,theta,data_dict['features'],data_dict['labels'])
 
-	if statistic_name == 'logistic_loss':
-		return vector_logistic_loss(
-			model,theta,data_dict['features'],data_dict['labels'])
+	
+	if statistic_name == 'CM':
+		# Confusion matrix
+		return vector_confusion_matrix(
+			model,theta,data_dict['features'],data_dict['labels'],
+			kwargs['cm_true_index'],kwargs['cm_pred_index'])
 
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':
@@ -115,9 +119,11 @@ def evaluate_statistic(model,
 		return True_Negative_Rate(
 			model,theta,data_dict['features'],data_dict['labels'])
 
-	if statistic_name == 'logistic_loss':
-		return logistic_loss(
-			model,theta,data_dict['features'],data_dict['labels'])
+	if statistic_name == 'CM':
+		# Confusion matrix
+		return confusion_matrix(
+			model,theta,data_dict['features'],data_dict['labels'],
+			kwargs['cm_true_index'],kwargs['cm_pred_index'])
 
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':
@@ -261,9 +267,9 @@ def gradient_Bounded_Squared_Error(model,theta,X,Y):
 
 """ Classification """
 
-def logistic_loss(model,theta,X,Y):
-	""" Calculate logistic loss 
-	on whole sample
+def binary_logistic_loss(model,theta,X,Y):
+	""" Calculate average logistic loss 
+	over all data points for binary classification
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
@@ -276,32 +282,33 @@ def logistic_loss(model,theta,X,Y):
 	:return: logistic loss
 	:rtype: float
 	"""
-	z = np.dot(X,theta[1:]) + theta[0]
-	h = 1/(1+np.exp(-z))
-	res = np.mean(-Y*np.log(h) - (1.0-Y)*np.log(1.0-h))
+	Y_pred = model.predict(theta,X)
+	# binary 
+	res = np.mean(-Y*np.log(Y_pred) - (1.0-Y)*np.log(1.0-Y_pred))
 	return res
 
-def vector_logistic_loss(model,theta,X,Y):
-	""" Calculate logistic loss 
-	on each observation in sample
+def gradient_binary_logistic_loss(model,theta,X,Y):
+	""" Gradient of binary logistic loss w.r.t. theta
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
 	:param X: The features
-	:type X: numpy ndarra
+	:type X: numpy ndarray
 	:param Y: The labels
 	:type Y: numpy ndarray
-
-	:return: array of logistic losses 
-	:rtype: numpy ndarray(float)
+	:return: perceptron loss
+	:rtype: float
 	"""
+	
 	h = model.predict(theta,X)
-	res = -Y*np.log(h) - (1.0-Y)*np.log(1.0-h)
-	return res		
+	X_withintercept = np.hstack([np.ones((len(X),1)),np.array(X)])
+	res = (1/len(X))*np.dot(X_withintercept.T, (h - Y))
+	return res
 
-def gradient_logistic_loss(model,theta,X,Y):
-	""" Gradient of logistic loss w.r.t. theta
+def multiclass_logistic_loss(model,theta,X,Y):
+	""" Calculate average logistic loss 
+	over all data points for multi-class classification
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
@@ -311,14 +318,21 @@ def gradient_logistic_loss(model,theta,X,Y):
 	:param Y: The labels
 	:type Y: numpy ndarray
 
-	:return: perceptron loss
+	:return: logistic loss
 	:rtype: float
 	"""
-	
-	h = model.predict(theta,X)
-	X_withintercept = np.hstack([np.ones((len(X),1)),np.array(X)])
-	res = (1/len(X))*np.dot(X_withintercept.T, (h - Y))
-	return res
+	# Negative log likelihood 
+	# In the multi-class setting, y_pred is an i x k matrix 
+	# where i is the number of samples and k is the number of classes
+	# Each entry is the probability of predicting the kth class 
+	# for the ith sample. We need to get the probability of predicting
+	# the true class for each sample and then take the sum of the 
+	# logs of that.
+	Y_pred = model.predict(theta,X)	
+	N = len(Y) 
+	probs_trueclasses = Y_pred[np.arange(N),Y.astype('int')]
+	return -1/N*sum(np.log(probs_trueclasses))
+		
 
 def Positive_Rate(model,theta,X):
 	"""
@@ -360,7 +374,7 @@ def Negative_Rate(model,theta,X):
 	prediction = model.predict(theta,X)
 	return np.sum(1.0-prediction)/len(X) # if all 1s then PR=1. 
 
-def False_Positive_Rate(model,theta,X,Y):
+def _False_Positive_Rate(model,theta,X,Y):
 	"""
 	Calculate false positive rate
 	for the whole sample.
@@ -368,6 +382,35 @@ def False_Positive_Rate(model,theta,X,Y):
 	The is the sum of the probability of each 
 	sample being in the positive class when in fact it was in 
 	the negative class.
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+
+	:return: False positive rate for whole sample
+	:rtype: float between 0 and 1
+	"""
+	prediction = model.predict(theta,X)
+	# Sum the probability of being in positive class
+	# subject to the truth being the other class
+	neg_mask = Y!=1.0 # this includes false positives and true negatives
+	return np.sum(prediction[neg_mask])/len(X[neg_mask])
+
+def False_Positive_Rate(model,theta,X,Y):
+	"""
+	Calculate false positive rate
+	for the whole sample.
+	
+	For binary classification:
+	This is the sum of the probability of each 
+	sample being in the positive class when in fact it was in 
+	the negative class.
+
+	For multi-class classification:
+	This is the average of the individual false positive 
+	rates for each class
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
@@ -577,6 +620,72 @@ def vector_True_Negative_Rate(model,theta,X,Y):
 	prediction = model.predict(theta,X)
 	pos_mask = Y!=1.0 # this includes false positives and true negatives
 	return 1.0 - prediction[pos_mask]
+
+def vector_confusion_matrix(model,theta,X,Y,l_i,l_k):
+	"""
+	Get the probability of predicting class label l_k 
+	if the true class label was l_i. This is the C[l_i,l_k]
+	element of the confusion matrix, C. Let:
+		i = number of datapoints
+		j = number of features (including bias term, if provied)
+		k = number of classes
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: array of shape (j,k)
+	:param X: The features
+	:type X: array of shape (i,j)
+	:param Y: The labels
+	:type Y: array of shape (i,k)
+	:param l_i: The index in the confusion matrix
+		corresponding to the true label (row)
+	:type l_i: int
+	:param l_k: The index in the confusion matrix
+		corresponding to the predicted label (column)
+	:type l_k: int
+
+	:return: Array of the C[l_i,l_k] for each observation 
+	:rtype: array of floats
+	"""
+	Y_pred = model.predict(theta,X) # i x k
+	true_mask = Y == l_i # length i
+	
+	N_mask = sum(true_mask)
+	res = Y_pred[:,l_k][true_mask]
+	return res
+
+def confusion_matrix(model,theta,X,Y,l_i,l_k):
+	"""
+	Get the probability of predicting class label l_k 
+	if the true class label was l_i. This is the C[l_i,l_k]
+	element of the confusion matrix, C. Let:
+		i = number of datapoints
+		j = number of features (including bias term, if provied)
+		k = number of classes
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: array of shape (j,k)
+	:param X: The features
+	:type X: array of shape (i,j)
+	:param Y: The labels
+	:type Y: array of shape (i,k)
+	:param l_i: The index in the confusion matrix
+		corresponding to the true label (row)
+	:type l_i: int
+	:param l_k: The index in the confusion matrix
+		corresponding to the predicted label (column)
+	:type l_k: int
+
+	:return: The element 
+	:rtype: float
+	"""
+	Y_pred = model.predict(theta,X) # i x k
+	true_mask = Y == l_i # length i
+	N_mask = sum(true_mask)
+
+	res = sum(Y_pred[:,l_k][true_mask])/N_mask 
+	return res
 
 """ RL """
 def IS_estimate(model,theta,data_dict):

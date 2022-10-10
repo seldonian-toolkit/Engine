@@ -47,9 +47,13 @@ in the parse tree.
 These represent operators, such as +,-,*,/ etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – The name of the node, which is the 
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the node, which is the 
 string representation of the operation 
-the node performs</p>
+the node performs</p></li>
+<li><p><strong>lower</strong> (<em>float</em>) – Lower confidence bound</p></li>
+<li><p><strong>upper</strong> (<em>float</em>) – Upper confidence bound</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -105,6 +109,7 @@ in the visual graph</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.nodes.html">seldonian.parse_tree.nodes</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html">seldonian.parse_tree.nodes.BaseNode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.ConfusionMatrixBaseNode.html">seldonian.parse_tree.nodes.ConfusionMatrixBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.ConstantNode.html">seldonian.parse_tree.nodes.ConstantNode</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.InternalNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.MEDCustomBaseNode.html">seldonian.parse_tree.nodes.MEDCustomBaseNode</a></li>

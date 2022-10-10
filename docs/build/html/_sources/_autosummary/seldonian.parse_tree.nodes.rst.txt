@@ -21,6 +21,7 @@
    
       BaseNode
       CVaRSQeBaseNode
+      ConfusionMatrixBaseNode
       ConstantNode
       InternalNode
       MEDCustomBaseNode

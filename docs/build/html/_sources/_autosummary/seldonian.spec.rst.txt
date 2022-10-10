@@ -1,4 +1,4 @@
-seldonian.spec
+﻿seldonian.spec
 ==============
 
 .. automodule:: seldonian.spec 
@@ -16,6 +16,7 @@ seldonian.spec
    
       createRLSpec
       createSupervisedSpec
+      validate_parse_trees
    
    
 

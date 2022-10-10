@@ -244,9 +244,14 @@ class ParseTree(object):
 			# to get the measure function name
 			# does not fail if none are present
 			node_name_isolated = new_node.name.split(
-				"|")[0].strip().strip('(').strip()
-			if node_name_isolated in self.available_measure_functions:
-				new_node.measure_function_name = node_name_isolated		
+				"|")[0].split('_[')[0].strip().strip('(').strip()
+			if node_name_isolated not in self.available_measure_functions and \
+			   node_name_isolated not in custom_base_node_dict:
+				raise NotImplementedError(
+					"Error parsing your expression. "
+					"A variable name was used which we do not recognize: "
+				   f"{node_name_isolated}")
+			new_node.measure_function_name = node_name_isolated		
 
 			# if node with this name not already in self.base_node_dict
 			# then make a new entry 
@@ -321,6 +326,7 @@ class ParseTree(object):
 		"""
 		is_leaf = False
 		kwargs = {}
+
 		if isinstance(ast_node,ast.Tuple):
 			raise RuntimeError(
 				"Error parsing your expression."
@@ -335,22 +341,25 @@ class ParseTree(object):
 				# a "A | B" -> "A given B"
 				
 				node_class = BaseNode
+				node_kwargs = {}
 
 				try:
 					conditional_columns = [str(x.id) for x in ast_node.right.elts]
-					conditional_columns_liststr = '[' + ''.join(conditional_columns) + ']'
-					left_id = ast_node.left.id
+					conditional_columns_liststr = '[' + ','.join(conditional_columns) + ']'
+					if isinstance(ast_node.left,ast.Subscript):
+						left_id,row_index,col_index = self._parse_subscript(
+							ast_node.left)
+						node_class = ConfusionMatrixBaseNode
+						node_kwargs['cm_true_index'] = row_index
+						node_kwargs['cm_pred_index'] = col_index
+					else:
+						left_id = ast_node.left.id
 				except:
 					raise RuntimeError(
 						"Error parsing your expression."
 						" The issue is most likely due to"
 						" missing/mismatched parentheses or square brackets"
 						" in a conditional expression involving '|'.")
-				
-				if left_id not in self.available_measure_functions:
-					raise NotImplementedError("Error parsing your expression."
-						" A variable name was used which we do not recognize: "
-					   f"{ast_node.left.id}")
 
 				# Make sure conditional columns provided are valid 
 				for col in conditional_columns:
@@ -359,12 +368,14 @@ class ParseTree(object):
 							"A column provided in your constraint str: "
 							f"{col} was not in the list of "
 							f" columns provided: {self.columns}")
+				node_kwargs['conditional_columns'] = conditional_columns
 				node_name = ' | '.join(
-					[ast_node.left.id,conditional_columns_liststr])
+					[left_id,conditional_columns_liststr])
+
+				node_kwargs['name'] = node_name
 
 				is_leaf = True
-				return node_class(node_name,
-					conditional_columns=conditional_columns),is_leaf
+				return node_class(**node_kwargs),is_leaf
 			else:
 				node_class = InternalNode
 				try:
@@ -375,6 +386,18 @@ class ParseTree(object):
 						" An operator was used which we do not support: "
 					   f"{op}")
 				return node_class(node_name),is_leaf
+
+		elif isinstance(ast_node,ast.Subscript):
+			node_name,row_index,col_index = self._parse_subscript(
+				ast_node)
+			node_class = ConfusionMatrixBaseNode
+			node_kwargs = {}
+			node_kwargs['name'] = node_name
+			node_kwargs['cm_true_index'] = row_index
+			node_kwargs['cm_pred_index'] = col_index
+			node_class = ConfusionMatrixBaseNode
+			is_leaf = True
+			return node_class(**node_kwargs),is_leaf
 
 		elif isinstance(ast_node,ast.Name):
 			# named quantity like "e", "Mean_Squared_Error"
@@ -418,6 +441,17 @@ class ParseTree(object):
 			node_name = ast_node.func.id
 
 		return node_class(node_name),is_leaf
+
+	def _parse_subscript(self,ast_node):
+		if ast_node.value.id != "CM_":
+			raise NotImplementedError("Error parsing your expression."
+					" A subscript was used in a way we do not support: "
+				   f"{ast_node.value.id}")
+		# This is a confusion matrix 
+		node_class = BaseNode
+		row_index, col_index = [x.value for x in ast_node.slice.value.elts]
+		node_name = f"CM_[{row_index},{col_index}]"
+		return node_name,row_index,col_index
 
 	def assign_deltas(self,weight_method='equal',
 		**kwargs):
@@ -619,6 +653,9 @@ class ParseTree(object):
 					kwargs['datasize'] = datasize
 				
 				bound_method = self.base_node_dict[node.name]['bound_method']
+				if isinstance(node,ConfusionMatrixBaseNode):
+					kwargs['cm_true_index'] = node.cm_true_index
+					kwargs['cm_pred_index'] = node.cm_pred_index
 				bound_result = node.calculate_bounds(
 					bound_method=bound_method,
 					**kwargs)

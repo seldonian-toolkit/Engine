@@ -155,7 +155,7 @@ def gpa_regression_dataset():
 @pytest.fixture
 def gpa_classification_dataset():
 
-    from seldonian.models.models import LogisticRegressionModel
+    from seldonian.models.models import BinaryLogisticRegressionModel
     def generate_dataset(constraint_strs,deltas):
 
         data_pth = 'static/datasets/supervised/GPA/gpa_classification_dataset.csv'
@@ -170,10 +170,10 @@ def gpa_classification_dataset():
         include_intercept_term = False
         regime='supervised_learning'
 
-        model = LogisticRegressionModel()
+        model = BinaryLogisticRegressionModel()
 
         # Mean squared error
-        primary_objective = objectives.logistic_loss
+        primary_objective = objectives.binary_logistic_loss
 
         # Load dataset from file
         loader = DataSetLoader(

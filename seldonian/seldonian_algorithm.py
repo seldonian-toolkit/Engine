@@ -149,8 +149,10 @@ class SeldonianAlgorithm():
 			if self.regime == 'reinforcement_learning':
 				self.spec.primary_objective = objectives.IS_estimate
 			elif self.regime == 'supervised_learning':
-				if self.spec.sub_regime == 'classification':
-					self.spec.primary_objective	= objectives.logistic_loss
+				if self.spec.sub_regime in ['classification','binary_classification']:
+					self.spec.primary_objective	= objectives.binary_logistic_loss
+				elif self.spec.sub_regime == 'multiclass_classification':
+					self.spec.primary_objective	= objectives.multiclass_logistic_loss
 				elif self.spec.sub_regime == 'regression':
 					self.spec.primary_objective = objectives.Mean_Squared_Error
 
