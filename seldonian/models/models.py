@@ -179,8 +179,8 @@ class MultiClassLogisticRegressionModel(BaseLogisticRegressionModel):
 		"""
 		# Z = theta[0] + (X @ theta[1:]) # (i,j) x (j,k) -> (i,k)
 
-		Z = theta[0] + np.dot(X,theta[1:])
-		# softmax	
+		Z = theta[0] + np.dot(X,theta[1:]) # (i,j) x (j,k) -> (i,k)
+		# softmax to get probabilites 
 		Y_pred = np.exp(Z)/np.sum(np.exp(Z),axis=-1,keepdims=True) 
 
 		return Y_pred

@@ -41,7 +41,10 @@ def sample_from_statistic(model,
 
 	if statistic_name == 'FPR':
 		return vector_False_Positive_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
+			model,theta,
+			data_dict['features'],
+			data_dict['labels'],
+			**kwargs)
 
 	if statistic_name == 'FNR':
 		return vector_False_Negative_Rate(
@@ -55,7 +58,6 @@ def sample_from_statistic(model,
 		return vector_True_Negative_Rate(
 			model,theta,data_dict['features'],data_dict['labels'])
 
-	
 	if statistic_name == 'CM':
 		# Confusion matrix
 		return vector_confusion_matrix(
@@ -333,8 +335,7 @@ def multiclass_logistic_loss(model,theta,X,Y):
 	probs_trueclasses = Y_pred[np.arange(N),Y.astype('int')]
 	return -1/N*sum(np.log(probs_trueclasses))
 		
-
-def Positive_Rate(model,theta,X):
+def Positive_Rate(model,theta,X,**kwargs):
 	"""
 	Calculate positive rate
 	for the whole sample.
@@ -351,10 +352,21 @@ def Positive_Rate(model,theta,X):
 	:return: Positive rate for whole sample
 	:rtype: float between 0 and 1
 	"""	
-	prediction = model.predict(theta,X)
-	return np.sum(prediction)/len(X) # if all 1s then PR=1. 
+	if 'class_index' in kwargs:
+		return _Positive_Rate_multiclass(model,theta,X,
+			class_index=kwargs['class_index'])
+	else:
+		return _Positive_Rate_binary(model,theta,X)
 
-def Negative_Rate(model,theta,X):
+def _Positive_Rate_binary(model,theta,X):
+	prediction = model.predict(theta,X)
+	return np.sum(prediction)/len(X) # if all 1s then PR=1.
+
+def _Positive_Rate_multiclass(model,theta,X,class_index):
+	prediction = model.predict(theta,X)
+	return np.sum(prediction[:,class_index])/len(X) # if all 1s then PR=1. 
+
+def Negative_Rate(model,theta,X,**kwargs):
 	"""
 	Calculate negative rate
 	for the whole sample.
@@ -371,16 +383,27 @@ def Negative_Rate(model,theta,X):
 	:return: Negative rate for whole sample
 	:rtype: float between 0 and 1
 	"""
+	if 'class_index' in kwargs:
+		return _Negative_Rate_multiclass(model,theta,X,
+			class_index=kwargs['class_index'])
+	else:
+		return _Negative_Rate_binary(model,theta,X)
+
+def _Negative_Rate_binary(model,theta,X):
+	# Average probability of predicting the negative class
 	prediction = model.predict(theta,X)
 	return np.sum(1.0-prediction)/len(X) # if all 1s then PR=1. 
 
-def _False_Positive_Rate(model,theta,X,Y):
+def _Negative_Rate_multiclass(model,theta,X,class_index):
+	# Average probability of predicting class!=class_index
+	prediction = model.predict(theta,X)
+	return np.sum(1.0-prediction[:,class_index])/len(X)  
+
+def False_Positive_Rate(model,theta,X,Y,**kwargs):
 	"""
-	Calculate false positive rate
-	for the whole sample.
-	
-	The is the sum of the probability of each 
-	sample being in the positive class when in fact it was in 
+	Calculate probabilistic average false positive rate
+	over the whole sample. The is the average probability of 
+	predicting the positive class when the true label was
 	the negative class.
 	
 	:param model: SeldonianModel instance
@@ -389,28 +412,35 @@ def _False_Positive_Rate(model,theta,X,Y):
 	:param X: The features
 	:type X: numpy ndarray
 
-	:return: False positive rate for whole sample
+	:return: Average false positive rate 
 	:rtype: float between 0 and 1
 	"""
-	prediction = model.predict(theta,X)
-	# Sum the probability of being in positive class
+	if 'class_index' in kwargs:
+		return _False_Positive_Rate_multiclass(model,theta,X,Y,
+			class_index=kwargs['class_index'])
+	else:
+		return _False_Positive_Rate_binary(model,theta,X,Y)
+
+def _False_Positive_Rate_binary(model,theta,X,Y):
+	# Average probability of predicting positive class
 	# subject to the truth being the other class
-	neg_mask = Y!=1.0 # this includes false positives and true negatives
+	prediction = model.predict(theta,X)
+	neg_mask = Y!=1.0 
 	return np.sum(prediction[neg_mask])/len(X[neg_mask])
 
-def False_Positive_Rate(model,theta,X,Y):
-	"""
-	Calculate false positive rate
-	for the whole sample.
-	
-	For binary classification:
-	This is the sum of the probability of each 
-	sample being in the positive class when in fact it was in 
-	the negative class.
+def _False_Positive_Rate_multiclass(model,theta,X,Y,class_index):
+	# Sum the probability of predicting class=class_index 
+	# subject to the true label being any other class
+	prediction = model.predict(theta,X)
 
-	For multi-class classification:
-	This is the average of the individual false positive 
-	rates for each class
+	neg_mask = Y!=class_index 
+	return np.sum(prediction[:,class_index][neg_mask])/len(X[neg_mask])
+
+def False_Negative_Rate(model,theta,X,Y,**kwargs):
+	"""
+	Calculate probabilistic average false negative rate
+	over the whole sample. The is the average probability  
+	of predicting the negative class when truth was positive class.
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
@@ -418,40 +448,30 @@ def False_Positive_Rate(model,theta,X,Y):
 	:param X: The features
 	:type X: numpy ndarray
 
-	:return: False positive rate for whole sample
+	:return: Average false negative rate 
 	:rtype: float between 0 and 1
 	"""
-	prediction = model.predict(theta,X)
-	# Sum the probability of being in positive class
-	# subject to the truth being the other class
-	neg_mask = Y!=1.0 # this includes false positives and true negatives
-	return np.sum(prediction[neg_mask])/len(X[neg_mask])
+	if 'class_index' in kwargs:
+		return _False_Negative_Rate_multiclass(model,theta,X,Y,
+			class_index=kwargs['class_index'])
+	else:
+		return _False_Negative_Rate_binary(model,theta,X,Y)
 
-def False_Negative_Rate(model,theta,X,Y):
-	"""
-	Calculate false negative rate
-	for the whole sample.
-	
-	The is the sum of the probability of each 
-	sample being in the negative class when in fact it was in 
-	the positive class.
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-
-	:return: False negative rate for whole sample
-	:rtype: float between 0 and 1
-	"""
-	prediction = model.predict(theta,X)
-	# Sum the probability of being in negative class
+def _False_Negative_Rate_binary(model,theta,X,Y):
+	# Average probability of being in negative class
 	# subject to the truth being the positive class
-	pos_mask = Y==1.0 # this includes false positives and true negatives
+	prediction = model.predict(theta,X)
+	pos_mask = Y==1.0 
 	return np.sum(1.0-prediction[pos_mask])/len(X[pos_mask])
 
-def True_Positive_Rate(model,theta,X,Y):
+def _False_Negative_Rate_multiclass(model,theta,X,Y,class_index):
+	# Average probability of not having class=class_index 
+	# subject to the truth being class=class_index
+	prediction = model.predict(theta,X)
+	pos_mask = Y==class_index
+	return np.sum(1.0-prediction[:,class_index][pos_mask])/len(X[pos_mask])
+
+def True_Positive_Rate(model,theta,X,Y,**kwargs):
 	"""
 	Calculate true positive rate
 	for the whole sample.
@@ -469,13 +489,27 @@ def True_Positive_Rate(model,theta,X,Y):
 	:return: False positive rate for whole sample
 	:rtype: float between 0 and 1
 	"""
+	if 'class_index' in kwargs:
+		return _True_Positive_Rate_multiclass(model,theta,X,Y,
+			class_index=kwargs['class_index'])
+	else:
+		return _True_Positive_Rate_binary(model,theta,X,Y)
+
+def _True_Positive_Rate_binary(model,theta,X,Y):
+	# Average probability of predicting the positive class
+	# subject to the true label being the positive class
 	prediction = model.predict(theta,X)
-	# Sum the probability of being in positive class
-	# subject to the truth being the other class
-	pos_mask = Y==1.0 # this includes false positives and true negatives
+	pos_mask = Y==1.0 
 	return np.sum(prediction[pos_mask])/len(X[pos_mask])
 
-def True_Negative_Rate(model,theta,X,Y):
+def _True_Positive_Rate_multiclass(model,theta,X,Y,class_index):
+	# Average probability of predicting class=class_index
+	# subject to the true label having class=class_index
+	prediction = model.predict(theta,X)
+	pos_mask = Y==class_index
+	return np.sum(prediction[:,class_index][pos_mask])/len(X[pos_mask])
+
+def True_Negative_Rate(model,theta,X,Y,**kwargs):
 	"""
 	Calculate true negative rate
 	for the whole sample.
@@ -493,13 +527,27 @@ def True_Negative_Rate(model,theta,X,Y):
 	:return: False positive rate for whole sample
 	:rtype: float between 0 and 1
 	"""
-	prediction = model.predict(theta,X)
-	# Sum the probability of being in negative class
-	# subject to the truth being the negative class
-	neg_mask = Y!=1.0 # this includes false positives and true negatives
-	return np.sum(1.0-prediction[neg_mask])/len(X[neg_mask])
+	if 'class_index' in kwargs:
+		return _True_Negative_Rate_multiclass(model,theta,X,Y,
+			class_index=kwargs['class_index'])
+	else:
+		return _True_Negative_Rate_binary(model,theta,X,Y)
 	
-def vector_Positive_Rate(model,theta,X):
+def _True_Negative_Rate_binary(model,theta,X,Y):
+	# Average probability of being in negative class
+	# subject to the truth being the negative class
+	prediction = model.predict(theta,X)
+	neg_mask = Y!=1.0 
+	return np.sum(1.0-prediction[neg_mask])/len(X[neg_mask])
+
+def _True_Negative_Rate_multiclass(model,theta,X,Y,class_index):
+	# Average probability of class!=class_index
+	# subject to the truth being class!=class_index
+	prediction = model.predict(theta,X)
+	neg_mask = Y!=class_index
+	return np.sum(1.0-prediction[:,class_index][neg_mask])/len(X[neg_mask])
+	
+def vector_Positive_Rate(model,theta,X,**kwargs):
 	"""
 	Calculate positive rate
 	for each observation.
@@ -515,10 +563,24 @@ def vector_Positive_Rate(model,theta,X):
 	:return: Positive rate for each observation
 	:rtype: numpy ndarray(float between 0 and 1)
 	"""
-	prediction = model.predict(theta,X) # probability of class 1 for each observation
+	if 'class_index' in kwargs:
+		return _vector_Positive_Rate_multiclass(
+			model,theta,X,class_index=kwargs['class_index'])
+	else:
+		return _vector_Positive_Rate_binary(
+			model,theta,X)
+
+def _vector_Positive_Rate_binary(model,theta,X):
+	# probability of class 1 for each observation
+	prediction = model.predict(theta,X) 
 	return prediction 
 
-def vector_Negative_Rate(model,theta,X):
+def _vector_Positive_Rate_multiclass(model,theta,X,class_index):
+	# probability of class==class_index for each observation
+	prediction = model.predict(theta,X) 
+	return prediction[:,class_index]
+
+def vector_Negative_Rate(model,theta,X,**kwargs):
 	"""
 	Calculate negative rate
 	for each observation.
@@ -534,11 +596,24 @@ def vector_Negative_Rate(model,theta,X):
 	:return: Positive rate for each observation
 	:rtype: numpy ndarray(float between 0 and 1)
 	"""
-	prediction = model.predict(theta,X)
+	if 'class_index' in kwargs:
+		return _vector_Negative_Rate_multiclass(
+			model,theta,X,class_index=kwargs['class_index'])
+	else:
+		return _vector_Negative_Rate_binary(
+			model,theta,X)
 
+def _vector_Negative_Rate_binary(model,theta,X):
+	# probability of class 0 for each observation
+	prediction = model.predict(theta,X)
 	return 1.0 - prediction
 
-def vector_False_Positive_Rate(model,theta,X,Y):
+def _vector_Negative_Rate_multiclass(model,theta,X,class_index):
+	# probability of class!=class_index for each observation
+	prediction = model.predict(theta,X)
+	return 1.0 - prediction[:,class_index]
+
+def vector_False_Positive_Rate(model,theta,X,Y,**kwargs):
 	"""
 	Calculate false positive rate
 	for each observation
@@ -555,13 +630,28 @@ def vector_False_Positive_Rate(model,theta,X,Y):
 	:return: False positive rate for each observation
 	:rtype: numpy ndarray(float between 0 and 1)
 	"""
+	if 'class_index' in kwargs:
+		return _vector_False_Positive_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_False_Positive_Rate_binary(
+			model,theta,X,Y)
+
+def _vector_False_Positive_Rate_binary(model,theta,X,Y):
+	# The probability the model predicts being in this class
+	# subject to the truth being in any other class
 	prediction = model.predict(theta,X)
-	# The probability of being in positive class
-	# subject to the truth being the other class
 	neg_mask = Y!=1.0 # this includes false positives and true negatives
 	return prediction[neg_mask]
 
-def vector_False_Negative_Rate(model,theta,X,Y):
+def _vector_False_Positive_Rate_multiclass(model,theta,X,Y,class_index):
+	# The probability the model predicts being in this class
+	# subject to the truth being in any other class
+	prediction = model.predict(theta,X)
+	other_mask = Y != class_index
+	return prediction[:,class_index][other_mask]
+
+def vector_False_Negative_Rate(model,theta,X,Y,**kwargs):
 	"""
 	Calculate false negative rate
 	for each observation
@@ -578,14 +668,28 @@ def vector_False_Negative_Rate(model,theta,X,Y):
 	:return: False negative rate for each observation
 	:rtype: numpy ndarray(float between 0 and 1)
 	"""
+	if 'class_index' in kwargs:
+		return _vector_False_Negative_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_False_Negative_Rate_binary(
+			model,theta,X,Y)
 
-	prediction = model.predict(theta,X)
+def _vector_False_Negative_Rate_binary(model,theta,X,Y):
 	# The probability of being in positive class
 	# subject to the truth being the other class
+	prediction = model.predict(theta,X)
 	pos_mask = Y==1.0 # this includes false positives and true negatives
 	return 1.0-prediction[pos_mask]
 
-def vector_True_Positive_Rate(model,theta,X,Y):
+def _vector_False_Negative_Rate_multiclass(model,theta,X,Y,class_index):
+	# The probability the model predicts not being in this class
+	# subject to the truth being in this class
+	prediction = model.predict(theta,X)
+	pos_mask = Y==class_index # this includes false positives and true negatives
+	return (1.0-prediction[:,class_index])[pos_mask]
+
+def vector_True_Positive_Rate(model,theta,X,Y,**kwargs):
 	"""
 	This is the probability of predicting positive
 	subject to the label actually being positive
@@ -599,11 +703,32 @@ def vector_True_Positive_Rate(model,theta,X,Y):
 	:return: True positive rate for each observation
 	:rtype: numpy ndarray(float between 0 and 1)
 	"""
+	if 'class_index' in kwargs:
+		return _vector_True_Positive_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_True_Positive_Rate_binary(
+			model,theta,X,Y)
+	
+def _vector_True_Positive_Rate_binary(model,theta,X,Y):
+	"""
+	This is the probability of predicting positive
+	subject to the label actually being positive
+	"""
 	prediction = model.predict(theta,X)
 	pos_mask = Y==1.0 # this includes false positives and true negatives
 	return prediction[pos_mask]
 
-def vector_True_Negative_Rate(model,theta,X,Y):
+def _vector_True_Positive_Rate_multiclass(model,theta,X,Y,class_index):
+	"""
+	This is the probability of predicting this class
+	subject to the label actually being this class
+	"""
+	prediction = model.predict(theta,X)
+	pos_mask = Y==class_index # this includes false positives and true negatives
+	return (prediction[:,class_index])[pos_mask]
+	
+def vector_True_Negative_Rate(model,theta,X,Y,**kwargs):
 	"""
 	This is the probability of predicting negative
 	subject to the label actually being negative
@@ -617,9 +742,30 @@ def vector_True_Negative_Rate(model,theta,X,Y):
 	:return: True negative rate for each observation
 	:rtype: numpy ndarray(float between 0 and 1)
 	"""
+	if 'class_index' in kwargs:
+		return _vector_True_Negative_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_True_Negative_Rate_binary(
+			model,theta,X,Y)
+
+def _vector_True_Negative_Rate_binary(model,theta,X,Y):
+	"""
+	This is the probability of predicting negative
+	subject to the label actually being negative
+	"""
 	prediction = model.predict(theta,X)
-	pos_mask = Y!=1.0 # this includes false positives and true negatives
-	return 1.0 - prediction[pos_mask]
+	neg_mask = Y!=1.0 
+	return 1.0 - prediction[neg_mask]
+
+def _vector_True_Negative_Rate_multiclass(model,theta,X,Y,class_index):
+	"""
+	This is the probability of predicting not this class
+	subject to the true label not being this class
+	"""
+	prediction = model.predict(theta,X)
+	neg_mask = Y!=class_index 
+	return (1.0 - prediction[:,class_index])[neg_mask]
 
 def vector_confusion_matrix(model,theta,X,Y,l_i,l_k):
 	"""

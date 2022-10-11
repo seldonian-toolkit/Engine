@@ -638,9 +638,12 @@ def test_measure_functions_recognized():
 			 " A variable name was used which we do not recognize: X")
 	assert str(excinfo.value) == error_str
  
-def test_confusion_matrix():
+def test_multiclass_measure_functions():
 	delta = 0.05
 	constraint_str = 'CM_[0,1] - 0.5'
+
+	# Confusion matrix 
+
 	# Make sure error is raised if we use wrong sub_regime
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
@@ -655,13 +658,38 @@ def test_confusion_matrix():
 	pt.create_from_ast(constraint_str)
 	assert pt.root.left.measure_function_name == 'CM'
 	assert pt.root.left.name == 'CM_[0,1]'
+	assert pt.root.left.cm_true_index == 0
+	assert pt.root.left.cm_pred_index == 1
 
-	constraint_str = '(CM_[0,1] | [A,B]) - 0.5'
+	constraint_str = '(CM_[2,3] | [A,B]) - 0.5'
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='multiclass_classification',columns=['A','B'])
 	pt.create_from_ast(constraint_str)
 	assert pt.root.left.measure_function_name == 'CM'
-	assert pt.root.left.name == 'CM_[0,1] | [A,B]'
+	assert pt.root.left.name == 'CM_[2,3] | [A,B]'
+	assert pt.root.left.cm_true_index == 2
+	assert pt.root.left.cm_pred_index == 3
+
+	# FPR_[class_index]
+	delta = 0.05
+	constraint_str = 'FPR_[0]-0.5'
+		
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='multiclass_classification')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'FPR'
+	assert pt.root.left.name == 'FPR_[0]'
+	assert pt.root.left.class_index == 0
+
+	constraint_str = '(FPR_[1] | [A,B]) - 0.5'
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='multiclass_classification',columns=['A','B'])
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'FPR'
+	assert pt.root.left.name == 'FPR_[1] | [A,B]'
+	assert pt.root.left.class_index == 1
+
+
 
 def test_measure_function_with_conditional_bad_syntax_captured():
 	delta=0.05

@@ -84,7 +84,13 @@ measure_functions_dict = {
 			],
 		'multiclass_classification':
 			[
-			'CM'
+			'CM',
+			'PR',
+			'NR',
+			'FPR',
+			'TPR',
+			'FNR',
+			'TNR',
 			],
 		'regression':
 			[

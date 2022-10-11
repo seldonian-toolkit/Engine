@@ -347,11 +347,15 @@ class ParseTree(object):
 					conditional_columns = [str(x.id) for x in ast_node.right.elts]
 					conditional_columns_liststr = '[' + ','.join(conditional_columns) + ']'
 					if isinstance(ast_node.left,ast.Subscript):
-						left_id,row_index,col_index = self._parse_subscript(
+
+						node_class,left_node_kwargs = self._parse_subscript(
 							ast_node.left)
-						node_class = ConfusionMatrixBaseNode
-						node_kwargs['cm_true_index'] = row_index
-						node_kwargs['cm_pred_index'] = col_index
+						left_id = left_node_kwargs['name']
+						if node_class.__name__ == 'ConfusionMatrixBaseNode':
+							node_kwargs['cm_true_index'] = left_node_kwargs['cm_true_index']
+							node_kwargs['cm_pred_index'] = left_node_kwargs['cm_pred_index']
+						else:
+							node_kwargs['class_index'] = left_node_kwargs['class_index']
 					else:
 						left_id = ast_node.left.id
 				except:
@@ -375,6 +379,7 @@ class ParseTree(object):
 				node_kwargs['name'] = node_name
 
 				is_leaf = True
+
 				return node_class(**node_kwargs),is_leaf
 			else:
 				node_class = InternalNode
@@ -388,14 +393,8 @@ class ParseTree(object):
 				return node_class(node_name),is_leaf
 
 		elif isinstance(ast_node,ast.Subscript):
-			node_name,row_index,col_index = self._parse_subscript(
+			node_class,node_kwargs = self._parse_subscript(
 				ast_node)
-			node_class = ConfusionMatrixBaseNode
-			node_kwargs = {}
-			node_kwargs['name'] = node_name
-			node_kwargs['cm_true_index'] = row_index
-			node_kwargs['cm_pred_index'] = col_index
-			node_class = ConfusionMatrixBaseNode
 			is_leaf = True
 			return node_class(**node_kwargs),is_leaf
 
@@ -443,15 +442,32 @@ class ParseTree(object):
 		return node_class(node_name),is_leaf
 
 	def _parse_subscript(self,ast_node):
-		if ast_node.value.id != "CM_":
+		if ast_node.value.id not in ["CM_","FPR_"]:
 			raise NotImplementedError("Error parsing your expression."
 					" A subscript was used in a way we do not support: "
 				   f"{ast_node.value.id}")
-		# This is a confusion matrix 
-		node_class = BaseNode
-		row_index, col_index = [x.value for x in ast_node.slice.value.elts]
-		node_name = f"CM_[{row_index},{col_index}]"
-		return node_name,row_index,col_index
+		if ast_node.value.id == "CM_":
+			# This is a confusion matrix element
+			node_class = ConfusionMatrixBaseNode
+			assert len(ast_node.slice.value.elts) == 2
+			row_index, col_index = [x.value for x in ast_node.slice.value.elts]
+			node_name = f"CM_[{row_index},{col_index}]"
+			node_kwargs = {}
+			node_kwargs['name'] = node_name
+			node_kwargs['cm_true_index'] = row_index
+			node_kwargs['cm_pred_index'] = col_index
+			
+		elif ast_node.value.id == "FPR_":
+			node_class = MultiClassBaseNode
+			assert isinstance(ast_node.slice.value,ast.Constant)
+			class_index = ast_node.slice.value.value
+			node_name = f"FPR_[{class_index}]"
+			node_kwargs = {}
+			node_kwargs['name'] = node_name
+			node_kwargs['class_index'] = class_index
+
+		return node_class,node_kwargs
+		
 
 	def assign_deltas(self,weight_method='equal',
 		**kwargs):

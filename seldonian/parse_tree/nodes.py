@@ -609,6 +609,51 @@ class ConfusionMatrixBaseNode(BaseNode):
         self.cm_true_index = cm_true_index
         self.cm_pred_index = cm_pred_index
 
+class MultiClassBaseNode(BaseNode):
+    def __init__(self,
+        name,
+        class_index,
+        lower=float('-inf'),
+        upper=float('inf'),
+        conditional_columns=[],
+        **kwargs):
+        """ A base node for computing 
+        the classification statistic 
+        for a single class against all
+        other classes. For example, 
+        if one has 3 classes and wants the 
+        false positive rate of the first class,
+        they would write "FPR_[0]" in their constraint
+        and we would calculate the rate at which
+        the model predicted class 0 when the true
+        label was not class 0 (i.e., class 1 or 2).
+        Inherits all of the attributes/methods
+        of basenode 
+                        
+        :param name: 
+            The name of the node, e.g. "FPR_[0]"
+        :type name: str
+        :param class_index: 
+            The class index against which to calculate
+            the statistic, e.g. false positive rate
+        :param lower: 
+            Lower confidence bound
+        :type lower: float
+        :param upper: 
+            Upper confidence bound
+        :type upper: float
+        :param conditional_columns: 
+            When calculating confidence bounds on a measure 
+            function, condition on these columns being == 1
+        :type conditional_columns: List(str)
+        """
+        super().__init__(
+            name=name,
+            lower=lower,
+            upper=upper,
+            conditional_columns=conditional_columns,
+            **kwargs)
+        self.class_index = class_index
 
 class MEDCustomBaseNode(BaseNode):
     def __init__(self,
