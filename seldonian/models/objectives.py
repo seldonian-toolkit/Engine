@@ -266,7 +266,6 @@ def gradient_Bounded_Squared_Error(model,theta,X,Y):
 	s = sum(term1*term2)
 	return -2/n*s
 
-
 """ Classification """
 
 def binary_logistic_loss(model,theta,X,Y):
