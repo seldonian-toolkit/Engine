@@ -670,26 +670,25 @@ def test_multiclass_measure_functions():
 	assert pt.root.left.cm_true_index == 2
 	assert pt.root.left.cm_pred_index == 3
 
-	# FPR_[class_index]
+	# PR, NR, FPR, TNR, TPR, FNR
 	delta = 0.05
-	constraint_str = 'FPR_[0]-0.5'
-		
-	pt = ParseTree(delta,regime='supervised_learning',
-		sub_regime='multiclass_classification')
-	pt.create_from_ast(constraint_str)
-	assert pt.root.left.measure_function_name == 'FPR'
-	assert pt.root.left.name == 'FPR_[0]'
-	assert pt.root.left.class_index == 0
+	for msr_func in ['PR','NR','FPR','TNR','TPR','FNR']:
+		constraint_str = f'{msr_func}_[0]-0.5'
+			
+		pt = ParseTree(delta,regime='supervised_learning',
+			sub_regime='multiclass_classification')
+		pt.create_from_ast(constraint_str)
+		assert pt.root.left.measure_function_name == msr_func
+		assert pt.root.left.name == f'{msr_func}_[0]'
+		assert pt.root.left.class_index == 0
 
-	constraint_str = '(FPR_[1] | [A,B]) - 0.5'
-	pt = ParseTree(delta,regime='supervised_learning',
-		sub_regime='multiclass_classification',columns=['A','B'])
-	pt.create_from_ast(constraint_str)
-	assert pt.root.left.measure_function_name == 'FPR'
-	assert pt.root.left.name == 'FPR_[1] | [A,B]'
-	assert pt.root.left.class_index == 1
-
-
+		constraint_str = f'({msr_func}_[1] | [A,B]) - 0.5'
+		pt = ParseTree(delta,regime='supervised_learning',
+			sub_regime='multiclass_classification',columns=['A','B'])
+		pt.create_from_ast(constraint_str)
+		assert pt.root.left.measure_function_name == msr_func
+		assert pt.root.left.name == f'{msr_func}_[1] | [A,B]'
+		assert pt.root.left.class_index == 1
 
 def test_measure_function_with_conditional_bad_syntax_captured():
 	delta=0.05

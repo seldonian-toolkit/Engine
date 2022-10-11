@@ -124,12 +124,3 @@ def test_multiclass_classification_measure_functions():
 		vector_TNR = objectives.vector_True_Negative_Rate(model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_TNR,1.0-arcomp_FPR)
-
-
-
-
-	
-
-
-
-	

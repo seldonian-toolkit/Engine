@@ -245,6 +245,7 @@ class ParseTree(object):
 			# does not fail if none are present
 			node_name_isolated = new_node.name.split(
 				"|")[0].split('_[')[0].strip().strip('(').strip()
+
 			if node_name_isolated not in self.available_measure_functions and \
 			   node_name_isolated not in custom_base_node_dict:
 				raise NotImplementedError(
@@ -442,7 +443,8 @@ class ParseTree(object):
 		return node_class(node_name),is_leaf
 
 	def _parse_subscript(self,ast_node):
-		if ast_node.value.id not in ["CM_","FPR_"]:
+		if ast_node.value.id not in ["CM_","PR_","NR_","FPR_",
+			"TNR_","TPR_","FNR_"]:
 			raise NotImplementedError("Error parsing your expression."
 					" A subscript was used in a way we do not support: "
 				   f"{ast_node.value.id}")
@@ -457,11 +459,11 @@ class ParseTree(object):
 			node_kwargs['cm_true_index'] = row_index
 			node_kwargs['cm_pred_index'] = col_index
 			
-		elif ast_node.value.id == "FPR_":
+		else:
 			node_class = MultiClassBaseNode
 			assert isinstance(ast_node.slice.value,ast.Constant)
 			class_index = ast_node.slice.value.value
-			node_name = f"FPR_[{class_index}]"
+			node_name = f"{ast_node.value.id}[{class_index}]"
 			node_kwargs = {}
 			node_kwargs['name'] = node_name
 			node_kwargs['class_index'] = class_index
