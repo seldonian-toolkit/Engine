@@ -7,7 +7,7 @@ if __name__ == '__main__':
 	# Load loan spec file
 	# specfile = '../../../interface_outputs/disparate_impact_fairlearn/spec.pkl'
 	# specfile = '../../../interface_outputs/gpa_disparate_impact_fairlearndef/spec.pkl'
-	specfile = '../../../interface_outputs/gpa_demographic_parity_fairlearndef/spec.pkl'
+	specfile = '../../../interface_outputs/gpa_demographic_parity/spec.pkl'
 	spec = load_pickle(specfile)
 	
 	spec.use_builtin_primary_gradient_fn = False
