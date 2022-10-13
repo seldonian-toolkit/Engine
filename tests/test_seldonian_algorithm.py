@@ -1500,6 +1500,129 @@ def test_no_primary_provided(gpa_regression_dataset,
 	assert spec.primary_objective != None
 	assert spec.primary_objective.__name__ == "IS_estimate"
 
+def test_no_initial_solution_provided(gpa_regression_dataset,
+	gpa_classification_dataset,gpa_multiclass_dataset,
+	RL_gridworld_dataset):
+	""" Test that if the user does not provide a primary objective,
+	then the default is used in the three different regimes/sub-regimes
+	"""
+	# Regression
+	rseed=99
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.05]
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+	frac_data_in_safety=0.6
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+		
+	)
+	SA = SeldonianAlgorithm(spec)
+	assert np.allclose(SA.initial_solution,np.zeros(10))
+
+	# Binary Classification
+	constraint_strs = ["FPR - 0.5"]
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_classification_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	# Create spec object
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='binary_classification',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Create seldonian algorithm object
+	SA = SeldonianAlgorithm(spec)
+	assert np.allclose(SA.initial_solution,np.zeros(9))
+	
+	# Multi-class Classification
+	constraint_strs = ["CM_[0,0] >= 0.25"]
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_multiclass_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	# Create spec object
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='multiclass_classification',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Create seldonian algorithm object
+	SA = SeldonianAlgorithm(spec)
+	assert np.allclose(SA.initial_solution,np.zeros((9,3)))
+
+	
 
 """ RL based tests """
 

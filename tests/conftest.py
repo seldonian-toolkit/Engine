@@ -10,6 +10,7 @@ from seldonian.dataset import (DataSetLoader,
     RLDataSet,SupervisedDataSet)
 from seldonian.spec import SupervisedSpec
 from seldonian.models import objectives 
+from seldonian.models.models import *
 
 
 @pytest.fixture

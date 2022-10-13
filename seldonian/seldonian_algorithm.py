@@ -45,6 +45,7 @@ class SeldonianAlgorithm():
 		self.column_names = self.dataset.meta_information
 
 		if self.regime == 'supervised_learning':
+			self.sub_regime = self.spec.sub_regime
 			self.model = self.spec.model
 			self.candidate_df, self.safety_df = train_test_split(
 				self.dataset.df, test_size=self.spec.frac_data_in_safety, 
@@ -94,7 +95,11 @@ class SeldonianAlgorithm():
 				self.candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
 
 			if self.initial_solution_fn is None:
-				self.initial_solution = np.zeros(self.candidate_features.shape[1])
+				if self.sub_regime != 'multiclass_classification':
+					self.initial_solution = np.zeros(self.candidate_features.shape[1])
+				elif self.sub_regime == 'multiclass_classification':
+					n_classes = len(np.unique(self.candidate_labels))
+					self.initial_solution = np.zeros((self.candidate_features.shape[1],n_classes))
 			else:
 				try: 
 					self.initial_solution = self.initial_solution_fn(
