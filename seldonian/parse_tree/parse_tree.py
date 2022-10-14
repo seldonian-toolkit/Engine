@@ -451,8 +451,16 @@ class ParseTree(object):
 		if ast_node.value.id == "CM_":
 			# This is a confusion matrix element
 			node_class = ConfusionMatrixBaseNode
-			assert len(ast_node.slice.value.elts) == 2
-			row_index, col_index = [x.value for x in ast_node.slice.value.elts]
+			# ast API changed after Python 3.8 in how it handles slices
+			try:
+				# >= 3.9 syntax
+				elements = ast_node.slice.elts
+			except AttributeError:
+				# 3.8 syntax
+				elements = ast_node.slice.value.elts
+
+			assert len(elements) == 2
+			row_index, col_index = [x.value for x in elements]
 			node_name = f"CM_[{row_index},{col_index}]"
 			node_kwargs = {}
 			node_kwargs['name'] = node_name
@@ -460,9 +468,15 @@ class ParseTree(object):
 			node_kwargs['cm_pred_index'] = col_index
 			
 		else:
+			# It's one of the PR_[i] functions
 			node_class = MultiClassBaseNode
-			assert isinstance(ast_node.slice.value,ast.Constant)
-			class_index = ast_node.slice.value.value
+			# ast API changed after Python 3.8 in how it handles slices
+			try:
+				# 3.8 syntax
+				class_index = ast_node.slice.value.value
+			except AttributeError:
+				class_index = ast_node.slice.value
+			assert type(class_index) == int
 			node_name = f"{ast_node.value.id}[{class_index}]"
 			node_kwargs = {}
 			node_kwargs['name'] = node_name
