@@ -632,7 +632,7 @@ def test_classification_statistics(gpa_classification_dataset):
 	np.random.seed(rseed)
 	frac_data_in_safety=0.6
    
-	constraint_str = '(PR + NR + FPR + FNR + TPR + TNR + logistic_loss) - 10.0'
+	constraint_str = '(PR + NR + FPR + FNR + TPR + TNR) - 10.0'
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 
@@ -1449,7 +1449,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 	# Create seldonian algorithm object, which assigns primary objective
 	SA = SeldonianAlgorithm(spec)
 	assert spec.primary_objective != None
-	assert spec.primary_objective.__name__ == "logistic_loss"
+	assert spec.primary_objective.__name__ == "binary_logistic_loss"
 
 	# RL 
 	constraint_strs = ['-0.25 - J_pi_new']
@@ -1500,92 +1500,129 @@ def test_no_primary_provided(gpa_regression_dataset,
 	assert spec.primary_objective != None
 	assert spec.primary_objective.__name__ == "IS_estimate"
 
-def test_createSupervisedSpec(gpa_regression_dataset):
+def test_no_initial_solution_provided(gpa_regression_dataset,
+	gpa_classification_dataset,gpa_multiclass_dataset,
+	RL_gridworld_dataset):
 	""" Test that if the user does not provide a primary objective,
 	then the default is used in the three different regimes/sub-regimes
 	"""
 	# Regression
-	data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
-	metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
-
-	metadata_dict = load_json(metadata_pth)
-	regime = metadata_dict['regime']
-	sub_regime = metadata_dict['sub_regime']
-	columns = metadata_dict['columns']
-	sensitive_columns = metadata_dict['sensitive_columns']
-				
-	include_sensitive_columns = False
-	include_intercept_term = True
-	regime='supervised_learning'
-
-	model = LinearRegressionModel()
-
-
-	# Load dataset from file
-	loader = DataSetLoader(
-		regime=regime)
-
-	dataset = loader.load_supervised_dataset(
-		filename=data_pth,
-		metadata_filename=metadata_pth,
-		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
-		file_type='csv')
-	
+	rseed=99
+	np.random.seed(rseed) 
 	constraint_strs = ['Mean_Squared_Error - 2.0']
 	deltas = [0.05]
-
-	spec = createSupervisedSpec(
-		dataset=dataset,
-		metadata_pth=metadata_pth,
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
 		constraint_strs=constraint_strs,
-		deltas=deltas,
-		save=False)
+		deltas=deltas)
+	frac_data_in_safety=0.6
 
-	assert spec.primary_objective != None
-	assert spec.primary_objective.__name__ == "Mean_Squared_Error"
-	assert len(spec.parse_trees) == 1
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+		
+	)
+	SA = SeldonianAlgorithm(spec)
+	assert np.allclose(SA.initial_solution,np.zeros(10))
 
-	# Classification
-	data_pth = 'static/datasets/supervised/GPA/gpa_classification_dataset.csv'
-	metadata_pth = 'static/datasets/supervised/GPA/metadata_classification.json'
-
-	metadata_dict = load_json(metadata_pth)
-	regime = metadata_dict['regime']
-	sub_regime = metadata_dict['sub_regime']
-	columns = metadata_dict['columns']
-	sensitive_columns = metadata_dict['sensitive_columns']
-				
-	include_sensitive_columns = False
-	include_intercept_term = True
-	regime='supervised_learning'
-
-	model = LogisticRegressionModel()
-
-	# Load dataset from file
-	loader = DataSetLoader(
-		regime=regime)
-
-	dataset = loader.load_supervised_dataset(
-		filename=data_pth,
-		metadata_filename=metadata_pth,
-		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
-		file_type='csv')
-	
-	constraint_strs = ['FPR - 0.5']
+	# Binary Classification
+	constraint_strs = ["FPR - 0.5"]
 	deltas = [0.05]
 
-	spec = createSupervisedSpec(
-		dataset=dataset,
-		metadata_pth=metadata_pth,
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_classification_dataset(
 		constraint_strs=constraint_strs,
-		deltas=deltas,
-		save=False)
+		deltas=deltas)
 
-	assert spec.primary_objective != None
-	assert spec.primary_objective.__name__ == "logistic_loss"
-	assert len(spec.parse_trees) == 1
+	# Create spec object
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='binary_classification',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Create seldonian algorithm object
+	SA = SeldonianAlgorithm(spec)
+	assert np.allclose(SA.initial_solution,np.zeros(9))
+	
+	# Multi-class Classification
+	constraint_strs = ["CM_[0,0] >= 0.25"]
+	deltas = [0.05]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_multiclass_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	# Create spec object
+
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='multiclass_classification',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+	# Create seldonian algorithm object
+	SA = SeldonianAlgorithm(spec)
+	assert np.allclose(SA.initial_solution,np.zeros((9,3)))
+
+	
 
 """ RL based tests """
 

@@ -16,7 +16,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.spec.Spec" href="seldonian.spec.Spec.html" />
-    <link rel="prev" title="seldonian.spec.createSupervisedSpec" href="seldonian.spec.createSupervisedSpec.html" />
+    <link rel="prev" title="seldonian.spec.validate_parse_trees" href="seldonian.spec.validate_parse_trees.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -45,6 +45,8 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – The dataset object containing safety data</p></li>
 <li><p><strong>model</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">RL_Model</span></code> object</p></li>
+<li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
+behavioral constraints</p></li>
 <li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – Fraction of data used in safety test.
 The remaining fraction will be used in candidate selection</p></li>
 <li><p><strong>primary_objective</strong> (<em>function</em><em> or </em><em>class method</em>) – The objective function that would
@@ -52,17 +54,14 @@ be solely optimized in the absence of behavioral constraints,
 i.e. the loss function</p></li>
 <li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide 
 initial model weights in candidate selection</p></li>
-<li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
-behavioral constraints</p></li>
-<li><p><strong>RL_environment_obj</strong> – Environment class from an RL
-module in this library (see <a class="reference internal" href="seldonian.RL.environments.html#module-seldonian.RL.environments" title="seldonian.RL.environments"><code class="xref py py-mod docutils literal notranslate"><span class="pre">seldonian.RL.environments</span></code></a>)</p></li>
+<li><p><strong>base_node_bound_method_dict</strong> (<em>dict</em><em>, </em><em>defaults to {}</em>) – A dictionary specifying the
+bounding method to use for each base node</p></li>
 <li><p><strong>use_builtin_primary_gradient_fn</strong> (<em>bool</em><em>, </em><em>defaults to True</em>) – Whether to use the built-in
 function for the gradient of the primary objective, 
 if one exists. If False, uses autograd</p></li>
 <li><p><strong>custom_primary_gradient_fn</strong> (<em>function</em><em>, </em><em>defaults to None</em>) – A function for computing 
 the gradient of the primary objective. If None,
 falls back on builtin function or autograd</p></li>
-<li><p><strong>bound_method</strong> (<em>str</em><em>, </em><em>defaults to 'ttest'</em>) – The statistical method for calculating the confidence bounds</p></li>
 <li><p><strong>optimization_technique</strong> (<em>str</em><em>, </em><em>defaults to 'gradient_descent'</em>) – The method for optimization during 
 candidate selection. E.g. ‘gradient_descent’, ‘barrier_function’</p></li>
 <li><p><strong>optimizer</strong> (<em>str</em><em>, </em><em>defaults to 'adam'</em>) – The string name of the optimizer used 
@@ -73,12 +72,7 @@ optimization during candidate selection. See
 <li><p><strong>regularization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for 
 regularization during candidate selection. See 
 <a class="reference internal" href="../overview.html#candidate-selection"><span class="std std-ref">Candidate Selection</span></a>.</p></li>
-<li><p><strong>normalize_returns</strong> (<em>bool</em><em>, </em><em>defaults to False</em>) – Whether to normalize the returns to [0,1]</p></li>
 </ul>
-</dd>
-<dt class="field-even">Variables</dt>
-<dd class="field-even"><p><strong>usable_opt_dict</strong> (<em>dict</em>) – Shows which optimizers are acceptable
-for a given optimization technique</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -138,6 +132,7 @@ for a given optimization technique</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.createRLSpec.html">seldonian.spec.createRLSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.createSupervisedSpec.html">seldonian.spec.createSupervisedSpec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.spec.validate_parse_trees.html">seldonian.spec.validate_parse_trees</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.spec.RLSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.Spec.html">seldonian.spec.Spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.spec.SupervisedSpec.html">seldonian.spec.SupervisedSpec</a></li>
@@ -158,7 +153,7 @@ for a given optimization technique</p>
   <li><a href="../api.html">API</a><ul>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.spec.html">seldonian.spec</a><ul>
-      <li>Previous: <a href="seldonian.spec.createSupervisedSpec.html" title="previous chapter">seldonian.spec.createSupervisedSpec</a></li>
+      <li>Previous: <a href="seldonian.spec.validate_parse_trees.html" title="previous chapter">seldonian.spec.validate_parse_trees</a></li>
       <li>Next: <a href="seldonian.spec.Spec.html" title="next chapter">seldonian.spec.Spec</a></li>
   </ul></li>
   </ul></li>

@@ -5,7 +5,8 @@ from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import (load_json,
     load_supervised_metadata,save_pickle)
 from seldonian.spec import createSupervisedSpec
-from seldonian.models.models import LogisticRegressionModel
+from seldonian.models.models import (
+    BinaryLogisticRegressionModel as LogisticRegressionModel)
 from seldonian.models import objectives
 
 if __name__ == '__main__':

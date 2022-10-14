@@ -5,6 +5,8 @@ from sklearn.linear_model import (LinearRegression,
 	LogisticRegression, SGDClassifier)
 from functools import partial, lru_cache
 
+from seldonian.utils.stats_utils import softmax
+
 class SeldonianModel(object):
 	def __init__(self):
 		""" Parent class for all machine learning models """
@@ -104,41 +106,84 @@ class ClassificationModel(SupervisedModel):
 		raise NotImplementedError("Implement this method in child class")
 	
 
-class LogisticRegressionModel(ClassificationModel):
+class BaseLogisticRegressionModel(ClassificationModel):
 	def __init__(self):
-		""" Implements logistic regression """
+		""" Base class for binary and multi-class 
+		logistic regression """
 		super().__init__()
 		self.model_class = LogisticRegression
+			
+	def fit(self,X,Y):
+		""" Train the model using features and labels.
+		Let:
+			i = number of datapoints
+			j = number of features (including bias term, if provied)
+			k = number of classes
+
+		:param X: The features
+		:type X: array of shape (i,j)
+		:param Y: The labels
+		:type Y: array of shape (i,k)
+		:return: fitted model weights
+		:rtype: array of shape (j,k)
+		"""
+		reg = self.model_class().fit(X, Y)
+		theta = np.squeeze(np.vstack([reg.intercept_,reg.coef_.T]))
+		return theta
+		# return np.squeeze(np.hstack([reg.intercept_.reshape(-1,1),reg.coef_]))
+
+class BinaryLogisticRegressionModel(BaseLogisticRegressionModel):
+	def __init__(self):
+		""" Implements binary logistic regression """
+		super().__init__()
 
 	def predict(self,theta,X):
 		""" Predict the probability of 
-		having the positive class label
+		having each class label for each data point
+		in X. Let:
+			i = number of datapoints
+			j = number of features (including bias term, if provied)
+			k = number of classes
 
 		:param theta: The parameter weights
-		:type theta: numpy ndarray
-		:param X: The features
-		:type X: numpy ndarray
-		:return: predictions for each observation
-		:rtype: float
+		:type theta: array of length j or shape (j,1) 
+		:param X: The features 
+		:type X: array of shape (i,j)
+		:return: predictions for each class each observation
+		:rtype: array of length i or shape (i,1)
 		"""
-		z = np.dot(X,theta[1:]) + theta[0]
-		h = 1/(1+np.exp(-z))
+		Z = theta[0] + (X @ theta[1:]) # (i,j) x (j,k) -> (i,k)
+		Y_pred = 1/(1+np.exp(-Z))
+		return Y_pred
 
-		return h
+class MultiClassLogisticRegressionModel(BaseLogisticRegressionModel):
+	def __init__(self):
+		""" Implements multi-class 
+		logistic regression """
+		super().__init__()
 
-	def fit(self,X,Y):
-		""" Train the model using features and labels
+	def predict(self,theta,X):
+		""" Predict the probability of 
+		having each class label for each data point
+		in X. Let:
+			i = number of datapoints
+			j = number of features (including bias term, if provied)
+			k = number of classes
 
-		:param X: The features
-		:type X: numpy ndarray
-		:param Y: The labels
-		:type Y: numpy ndarray
-		:return: fitted model weights
-		:rtype: numpy ndarray(float)
+		:param theta: The parameter weights
+		:type theta: array of shape (j,k) 
+		:param X: The features 
+		:type X: array of shape (i,j)
+		:return: predictions for each class each observation
+		:rtype: array of shape (i x k)
 		"""
-		reg = self.model_class().fit(X, Y)
-		return np.squeeze(np.hstack([reg.intercept_.reshape(-1,1),reg.coef_]))
+		Z = theta[0] + (X @ theta[1:]) # (i,j) x (j,k) -> (i,k)
+		# softmax to get probabilites 
+		Y_pred = np.exp(Z)/np.sum(np.exp(Z),axis=-1,keepdims=True) 
 
+		return Y_pred
+
+	
 
 class DummyClassifierModel(ClassificationModel):
 	def __init__(self):

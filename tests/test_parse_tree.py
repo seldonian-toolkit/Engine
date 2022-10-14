@@ -638,6 +638,58 @@ def test_measure_functions_recognized():
 			 " A variable name was used which we do not recognize: X")
 	assert str(excinfo.value) == error_str
  
+def test_multiclass_measure_functions():
+	delta = 0.05
+	constraint_str = 'CM_[0,1] - 0.5'
+
+	# Confusion matrix 
+
+	# Make sure error is raised if we use wrong sub_regime
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification')
+	with pytest.raises(NotImplementedError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	error_str = ("Error parsing your expression. "
+		"A variable name was used which we do not recognize: CM")
+	assert str(excinfo.value) == error_str
+
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='multiclass_classification')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'CM'
+	assert pt.root.left.name == 'CM_[0,1]'
+	assert pt.root.left.cm_true_index == 0
+	assert pt.root.left.cm_pred_index == 1
+
+	constraint_str = '(CM_[2,3] | [A,B]) - 0.5'
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='multiclass_classification',columns=['A','B'])
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'CM'
+	assert pt.root.left.name == 'CM_[2,3] | [A,B]'
+	assert pt.root.left.cm_true_index == 2
+	assert pt.root.left.cm_pred_index == 3
+
+	# PR, NR, FPR, TNR, TPR, FNR
+	delta = 0.05
+	for msr_func in ['PR','NR','FPR','TNR','TPR','FNR']:
+		constraint_str = f'{msr_func}_[0]-0.5'
+			
+		pt = ParseTree(delta,regime='supervised_learning',
+			sub_regime='multiclass_classification')
+		pt.create_from_ast(constraint_str)
+		assert pt.root.left.measure_function_name == msr_func
+		assert pt.root.left.name == f'{msr_func}_[0]'
+		assert pt.root.left.class_index == 0
+
+		constraint_str = f'({msr_func}_[1] | [A,B]) - 0.5'
+		pt = ParseTree(delta,regime='supervised_learning',
+			sub_regime='multiclass_classification',columns=['A','B'])
+		pt.create_from_ast(constraint_str)
+		assert pt.root.left.measure_function_name == msr_func
+		assert pt.root.left.name == f'{msr_func}_[1] | [A,B]'
+		assert pt.root.left.class_index == 1
+
 def test_measure_function_with_conditional_bad_syntax_captured():
 	delta=0.05
 	error_str = ("Error parsing your expression."
@@ -1401,7 +1453,7 @@ def test_evaluate_constraint(
 	assert pt.root.value == pytest.approx(-1.06248)
 
 	### Classification
-	constraint_str = '(abs(PR) + exp(NR*2) + FPR/4.0 + max(FNR,TPR) + min(TNR,logistic_loss)) - 10.0'
+	constraint_str = '(abs(PR) + exp(NR*2) + FPR/4.0 + max(FNR,TPR) + min(TNR,0.5)) - 10.0'
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 
@@ -1410,6 +1462,7 @@ def test_evaluate_constraint(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
 
+	# theta = np.zeros((10,2))
 	theta = np.zeros(10)
 	pt = parse_trees[0]
 	pt.evaluate_constraint(theta=theta,dataset=dataset,

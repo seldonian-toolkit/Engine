@@ -81,7 +81,16 @@ measure_functions_dict = {
 			'TPR',
 			'FNR',
 			'TNR',
-			'logistic_loss'
+			],
+		'multiclass_classification':
+			[
+			'CM',
+			'PR',
+			'NR',
+			'FPR',
+			'TPR',
+			'FNR',
+			'TNR',
 			],
 		'regression':
 			[

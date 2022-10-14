@@ -10,6 +10,7 @@ from seldonian.dataset import (DataSetLoader,
     RLDataSet,SupervisedDataSet)
 from seldonian.spec import SupervisedSpec
 from seldonian.models import objectives 
+from seldonian.models.models import *
 
 
 @pytest.fixture
@@ -155,7 +156,7 @@ def gpa_regression_dataset():
 @pytest.fixture
 def gpa_classification_dataset():
 
-    from seldonian.models.models import LogisticRegressionModel
+    from seldonian.models.models import BinaryLogisticRegressionModel
     def generate_dataset(constraint_strs,deltas):
 
         data_pth = 'static/datasets/supervised/GPA/gpa_classification_dataset.csv'
@@ -170,10 +171,10 @@ def gpa_classification_dataset():
         include_intercept_term = False
         regime='supervised_learning'
 
-        model = LogisticRegressionModel()
+        model = BinaryLogisticRegressionModel()
 
         # Mean squared error
-        primary_objective = objectives.logistic_loss
+        primary_objective = objectives.binary_logistic_loss
 
         # Load dataset from file
         loader = DataSetLoader(
@@ -211,6 +212,67 @@ def gpa_classification_dataset():
         return dataset,model,primary_objective,parse_trees
     
     return generate_dataset
+
+@pytest.fixture
+def gpa_multiclass_dataset():
+
+    from seldonian.models.models import BinaryLogisticRegressionModel
+    def generate_dataset(constraint_strs,deltas):
+
+        data_pth = 'static/datasets/supervised/GPA/gpa_multiclass_dataset.csv'
+        metadata_pth = 'static/datasets/supervised/GPA/metadata_multiclass.json'
+
+        metadata_dict = load_json(metadata_pth)
+        regime = metadata_dict['regime']
+        sub_regime = metadata_dict['sub_regime']
+        columns = metadata_dict['columns']
+                    
+        include_sensitive_columns = False
+        include_intercept_term = False
+        regime='supervised_learning'
+
+        model = MultiClassLogisticRegressionModel()
+
+        # Mean squared error
+        primary_objective = objectives.multiclass_logistic_loss
+
+        # Load dataset from file
+        loader = DataSetLoader(
+            regime=regime)
+
+        dataset = loader.load_supervised_dataset(
+            filename=data_pth,
+            metadata_filename=metadata_pth,
+            include_sensitive_columns=include_sensitive_columns,
+            include_intercept_term=include_intercept_term,
+            file_type='csv')
+
+        # For each constraint, make a parse tree
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(delta=delta,
+                regime=regime,sub_regime=sub_regime,
+                columns=["M","F"])
+
+            # Fill out tree
+            parse_tree.create_from_ast(constraint_str)
+            # assign deltas for each base node
+            # use equal weighting for each base node
+            parse_tree.assign_deltas(weight_method='equal')
+
+            # Assign bounds needed on the base nodes
+            parse_tree.assign_bounds_needed()
+            
+            parse_trees.append(parse_tree)
+
+        return dataset,model,primary_objective,parse_trees
+    
+    return generate_dataset
+
 
 @pytest.fixture
 def RL_gridworld_dataset():

@@ -7,7 +7,8 @@ from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import (load_json,save_pickle,
     load_supervised_metadata)
 from seldonian.spec import SupervisedSpec
-from seldonian.models.models import LogisticRegressionModel
+from seldonian.models.models import (
+    BinaryLogisticRegressionModel as LogisticRegressionModel) 
 from seldonian.models import objectives
 
 if __name__ == '__main__':
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     model = LogisticRegressionModel()
     
     # Set the primary objective to be log loss
-    primary_objective = objectives.logistic_loss
+    primary_objective = objectives.binary_logistic_loss
 
     # Load dataset from file
     loader = DataSetLoader(
