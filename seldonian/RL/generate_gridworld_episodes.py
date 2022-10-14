@@ -17,7 +17,7 @@ def main():
     the_dict["num_episodes"] = n_episodes
     the_dict["vis"] = False
     start_time = time()
-    episodes, agent = run_trial(the_dict,parallel=True)
+    episodes, agent = run_trial(the_dict,parallel=False)
     print(len(episodes))
     save_pickle(f"gridworld_{n_episodes}episodes.pkl",episodes,verbose=True)
     assert len(episodes) == n_episodes
