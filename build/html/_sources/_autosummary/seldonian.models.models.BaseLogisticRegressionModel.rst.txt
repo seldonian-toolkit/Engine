@@ -1,9 +1,9 @@
-seldonian.models.models.LogisticRegressionModel
-===============================================
+seldonian.models.models.BaseLogisticRegressionModel
+===================================================
 
 .. currentmodule:: seldonian.models.models
 
-.. autoclass:: LogisticRegressionModel
+.. autoclass:: BaseLogisticRegressionModel
    :members:       
    :private-members:                                                 
    :show-inheritance:                           
@@ -18,11 +18,11 @@ seldonian.models.models.LogisticRegressionModel
 
    .. autosummary::
    .. 
-   ..    ~LogisticRegressionModel.__init__
+   ..    ~BaseLogisticRegressionModel.__init__
    ..
-   ..    ~LogisticRegressionModel.fit
+   ..    ~BaseLogisticRegressionModel.fit
    ..
-   ..    ~LogisticRegressionModel.predict
+   ..    ~BaseLogisticRegressionModel.predict
    ..
    
    

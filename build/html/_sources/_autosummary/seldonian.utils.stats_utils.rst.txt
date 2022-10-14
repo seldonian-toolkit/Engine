@@ -14,6 +14,7 @@ seldonian.utils.stats\_utils
    .. autosummary::
       :toctree:                                         
    
+      softmax
       stddev
       tinv
       weighted_sum_gamma

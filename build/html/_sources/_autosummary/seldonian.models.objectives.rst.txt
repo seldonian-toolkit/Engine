@@ -23,11 +23,13 @@ seldonian.models.objectives
       Positive_Rate
       True_Negative_Rate
       True_Positive_Rate
+      binary_logistic_loss
+      confusion_matrix
       evaluate_statistic
       gradient_Bounded_Squared_Error
       gradient_Mean_Squared_Error
-      gradient_logistic_loss
-      logistic_loss
+      gradient_binary_logistic_loss
+      multiclass_logistic_loss
       sample_from_statistic
       vector_Error
       vector_False_Negative_Rate
@@ -38,7 +40,7 @@ seldonian.models.objectives
       vector_Squared_Error
       vector_True_Negative_Rate
       vector_True_Positive_Rate
-      vector_logistic_loss
+      vector_confusion_matrix
    
    
 

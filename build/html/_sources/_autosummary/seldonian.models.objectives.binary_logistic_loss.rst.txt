@@ -1,6 +1,6 @@
-seldonian.models.objectives.vector\_logistic\_loss
+seldonian.models.objectives.binary\_logistic\_loss
 ==================================================
 
 .. currentmodule:: seldonian.models.objectives
 
-.. autofunction:: vector_logistic_loss
+.. autofunction:: binary_logistic_loss

@@ -21,9 +21,11 @@ seldonian.parse\_tree.nodes
    
       BaseNode
       CVaRSQeBaseNode
+      ConfusionMatrixBaseNode
       ConstantNode
       InternalNode
       MEDCustomBaseNode
+      MultiClassBaseNode
       Node
    
    

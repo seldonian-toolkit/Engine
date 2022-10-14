@@ -19,11 +19,13 @@ seldonian.models.models
       :toctree:                                         
       :template: custom-class-template.rst              
    
+      BaseLogisticRegressionModel
+      BinaryLogisticRegressionModel
       BoundedLinearRegressionModel
       ClassificationModel
       DummyClassifierModel
       LinearRegressionModel
-      LogisticRegressionModel
+      MultiClassLogisticRegressionModel
       RandomClassifierModel
       RegressionModel
       SeldonianModel
