@@ -39,7 +39,7 @@
 <h1>seldonian.utils.tutorial_utils.make_synthetic_regression_dataset<a class="headerlink" href="#seldonian-utils-tutorial-utils-make-synthetic-regression-dataset" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.utils.tutorial_utils.make_synthetic_regression_dataset">
-<span class="sig-name descname"><span class="pre">make_synthetic_regression_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.tutorial_utils.make_synthetic_regression_dataset" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">make_synthetic_regression_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.tutorial_utils.make_synthetic_regression_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate 2D dataset from random normal distributions,
 with optional clipping</p>
 <dl class="field-list simple">
@@ -54,8 +54,6 @@ in the Y dimension</p></li>
 in the X dimension</p></li>
 <li><p><strong>sigma_Y</strong> (<em>float</em>) – The standard deviation of the normal distribution 
 in the Y dimension</p></li>
-<li><p><strong>include_intercept_term</strong> – Whether to add a column of ones
-as first column for an offset term</p></li>
 <li><p><strong>clipped</strong> – Boolean flag controlling whether to use clipping</p></li>
 <li><p><strong>clip_min</strong> – Clip values to be &gt;= this value</p></li>
 </ul>
@@ -162,7 +160,7 @@ as first column for an offset term</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

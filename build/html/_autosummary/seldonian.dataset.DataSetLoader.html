@@ -95,7 +95,7 @@ containing the pickled lists of <a class="reference internal" href="seldonian.da
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_supervised_dataset">
-<span class="sig-name descname"><span class="pre">load_supervised_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_sensitive_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_intercept_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_supervised_dataset" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">load_supervised_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_sensitive_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_supervised_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create SupervisedDataSet object from file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -106,8 +106,6 @@ containing the data you want to load</p></li>
 containing the metadata describing the data in filename</p></li>
 <li><p><strong>include_sensitive_columns</strong> (<em>bool</em>) – Whether to use 
 sensitive columns during model training</p></li>
-<li><p><strong>include_intercept_term</strong> (<em>bool</em>) – Whether to pre-append
-a column of ones in the feature array</p></li>
 <li><p><strong>file_type</strong> (<em>str</em><em>, </em><em>defaults to 'csv'</em>) – the file extension of filename</p></li>
 </ul>
 </dd>
@@ -215,7 +213,7 @@ a column of ones in the feature array</p></li>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.2.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
