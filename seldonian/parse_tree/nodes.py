@@ -162,9 +162,8 @@ class BaseNode(Node):
         :return: The masked dataframe 
         :rtype: numpy ndarray
         """
-        col_indices=[0 if conditional_columns[0]=='M' else 1]
-        masks = reduce(np.logical_and,(dataset.df.values[:,col_index]==1 for col_index in col_indices))
-        masked_df = dataset.df.values[masks] 
+        masks = reduce(np.logical_and,(dataset.df.loc[:,col]==1 for col in conditional_columns))
+        masked_df = dataset.df[masks] 
         return masked_df
 
     def calculate_data_forbound(self,**kwargs):
@@ -189,7 +188,7 @@ class BaseNode(Node):
                 dataframe = self.mask_dataframe(
                     dataset,self.conditional_columns)
             else:
-                dataframe = dataset.df.values
+                dataframe = dataset.df
 
             if branch == 'candidate_selection':
                 frac_masked = len(dataframe)/len(dataset.df)
@@ -200,24 +199,21 @@ class BaseNode(Node):
             # Separate features from label
             label_column = dataset.label_column
             # label_column_index = dataset.df.columns.get_loc(label_column)
-            label_column_index = -1
-            labels = dataframe[:,label_column_index]
-            # features = dataframe.loc[:, dataframe.columns != label_column]
-            features = np.delete(dataframe,label_column_index,axis=1)
+            # label_column_index = -1
+            labels = dataframe.loc[:,label_column]
+            features = dataframe.loc[:, dataframe.columns != label_column]
+            # features = np.delete(dataframe,label_column_index,axis=1)
 
             # drop sensitive column names, unless instructed to keep them
             if not dataset.include_sensitive_columns:
                 if dataset.sensitive_column_names:
                     # sensitive_col_indices = [dataset.df.columns.get_loc(col) for col in dataset.sensitive_column_names]
-                    sensitive_col_indices = [0,1]
-                    # features = features.drop(columns=dataset.sensitive_column_names)
-                    features = np.delete(features,sensitive_col_indices,axis=1)
+                    # sensitive_col_indices = [0,1]
+                    features = features.drop(columns=dataset.sensitive_column_names)
 
-            # Intercept term
-            if dataset.include_intercept_term:
-                # features.insert(0,'offset',1.0) # inserts a column of 1's
-                features = np.insert(features,0,np.ones(len(dataframe)),axis=1)
-
+            # Convert to numpy arrays
+            features = np.array(features)
+            labels = np.array(labels)
             data_dict = {'features':features,'labels':labels}  
             
         elif regime == 'reinforcement_learning':
@@ -700,7 +696,6 @@ class MEDCustomBaseNode(BaseNode):
         label_column = dataset.label_column
         labels = dataframe[label_column]
         features = dataframe.loc[:, dataframe.columns != label_column]
-        features.insert(0,'offset',1.0) # inserts a column of 1's
         
         # Do not drop the sensitive columns yet. 
         # They might be needed in precalculate_data()

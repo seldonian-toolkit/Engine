@@ -23,6 +23,7 @@ class RegressionModel(SupervisedModel):
 	def __init__(self):
 		""" Parent class for all regression-based models """ 
 		super().__init__()
+		self.has_intercept = True
 
 	def predict(self):
 		raise NotImplementedError("Implement this method in child class")
@@ -44,7 +45,7 @@ class LinearRegressionModel(RegressionModel):
 		:return: predicted labels
 		:rtype: numpy ndarray
 		"""
-		return np.dot(X,theta)
+		return theta[0] + (X @ theta[1:])
 
 	def fit(self,X,Y):
 		""" Train the model using the feature,label pairs 
@@ -57,8 +58,7 @@ class LinearRegressionModel(RegressionModel):
 		:rtype: numpy ndarray
 		"""
 		reg = self.model_class().fit(X, Y)
-		return np.hstack([np.array(reg.intercept_),reg.coef_[1:]])
-
+		return np.hstack([reg.intercept_,reg.coef_])
 
 class BoundedLinearRegressionModel(LinearRegressionModel):
 	def __init__(self):
@@ -89,7 +89,7 @@ class BoundedLinearRegressionModel(LinearRegressionModel):
 		s=2.0 # 1 gives you the same bound size as y
 		y_hat_min = y_min*(1+s)/2 + y_max*(1-s)/2
 		y_hat_max = y_max*(1+s)/2 + y_min*(1-s)/2
-		Z = np.dot(X,theta)
+		Z = theta[0] + (X @ theta[1:])
 		return self._sigmoid(Z)*(y_hat_max-y_hat_min) + y_hat_min
 
 
@@ -112,6 +112,7 @@ class BaseLogisticRegressionModel(ClassificationModel):
 		logistic regression """
 		super().__init__()
 		self.model_class = LogisticRegression
+		self.has_intercept = True
 			
 	def fit(self,X,Y):
 		""" Train the model using features and labels.
@@ -183,13 +184,12 @@ class MultiClassLogisticRegressionModel(BaseLogisticRegressionModel):
 
 		return Y_pred
 
-	
-
 class DummyClassifierModel(ClassificationModel):
 	def __init__(self):
 		""" Implements a classifier that always predicts
 		the positive class, regardless of input """
 		super().__init__()
+		self.has_intercept = False
 
 	def predict(self,theta,X):
 		""" Predict the probability of 
@@ -205,13 +205,13 @@ class DummyClassifierModel(ClassificationModel):
 
 		return np.ones(len(X))
 
-
 class RandomClassifierModel(ClassificationModel):
 	def __init__(self):
 		""" Implements a classifier that always predicts
 		that the positive class has prob=0.5,
 		regardless of input """
 		super().__init__()
+		self.has_intercept = False
 
 	def predict(self,theta,X):
 		""" Predict the probability of 

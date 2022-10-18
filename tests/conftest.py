@@ -108,7 +108,6 @@ def gpa_regression_dataset():
         sensitive_columns = metadata_dict['sensitive_columns']
                     
         include_sensitive_columns = False
-        include_intercept_term = True
         regime='supervised_learning'
 
         model = LinearRegressionModel()
@@ -124,7 +123,6 @@ def gpa_regression_dataset():
             filename=data_pth,
             metadata_filename=metadata_pth,
             include_sensitive_columns=include_sensitive_columns,
-            include_intercept_term=include_intercept_term,
             file_type='csv')
 
         # For each constraint, make a parse tree
@@ -168,7 +166,6 @@ def gpa_classification_dataset():
         columns = metadata_dict['columns']
                     
         include_sensitive_columns = False
-        include_intercept_term = False
         regime='supervised_learning'
 
         model = BinaryLogisticRegressionModel()
@@ -184,7 +181,6 @@ def gpa_classification_dataset():
             filename=data_pth,
             metadata_filename=metadata_pth,
             include_sensitive_columns=include_sensitive_columns,
-            include_intercept_term=include_intercept_term,
             file_type='csv')
 
         # For each constraint, make a parse tree
@@ -228,7 +224,6 @@ def gpa_multiclass_dataset():
         columns = metadata_dict['columns']
                     
         include_sensitive_columns = False
-        include_intercept_term = False
         regime='supervised_learning'
 
         model = MultiClassLogisticRegressionModel()
@@ -244,7 +239,6 @@ def gpa_multiclass_dataset():
             filename=data_pth,
             metadata_filename=metadata_pth,
             include_sensitive_columns=include_sensitive_columns,
-            include_intercept_term=include_intercept_term,
             file_type='csv')
 
         # For each constraint, make a parse tree

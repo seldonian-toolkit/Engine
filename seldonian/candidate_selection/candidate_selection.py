@@ -80,9 +80,6 @@ class CandidateSelection(object):
 				self.features = self.features.drop(
 					columns=self.candidate_dataset.sensitive_column_names)
 		
-			if candidate_dataset.include_intercept_term:
-				self.features.insert(0,'offset',1.0) # inserts a column of 1's
-		
 		self.parse_trees = parse_trees
 		
 		self.primary_objective = primary_objective # must accept theta, features, labels
@@ -327,6 +324,7 @@ class CandidateSelection(object):
 		:return: The value of the primary objective function
 			evaluated at theta
 		"""
+
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
 			result = self.primary_objective(self.model,theta, 

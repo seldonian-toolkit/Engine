@@ -966,7 +966,6 @@ def test_math_functions_propagate():
 		filename=data_pth,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=False,
-		include_intercept_term=True,
 		file_type='csv')
 
 	model_instance = LinearRegressionModel()
@@ -1191,14 +1190,12 @@ def test_ttest_bound():
 	candidate_dataset = SupervisedDataSet(candidate_df,
 		meta_information=['feature1','label'],
 		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False,
-		include_intercept_term=True)
+		include_sensitive_columns=False)
 
 	safety_dataset = SupervisedDataSet(safety_df,
 		meta_information=['feature1','label'],
 		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False,
-		include_intercept_term=True)
+		include_sensitive_columns=False)
 	
 	# First, single sided bound (MSE only needs upper bound)
 	constraint_str = 'Mean_Squared_Error - 2.0'
@@ -1286,14 +1283,12 @@ def test_bad_bound_method():
 	candidate_dataset = SupervisedDataSet(candidate_df,
 		meta_information=['feature1','label'],
 		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False,
-		include_intercept_term=True)
+		include_sensitive_columns=False)
 
 	safety_dataset = SupervisedDataSet(safety_df,
 		meta_information=['feature1','label'],
 		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False,
-		include_intercept_term=True)
+		include_sensitive_columns=False)
 	
 	# First, single sided bound (MSE only needs upper bound)
 	constraint_str = 'Mean_Squared_Error - 2.0'
@@ -1428,8 +1423,7 @@ def test_evaluate_constraint(
 	
 	dataset = SupervisedDataSet(df,meta_information=['feature1','label'],
 		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False,
-		include_intercept_term=True)
+		include_sensitive_columns=False)
 	
 	# MSE
 	constraint_str = 'Mean_Squared_Error - 2.0'
@@ -1554,7 +1548,6 @@ def test_single_conditional_columns_propagated():
 		filename=data_pth,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=False,
-		include_intercept_term=True,
 		file_type='csv')
 
 	model_instance = LinearRegressionModel()

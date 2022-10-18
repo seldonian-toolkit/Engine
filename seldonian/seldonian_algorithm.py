@@ -53,7 +53,6 @@ class SeldonianAlgorithm():
 
 			self.label_column = self.dataset.label_column
 			self.include_sensitive_columns = self.dataset.include_sensitive_columns
-			self.include_intercept_term = self.dataset.include_intercept_term
 			self.sensitive_column_names = self.dataset.sensitive_column_names
 
 			# Create candidate and safety datasets
@@ -61,14 +60,12 @@ class SeldonianAlgorithm():
 				self.candidate_df,meta_information=self.column_names,
 				sensitive_column_names=self.sensitive_column_names,
 				include_sensitive_columns=self.include_sensitive_columns,
-				include_intercept_term=self.include_intercept_term,
 				label_column=self.label_column)
 
 			self.safety_dataset = SupervisedDataSet(
 				self.safety_df,meta_information=self.column_names,
 				sensitive_column_names=self.sensitive_column_names,
 				include_sensitive_columns=self.include_sensitive_columns,
-				include_intercept_term=self.include_intercept_term,
 				label_column=self.label_column)
 			
 			self.n_candidate = len(self.candidate_df)
@@ -91,28 +88,19 @@ class SeldonianAlgorithm():
 				self.candidate_features = self.candidate_features.drop(
 					columns=self.sensitive_column_names)
 		
-			if self.include_intercept_term:
-				self.candidate_features.insert(0,'offset',1.0) # inserts a column of 1's
-
 			if self.initial_solution_fn is None:
+				n_features = self.candidate_features.shape[1]
+				if self.model.has_intercept:
+					n_features += 1
 				if self.sub_regime != 'multiclass_classification':
-					self.initial_solution = np.zeros(self.candidate_features.shape[1])
+					self.initial_solution = np.zeros(n_features)
 				elif self.sub_regime == 'multiclass_classification':
 					n_classes = len(np.unique(self.candidate_labels))
-					self.initial_solution = np.zeros((self.candidate_features.shape[1],n_classes))
+					self.initial_solution = np.zeros((n_features,n_classes))
 			else:
-				try: 
-					self.initial_solution = self.initial_solution_fn(
-						self.candidate_features,self.candidate_labels)
-				except Exception as e: 
-					# handle off-by-one error due to intercept not being included
-					warning_msg = (
-						"Warning: initial solution function failed with this error:"
-						f" {e}")
-					warnings.warn(warning_msg)
-					self.initial_solution = np.random.normal(
-						loc=0.0,scale=1.0,size=(self.candidate_features.shape[1]+1)
-						)
+				self.initial_solution = self.initial_solution_fn(
+					self.candidate_features,self.candidate_labels)
+
 			print("Initial solution: ")
 			print(self.initial_solution)
 

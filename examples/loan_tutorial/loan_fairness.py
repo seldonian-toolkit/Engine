@@ -6,7 +6,8 @@ from seldonian.utils.io_utils import load_pickle
 
 if __name__ == '__main__':
 	# Load loan spec file
-	specfile = '../../../interface_outputs/loan_disparate_impact_seldodef/spec.pkl'
+	# specfile = '../../../interface_outputs/loan_disparate_impact_seldodef/spec.pkl'
+	specfile = './spec.pkl'
 	spec = load_pickle(specfile)
 	SA = SeldonianAlgorithm(spec)
 	passed_safety,solution = SA.run(write_cs_logfile=True)

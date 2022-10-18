@@ -72,7 +72,6 @@ def make_synthetic_regression_dataset(
     loc_Y=0.0,
     sigma_X=1.0,
     sigma_Y=1.0,
-    include_intercept_term=True,
     clipped=False,
     clip_min=-3,
     clip_max=3):
@@ -93,8 +92,6 @@ def make_synthetic_regression_dataset(
     :param sigma_Y: The standard deviation of the normal distribution 
         in the Y dimension
     :type sigma_Y: float
-    :param include_intercept_term: Whether to add a column of ones
-        as first column for an offset term
     :param clipped: Boolean flag controlling whether to use clipping
     :param clip_min: Clip values to be >= this value
     :type clip_max: Clip values to be <= this value
@@ -126,7 +123,6 @@ def make_synthetic_regression_dataset(
 
     dataset = SupervisedDataSet(df,
         meta_information=columns,
-        label_column='label',
-        include_intercept_term=include_intercept_term)
+        label_column='label')
 
     return dataset

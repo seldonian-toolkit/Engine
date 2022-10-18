@@ -21,7 +21,6 @@ class DataSetLoader():
 		filename,
 		metadata_filename,
 		include_sensitive_columns=False,
-		include_intercept_term=False,
 		file_type='csv'):
 		""" Create SupervisedDataSet object from file
 
@@ -34,9 +33,6 @@ class DataSetLoader():
 		:param include_sensitive_columns: Whether to use 
 			sensitive columns during model training
 		:type include_sensitive_columns: bool
-		:param include_intercept_term: Whether to pre-append
-			a column of ones in the feature array
-		:type include_intercept_term: bool
 		:param file_type: the file extension of filename
 		:type file_type: str, defaults to 'csv'
 		"""
@@ -61,8 +57,7 @@ class DataSetLoader():
 			meta_information=columns,
 			label_column=label_column,
 			sensitive_column_names=sensitive_column_names,
-			include_sensitive_columns=include_sensitive_columns,
-			include_intercept_term=include_intercept_term)
+			include_sensitive_columns=include_sensitive_columns)
 
 	def load_RL_dataset_from_csv(self,
 		filename,metadata_filename=None):
@@ -143,7 +138,6 @@ class SupervisedDataSet(DataSet):
 		label_column,
 		sensitive_column_names=[],
 		include_sensitive_columns=False,
-		include_intercept_term=False,
 		**kwargs):
 		""" Object for holding Supervised dataframe and dataset metadata
 	
@@ -159,8 +153,6 @@ class SupervisedDataSet(DataSet):
 		:type sensitive_column_names: List(str)
 		:param include_sensitive_columns: Whether to include 
 			sensitive columns during training/prediction
-		:param include_intercept_term: Whether to add 
-			a column of ones as the first column in the dataset.
 		"""
 		super().__init__(
 			meta_information=meta_information,
@@ -169,7 +161,6 @@ class SupervisedDataSet(DataSet):
 		self.label_column = label_column
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns
-		self.include_intercept_term = include_intercept_term
 	
 	
 class RLDataSet(DataSet):

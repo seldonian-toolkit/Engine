@@ -109,8 +109,7 @@ def test_not_enough_data():
 	dataset = SupervisedDataSet(df=df,meta_information=columns,
 		label_column='label',
 		sensitive_column_names=[],
-		include_sensitive_columns=False,
-		include_intercept_term=False
+		include_sensitive_columns=False
 	)
 	frac_data_in_safety=0.6
 
@@ -152,7 +151,7 @@ def test_not_enough_data():
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=objectives.Mean_Squared_Error,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=lambda x,y: np.zeros(1),
+		initial_solution_fn=lambda x,y: np.zeros(2),
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -292,7 +291,7 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 	SA = SeldonianAlgorithm(spec)
 	passed_safety,solution = SA.run(debug=True)
 	assert passed_safety == True
-	print(solution)
+
 	array_to_compare = np.array(
 		[ 0.42523186, -0.00285192, -0.00202239,
 		 -0.00241261, -0.00234646, -0.0025831,
@@ -323,7 +322,7 @@ def test_cvar_custom_base_node():
 		loc_Y=0.0,
 		sigma_X=1.0,
 		sigma_Y=0.2,
-		include_intercept_term=False,clipped=True)
+		clipped=True)
 
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
@@ -359,7 +358,7 @@ def test_cvar_custom_base_node():
 	SA = SeldonianAlgorithm(spec)
 	passed_safety,solution = SA.run(debug=True)
 	assert passed_safety == True
-	solution_to_compare = np.array([[0.07197478]])
+	solution_to_compare = np.array([-0.07257342,0.07182381])
 	assert np.allclose(solution,solution_to_compare)
 
 	# Make sure we can evaluate constraint as well
@@ -367,7 +366,7 @@ def test_cvar_custom_base_node():
 	pt.evaluate_constraint(theta=solution,dataset=dataset,
 		model=model,regime='supervised_learning',
 		branch='safety_test')
-	assert pt.root.value == pytest.approx(-47.35451)
+	assert pt.root.value == pytest.approx(-47.163772762)
 
 def test_cvar_lower_bound():
 	""" The normal constraint only uses 
@@ -390,7 +389,7 @@ def test_cvar_lower_bound():
 		loc_Y=0.0,
 		sigma_X=1.0,
 		sigma_Y=0.2,
-		include_intercept_term=False,clipped=True)
+		clipped=True)
 
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
@@ -426,7 +425,7 @@ def test_cvar_lower_bound():
 	SA = SeldonianAlgorithm(spec)
 	passed_safety,solution = SA.run()
 	assert passed_safety == True
-	solution_to_compare = np.array([-0.15467687])
+	solution_to_compare = np.array([-0.15426298, -0.15460036])
 	assert np.allclose(solution,solution_to_compare)
 
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
@@ -807,11 +806,6 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 	sure safety test passes and solution is correct.
 	"""
 
-	def gradient_MSE(model,theta,X,Y):
-		n = len(X)
-		prediction = model.predict(theta,X) # vector of values
-		err = prediction-Y
-		return 2/n*np.dot(err,X)
 
 	rseed=0
 	np.random.seed(rseed) 
@@ -834,7 +828,7 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=False,
-		custom_primary_gradient_fn=gradient_MSE,
+		custom_primary_gradient_fn=objectives.gradient_Mean_Squared_Error,
 		initial_solution_fn=model.fit,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
@@ -1581,7 +1575,7 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 
 	# Create seldonian algorithm object
 	SA = SeldonianAlgorithm(spec)
-	assert np.allclose(SA.initial_solution,np.zeros(9))
+	assert np.allclose(SA.initial_solution,np.zeros(10))
 	
 	# Multi-class Classification
 	constraint_strs = ["CM_[0,0] >= 0.25"]
@@ -1620,7 +1614,7 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 
 	# Create seldonian algorithm object
 	SA = SeldonianAlgorithm(spec)
-	assert np.allclose(SA.initial_solution,np.zeros((9,3)))
+	assert np.allclose(SA.initial_solution,np.zeros((10,3)))
 
 	
 

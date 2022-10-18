@@ -44,9 +44,6 @@ class SafetyTest(object):
 			if not safety_dataset.include_sensitive_columns:
 				self.features = self.features.drop(
 					columns=self.safety_dataset.sensitive_column_names)
-		
-			if safety_dataset.include_intercept_term:
-				self.features.insert(0,'offset',1.0) # inserts a column of 1's
 
 
 	def run(self,solution,**kwargs):

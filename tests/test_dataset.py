@@ -20,7 +20,6 @@ def test_load_supervised_dataset():
 	columns = metadata_dict['columns']
 				
 	include_sensitive_columns = False
-	include_intercept_term = True
 
 	loader_classification = DataSetLoader(
 		regime=regime)
@@ -34,7 +33,6 @@ def test_load_supervised_dataset():
 		filename=data_pth_csv,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='csv')
 
 	assert dataset_fromcsv.meta_information == columns
@@ -42,7 +40,6 @@ def test_load_supervised_dataset():
 	assert len(dataset_fromcsv.df) == 43303
 	assert dataset_fromcsv.sensitive_column_names == ["M","F"]
 	assert dataset_fromcsv.include_sensitive_columns == False
-	assert dataset_fromcsv.include_intercept_term == True
 
 	# Now from pickle
 	data_pth_pkl = 'static/datasets/supervised/GPA/gpa_classification_dataset.pkl'
@@ -51,7 +48,6 @@ def test_load_supervised_dataset():
 		filename=data_pth_pkl,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='pkl')
 
 	assert dataset_frompkl.meta_information == columns
@@ -59,7 +55,6 @@ def test_load_supervised_dataset():
 	assert len(dataset_frompkl.df) == 43303
 	assert dataset_frompkl.sensitive_column_names == ["M","F"]
 	assert dataset_frompkl.include_sensitive_columns == False
-	assert dataset_frompkl.include_intercept_term == True
 
 	# Try loading a bogus file type
 
@@ -68,7 +63,6 @@ def test_load_supervised_dataset():
 			filename=data_pth_pkl,
 			metadata_filename=metadata_pth,
 			include_sensitive_columns=include_sensitive_columns,
-			include_intercept_term=include_intercept_term,
 			file_type='txt')
 	error_str = f"File type: txt not supported"
 	assert error_str in str(excinfo.value)
@@ -82,7 +76,6 @@ def test_load_supervised_dataset():
 	columns = metadata_dict['columns']
 				
 	include_sensitive_columns = False
-	include_intercept_term = True
 
 	loader_regression = DataSetLoader(
 		regime=regime)
@@ -96,7 +89,6 @@ def test_load_supervised_dataset():
 		filename=data_pth_csv,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='csv')
 
 	assert dataset_fromcsv.meta_information == columns
@@ -104,7 +96,6 @@ def test_load_supervised_dataset():
 	assert len(dataset_fromcsv.df) == 43303
 	assert dataset_fromcsv.sensitive_column_names == ["M","F"]
 	assert dataset_fromcsv.include_sensitive_columns == False
-	assert dataset_fromcsv.include_intercept_term == True
 
 	# Now from pickle
 	data_pth_pkl = 'static/datasets/supervised/GPA/gpa_regression_dataset.pkl'
@@ -113,7 +104,6 @@ def test_load_supervised_dataset():
 		filename=data_pth_pkl,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='pkl')
 
 	assert dataset_frompkl.meta_information == columns
@@ -121,7 +111,6 @@ def test_load_supervised_dataset():
 	assert len(dataset_frompkl.df) == 43303
 	assert dataset_frompkl.sensitive_column_names == ["M","F"]
 	assert dataset_frompkl.include_sensitive_columns == False
-	assert dataset_frompkl.include_intercept_term == True
 
 def test_load_RL_dataset():
 	""" Test that reinforcement learning datasets can be loaded

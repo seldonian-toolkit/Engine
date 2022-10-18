@@ -21,11 +21,9 @@ def test_run_safety_test():
     label_column = 'label'
     regime = 'supervised_learning'
     include_sensitive_columns=False
-    include_intercept_term=True
     dataset = SupervisedDataSet(df,meta_information=columns,
         label_column='label',
-        include_sensitive_columns=include_sensitive_columns,
-        include_intercept_term=include_intercept_term)
+        include_sensitive_columns=include_sensitive_columns)
 
     candidate_df, safety_df = train_test_split(
             df, test_size=0.5, shuffle=False)
@@ -33,8 +31,7 @@ def test_run_safety_test():
     safety_dataset = SupervisedDataSet(
         safety_df,meta_information=columns,
         regime=regime,label_column='label',
-        include_sensitive_columns=include_sensitive_columns,
-        include_intercept_term=include_intercept_term)
+        include_sensitive_columns=include_sensitive_columns,)
 
     # Linear regression model
     from seldonian.models.models import LinearRegressionModel
@@ -75,11 +72,10 @@ def test_evaluate_primary_objective():
     label_column = 'label'
     regime = 'supervised_learning'
     include_sensitive_columns=False
-    include_intercept_term=True
+    
     dataset = SupervisedDataSet(df,meta_information=columns,
         label_column='label',
-        include_sensitive_columns=include_sensitive_columns,
-        include_intercept_term=include_intercept_term)
+        include_sensitive_columns=include_sensitive_columns)
 
     candidate_df, safety_df = train_test_split(
             df, test_size=0.5, shuffle=False)
@@ -87,8 +83,7 @@ def test_evaluate_primary_objective():
     safety_dataset = SupervisedDataSet(
         safety_df,meta_information=columns,
         regime=regime,label_column='label',
-        include_sensitive_columns=include_sensitive_columns,
-        include_intercept_term=include_intercept_term)
+        include_sensitive_columns=include_sensitive_columns)
 
     # Linear regression model
     from seldonian.models.models import LinearRegressionModel

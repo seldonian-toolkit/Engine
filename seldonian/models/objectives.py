@@ -174,7 +174,8 @@ def gradient_Mean_Squared_Error(model,theta,X,Y):
 	n = len(X)
 	prediction = model.predict(theta,X) # vector of values
 	err = prediction-Y
-	return 2/n*np.dot(err,X)
+	X_withintercept = np.hstack([np.ones((n,1)),np.array(X)])
+	return 2/n*np.dot(err,X_withintercept)
 
 def Mean_Error(model,theta,X,Y):
 	"""

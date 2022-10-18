@@ -26,7 +26,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	sensitive_columns = metadata_dict['sensitive_columns']
 				
 	include_sensitive_columns = False
-	include_intercept_term = True
 	regime='supervised_learning'
 
 	# Load dataset from file
@@ -37,7 +36,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 		filename=data_pth,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='csv')
 	
 	constraint_strs = ['Mean_Squared_Error - 2.0']
@@ -71,7 +69,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	sensitive_columns = metadata_dict['sensitive_columns']
 				
 	include_sensitive_columns = False
-	include_intercept_term = False
 	regime='supervised_learning'
 
 	# Load dataset from file
@@ -82,7 +79,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 		filename=data_pth,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='csv')
 	
 	constraint_strs = ['FPR - 0.5']
@@ -118,7 +114,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	sensitive_columns = metadata_dict['sensitive_columns']
 				
 	include_sensitive_columns = False
-	include_intercept_term = False
 	regime='supervised_learning'
 
 	# Load dataset from file
@@ -129,7 +124,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 		filename=data_pth,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='csv')
 	
 	constraint_strs = ['CM_[0,0] - 0.5']
@@ -202,7 +196,6 @@ def test_duplicate_parse_trees(gpa_regression_dataset):
 	sensitive_columns = metadata_dict['sensitive_columns']
 				
 	include_sensitive_columns = False
-	include_intercept_term = True
 	regime='supervised_learning'
 
 	# Load dataset from file
@@ -213,7 +206,6 @@ def test_duplicate_parse_trees(gpa_regression_dataset):
 		filename=data_pth,
 		metadata_filename=metadata_pth,
 		include_sensitive_columns=include_sensitive_columns,
-		include_intercept_term=include_intercept_term,
 		file_type='csv')
 	
 	constraint_strs = [

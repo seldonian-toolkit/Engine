@@ -152,7 +152,7 @@ def gradient_descent_adam(
             candidate_solution = np.copy(theta)
 
         # store values
-        theta_vals.append(theta)
+        theta_vals.append(np.copy(theta))
         lamb_vals.append(np.copy(lamb))
         f_vals.append(np.copy(primary_val))
         g_vals.append(np.copy(g_vec))
@@ -168,7 +168,7 @@ def gradient_descent_adam(
         grad_secondary_theta_val_vec = lamb*gu_theta_vec # elementwise mult
         
         # Gradient of sum is sum of gradients
-        gradient_theta = grad_primary_theta_val + sum(grad_secondary_theta_val_vec)
+        gradient_theta = grad_primary_theta_val + np.sum(grad_secondary_theta_val_vec,axis=0)
         
         # gradient wr.t. to lambda is just g
         gradient_lamb_vec = g_vec
