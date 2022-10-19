@@ -1,0 +1,7 @@
+{
+	"regime":"supervised_learning",
+	"sub_regime":"regression",
+	"columns":["size", "zipcode_zip1","zipcode_zip2", "price"],
+	"label_column":"price",
+	"sensitive_columns":["zipcode_zip1","zipcode_zip2"]
+}
