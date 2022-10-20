@@ -14,6 +14,8 @@ seldonian.models.objectives
    .. autosummary::
       :toctree:                                         
    
+      Accuracy_binary
+      Accuracy_multiclass
       False_Negative_Rate
       False_Positive_Rate
       IS_estimate
@@ -31,6 +33,8 @@ seldonian.models.objectives
       gradient_binary_logistic_loss
       multiclass_logistic_loss
       sample_from_statistic
+      vector_Accuracy_binary
+      vector_Accuracy_multiclass
       vector_Error
       vector_False_Negative_Rate
       vector_False_Positive_Rate

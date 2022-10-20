@@ -17,7 +17,7 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.models.objectives.False_Negative_Rate" href="seldonian.models.objectives.False_Negative_Rate.html" />
+    <link rel="next" title="seldonian.models.objectives.Accuracy_binary" href="seldonian.models.objectives.Accuracy_binary.html" />
     <link rel="prev" title="seldonian.models.models.SupervisedModel" href="seldonian.models.models.SupervisedModel.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -41,6 +41,12 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.Accuracy_binary.html#seldonian.models.objectives.Accuracy_binary" title="seldonian.models.objectives.Accuracy_binary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Accuracy_binary</span></code></a>(model, theta, X, Y)</p></td>
+<td><p>Calculate accuracy over all data points for binary classification</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.Accuracy_multiclass.html#seldonian.models.objectives.Accuracy_multiclass" title="seldonian.models.objectives.Accuracy_multiclass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Accuracy_multiclass</span></code></a>(model, theta, X, Y)</p></td>
+<td><p>Calculate accuracy over all data points for multi-class classification</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.False_Negative_Rate.html#seldonian.models.objectives.False_Negative_Rate" title="seldonian.models.objectives.False_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False_Negative_Rate</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
 <td><p>Calculate probabilistic average false negative rate over the whole sample.</p></td>
 </tr>
@@ -91,6 +97,12 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.sample_from_statistic.html#seldonian.models.objectives.sample_from_statistic" title="seldonian.models.objectives.sample_from_statistic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_from_statistic</span></code></a>(model, statistic_name, ...)</p></td>
 <td><p>Evaluate a provided statistic for each observation  in the sample</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Accuracy_binary.html#seldonian.models.objectives.vector_Accuracy_binary" title="seldonian.models.objectives.vector_Accuracy_binary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Accuracy_binary</span></code></a>(model, theta, X, Y)</p></td>
+<td><p>Calculate vector of probability of  predicting the true label</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Accuracy_multiclass.html#seldonian.models.objectives.vector_Accuracy_multiclass" title="seldonian.models.objectives.vector_Accuracy_multiclass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Accuracy_multiclass</span></code></a>(model, theta, X, Y)</p></td>
+<td><p>Calculate vector of probability of  predicting the true label for each data point</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Error.html#seldonian.models.objectives.vector_Error" title="seldonian.models.objectives.vector_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Error</span></code></a>(model, theta, X, Y)</p></td>
 <td><p>Calculate mean error for each observation in the dataset</p></td>
@@ -154,6 +166,8 @@
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.models.html">seldonian.models</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.models.models.html">seldonian.models.models</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.models.objectives</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Accuracy_binary.html">seldonian.models.objectives.Accuracy_binary</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Accuracy_multiclass.html">seldonian.models.objectives.Accuracy_multiclass</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.False_Negative_Rate.html">seldonian.models.objectives.False_Negative_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.False_Positive_Rate.html">seldonian.models.objectives.False_Positive_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.IS_estimate.html">seldonian.models.objectives.IS_estimate</a></li>
@@ -171,6 +185,8 @@
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.gradient_binary_logistic_loss.html">seldonian.models.objectives.gradient_binary_logistic_loss</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.multiclass_logistic_loss.html">seldonian.models.objectives.multiclass_logistic_loss</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.sample_from_statistic.html">seldonian.models.objectives.sample_from_statistic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_Accuracy_binary.html">seldonian.models.objectives.vector_Accuracy_binary</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_Accuracy_multiclass.html">seldonian.models.objectives.vector_Accuracy_multiclass</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_Error.html">seldonian.models.objectives.vector_Error</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_False_Negative_Rate.html">seldonian.models.objectives.vector_False_Negative_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_False_Positive_Rate.html">seldonian.models.objectives.vector_False_Positive_Rate</a></li>
@@ -206,7 +222,7 @@
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.models.html">seldonian.models</a><ul>
       <li>Previous: <a href="seldonian.models.models.SupervisedModel.html" title="previous chapter">seldonian.models.models.SupervisedModel</a></li>
-      <li>Next: <a href="seldonian.models.objectives.False_Negative_Rate.html" title="next chapter">seldonian.models.objectives.False_Negative_Rate</a></li>
+      <li>Next: <a href="seldonian.models.objectives.Accuracy_binary.html" title="next chapter">seldonian.models.objectives.Accuracy_binary</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

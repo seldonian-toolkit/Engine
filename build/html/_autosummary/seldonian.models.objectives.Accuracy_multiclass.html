@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>seldonian.models.objectives.vector_Positive_Rate &#8212; Seldonian Engine pre-release documentation</title>
+    <title>seldonian.models.objectives.Accuracy_multiclass &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -17,8 +17,8 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.models.objectives.vector_Squared_Error" href="seldonian.models.objectives.vector_Squared_Error.html" />
-    <link rel="prev" title="seldonian.models.objectives.vector_Negative_Rate" href="seldonian.models.objectives.vector_Negative_Rate.html" />
+    <link rel="next" title="seldonian.models.objectives.False_Negative_Rate" href="seldonian.models.objectives.False_Negative_Rate.html" />
+    <link rel="prev" title="seldonian.models.objectives.Accuracy_binary" href="seldonian.models.objectives.Accuracy_binary.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -35,27 +35,27 @@
 
           <div class="body" role="main">
             
-  <section id="seldonian-models-objectives-vector-positive-rate">
-<h1>seldonian.models.objectives.vector_Positive_Rate<a class="headerlink" href="#seldonian-models-objectives-vector-positive-rate" title="Permalink to this heading">¶</a></h1>
+  <section id="seldonian-models-objectives-accuracy-multiclass">
+<h1>seldonian.models.objectives.Accuracy_multiclass<a class="headerlink" href="#seldonian-models-objectives-accuracy-multiclass" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="seldonian.models.objectives.vector_Positive_Rate">
-<span class="sig-name descname"><span class="pre">vector_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.objectives.vector_Positive_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate positive rate
-for each observation.</p>
-<p>This is the probability of being positive</p>
+<dt class="sig sig-object py" id="seldonian.models.objectives.Accuracy_multiclass">
+<span class="sig-name descname"><span class="pre">Accuracy_multiclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.objectives.Accuracy_multiclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate accuracy
+over all data points for multi-class classification</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – SeldonianModel instance</p></li>
 <li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
 <li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Positive rate for each observation</p>
+<dd class="field-even"><p>accuracy</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy ndarray(float between 0 and 1)</p>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -91,7 +91,10 @@ for each observation.</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.models.models.html">seldonian.models.models</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.objectives.html">seldonian.models.objectives</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Accuracy_binary.html">seldonian.models.objectives.Accuracy_binary</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Accuracy_multiclass.html">seldonian.models.objectives.Accuracy_multiclass</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.objectives.Accuracy_multiclass</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.models.objectives.Accuracy_multiclass"><code class="docutils literal notranslate"><span class="pre">Accuracy_multiclass()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.False_Negative_Rate.html">seldonian.models.objectives.False_Negative_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.False_Positive_Rate.html">seldonian.models.objectives.False_Positive_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.IS_estimate.html">seldonian.models.objectives.IS_estimate</a></li>
@@ -116,10 +119,7 @@ for each observation.</p>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_False_Positive_Rate.html">seldonian.models.objectives.vector_False_Positive_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_IS_estimate.html">seldonian.models.objectives.vector_IS_estimate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_Negative_Rate.html">seldonian.models.objectives.vector_Negative_Rate</a></li>
-<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.objectives.vector_Positive_Rate</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="#seldonian.models.objectives.vector_Positive_Rate"><code class="docutils literal notranslate"><span class="pre">vector_Positive_Rate()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_Positive_Rate.html">seldonian.models.objectives.vector_Positive_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_Squared_Error.html">seldonian.models.objectives.vector_Squared_Error</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_True_Negative_Rate.html">seldonian.models.objectives.vector_True_Negative_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.vector_True_Positive_Rate.html">seldonian.models.objectives.vector_True_Positive_Rate</a></li>
@@ -149,8 +149,8 @@ for each observation.</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.models.html">seldonian.models</a><ul>
   <li><a href="seldonian.models.objectives.html">seldonian.models.objectives</a><ul>
-      <li>Previous: <a href="seldonian.models.objectives.vector_Negative_Rate.html" title="previous chapter">seldonian.models.objectives.vector_Negative_Rate</a></li>
-      <li>Next: <a href="seldonian.models.objectives.vector_Squared_Error.html" title="next chapter">seldonian.models.objectives.vector_Squared_Error</a></li>
+      <li>Previous: <a href="seldonian.models.objectives.Accuracy_binary.html" title="previous chapter">seldonian.models.objectives.Accuracy_binary</a></li>
+      <li>Next: <a href="seldonian.models.objectives.False_Negative_Rate.html" title="next chapter">seldonian.models.objectives.False_Negative_Rate</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -188,7 +188,7 @@ for each observation.</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/_autosummary/seldonian.models.objectives.vector_Positive_Rate.rst.txt"
+      <a href="../_sources/_autosummary/seldonian.models.objectives.Accuracy_multiclass.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
