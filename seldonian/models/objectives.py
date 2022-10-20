@@ -41,10 +41,7 @@ def sample_from_statistic(model,
 
 	if statistic_name == 'FPR':
 		return vector_False_Positive_Rate(
-			model,theta,
-			data_dict['features'],
-			data_dict['labels'],
-			**kwargs)
+			model,theta,data_dict['features'],data_dict['labels'])
 
 	if statistic_name == 'FNR':
 		return vector_False_Negative_Rate(
@@ -63,6 +60,15 @@ def sample_from_statistic(model,
 		return vector_confusion_matrix(
 			model,theta,data_dict['features'],data_dict['labels'],
 			kwargs['cm_true_index'],kwargs['cm_pred_index'])
+
+	if statistic_name == 'ACC':
+		# Accuracy
+		if theta.ndim == 1:
+			return vector_Accuracy_binary(
+				model,theta,data_dict['features'],data_dict['labels'])
+		else:
+			return vector_Accuracy_multiclass(
+				model,theta,data_dict['features'],data_dict['labels'])
 
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':
@@ -126,6 +132,14 @@ def evaluate_statistic(model,
 		return confusion_matrix(
 			model,theta,data_dict['features'],data_dict['labels'],
 			kwargs['cm_true_index'],kwargs['cm_pred_index'])
+
+	if statistic_name == 'ACC':
+		if theta.ndim == 1:
+			return Accuracy_binary(
+				model,theta,data_dict['features'],data_dict['labels'])
+		else:
+			return Accuracy_multiclass(
+				model,theta,data_dict['features'],data_dict['labels'])
 
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':
@@ -767,6 +781,39 @@ def _vector_True_Negative_Rate_multiclass(model,theta,X,Y,class_index):
 	neg_mask = Y!=class_index 
 	return (1.0 - prediction[:,class_index])[neg_mask]
 
+def confusion_matrix(model,theta,X,Y,l_i,l_k):
+	"""
+	Get the probability of predicting class label l_k 
+	if the true class label was l_i. This is the C[l_i,l_k]
+	element of the confusion matrix, C. Let:
+		i = number of datapoints
+		j = number of features (including bias term, if provied)
+		k = number of classes
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: array of shape (j,k)
+	:param X: The features
+	:type X: array of shape (i,j)
+	:param Y: The labels
+	:type Y: array of shape (i,k)
+	:param l_i: The index in the confusion matrix
+		corresponding to the true label (row)
+	:type l_i: int
+	:param l_k: The index in the confusion matrix
+		corresponding to the predicted label (column)
+	:type l_k: int
+
+	:return: The element 
+	:rtype: float
+	"""
+	Y_pred = model.predict(theta,X) # i x k
+	true_mask = Y == l_i # length i
+	N_mask = sum(true_mask)
+
+	res = sum(Y_pred[:,l_k][true_mask])/N_mask 
+	return res
+
 def vector_confusion_matrix(model,theta,X,Y,l_i,l_k):
 	"""
 	Get the probability of predicting class label l_k 
@@ -800,38 +847,84 @@ def vector_confusion_matrix(model,theta,X,Y,l_i,l_k):
 	res = Y_pred[:,l_k][true_mask]
 	return res
 
-def confusion_matrix(model,theta,X,Y,l_i,l_k):
-	"""
-	Get the probability of predicting class label l_k 
-	if the true class label was l_i. This is the C[l_i,l_k]
-	element of the confusion matrix, C. Let:
-		i = number of datapoints
-		j = number of features (including bias term, if provied)
-		k = number of classes
+def Accuracy_binary(model,theta,X,Y):
+	""" Calculate accuracy
+	over all data points for binary classification
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
-	:type theta: array of shape (j,k)
+	:type theta: numpy ndarray
 	:param X: The features
-	:type X: array of shape (i,j)
+	:type X: numpy ndarray
 	:param Y: The labels
-	:type Y: array of shape (i,k)
-	:param l_i: The index in the confusion matrix
-		corresponding to the true label (row)
-	:type l_i: int
-	:param l_k: The index in the confusion matrix
-		corresponding to the predicted label (column)
-	:type l_k: int
+	:type Y: numpy ndarray
 
-	:return: The element 
+	:return: accuracy
 	:rtype: float
 	"""
-	Y_pred = model.predict(theta,X) # i x k
-	true_mask = Y == l_i # length i
-	N_mask = sum(true_mask)
+	n = len(X)
+	Y_pred_probs = model.predict(theta,X)
+	v = np.where(Y!=1,1.0-Y_pred_probs,Y_pred_probs)
+	return np.sum(v)/n
 
-	res = sum(Y_pred[:,l_k][true_mask])/N_mask 
-	return res
+def Accuracy_multiclass(model,theta,X,Y):
+	""" Calculate accuracy
+	over all data points for multi-class classification
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
+
+	:return: accuracy
+	:rtype: float
+	"""
+	n = len(X)
+	Y_pred_probs = model.predict(theta,X)
+	return np.sum(Y_pred_probs[np.arange(n),Y])/n
+
+def vector_Accuracy_binary(model,theta,X,Y):
+	""" Calculate vector of probability of 
+	predicting the true label
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
+
+	:return: logistic loss
+	:rtype: float
+	"""
+	Y_pred_probs = model.predict(theta,X)
+	# Get probabilities of true positives and true negatives
+	# Use the vector Y_pred as it already has the true positive
+	# probs. Just need to replace the probabilites in the neg mask with 1-prob
+	return np.where(Y!=1,1.0-Y_pred_probs,Y_pred_probs)
+
+def vector_Accuracy_multiclass(model,theta,X,Y):
+	""" Calculate vector of probability of 
+	predicting the true label for each data point
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
+
+	:return: accuracy
+	:rtype: float
+	"""
+	n = len(X)
+	Y_pred_probs = model.predict(theta,X)
+	return Y_pred_probs[np.arange(n),Y]
 
 """ RL """
 def IS_estimate(model,theta,data_dict):

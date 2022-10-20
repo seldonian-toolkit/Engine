@@ -638,6 +638,20 @@ def test_measure_functions_recognized():
 			 " A variable name was used which we do not recognize: X")
 	assert str(excinfo.value) == error_str
  
+	constraint_str = 'ACC >= 0.5'
+
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.right.measure_function_name == 'ACC'
+
+	constraint_str = '(ACC | [A]) >= 0.5'
+
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification',columns=['A'])
+	pt.create_from_ast(constraint_str)
+	assert pt.root.right.measure_function_name == 'ACC'
+
 def test_multiclass_measure_functions():
 	delta = 0.05
 	constraint_str = 'CM_[0,1] - 0.5'
@@ -689,6 +703,23 @@ def test_multiclass_measure_functions():
 		assert pt.root.left.measure_function_name == msr_func
 		assert pt.root.left.name == f'{msr_func}_[1] | [A,B]'
 		assert pt.root.left.class_index == 1
+
+	# Accuracy
+	constraint_str = 'ACC >= 0.5'
+
+	# Make sure error is raised if we use wrong sub_regime
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='multiclass_classification')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.right.measure_function_name == 'ACC'
+
+	constraint_str = '(ACC | [A]) >= 0.5'
+
+	# Make sure error is raised if we use wrong sub_regime
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='multiclass_classification',columns=['A'])
+	pt.create_from_ast(constraint_str)
+	assert pt.root.right.measure_function_name == 'ACC'
 
 def test_measure_function_with_conditional_bad_syntax_captured():
 	delta=0.05
@@ -1470,11 +1501,11 @@ def test_evaluate_constraint(
 	deltas = [0.05]
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
-	    deltas,
-	    regime='reinforcement_learning',
-	    sub_regime='all',
-	    columns=[],
-	    delta_weight_method='equal')
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[],
+		delta_weight_method='equal')
 
 	(dataset,policy,
 		env_kwargs,primary_objective) = RL_gridworld_dataset()

@@ -22,7 +22,6 @@ def test_binary_classification_measure_functions():
 		]) # i x j
 	theta = np.array([0.0,-1.0,1.0]) # j+1 in length to account for intercept
 	y_pred = model.predict(theta,X) # length i
-
 	# Avg statistics
 	PR = objectives.Positive_Rate(model,theta,X)
 	assert PR == pytest.approx(0.5909536328157614)
@@ -38,7 +37,8 @@ def test_binary_classification_measure_functions():
 	assert TPR == pytest.approx(1.0-FNR)
 	TNR = objectives.True_Negative_Rate(model,theta,X,Y)
 	assert TNR == pytest.approx(1.0-FPR)
-
+	ACC = objectives.Accuracy_binary(model,theta,X,Y)
+	assert ACC == pytest.approx(0.5598653825)
 	# Vector statistics 
 	vector_PR = objectives.vector_Positive_Rate(model,theta,X)
 	assert np.allclose(vector_PR,y_pred)
@@ -56,6 +56,9 @@ def test_binary_classification_measure_functions():
 	assert np.allclose(vector_TPR,1.0-arcomp_FNR)
 	vector_TNR = objectives.vector_True_Negative_Rate(model,theta,X,Y)
 	assert np.allclose(vector_TNR,1.0-arcomp_FPR)
+	vector_ACC = objectives.vector_Accuracy_binary(model,theta,X,Y)
+	arcomp_ACC = np.array([0.5, 0.4378235 , 0.62245933, 0.6791787 ])
+	assert np.allclose(vector_ACC,arcomp_ACC)
 
 def test_multiclass_classification_measure_functions():
 	# i = 4 datapoints
@@ -78,7 +81,16 @@ def test_multiclass_classification_measure_functions():
 		[1.0,2.0,3.0],
 		[1.0,-1.0,1.0]]) # (j+1,k), where j+1 to account for intercept
 	y_pred = model.predict(theta,X) # (i,k)
-	
+
+	# Accuracy
+	ACC = objectives.Accuracy_multiclass(model,theta,X,Y)
+	assert ACC == pytest.approx(0.36639504)
+
+	# Vector accuracy
+	vector_ACC = objectives.vector_Accuracy_multiclass(model,theta,X,Y)
+	arcomp_ACC = np.array([0.33333333,0.41922895,0.54654939,0.14024438,0.49951773,0.25949646])
+	assert np.allclose(vector_ACC,arcomp_ACC)
+
 	for class_index in [0,1,2]:
 		# Will reuse these masks
 		pos_mask = Y == class_index

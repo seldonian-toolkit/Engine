@@ -10,7 +10,7 @@ from seldonian.models import objectives
 
 if __name__ == '__main__':
     data_pth = "../../static/datasets/supervised/GPA/gpa_multiclass_dataset.csv"
-    metadata_pth = "../../static/datasets/supervised/GPA/metadata_classification.json"
+    metadata_pth = "../../static/datasets/supervised/GPA/metadata_multiclass.json"
     save_dir = '.'
     # Load metadata
     (regime, sub_regime, columns,
@@ -22,13 +22,13 @@ if __name__ == '__main__':
     dataset = loader.load_supervised_dataset(
         filename=data_pth,
         metadata_filename=metadata_pth,
-        file_type='csv',
-        include_intercept_term=False)
+        file_type='csv')
     
     # Behavioral constraints
     deltas = [0.05]
             
-    constraint_strs = ['abs((CM_[0,0] | [M]) - (CM_[0,0] | [F])) <= 0.1'] 
+    # constraint_strs = ['abs((CM_[0,0] | [M]) - (CM_[0,0] | [F])) <= 0.1'] 
+    constraint_strs = ['abs((ACC | [M]) - (ACC | [F])) <= 0.1'] 
 
     spec = createSupervisedSpec(
         dataset=dataset,
