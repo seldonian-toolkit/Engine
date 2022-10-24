@@ -1,6 +1,6 @@
 import copy
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
-from autograd import grad, jacobian
+from autograd import grad, jacobian, elementwise_grad as egrad
 
 def setup_gradients(
     gradient_library,
@@ -88,15 +88,10 @@ def gradient_descent_adam(
     
     # initialize theta, lambda
     theta = theta_init
-    if type(lambda_init) == float:
-        lamb = lambda_init*np.ones((n_constraints,1))
-    elif lambda_init.ndim == 1:
-        lamb = lambda_init[0]*np.ones((n_constraints,1))
-    elif lambda_init.ndim == 2:
-        if lambda_init.shape[0] != n_constraints:
-            raise RuntimeError(
-                "lambda has wrong shape. Shape must be (n_constraints,1)")
-        lamb = lambda_init
+    lamb = np.copy(lambda_init)
+    if len(lamb) != n_constraints:
+        raise RuntimeError(
+            "lambda has wrong shape. Shape must be (n_constraints,)")
         
     # initialize Adam parameters
     velocity_theta, velocity_lamb = 0.0,0.0
@@ -139,7 +134,7 @@ def gradient_descent_adam(
                 print(f"Iteration {i}")
         primary_val = primary_objective(theta)
         g_vec = upper_bounds_function(theta)
-        g_vec = g_vec.reshape(g_vec.shape[0],1)
+        # g_vec = g_vec.reshape(g_vec.shape[0],1)
         if debug:
             print("it,f,g,theta,lambda:",i,primary_val,g_vec,theta,lamb)
         
@@ -165,10 +160,17 @@ def gradient_descent_adam(
         grad_primary_theta_val = grad_primary_theta(theta)
         gu_theta_vec = grad_upper_bound_theta(theta)
         
-        grad_secondary_theta_val_vec = lamb*gu_theta_vec # elementwise mult
-        
+        grad_secondary_theta_val_vec = gu_theta_vec * lamb[:, None] ## to multiply each row of gu_theta_vec by elements of lamb
+        # print("grad_secondary_theta_val_vec:")
+        # print(grad_secondary_theta_val_vec)
+        # print("np.sum(grad_secondary_theta_val_vec,axis=0)")
+        # print(np.sum(grad_secondary_theta_val_vec,axis=0))
         # Gradient of sum is sum of gradients
+        # print("grad_primary_theta_val:")
+        # print(grad_primary_theta_val)
         gradient_theta = grad_primary_theta_val + np.sum(grad_secondary_theta_val_vec,axis=0)
+        # print("gradient_theta:")
+        # print(gradient_theta)
         
         # gradient wr.t. to lambda is just g
         gradient_lamb_vec = g_vec

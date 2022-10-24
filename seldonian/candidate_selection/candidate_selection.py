@@ -120,7 +120,8 @@ class CandidateSelection(object):
 				verbose=kwargs['verbose'],
 				debug=kwargs['debug'],
 			)
-
+			print("kwargs['lambda_init']")
+			print(kwargs['lambda_init'])
 			# Option to use builtin primary gradient (could be faster than autograd)
 			if 'use_builtin_primary_gradient_fn' in kwargs:
 				if kwargs['use_builtin_primary_gradient_fn']==True:
