@@ -6,7 +6,7 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 import warnings
 from seldonian.warnings.custom_warnings import *
-from seldonian.dataset import (SupervisedDataSet, RLDataSet)
+from seldonian.dataset import (SupervisedDataSet, SupervisedPytorchDataSet,RLDataSet)
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
@@ -47,29 +47,59 @@ class SeldonianAlgorithm():
 		if self.regime == 'supervised_learning':
 			self.sub_regime = self.spec.sub_regime
 			self.model = self.spec.model
-			self.candidate_df, self.safety_df = train_test_split(
-				self.dataset.df, test_size=self.spec.frac_data_in_safety, 
-				shuffle=False)
+
+			if isinstance(self.dataset,SupervisedPytorchDataSet):
+				(self.candidate_features,self.safety_features,
+					self.candidate_labels,self.safety_labels)  = train_test_split(
+						self.dataset.features,self.dataset.labels)
+			else:
+				self.candidate_df, self.safety_df = train_test_split(
+					self.dataset.df, test_size=self.spec.frac_data_in_safety, 
+					shuffle=False)
 
 			self.label_column = self.dataset.label_column
 			self.include_sensitive_columns = self.dataset.include_sensitive_columns
 			self.sensitive_column_names = self.dataset.sensitive_column_names
 
 			# Create candidate and safety datasets
-			self.candidate_dataset = SupervisedDataSet(
-				self.candidate_df,meta_information=self.column_names,
-				sensitive_column_names=self.sensitive_column_names,
-				include_sensitive_columns=self.include_sensitive_columns,
-				label_column=self.label_column)
+			if isinstance(self.dataset,SupervisedPytorchDataSet):
+				self.candidate_dataset = SupervisedPytorchDataSet(
+			        features=self.candidate_features,
+			        labels=self.candidate_labels,
+			        label_column=self.label_column,
+			        meta_information=self.dataset.meta_information)
+				
+				self.safety_dataset = SupervisedPytorchDataSet(
+			        features=self.safety_features,
+			        labels=self.safety_labels,
+			        label_column=self.label_column,
+			        meta_information=self.dataset.meta_information)
 
-			self.safety_dataset = SupervisedDataSet(
-				self.safety_df,meta_information=self.column_names,
-				sensitive_column_names=self.sensitive_column_names,
-				include_sensitive_columns=self.include_sensitive_columns,
-				label_column=self.label_column)
+				self.n_candidate = len(self.candidate_features)
+				self.n_safety = len(self.safety_features)
+			else:
+				self.candidate_dataset = SupervisedDataSet(
+					self.candidate_df,meta_information=self.column_names,
+					sensitive_column_names=self.sensitive_column_names,
+					include_sensitive_columns=self.include_sensitive_columns,
+					label_column=self.label_column)
+
+				self.safety_dataset = SupervisedDataSet(
+					self.safety_df,meta_information=self.column_names,
+					sensitive_column_names=self.sensitive_column_names,
+					include_sensitive_columns=self.include_sensitive_columns,
+					label_column=self.label_column)
 			
-			self.n_candidate = len(self.candidate_df)
-			self.n_safety = len(self.safety_df)
+				self.n_candidate = len(self.candidate_df)
+				self.n_safety = len(self.safety_df)
+
+				self.candidate_labels = self.candidate_df[self.label_column]
+				self.candidate_features = self.candidate_df.loc[:,
+					self.candidate_df.columns != self.label_column]
+
+				if not self.include_sensitive_columns:
+					self.candidate_features = self.candidate_features.drop(
+						columns=self.sensitive_column_names)
 
 			if self.n_candidate < 2 or self.n_safety < 2:
 				warning_msg = (
@@ -79,16 +109,10 @@ class SeldonianAlgorithm():
 
 			# Set up initial solution
 			self.initial_solution_fn = self.spec.initial_solution_fn
-
-			self.candidate_labels = self.candidate_df[self.label_column]
-			self.candidate_features = self.candidate_df.loc[:,
-				self.candidate_df.columns != self.label_column]
-
-			if not self.include_sensitive_columns:
-				self.candidate_features = self.candidate_features.drop(
-					columns=self.sensitive_column_names)
 		
 			if self.initial_solution_fn is None:
+				print("self.candidate_features.shape:")
+				print(self.candidate_features.shape)
 				n_features = self.candidate_features.shape[1]
 				if self.model.has_intercept:
 					n_features += 1

@@ -1,8 +1,7 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from autograd.extend import defvjp
-from seldonian.models.models import (LinearRegressionModel)
-#     PytorchLinearRegressionModel)
-from seldonian.models.pytorch_model import PytorchLinearRegressionModel2
+from seldonian.models.models import LinearRegressionModel
+from seldonian.models.pytorch_model import PytorchLRTestModel
 from seldonian.spec import SupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.utils.tutorial_utils import (
@@ -28,7 +27,8 @@ if __name__ == "__main__":
 
     # 3. Define the underlying machine learning model
     # model = LinearRegressionModel()
-    model = PytorchLinearRegressionModel2(input_dim=1,output_dim=1)
+    model = PytorchLRTestModel(input_dim=1,output_dim=1)
+    # model = PytorchLinearRegressionModel(input_dim=1,output_dim=1)
 
     """4. Create a spec object, using some
     hidden defaults we won't worry about here

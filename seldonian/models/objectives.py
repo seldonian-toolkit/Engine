@@ -3,6 +3,7 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 from seldonian.utils.stats_utils import weighted_sum_gamma
+from seldonian.dataset import SupervisedPytorchDataSet
 
 def sample_from_statistic(model,
 	statistic_name,theta,data_dict,**kwargs):
@@ -63,12 +64,13 @@ def sample_from_statistic(model,
 
 	if statistic_name == 'ACC':
 		# Accuracy
-		if theta.ndim == 1:
-			return vector_Accuracy_binary(
-				model,theta,data_dict['features'],data_dict['labels'])
-		else:
+		if isinstance(kwargs['dataset'],SupervisedPytorchDataSet):
 			return vector_Accuracy_multiclass(
 				model,theta,data_dict['features'],data_dict['labels'])
+		else:
+			return vector_Accuracy_binary(
+				model,theta,data_dict['features'],data_dict['labels'])
+			
 
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':

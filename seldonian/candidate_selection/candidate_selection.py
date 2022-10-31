@@ -6,6 +6,7 @@ import pandas as pd
 from functools import partial
 
 from seldonian.models import objectives
+from seldonian.dataset import SupervisedPytorchDataSet
 
 class CandidateSelection(object):
 	def __init__(self,
@@ -72,13 +73,17 @@ class CandidateSelection(object):
 
 			# Separate features from label
 			label_column = candidate_dataset.label_column
-			self.labels = self.candidate_dataset.df[label_column]
-			self.features = self.candidate_dataset.df.loc[:,
-				self.candidate_dataset.df.columns != label_column]
+			if isinstance(candidate_dataset,SupervisedPytorchDataSet):
+				self.features = self.candidate_dataset.features
+				self.labels = self.candidate_dataset.labels
+			else:
+				self.labels = self.candidate_dataset.df[label_column]
+				self.features = self.candidate_dataset.df.loc[:,
+					self.candidate_dataset.df.columns != label_column]
 
-			if not candidate_dataset.include_sensitive_columns:
-				self.features = self.features.drop(
-					columns=self.candidate_dataset.sensitive_column_names)
+				if not candidate_dataset.include_sensitive_columns:
+					self.features = self.features.drop(
+						columns=self.candidate_dataset.sensitive_column_names)
 		
 		self.parse_trees = parse_trees
 		
@@ -328,7 +333,11 @@ class CandidateSelection(object):
 
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
-			result = self.primary_objective(self.model,theta, 
+			if isinstance(self.candidate_dataset,SupervisedPytorchDataSet):
+				result = self.primary_objective(self.model,theta, 
+						self.features, self.labels)
+			else:
+				result = self.primary_objective(self.model,theta, 
 					self.features.values, self.labels.values)
 
 		elif self.regime == 'reinforcement_learning':

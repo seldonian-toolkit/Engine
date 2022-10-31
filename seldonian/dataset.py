@@ -146,7 +146,6 @@ class SupervisedDataSet(DataSet):
 		:param meta_information: list of all column names in the dataframe
 		:type meta_information: List(str)
 		:param label_column: The column with the target labels 
-			(supervised learning)
 		:type label_column: str
 		:param sensitive_column_names: The names of the columns that 
 			contain the sensitive attributes
@@ -158,6 +157,43 @@ class SupervisedDataSet(DataSet):
 			meta_information=meta_information,
 			regime='supervised_learning')
 		self.df = df
+		self.label_column = label_column
+		self.sensitive_column_names = sensitive_column_names
+		self.include_sensitive_columns = include_sensitive_columns
+
+class SupervisedPytorchDataSet(DataSet):
+	def __init__(self,
+		features,
+		labels,
+		label_column,
+		meta_information,
+		sensitive_column_names=[],
+		include_sensitive_columns=False,
+		**kwargs):
+		""" Object for holding Supervised PyTorch dataset and metadata
+	
+		:param features: numpy array containing all features
+		:param labels: numpy array containing labels
+		:param label_column: The column with the target labels 
+		:type label_column: str
+		:param meta_information: list of all column names in the dataset,
+			including the label name. In the same order as they appear in 
+			features, then last element is label name
+		:type meta_information: List(str)
+		:param label_column: The column with the target labels 
+			(supervised learning)
+		:type label_column: str
+		:param sensitive_column_names: The names of the columns that 
+			contain the sensitive attributes
+		:type sensitive_column_names: List(str)
+		:param include_sensitive_columns: Whether to include 
+			sensitive columns during training/prediction
+		"""
+		super().__init__(
+			meta_information=meta_information,
+			regime='supervised_learning')
+		self.features = features
+		self.labels = labels
 		self.label_column = label_column
 		self.sensitive_column_names = sensitive_column_names
 		self.include_sensitive_columns = include_sensitive_columns

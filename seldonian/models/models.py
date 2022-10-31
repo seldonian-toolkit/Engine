@@ -63,44 +63,6 @@ class LinearRegressionModel(RegressionModel):
 		reg = self.model_class().fit(X, Y)
 		return np.hstack([reg.intercept_,reg.coef_])
 
-class PytorchLinearRegressionModel(RegressionModel):
-	def __init__(self):
-		""" Implements linear regression """
-		super().__init__()
-
-	
-	def predict(self,theta,X):
-		""" Predict label using the linear model
-
-		:param theta: The parameter weights
-		:type theta: numpy ndarray
-		:param X: The features
-		:type X: numpy ndarray
-		:return: predicted labels
-		:rtype: numpy ndarray
-		"""
-		return mypredict(theta,X)
-
-@primitive
-def mypredict(theta,X):
-	return theta[0] + (X @ theta[1:])
-
-def mypredict_vjp(ans,theta,X):
-	X_torch = torch.tensor(X,requires_grad=True)
-	theta_torch = torch.tensor(theta,requires_grad=True)
-	external_grad = torch.tensor(np.zeros(len(X_torch))) # dQ/dQ
-
-	res = mypredict(theta_torch,X_torch)
-
-	def fn(v):
-		if theta_torch.grad is not None:
-			theta_torch.grad.zero_()
-		external_grad = torch.tensor(v)
-		res.backward(gradient=external_grad,retain_graph=True)
-		return np.array(theta_torch.grad)
-	return fn
-
-defvjp(mypredict,mypredict_vjp)
 
 class BoundedLinearRegressionModel(LinearRegressionModel):
 	def __init__(self):

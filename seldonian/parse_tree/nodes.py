@@ -6,7 +6,7 @@ import autograd.numpy as np
 from seldonian.models.objectives import (
     sample_from_statistic,evaluate_statistic)
 from seldonian.utils.stats_utils import *
-
+from seldonian.dataset import SupervisedPytorchDataSet
 
 class Node(object):
     def __init__(self,name,lower,upper):
@@ -184,36 +184,42 @@ class BaseNode(Node):
         
         if regime == 'supervised_learning':
             # mask the data using the conditional columns, if present
-            if self.conditional_columns:
-                dataframe = self.mask_dataframe(
-                    dataset,self.conditional_columns)
+            if isinstance(dataset,SupervisedPytorchDataSet):
+                features = dataset.features
+                labels = dataset.labels
+                if branch == 'candidate_selection':
+                    datasize = n_safety
+                else:
+                    datasize = len(features)
             else:
-                dataframe = dataset.df
+                if self.conditional_columns:
+                    dataframe = self.mask_dataframe(
+                        dataset,self.conditional_columns)
+                else:
+                    dataframe = dataset.df
 
-            if branch == 'candidate_selection':
-                frac_masked = len(dataframe)/len(dataset.df)
-                datasize = int(round(frac_masked*n_safety))
-            else:
-                datasize = len(dataframe)
-            
-            # Separate features from label
-            label_column = dataset.label_column
-            # label_column_index = dataset.df.columns.get_loc(label_column)
-            # label_column_index = -1
-            labels = dataframe.loc[:,label_column]
-            features = dataframe.loc[:, dataframe.columns != label_column]
-            # features = np.delete(dataframe,label_column_index,axis=1)
+                if branch == 'candidate_selection':
+                    frac_masked = len(dataframe)/len(dataset.df)
+                    datasize = int(round(frac_masked*n_safety))
+                else:
+                    datasize = len(dataframe)
+                
+                # Separate features from label
+                label_column = dataset.label_column
+                # label_column_index = dataset.df.columns.get_loc(label_column)
+                # label_column_index = -1
+                labels = dataframe.loc[:,label_column]
+                features = dataframe.loc[:, dataframe.columns != label_column]
+                # features = np.delete(dataframe,label_column_index,axis=1)
 
-            # drop sensitive column names, unless instructed to keep them
-            if not dataset.include_sensitive_columns:
-                if dataset.sensitive_column_names:
-                    # sensitive_col_indices = [dataset.df.columns.get_loc(col) for col in dataset.sensitive_column_names]
-                    # sensitive_col_indices = [0,1]
-                    features = features.drop(columns=dataset.sensitive_column_names)
+                # drop sensitive column names, unless instructed to keep them
+                if not dataset.include_sensitive_columns:
+                    if dataset.sensitive_column_names:
+                        features = features.drop(columns=dataset.sensitive_column_names)
 
-            # Convert to numpy arrays
-            features = np.array(features)
-            labels = np.array(labels)
+                # Convert to numpy arrays
+                features = np.array(features)
+                labels = np.array(labels)
             data_dict = {'features':features,'labels':labels}  
             
         elif regime == 'reinforcement_learning':
@@ -265,7 +271,6 @@ class BaseNode(Node):
 
                 branch = kwargs['branch']
                 data_dict = kwargs['data_dict']
-
 
                 if self.will_lower_bound and self.will_upper_bound:
                     if branch == 'candidate_selection':
