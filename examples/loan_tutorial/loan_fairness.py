@@ -10,7 +10,7 @@ if __name__ == '__main__':
 	specfile = './spec.pkl'
 	spec = load_pickle(specfile)
 	SA = SeldonianAlgorithm(spec)
-	passed_safety,solution = SA.run(write_cs_logfile=True)
+	passed_safety,solution = SA.run(write_cs_logfile=True,debug=False)
 	if passed_safety:
 		print("Passed safety test!")
 	else:

@@ -20,44 +20,46 @@ class DataSetLoader():
 	def load_supervised_dataset(self,
 		filename,
 		metadata_filename,
-		include_sensitive_columns=False,
 		file_type='csv'):
 		""" Create SupervisedDataSet object from file
 
 		:param filename: The file
-			containing the data you want to load
+			containing the features, labels and sensitive attributes
 		:type filename: str
 		:param metadata_filename: The file
 			containing the metadata describing the data in filename
 		:type metadata_filename: str
-		:param include_sensitive_columns: Whether to use 
-			sensitive columns during model training
-		:type include_sensitive_columns: bool
 		:param file_type: the file extension of filename
 		:type file_type: str, defaults to 'csv'
 		"""
-		if file_type.lower() == 'csv':
-			df = pd.read_csv(filename,header=None)
+		# Load metadata
+		(regime, sub_regime, all_col_names,
+			feature_col_names,label_col_names,
+			sensitive_col_names) = load_supervised_metadata(metadata_filename)
 		
-		elif file_type.lower() == 'pkl' or file_type.lower() == 'pickle':
-			# In this case the pickled object should be a pandas dataframe
-			df = load_pickle(filename)
+		# infer feature column names 
+		meta_information = {}
+		meta_information['feature_col_names'] = feature_col_names
+		meta_information['label_col_names'] = label_col_names
+		meta_information['sensitive_col_names'] = sensitive_col_names
+		meta_information['sub_regime'] = sub_regime
+
+		if file_type.lower() == 'csv':
+			df = pd.read_csv(filename,header=None,names=all_col_names)
+			# separate out features, labels, and sensitive attrs
+			features = df.loc[:,feature_col_names].values
+			labels = np.squeeze(df.loc[:,label_col_names].values) # converts shape from (N,1) -> (N,) if only a single label column.
+			sensitive_attrs = df.loc[:,sensitive_col_names].values
+			num_datapoints = len(df)
 		else:
 			raise NotImplementedError(f"File type: {file_type} not supported")
-		# print(df)
-		# Load metadata
-		metadata_dict = load_json(metadata_filename)
-
-		label_column = metadata_dict['label_column']
-		columns = metadata_dict['columns']
-		df.columns = columns
-		sensitive_column_names = metadata_dict['sensitive_columns']
+	
 		return SupervisedDataSet(
-			df=df,
-			meta_information=columns,
-			label_column=label_column,
-			sensitive_column_names=sensitive_column_names,
-			include_sensitive_columns=include_sensitive_columns)
+			features=features,
+			labels=labels,
+			sensitive_attrs=sensitive_attrs,
+			num_datapoints=num_datapoints,
+			meta_information=meta_information)
 
 	def load_RL_dataset_from_csv(self,
 		filename,metadata_filename=None):
@@ -111,7 +113,6 @@ class DataSetLoader():
 		return RLDataSet(
 			episodes=episodes,
 			meta_information=columns)
-
 		
 class DataSet(object):
 	def __init__(self,
@@ -130,74 +131,29 @@ class DataSet(object):
 		self.meta_information = meta_information
 		self.regime = regime 
 
-
 class SupervisedDataSet(DataSet):
-	def __init__(self,
-		df,
-		meta_information,
-		label_column,
-		sensitive_column_names=[],
-		include_sensitive_columns=False,
-		**kwargs):
-		""" Object for holding Supervised dataframe and dataset metadata
-	
-		:param df: dataframe containing the full dataset 
-		:type df: pandas dataframe
-		:param meta_information: list of all column names in the dataframe
-		:type meta_information: List(str)
-		:param label_column: The column with the target labels 
-		:type label_column: str
-		:param sensitive_column_names: The names of the columns that 
-			contain the sensitive attributes
-		:type sensitive_column_names: List(str)
-		:param include_sensitive_columns: Whether to include 
-			sensitive columns during training/prediction
-		"""
-		super().__init__(
-			meta_information=meta_information,
-			regime='supervised_learning')
-		self.df = df
-		self.label_column = label_column
-		self.sensitive_column_names = sensitive_column_names
-		self.include_sensitive_columns = include_sensitive_columns
-
-class SupervisedPytorchDataSet(DataSet):
 	def __init__(self,
 		features,
 		labels,
-		label_column,
-		meta_information,
-		sensitive_column_names=[],
-		include_sensitive_columns=False,
-		**kwargs):
-		""" Object for holding Supervised PyTorch dataset and metadata
-	
-		:param features: numpy array containing all features
-		:param labels: numpy array containing labels
-		:param label_column: The column with the target labels 
-		:type label_column: str
-		:param meta_information: list of all column names in the dataset,
-			including the label name. In the same order as they appear in 
-			features, then last element is label name
-		:type meta_information: List(str)
-		:param label_column: The column with the target labels 
-			(supervised learning)
-		:type label_column: str
-		:param sensitive_column_names: The names of the columns that 
-			contain the sensitive attributes
-		:type sensitive_column_names: List(str)
-		:param include_sensitive_columns: Whether to include 
-			sensitive columns during training/prediction
-		"""
+		sensitive_attrs,
+		num_datapoints,
+		meta_information):
 		super().__init__(
 			meta_information=meta_information,
 			regime='supervised_learning')
+
 		self.features = features
 		self.labels = labels
-		self.label_column = label_column
-		self.sensitive_column_names = sensitive_column_names
-		self.include_sensitive_columns = include_sensitive_columns
-	
+		self.sensitive_attrs = sensitive_attrs
+		self.num_datapoints = num_datapoints
+		
+		self.feature_col_names = meta_information['feature_col_names']
+		self.label_col_names = meta_information['label_col_names']
+		self.sensitive_col_names = meta_information['sensitive_col_names']
+		
+		self.n_features = len(self.feature_col_names)
+		self.n_labels = len(self.label_col_names)
+		self.n_sensitive_attrs = len(self.sensitive_col_names)
 	
 class RLDataSet(DataSet):
 	def __init__(self,episodes,meta_information=['O','A','R','pi_b'],
@@ -234,8 +190,25 @@ class Episode(object):
 
 	def __str__(self):
 		return f"return = {sum(self.rewards)}\n"+\
-	    f"{len(self.observations)} observations, type of first in array is {type(self.observations[0])}: {self.observations}\n"\
+		f"{len(self.observations)} observations, type of first in array is {type(self.observations[0])}: {self.observations}\n"\
 		+ f"{len(self.actions)} actions, type of first in array is {type(self.actions[0])}: {self.actions}\n"\
 		+ f"{len(self.rewards)} rewards, type of first in array is {type(self.rewards[0])}: {self.rewards}\n"\
 		+ f"{len(self.action_probs)} action_probs, type of first in array is {type(self.action_probs[0])}: {self.prob_actions}"
 
+def load_supervised_metadata(filename):
+    """ Load metadata from JSON file into a dictionary
+
+    :param filename: The file to load
+    """
+    metadata_dict = load_json(filename)
+    regime = metadata_dict['regime']
+    assert regime == 'supervised_learning'
+    sub_regime = metadata_dict['sub_regime']
+    assert sub_regime in ['regression','classification',
+    	'binary_classification','multiclass_classification']
+    all_col_names = metadata_dict['all_col_names']
+    label_col_names = metadata_dict['label_col_names']
+    sensitive_col_names = metadata_dict['sensitive_col_names']
+    # infer feature column names - keep order same
+    feature_col_names = [x for x in all_col_names if (x not in label_col_names) and (x not in sensitive_col_names)]
+    return regime, sub_regime, all_col_names, feature_col_names, label_col_names, sensitive_col_names

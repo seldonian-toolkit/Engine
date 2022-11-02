@@ -6,7 +6,6 @@ import pandas as pd
 from functools import partial
 
 from seldonian.models import objectives
-from seldonian.dataset import SupervisedPytorchDataSet
 
 class CandidateSelection(object):
 	def __init__(self,
@@ -68,25 +67,10 @@ class CandidateSelection(object):
 		self.candidate_dataset = candidate_dataset
 		self.n_safety = n_safety
 		if self.regime == 'supervised_learning':
-			# To evaluate the primary objective we will need
-			# features and labels separated and in the proper form
-
-			# Separate features from label
-			label_column = candidate_dataset.label_column
-			if isinstance(candidate_dataset,SupervisedPytorchDataSet):
-				self.features = self.candidate_dataset.features
-				self.labels = self.candidate_dataset.labels
-			else:
-				self.labels = self.candidate_dataset.df[label_column]
-				self.features = self.candidate_dataset.df.loc[:,
-					self.candidate_dataset.df.columns != label_column]
-
-				if not candidate_dataset.include_sensitive_columns:
-					self.features = self.features.drop(
-						columns=self.candidate_dataset.sensitive_column_names)
+			self.features = self.candidate_dataset.features
+			self.labels = self.candidate_dataset.labels
 		
 		self.parse_trees = parse_trees
-		
 		self.primary_objective = primary_objective # must accept theta, features, labels
 		self.optimization_technique = optimization_technique
 		self.optimizer = optimizer
@@ -125,8 +109,6 @@ class CandidateSelection(object):
 				verbose=kwargs['verbose'],
 				debug=kwargs['debug'],
 			)
-			print("kwargs['lambda_init']")
-			print(kwargs['lambda_init'])
 			# Option to use builtin primary gradient (could be faster than autograd)
 			if 'use_builtin_primary_gradient_fn' in kwargs:
 				if kwargs['use_builtin_primary_gradient_fn']==True:
@@ -143,8 +125,8 @@ class CandidateSelection(object):
 							return grad_primary_objective(
 								model=self.model,
 								theta=theta,
-								X=self.features.values,
-								Y=self.labels.values)
+								X=self.features,
+								Y=self.labels)
 							
 						gd_kwargs['primary_gradient'] = grad_primary_objective_theta
 					else:
@@ -164,8 +146,8 @@ class CandidateSelection(object):
 						return grad_primary_objective(
 							model=self.model,
 							theta=theta,
-							X=self.features.values,
-							Y=self.labels.values)
+							X=self.features,
+							Y=self.labels)
 
 					gd_kwargs['primary_gradient'] = grad_primary_objective_theta
 				else:
@@ -333,12 +315,9 @@ class CandidateSelection(object):
 
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
-			if isinstance(self.candidate_dataset,SupervisedPytorchDataSet):
-				result = self.primary_objective(self.model,theta, 
-						self.features, self.labels)
-			else:
-				result = self.primary_objective(self.model,theta, 
-					self.features.values, self.labels.values)
+			
+			result = self.primary_objective(self.model,theta, 
+					self.features, self.labels)
 
 		elif self.regime == 'reinforcement_learning':
 			# Want to maximize the importance weight so minimize negative importance weight

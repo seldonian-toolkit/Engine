@@ -6,7 +6,6 @@ import autograd.numpy as np
 from seldonian.models.objectives import (
     sample_from_statistic,evaluate_statistic)
 from seldonian.utils.stats_utils import *
-from seldonian.dataset import SupervisedPytorchDataSet
 
 class Node(object):
     def __init__(self,name,lower,upper):
@@ -144,10 +143,10 @@ class BaseNode(Node):
             data_dict=data_dict)
         return value
 
-    def mask_dataframe(self,
+    def mask_data(self,
         dataset,
         conditional_columns):
-        """Mask dataset's dataframe using 
+        """Mask features and labels using 
         a joint AND mask where each of the
         conditional columns is True.
 
@@ -162,9 +161,32 @@ class BaseNode(Node):
         :return: The masked dataframe 
         :rtype: numpy ndarray
         """
-        masks = reduce(np.logical_and,(dataset.df.loc[:,col]==1 for col in conditional_columns))
-        masked_df = dataset.df[masks] 
-        return masked_df
+        # Figure out indices of sensitive attributes from their column names
+        sensitive_col_indices = [dataset.sensitive_col_names.index(
+            col) for col in conditional_columns]
+
+        joint_mask = reduce(np.logical_and,
+            (dataset.sensitive_attrs[:,col_index]==1 for col_index in sensitive_col_indices))
+
+        if type(dataset.features) == list:
+            masked_features = [x[joint_mask] for x in dataset.features]
+            masked_labels = [x[joint_mask] for x in dataset.labels]
+            # If possible, convert to numpy array. Not always possible, 
+            # e.g., if features are of different dimensions.
+            try:
+                masked_features = np.array(masked_features)
+                masked_labels = np.array(masked_labels)
+                n_masked = len(masked_features)
+            except Exception as e:
+                # masked_features and masked_labels stay as lists
+                n_masked = len(masked_features[0])
+        else:
+            # numpy array 
+            masked_features = dataset.features[joint_mask] 
+            masked_labels = dataset.labels[joint_mask]
+            n_masked = len(masked_features)
+
+        return masked_features,masked_labels,n_masked
 
     def calculate_data_forbound(self,**kwargs):
         """
@@ -184,43 +206,24 @@ class BaseNode(Node):
         
         if regime == 'supervised_learning':
             # mask the data using the conditional columns, if present
-            if isinstance(dataset,SupervisedPytorchDataSet):
-                features = dataset.features
-                labels = dataset.labels
-                if branch == 'candidate_selection':
-                    datasize = n_safety
-                else:
-                    datasize = len(features)
+            
+            features = dataset.features
+            labels = dataset.labels
+            
+            if self.conditional_columns:
+                masked_features,masked_labels,n_masked = self.mask_data(
+                    dataset,self.conditional_columns)
             else:
-                if self.conditional_columns:
-                    dataframe = self.mask_dataframe(
-                        dataset,self.conditional_columns)
-                else:
-                    dataframe = dataset.df
+                (masked_features,
+                    masked_labels,
+                    n_masked) = features,labels,dataset.num_datapoints
 
-                if branch == 'candidate_selection':
-                    frac_masked = len(dataframe)/len(dataset.df)
-                    datasize = int(round(frac_masked*n_safety))
-                else:
-                    datasize = len(dataframe)
-                
-                # Separate features from label
-                label_column = dataset.label_column
-                # label_column_index = dataset.df.columns.get_loc(label_column)
-                # label_column_index = -1
-                labels = dataframe.loc[:,label_column]
-                features = dataframe.loc[:, dataframe.columns != label_column]
-                # features = np.delete(dataframe,label_column_index,axis=1)
-
-                # drop sensitive column names, unless instructed to keep them
-                if not dataset.include_sensitive_columns:
-                    if dataset.sensitive_column_names:
-                        features = features.drop(columns=dataset.sensitive_column_names)
-
-                # Convert to numpy arrays
-                features = np.array(features)
-                labels = np.array(labels)
-            data_dict = {'features':features,'labels':labels}  
+            if branch == 'candidate_selection':
+                frac_masked = n_masked/dataset.num_datapoints
+                datasize = int(round(frac_masked*n_safety))
+            else:
+                datasize = n_masked
+            data_dict = {'features':masked_features,'labels':masked_labels}  
             
         elif regime == 'reinforcement_learning':
             gamma = model.env_kwargs['gamma']
@@ -610,6 +613,7 @@ class ConfusionMatrixBaseNode(BaseNode):
         self.cm_true_index = cm_true_index
         self.cm_pred_index = cm_pred_index
 
+
 class MultiClassBaseNode(BaseNode):
     def __init__(self,
         name,
@@ -656,6 +660,7 @@ class MultiClassBaseNode(BaseNode):
             **kwargs)
         self.class_index = class_index
 
+
 class MEDCustomBaseNode(BaseNode):
     def __init__(self,
         name,
@@ -695,26 +700,21 @@ class MEDCustomBaseNode(BaseNode):
         Overrides same method from parent class, :py:class:`.BaseNode`
         """
         dataset = kwargs['dataset']
-        dataframe = dataset.df
+        features = dataset.features
+        labels = np.expand_dims(dataset.labels,axis=1)
+        sensitive_attrs = dataset.sensitive_attrs
         
-        # set up features and labels 
-        label_column = dataset.label_column
-        labels = dataframe[label_column]
-        features = dataframe.loc[:, dataframe.columns != label_column]
-        
-        # Do not drop the sensitive columns yet. 
-        # They might be needed in precalculate_data()
         data_dict,datasize = self.precalculate_data(
-            features,labels,**kwargs)
+            features,labels,sensitive_attrs)
 
         if kwargs['branch'] == 'candidate_selection':
             n_safety = kwargs['n_safety']
-            frac_masked = datasize/len(dataframe)
+            frac_masked = datasize/len(features)
             datasize = int(round(frac_masked*n_safety))
 
         return data_dict,datasize
 
-    def precalculate_data(self,X,Y,**kwargs):
+    def precalculate_data(self,X,Y,S):
         """ 
         Preconfigure dataset for candidate selection or 
         safety test so that it does not need to be 
@@ -726,12 +726,8 @@ class MEDCustomBaseNode(BaseNode):
         :param Y: labels
         :type Y: pandas dataframe       
         """
-        dataset = kwargs['dataset']
-
-        male_mask = X.M == 1
-        # drop sensitive column names 
-        if dataset.sensitive_column_names:
-            X = X.drop(columns=dataset.sensitive_column_names)
+        male_mask = S[:,0] == 1
+        
         X_male = X[male_mask]
         Y_male = Y[male_mask]
         X_female = X[~male_mask]
@@ -741,15 +737,19 @@ class MEDCustomBaseNode(BaseNode):
         N_least = min(N_male,N_female)
         
         # sample N_least from both without repeats 
-        XY_male = pd.concat([X_male,Y_male],axis=1)
-        XY_male = XY_male.sample(N_least,replace=True)
-        X_male = XY_male.loc[:,XY_male.columns!= dataset.label_column]
-        Y_male = XY_male[dataset.label_column]
-        
-        XY_female = pd.concat([X_female,Y_female],axis=1)
-        XY_female = XY_female.sample(N_least,replace=True)
-        X_female = XY_female.loc[:,XY_female.columns!= dataset.label_column]
-        Y_female = XY_female[dataset.label_column]
+        XY_male = np.hstack([X_male,Y_male]) # column stack
+        ix_sample_male = np.random.choice(range(len(XY_male))
+            ,size=N_least,replace=True)
+        XY_male = XY_male[ix_sample_male,:]
+        X_male = XY_male[:,:-1]
+        Y_male = XY_male[:,-1]
+
+        XY_female = np.hstack([X_female,Y_female]) # column stack
+        ix_sample_female = np.random.choice(range(len(XY_female)),
+            size=N_least,replace=True)
+        XY_female = XY_female[ix_sample_female,:]
+        X_female = XY_female[:,:-1]
+        Y_female = XY_female[:,-1]
         
         data_dict = {
             'X_male':X_male,
@@ -778,10 +778,10 @@ class MEDCustomBaseNode(BaseNode):
             such as features and labels
         :type data_dict: dict
         """
-        X_male = data_dict['X_male'].values
-        Y_male = data_dict['Y_male'].values
-        X_female = data_dict['X_female'].values
-        Y_female = data_dict['Y_female'].values
+        X_male = data_dict['X_male']
+        Y_male = data_dict['Y_male']
+        X_female = data_dict['X_female']
+        Y_female = data_dict['Y_female']
 
         prediction_male = model.predict(theta,X_male)
         mean_error_male = prediction_male-Y_male

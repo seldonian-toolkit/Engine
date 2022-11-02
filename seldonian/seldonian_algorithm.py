@@ -6,7 +6,7 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 import warnings
 from seldonian.warnings.custom_warnings import *
-from seldonian.dataset import (SupervisedDataSet, SupervisedPytorchDataSet,RLDataSet)
+from seldonian.dataset import (SupervisedDataSet,RLDataSet)
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
@@ -47,86 +47,40 @@ class SeldonianAlgorithm():
 		if self.regime == 'supervised_learning':
 			self.sub_regime = self.spec.sub_regime
 			self.model = self.spec.model
-
-			if isinstance(self.dataset,SupervisedPytorchDataSet):
-				(self.candidate_features,self.safety_features,
-					self.candidate_labels,self.safety_labels)  = train_test_split(
-						self.dataset.features,self.dataset.labels)
-			else:
-				self.candidate_df, self.safety_df = train_test_split(
-					self.dataset.df, test_size=self.spec.frac_data_in_safety, 
-					shuffle=False)
-
-			self.label_column = self.dataset.label_column
-			self.include_sensitive_columns = self.dataset.include_sensitive_columns
-			self.sensitive_column_names = self.dataset.sensitive_column_names
-
-			# Create candidate and safety datasets
-			if isinstance(self.dataset,SupervisedPytorchDataSet):
-				self.candidate_dataset = SupervisedPytorchDataSet(
-			        features=self.candidate_features,
-			        labels=self.candidate_labels,
-			        label_column=self.label_column,
-			        meta_information=self.dataset.meta_information)
-				
-				self.safety_dataset = SupervisedPytorchDataSet(
-			        features=self.safety_features,
-			        labels=self.safety_labels,
-			        label_column=self.label_column,
-			        meta_information=self.dataset.meta_information)
-
-				self.n_candidate = len(self.candidate_features)
-				self.n_safety = len(self.safety_features)
-			else:
-				self.candidate_dataset = SupervisedDataSet(
-					self.candidate_df,meta_information=self.column_names,
-					sensitive_column_names=self.sensitive_column_names,
-					include_sensitive_columns=self.include_sensitive_columns,
-					label_column=self.label_column)
-
-				self.safety_dataset = SupervisedDataSet(
-					self.safety_df,meta_information=self.column_names,
-					sensitive_column_names=self.sensitive_column_names,
-					include_sensitive_columns=self.include_sensitive_columns,
-					label_column=self.label_column)
+			print("Doing data split")
+			# Split into candidate and safety datasets
 			
-				self.n_candidate = len(self.candidate_df)
-				self.n_safety = len(self.safety_df)
+			(
+				self.candidate_features,
+				self.safety_features,
+				self.candidate_labels,
+				self.safety_labels,
+				self.candidate_sensitive_attrs,
+				self.safety_sensitive_attrs,
+				self.n_candidate,
+				self.n_safety
 
-				self.candidate_labels = self.candidate_df[self.label_column]
-				self.candidate_features = self.candidate_df.loc[:,
-					self.candidate_df.columns != self.label_column]
-
-				if not self.include_sensitive_columns:
-					self.candidate_features = self.candidate_features.drop(
-						columns=self.sensitive_column_names)
+			) = self.candidate_safety_split(
+					self.spec.frac_data_in_safety)
+			self.candidate_dataset = SupervisedDataSet(
+		        features=self.candidate_features,
+		        labels=self.candidate_labels,
+		        sensitive_attrs=self.candidate_sensitive_attrs,
+		        num_datapoints=self.n_candidate,
+		        meta_information=self.dataset.meta_information)
+			
+			self.safety_dataset = SupervisedDataSet(
+		        features=self.safety_features,
+		        labels=self.safety_labels,
+		        sensitive_attrs=self.safety_sensitive_attrs,
+		        num_datapoints=self.n_safety,
+		        meta_information=self.dataset.meta_information)
 
 			if self.n_candidate < 2 or self.n_safety < 2:
 				warning_msg = (
 					"Warning: not enough data to "
 					"run the Seldonian algorithm.")
 				warnings.warn(warning_msg)
-
-			# Set up initial solution
-			self.initial_solution_fn = self.spec.initial_solution_fn
-		
-			if self.initial_solution_fn is None:
-				print("self.candidate_features.shape:")
-				print(self.candidate_features.shape)
-				n_features = self.candidate_features.shape[1]
-				if self.model.has_intercept:
-					n_features += 1
-				if self.sub_regime != 'multiclass_classification':
-					self.initial_solution = np.zeros(n_features)
-				elif self.sub_regime == 'multiclass_classification':
-					n_classes = len(np.unique(self.candidate_labels))
-					self.initial_solution = np.zeros((n_features,n_classes))
-			else:
-				self.initial_solution = self.initial_solution_fn(
-					self.candidate_features,self.candidate_labels)
-
-			print("Initial solution: ")
-			print(self.initial_solution)
 
 		elif self.regime == 'reinforcement_learning':
 			self.env_kwargs = self.spec.model.env_kwargs
@@ -154,13 +108,6 @@ class SeldonianAlgorithm():
 			print(f"Safety dataset has {self.n_safety} episodes")
 			print(f"Candidate dataset has {self.n_candidate} episodes")
 			
-			# initial solution
-			self.initial_solution_fn = self.spec.initial_solution_fn
-
-			if self.initial_solution_fn is None:
-				self.initial_solution = self.model.policy.get_params()
-			else:
-				self.initial_solution = self.initial_solution_fn(self.candidate_dataset)
 		
 		if self.spec.primary_objective is None:
 			if self.regime == 'reinforcement_learning':
@@ -172,6 +119,54 @@ class SeldonianAlgorithm():
 					self.spec.primary_objective	= objectives.multiclass_logistic_loss
 				elif self.spec.sub_regime == 'regression':
 					self.spec.primary_objective = objectives.Mean_Squared_Error
+
+	def candidate_safety_split(self,frac_data_in_safety):
+		""" Split features, labels and sensitive attributes 
+		into candidate and safety sets 
+
+		:param frac_data_in_safety: Fraction of data used in safety test.
+			The remaining fraction will be used in candidate selection
+
+		:return: F_c,F_s,L_c,L_s,S_c,S_s
+			where F=features, L=labels, S=sensitive attributes
+		"""
+		n_points_tot = self.dataset.num_datapoints
+		n_candidate = int(round(n_points_tot*(1.0-frac_data_in_safety)))
+		n_safety = n_points_tot - n_candidate
+		if type(self.dataset.features) == list:
+			F_c = [x[:n_candidate] for x in self.dataset.features]
+			F_s = [x[n_candidate:] for x in self.dataset.features]
+			L_c = [y[:n_candidate] for y in self.dataset.labels]
+			L_s = [y[n_candidate:] for y in self.dataset.labels]
+			S_c = [s[:n_candidate] for s in self.dataset.sensitive_attrs]
+			S_s = [s[n_candidate:] for s in self.dataset.sensitive_attrs]
+			# Try to convert to numpy arrays. 
+			# This isn't always possible because, for example,
+			# each feature can have a different number of dimensions 
+			# (e.g. images and categorical features in the same dataset)
+			try:
+				F_c = np.array(F_c)
+				F_s = np.array(F_s)
+				L_c = np.array(L_c)
+				L_s = np.array(L_s)
+				S_c = np.array(S_c)
+				S_s = np.array(S_s)
+			except Exception as e: 
+				warning_msg = ("Failed to convert feature array to numpy arrays. "
+					  "This is expected if the dimensions of your features differ. "
+					  "If that is not the case for you, consult the "
+					  f"full exception: {e}")
+				warnings.warn(warning_msg)
+		else:
+			F_c = self.dataset.features[:n_candidate] 
+			F_s = self.dataset.features[n_candidate:] 
+			L_c = self.dataset.labels[:n_candidate] 
+			L_s = self.dataset.labels[n_candidate:]
+			S_c = self.dataset.sensitive_attrs[:n_candidate] 
+			S_s = self.dataset.sensitive_attrs[n_candidate:]
+			
+		
+		return F_c,F_s,L_c,L_s,S_c,S_s,n_candidate,n_safety
 
 	def candidate_selection(self,write_logfile=False):
 		""" Create the candidate selection object 
@@ -199,12 +194,48 @@ class SeldonianAlgorithm():
 		""" Create the safety test object """
 		st_kwargs = dict(
 			safety_dataset=self.safety_dataset,
-			model=self.model,parse_trees=self.spec.parse_trees,
+			model=self.model,
+			parse_trees=self.spec.parse_trees,
 			regime=self.regime,
 			)	
 		
 		st = SafetyTest(**st_kwargs)
 		return st
+
+	def set_initial_solution(self,verbose=False):
+		if self.regime == 'supervised_learning':
+			if self.spec.initial_solution_fn is None:
+				if verbose:
+					print("No initial_solution_fn provided. "
+						  "Attempting to initialize with a zeros matrix "
+						  " of the correct shape")
+				n_features = self.candidate_dataset.n_features
+				if self.model.has_intercept:
+					n_features += 1
+				if self.sub_regime == 'multiclass_classification':
+					n_classes = len(np.unique(self.candidate_labels))
+					self.initial_solution = np.zeros((n_features,n_classes))
+				else:
+					self.initial_solution = np.zeros(n_features)
+					
+			else:
+				self.initial_solution = self.spec.initial_solution_fn(
+					self.candidate_features,self.candidate_labels)
+		elif self.regime == 'reinforcement_learning':
+
+			if self.spec.initial_solution_fn is None:
+				if verbose:
+					print("No initial_solution_fn provided. "
+						  "Attempting to get initial weights from policy")
+				self.initial_solution = self.model.policy.get_params()
+			else:
+				self.initial_solution = self.spec.initial_solution_fn(self.candidate_dataset)
+		
+		if verbose:
+			print("Initial solution: ")
+			print(self.initial_solution)
+
+		return self.initial_solution
 
 	def run(self,write_cs_logfile=False,debug=False):
 		"""
@@ -219,8 +250,9 @@ class SeldonianAlgorithm():
 			model weights found during candidate selection or 'NSF'.
 		:rtype: Tuple 
 		"""
-			
+		self.set_initial_solution() # sets self.initial_solution so it can be used in candidate selection 
 		cs = self.candidate_selection(write_logfile=write_cs_logfile)
+		
 		candidate_solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
@@ -292,7 +324,7 @@ class SeldonianAlgorithm():
 			value of theta
 		:rtype: float
 		"""
-		if theta == 'NSF':
+		if type(theta) == str and theta == 'NSF':
 			raise ValueError("Cannot evaluate primary objective because theta='NSF'")
 		if branch == 'safety_test':
 			st = self.safety_test()

@@ -2,7 +2,8 @@
 import os
 import importlib 
 
-from seldonian.utils.io_utils import load_supervised_metadata,save_pickle
+from seldonian.utils.io_utils import save_pickle
+from seldonian.dataset import load_supervised_metadata
 from seldonian.models.models import *
 from seldonian.models import objectives
 from seldonian.parse_tree.parse_tree import (
@@ -303,8 +304,9 @@ def createSupervisedSpec(
 	:param verbose: Boolean glag to control verbosity 
 	"""
 	# Load metadata
-	(regime, sub_regime, columns,
-        sensitive_columns) = load_supervised_metadata(metadata_pth)
+	(regime, sub_regime, all_col_names, 
+		feature_col_names, label_col_names,
+		sensitive_col_names) = load_supervised_metadata(metadata_pth)
 
 	assert regime == 'supervised_learning'
 
@@ -323,7 +325,7 @@ def createSupervisedSpec(
 		deltas,
 		regime='supervised_learning',
 		sub_regime=sub_regime,
-		columns=columns,
+		columns=sensitive_col_names,
 		delta_weight_method='equal')
 
 	# Save spec object, using defaults where necessary
@@ -339,7 +341,7 @@ def createSupervisedSpec(
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5]),
             'alpha_theta'   : 0.01,
             'alpha_lamb'    : 0.01,
             'beta_velocity' : 0.9,
@@ -435,7 +437,6 @@ def createRLSpec(
 		spec_save_name = os.path.join(save_dir, 'spec.pkl')
 		save_pickle(spec_save_name,spec,verbose=verbose)
 	return spec
-
 
 def validate_parse_trees(parse_trees):
 	""" Ensure that there are no duplicate 

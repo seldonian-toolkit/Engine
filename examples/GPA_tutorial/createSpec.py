@@ -2,8 +2,7 @@
 import os
 from seldonian.parse_tree.parse_tree import make_parse_trees_from_constraints
 from seldonian.dataset import DataSetLoader
-from seldonian.utils.io_utils import (load_json,
-    load_supervised_metadata,save_pickle)
+from seldonian.utils.io_utils import (load_json,save_pickle)
 from seldonian.spec import createSupervisedSpec
 from seldonian.models.models import (
     BinaryLogisticRegressionModel as LogisticRegressionModel)
@@ -12,24 +11,27 @@ from seldonian.models import objectives
 if __name__ == '__main__':
     data_pth = "../../static/datasets/supervised/GPA/gpa_classification_dataset.csv"
     metadata_pth = "../../static/datasets/supervised/GPA/metadata_classification.json"
-    save_base_dir = '../../../interface_outputs'
+    # save_base_dir = '../../../interface_outputs'
+    save_base_dir='.'
     # Load metadata
-    (regime, sub_regime, columns,
-        sensitive_columns) = load_supervised_metadata(metadata_pth)
+    regime='supervised_learning'
+    sub_regime='classification'
 
-    # Load dataset from file
     loader = DataSetLoader(
         regime=regime)
+
     dataset = loader.load_supervised_dataset(
         filename=data_pth,
         metadata_filename=metadata_pth,
         file_type='csv')
+    sensitive_col_names = dataset.meta_information['sensitive_col_names']
     
     # Behavioral constraints
     deltas = [0.05]
-    for constraint_name in ["disparate_impact",
-        "demographic_parity","equalized_odds",
-        "equal_opportunity","predictive_equality"]:
+    # for constraint_name in ["disparate_impact",
+    #     "demographic_parity","equalized_odds",
+    #     "equal_opportunity","predictive_equality"]:
+    for constraint_name in ["disparate_impact"]:
         save_dir = os.path.join(save_base_dir,f'gpa_{constraint_name}')
         os.makedirs(save_dir,exist_ok=True)
         # Define behavioral constraints
@@ -52,3 +54,4 @@ if __name__ == '__main__':
             save_dir=save_dir,
             save=True,
             verbose=True)
+

@@ -142,8 +142,6 @@ class PytorchLRTestModel(SupervisedPytorchBaseModel):
 		"""
 		super().__init__(input_dim,output_dim)
 		self.param_sizes = self.get_param_sizes()
-		print("param param_sizes:")
-		print(self.param_sizes)
 		self.has_intercept=True
 
 	def create_model(self,**kwargs):

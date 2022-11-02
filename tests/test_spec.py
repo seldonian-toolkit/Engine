@@ -22,8 +22,8 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	metadata_dict = load_json(metadata_pth)
 	regime = metadata_dict['regime']
 	sub_regime = metadata_dict['sub_regime']
-	columns = metadata_dict['columns']
-	sensitive_columns = metadata_dict['sensitive_columns']
+	all_col_names = metadata_dict['all_col_names']
+	sensitive_col_names = metadata_dict['sensitive_col_names']
 				
 	include_sensitive_columns = False
 	regime='supervised_learning'
@@ -35,7 +35,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	dataset = loader.load_supervised_dataset(
 		filename=data_pth,
 		metadata_filename=metadata_pth,
-		include_sensitive_columns=include_sensitive_columns,
 		file_type='csv')
 	
 	constraint_strs = ['Mean_Squared_Error - 2.0']
@@ -65,10 +64,9 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	metadata_dict = load_json(metadata_pth)
 	regime = metadata_dict['regime']
 	sub_regime = metadata_dict['sub_regime']
-	columns = metadata_dict['columns']
-	sensitive_columns = metadata_dict['sensitive_columns']
+	all_col_names = metadata_dict['all_col_names']
+	sensitive_col_names = metadata_dict['sensitive_col_names']
 				
-	include_sensitive_columns = False
 	regime='supervised_learning'
 
 	# Load dataset from file
@@ -78,7 +76,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	dataset = loader.load_supervised_dataset(
 		filename=data_pth,
 		metadata_filename=metadata_pth,
-		include_sensitive_columns=include_sensitive_columns,
 		file_type='csv')
 	
 	constraint_strs = ['FPR - 0.5']
@@ -110,10 +107,9 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	metadata_dict = load_json(metadata_pth)
 	regime = metadata_dict['regime']
 	sub_regime = metadata_dict['sub_regime']
-	columns = metadata_dict['columns']
-	sensitive_columns = metadata_dict['sensitive_columns']
+	all_col_names = metadata_dict['all_col_names']
+	sensitive_col_names = metadata_dict['sensitive_col_names']
 				
-	include_sensitive_columns = False
 	regime='supervised_learning'
 
 	# Load dataset from file
@@ -123,7 +119,6 @@ def test_createSupervisedSpec(gpa_regression_dataset,
 	dataset = loader.load_supervised_dataset(
 		filename=data_pth,
 		metadata_filename=metadata_pth,
-		include_sensitive_columns=include_sensitive_columns,
 		file_type='csv')
 	
 	constraint_strs = ['CM_[0,0] - 0.5']
@@ -192,10 +187,9 @@ def test_duplicate_parse_trees(gpa_regression_dataset):
 	metadata_dict = load_json(metadata_pth)
 	regime = metadata_dict['regime']
 	sub_regime = metadata_dict['sub_regime']
-	columns = metadata_dict['columns']
-	sensitive_columns = metadata_dict['sensitive_columns']
+	all_col_names = metadata_dict['all_col_names']
+	sensitive_col_names = metadata_dict['sensitive_col_names']
 				
-	include_sensitive_columns = False
 	regime='supervised_learning'
 
 	# Load dataset from file
@@ -205,7 +199,6 @@ def test_duplicate_parse_trees(gpa_regression_dataset):
 	dataset = loader.load_supervised_dataset(
 		filename=data_pth,
 		metadata_filename=metadata_pth,
-		include_sensitive_columns=include_sensitive_columns,
 		file_type='csv')
 	
 	constraint_strs = [

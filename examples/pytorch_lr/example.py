@@ -26,9 +26,7 @@ if __name__ == "__main__":
         constraint_strs,deltas)
 
     # 3. Define the underlying machine learning model
-    # model = LinearRegressionModel()
     model = PytorchLRTestModel(input_dim=1,output_dim=1)
-    # model = PytorchLinearRegressionModel(input_dim=1,output_dim=1)
 
     """4. Create a spec object, using some
     hidden defaults we won't worry about here

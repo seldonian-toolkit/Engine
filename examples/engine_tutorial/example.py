@@ -38,7 +38,9 @@ if __name__ == "__main__":
 
     # 5. Run seldonian algorithm using the spec object
     SA = SeldonianAlgorithm(spec)
-    passed_safety,solution = SA.run(write_cs_logfile=True,debug=True)
+    spec.optimization_hyperparams['lambda_init'] = np.array([0.5,0.5])
+    # passed_safety,solution = SA.run(write_cs_logfile=True,debug=True)
+    passed_safety,solution = SA.run()
     print(passed_safety,solution)
 
     # Check the value of the primary objective on the safety dataset

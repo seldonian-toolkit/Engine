@@ -6,6 +6,7 @@ import pytest
 from seldonian.parse_tree.parse_tree import *
 from seldonian.utils.io_utils import (load_json,
     load_pickle)
+from seldonian.utils.tutorial_utils import generate_data
 from seldonian.dataset import (DataSetLoader,
     RLDataSet,SupervisedDataSet)
 from seldonian.spec import SupervisedSpec
@@ -93,21 +94,81 @@ def spec_garbage_collector():
     shutil.rmtree(save_dir)
 
 @pytest.fixture
+def simulated_regression_dataset():
+
+    from seldonian.models.models import LinearRegressionModel
+    def generate_dataset(constraint_strs,deltas,numPoints=1000):
+
+        regime='supervised_learning'
+        sub_regime='regression'
+        np.random.seed(0)
+
+        model = LinearRegressionModel()
+        X,Y = generate_data(
+            numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+        
+        meta_information = {}
+        meta_information['feature_col_names'] = ['feature1']
+        meta_information['label_col_names'] = ['label']
+        meta_information['sensitive_col_names'] = []
+
+        # 3. Make a dataset object
+        features = np.expand_dims(X,axis=1)
+        labels = Y
+
+        # Mean squared error
+        primary_objective = objectives.Mean_Squared_Error
+
+        # Load dataset from file
+        loader = DataSetLoader(
+            regime=regime)
+
+        dataset = SupervisedDataSet(
+            features=features,
+            labels=labels,
+            sensitive_attrs=[],
+            num_datapoints=numPoints,
+            meta_information=meta_information)
+
+        # For each constraint, make a parse tree
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(delta=delta,
+                regime=regime,sub_regime=sub_regime,
+                columns=[])
+
+            # Fill out tree
+            parse_tree.create_from_ast(constraint_str)
+            # assign deltas for each base node
+            # use equal weighting for each base node
+            parse_tree.assign_deltas(weight_method='equal')
+
+            # Assign bounds needed on the base nodes
+            parse_tree.assign_bounds_needed()
+            
+            parse_trees.append(parse_tree)
+
+        return dataset,model,primary_objective,parse_trees
+    
+    return generate_dataset
+
+@pytest.fixture
 def gpa_regression_dataset():
 
     from seldonian.models.models import LinearRegressionModel
-    def generate_dataset(constraint_strs,deltas):
-
+    def generate_dataset(constraint_strs,deltas,):
         data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
         metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
 
         metadata_dict = load_json(metadata_pth)
         regime = metadata_dict['regime']
         sub_regime = metadata_dict['sub_regime']
-        columns = metadata_dict['columns']
-        sensitive_columns = metadata_dict['sensitive_columns']
+        sensitive_col_names = metadata_dict['sensitive_col_names']
                     
-        include_sensitive_columns = False
         regime='supervised_learning'
 
         model = LinearRegressionModel()
@@ -122,7 +183,6 @@ def gpa_regression_dataset():
         dataset = loader.load_supervised_dataset(
             filename=data_pth,
             metadata_filename=metadata_pth,
-            include_sensitive_columns=include_sensitive_columns,
             file_type='csv')
 
         # For each constraint, make a parse tree
@@ -134,7 +194,7 @@ def gpa_regression_dataset():
             # Create parse tree object
             parse_tree = ParseTree(delta=delta,
                 regime='supervised_learning',sub_regime='regression',
-                columns=sensitive_columns)
+                columns=sensitive_col_names)
 
             # Fill out tree
             parse_tree.create_from_ast(constraint_str)
@@ -163,9 +223,8 @@ def gpa_classification_dataset():
         metadata_dict = load_json(metadata_pth)
         regime = metadata_dict['regime']
         sub_regime = metadata_dict['sub_regime']
-        columns = metadata_dict['columns']
+        columns = metadata_dict['all_col_names']
                     
-        include_sensitive_columns = False
         regime='supervised_learning'
 
         model = BinaryLogisticRegressionModel()
@@ -180,7 +239,6 @@ def gpa_classification_dataset():
         dataset = loader.load_supervised_dataset(
             filename=data_pth,
             metadata_filename=metadata_pth,
-            include_sensitive_columns=include_sensitive_columns,
             file_type='csv')
 
         # For each constraint, make a parse tree
@@ -221,9 +279,8 @@ def gpa_multiclass_dataset():
         metadata_dict = load_json(metadata_pth)
         regime = metadata_dict['regime']
         sub_regime = metadata_dict['sub_regime']
-        columns = metadata_dict['columns']
+        sensitive_col_names = metadata_dict['sensitive_col_names']
                     
-        include_sensitive_columns = False
         regime='supervised_learning'
 
         model = MultiClassLogisticRegressionModel()
@@ -238,7 +295,6 @@ def gpa_multiclass_dataset():
         dataset = loader.load_supervised_dataset(
             filename=data_pth,
             metadata_filename=metadata_pth,
-            include_sensitive_columns=include_sensitive_columns,
             file_type='csv')
 
         # For each constraint, make a parse tree
@@ -250,7 +306,7 @@ def gpa_multiclass_dataset():
             # Create parse tree object
             parse_tree = ParseTree(delta=delta,
                 regime=regime,sub_regime=sub_regime,
-                columns=["M","F"])
+                columns=sensitive_col_names)
 
             # Fill out tree
             parse_tree.create_from_ast(constraint_str)

@@ -88,10 +88,17 @@ def gradient_descent_adam(
     
     # initialize theta, lambda
     theta = theta_init
-    lamb = np.copy(lambda_init)
+    # If lambda provided as a float, make a vector 
+    # with this value for all constraints
+    if type(lambda_init) == float:
+        lamb = np.repeat(lambda_init,n_constraints)
+    else:
+        lamb = np.array(lambda_init) 
+
     if len(lamb) != n_constraints:
         raise RuntimeError(
-            "lambda has wrong shape. Shape must be (n_constraints,)")
+            "lambda has wrong shape. Shape must be (n_constraints,), "
+            f"but shape is {lamb.shape}")
         
     # initialize Adam parameters
     velocity_theta, velocity_lamb = 0.0,0.0

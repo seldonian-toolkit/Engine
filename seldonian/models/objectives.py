@@ -3,7 +3,6 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 from seldonian.utils.stats_utils import weighted_sum_gamma
-from seldonian.dataset import SupervisedPytorchDataSet
 
 def sample_from_statistic(model,
 	statistic_name,theta,data_dict,**kwargs):
@@ -64,7 +63,7 @@ def sample_from_statistic(model,
 
 	if statistic_name == 'ACC':
 		# Accuracy
-		if isinstance(kwargs['dataset'],SupervisedPytorchDataSet):
+		if kwargs['dataset'].meta_information['sub_regime'] == 'multiclass_classification':
 			return vector_Accuracy_multiclass(
 				model,theta,data_dict['features'],data_dict['labels'])
 		else:
@@ -171,6 +170,7 @@ def Mean_Squared_Error(model,theta,X,Y):
 	n = len(X)
 	prediction = model.predict(theta,X) # vector of values
 	res = sum(pow(prediction-Y,2))/n
+
 	return res
 
 def gradient_Mean_Squared_Error(model,theta,X,Y):
@@ -318,7 +318,6 @@ def gradient_binary_logistic_loss(model,theta,X,Y):
 	:return: perceptron loss
 	:rtype: float
 	"""
-	
 	h = model.predict(theta,X)
 	X_withintercept = np.hstack([np.ones((len(X),1)),np.array(X)])
 	res = (1/len(X))*np.dot(X_withintercept.T, (h - Y))
