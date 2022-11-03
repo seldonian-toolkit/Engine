@@ -8,4 +8,5 @@ pytest==7.0.1
 scikit_learn==1.1.1
 scipy==1.7.3
 setuptools==58.0.4
+torch==1.12.1
 tqdm==4.64.0
