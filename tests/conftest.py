@@ -94,6 +94,72 @@ def spec_garbage_collector():
     shutil.rmtree(save_dir)
 
 @pytest.fixture
+def simulated_regression_dataset_aslists():
+    """ Generate features, labels and sensitive attributes as lists """
+    from seldonian.models.models import LinearRegressionModel
+    def generate_dataset(constraint_strs,deltas,numPoints=1000):
+
+        regime='supervised_learning'
+        sub_regime='regression'
+        np.random.seed(0)
+
+        model = LinearRegressionModelListFeatures() # we don't have a model that supports lists of 
+        # features/arrays yet, but one could create one.
+        X1,Y = generate_data(
+            numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+        X2 = X1**2
+        meta_information = {}
+        meta_information['feature_col_names'] = ['feature1']
+        meta_information['label_col_names'] = ['label']
+        meta_information['sensitive_col_names'] = []
+
+        # 3. Make a dataset object
+        features = [np.expand_dims(X1,axis=1),np.expand_dims(X2,axis=1)]
+        labels = Y
+        sensitive_attrs=list()
+
+        # Mean squared error
+        primary_objective = objectives.Mean_Squared_Error
+
+        # Load dataset from file
+        loader = DataSetLoader(
+            regime=regime)
+
+        dataset = SupervisedDataSet(
+            features=features,
+            labels=labels,
+            sensitive_attrs=sensitive_attrs,
+            num_datapoints=numPoints,
+            meta_information=meta_information)
+
+        # For each constraint, make a parse tree
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(delta=delta,
+                regime=regime,sub_regime=sub_regime,
+                columns=[])
+
+            # Fill out tree
+            parse_tree.create_from_ast(constraint_str)
+            # assign deltas for each base node
+            # use equal weighting for each base node
+            parse_tree.assign_deltas(weight_method='equal')
+
+            # Assign bounds needed on the base nodes
+            parse_tree.assign_bounds_needed()
+            
+            parse_trees.append(parse_tree)
+
+        return dataset,model,primary_objective,parse_trees
+    
+    return generate_dataset
+
+
+@pytest.fixture
 def simulated_regression_dataset():
 
     from seldonian.models.models import LinearRegressionModel

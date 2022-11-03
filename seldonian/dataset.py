@@ -53,7 +53,7 @@ class DataSetLoader():
 			num_datapoints = len(df)
 		else:
 			raise NotImplementedError(f"File type: {file_type} not supported")
-	
+
 		return SupervisedDataSet(
 			features=features,
 			labels=labels,
@@ -143,8 +143,11 @@ class SupervisedDataSet(DataSet):
 			regime='supervised_learning')
 
 		self.features = features
+		assert isinstance(labels,np.ndarray), "labels must be a numpy array"
 		self.labels = labels
 		self.sensitive_attrs = sensitive_attrs
+
+		assert isinstance(self.sensitive_attrs,np.ndarray) or self.sensitive_attrs == [], "sensitive_attrs must be a numpy array or []"
 		self.num_datapoints = num_datapoints
 		
 		self.feature_col_names = meta_information['feature_col_names']

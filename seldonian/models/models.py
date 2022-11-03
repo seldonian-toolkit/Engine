@@ -63,6 +63,40 @@ class LinearRegressionModel(RegressionModel):
 		reg = self.model_class().fit(X, Y)
 		return np.hstack([reg.intercept_,reg.coef_])
 
+class LinearRegressionModelListFeatures(RegressionModel):
+	def __init__(self):
+		""" Implements linear regression """
+		super().__init__()
+		self.model_class = LinearRegression
+
+	def predict(self,theta,X):
+		""" Predict label using the linear model
+
+		:param theta: The parameter weights
+		:type theta: numpy ndarray
+		:param X: The features
+		:type X: numpy ndarray
+		:return: predicted labels
+		:rtype: numpy ndarray
+		"""
+		X_array = np.hstack(X)
+		dotprod = (X_array @ theta[1:])
+		return theta[0] + (X_array @ theta[1:])
+
+	def fit(self,X,Y):
+		""" Train the model using the feature,label pairs 
+
+		:param X: features 
+		:type X: NxM numpy ndarray 
+		:param Y: labels 
+		:type Y: Nx1 numpy ndarray 
+		:return: weights from the fitted model
+		:rtype: numpy ndarray
+		"""
+		X_array = np.hstack(X)
+		reg = self.model_class().fit(X_array, Y)
+		return np.hstack([reg.intercept_,reg.coef_])
+
 
 class BoundedLinearRegressionModel(LinearRegressionModel):
 	def __init__(self):

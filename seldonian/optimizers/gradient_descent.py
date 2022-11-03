@@ -141,6 +141,10 @@ def gradient_descent_adam(
                 print(f"Iteration {i}")
         primary_val = primary_objective(theta)
         g_vec = upper_bounds_function(theta)
+        # print("primary_val")
+        # print(primary_val)
+        # print("g_vec")
+        # print(g_vec)
         # g_vec = g_vec.reshape(g_vec.shape[0],1)
         if debug:
             print("it,f,g,theta,lambda:",i,primary_val,g_vec,theta,lamb)

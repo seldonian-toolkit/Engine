@@ -167,7 +167,7 @@ def Mean_Squared_Error(model,theta,X,Y):
 	:return: Sample mean squared error
 	:rtype: float
 	"""
-	n = len(X)
+	n = len(Y) # Y guaranteed to be a numpy array, X isn't.
 	prediction = model.predict(theta,X) # vector of values
 	res = sum(pow(prediction-Y,2))/n
 
@@ -187,7 +187,12 @@ def gradient_Mean_Squared_Error(model,theta,X,Y):
 	:return: Sample mean squared error
 	:rtype: float
 	"""
-	n = len(X)
+	if type(X) == list:
+		raise NotImplementedError(
+			"This function is not supported when features are in a list. "
+			"Convert features to a numpy array if possible or use autodiff "
+			" to get the gradient.")
+	n = len(Y)
 	prediction = model.predict(theta,X) # vector of values
 	err = prediction-Y
 	X_withintercept = np.hstack([np.ones((n,1)),np.array(X)])

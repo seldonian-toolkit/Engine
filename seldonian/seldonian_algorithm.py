@@ -47,7 +47,6 @@ class SeldonianAlgorithm():
 		if self.regime == 'supervised_learning':
 			self.sub_regime = self.spec.sub_regime
 			self.model = self.spec.model
-			print("Doing data split")
 			# Split into candidate and safety datasets
 			
 			(
@@ -133,38 +132,20 @@ class SeldonianAlgorithm():
 		n_points_tot = self.dataset.num_datapoints
 		n_candidate = int(round(n_points_tot*(1.0-frac_data_in_safety)))
 		n_safety = n_points_tot - n_candidate
+		# Split features
 		if type(self.dataset.features) == list:
 			F_c = [x[:n_candidate] for x in self.dataset.features]
 			F_s = [x[n_candidate:] for x in self.dataset.features]
-			L_c = [y[:n_candidate] for y in self.dataset.labels]
-			L_s = [y[n_candidate:] for y in self.dataset.labels]
-			S_c = [s[:n_candidate] for s in self.dataset.sensitive_attrs]
-			S_s = [s[n_candidate:] for s in self.dataset.sensitive_attrs]
-			# Try to convert to numpy arrays. 
-			# This isn't always possible because, for example,
-			# each feature can have a different number of dimensions 
-			# (e.g. images and categorical features in the same dataset)
-			try:
-				F_c = np.array(F_c)
-				F_s = np.array(F_s)
-				L_c = np.array(L_c)
-				L_s = np.array(L_s)
-				S_c = np.array(S_c)
-				S_s = np.array(S_s)
-			except Exception as e: 
-				warning_msg = ("Failed to convert feature array to numpy arrays. "
-					  "This is expected if the dimensions of your features differ. "
-					  "If that is not the case for you, consult the "
-					  f"full exception: {e}")
-				warnings.warn(warning_msg)
 		else:
 			F_c = self.dataset.features[:n_candidate] 
 			F_s = self.dataset.features[n_candidate:] 
-			L_c = self.dataset.labels[:n_candidate] 
-			L_s = self.dataset.labels[n_candidate:]
-			S_c = self.dataset.sensitive_attrs[:n_candidate] 
-			S_s = self.dataset.sensitive_attrs[n_candidate:]
-			
+		# Split labels - must be numpy array
+		L_c = self.dataset.labels[:n_candidate] 
+		L_s = self.dataset.labels[n_candidate:]
+		
+		# Split sensitive attributes - must be numpy array
+		S_c = self.dataset.sensitive_attrs[:n_candidate] 
+		S_s = self.dataset.sensitive_attrs[n_candidate:]
 		
 		return F_c,F_s,L_c,L_s,S_c,S_s,n_candidate,n_safety
 

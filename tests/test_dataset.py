@@ -78,6 +78,47 @@ def test_load_supervised_dataset():
 	assert dataset_fromcsv.features.shape == (43303,9)
 	assert dataset_fromcsv.sensitive_col_names == ["M","F"]
 
+	# Make sure error is raised if labels or sensitive attributes are passed as lists
+	
+	features = dataset_fromcsv.features
+	listlabels = list(dataset_fromcsv.labels)
+	sensitive_attrs = dataset_fromcsv.sensitive_attrs
+	meta_information = dataset_fromcsv.meta_information
+	with pytest.raises(AssertionError) as excinfo:
+		ds = SupervisedDataSet(
+			features=features,
+			labels=listlabels,
+			sensitive_attrs=sensitive_attrs,
+			num_datapoints=len(features),
+			meta_information=meta_information)
+	error_str = "labels must be a numpy array"
+	assert str(excinfo.value) == error_str
+
+	features = dataset_fromcsv.features
+	labels = dataset_fromcsv.labels
+	listsensitive_attrs = [dataset_fromcsv.sensitive_attrs]
+	meta_information = dataset_fromcsv.meta_information
+	with pytest.raises(AssertionError) as excinfo:
+		ds = SupervisedDataSet(
+			features=features,
+			labels=labels,
+			sensitive_attrs=listsensitive_attrs,
+			num_datapoints=len(features),
+			meta_information=meta_information)
+	error_str = "sensitive_attrs must be a numpy array or []"
+	assert str(excinfo.value) == error_str
+
+	# But allow sensitive attributes to be an empty list
+
+	ds = SupervisedDataSet(
+		features=features,
+		labels=labels,
+		sensitive_attrs=[],
+		num_datapoints=len(features),
+		meta_information=meta_information)
+
+	assert ds.sensitive_attrs == []
+
 def test_load_RL_dataset():
 	""" Test that reinforcement learning datasets can be loaded
 	from various formats """

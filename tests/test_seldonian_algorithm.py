@@ -137,6 +137,93 @@ def test_not_enough_data(simulated_regression_dataset):
 		SA = SeldonianAlgorithm(spec_zeros)
 		passed_safety,solution = SA.run()
 
+def test_data_as_lists(simulated_regression_dataset_aslists):
+	# dummy data for linear regression
+
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.5]
+	numPoints=1000
+	(dataset,model,primary_objective,
+        parse_trees) = simulated_regression_dataset_aslists(
+            constraint_strs,deltas,numPoints=numPoints)
+	frac_data_in_safety=0.6
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 200,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+	
+	SA = SeldonianAlgorithm(spec)
+	candidate_features = SA.candidate_dataset.features
+	candidate_labels = SA.candidate_dataset.labels
+	assert type(candidate_features) == list
+	assert type(candidate_labels) == np.ndarray
+
+	with pytest.raises(NotImplementedError) as excinfo:
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
+	error_str = (
+		"This function is not supported when features are in a list. "
+		"Convert features to a numpy array if possible or use autodiff "
+		" to get the gradient.")
+	assert str(excinfo.value) == error_str
+
+	# Create spec object using autodiff
+	spec2 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+	
+	SA2 = SeldonianAlgorithm(spec2)
+	candidate_features = SA2.candidate_dataset.features
+	candidate_labels = SA2.candidate_dataset.labels
+	assert type(candidate_features) == list
+	assert type(candidate_labels) == np.ndarray
+
+	passed_safety,solution = SA2.run()
+	assert passed_safety == True
+	array_to_compare = np.array([0.02483889,0.98311923,0.02349485])
+	assert np.allclose(solution,array_to_compare)
+
 def test_bad_optimizer(gpa_regression_dataset):
 	""" Test that attempting to use an optimizer 
 	or optimization_technique that is not supported
