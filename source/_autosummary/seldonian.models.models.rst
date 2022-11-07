@@ -25,6 +25,7 @@ seldonian.models.models
       ClassificationModel
       DummyClassifierModel
       LinearRegressionModel
+      LinearRegressionModelListFeatures
       MultiClassLogisticRegressionModel
       RandomClassifierModel
       RegressionModel

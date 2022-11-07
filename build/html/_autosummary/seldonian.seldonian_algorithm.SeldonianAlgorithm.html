@@ -66,6 +66,23 @@ set of parameters for running the Seldonian algorithm</p>
 </tbody>
 </table>
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split">
+<span class="sig-name descname"><span class="pre">candidate_safety_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split features, labels and sensitive attributes 
+into candidate and safety sets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frac_data_in_safety</strong> – Fraction of data used in safety test.
+The remaining fraction will be used in candidate selection</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>F_c,F_s,L_c,L_s,S_c,S_s
+where F=features, L=labels, S=sensitive attributes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection">
 <span class="sig-name descname"><span class="pre">candidate_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the candidate selection object</p>
@@ -202,6 +219,7 @@ model weights found during candidate selection or ‘NSF’.</p>
 <li class="toctree-l5"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__init__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__repr__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__repr__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_safety_split()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_selection()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_cs_result()</span></code></a></li>

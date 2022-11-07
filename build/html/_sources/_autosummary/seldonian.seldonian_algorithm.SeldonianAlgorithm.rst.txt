@@ -20,6 +20,8 @@ seldonian.seldonian\_algorithm.SeldonianAlgorithm
    .. 
    ..    ~SeldonianAlgorithm.__init__
    ..
+   ..    ~SeldonianAlgorithm.candidate_safety_split
+   ..
    ..    ~SeldonianAlgorithm.candidate_selection
    ..
    ..    ~SeldonianAlgorithm.evaluate_primary_objective
@@ -31,6 +33,8 @@ seldonian.seldonian\_algorithm.SeldonianAlgorithm
    ..    ~SeldonianAlgorithm.run_safety_test
    ..
    ..    ~SeldonianAlgorithm.safety_test
+   ..
+   ..    ~SeldonianAlgorithm.set_initial_solution
    ..
    
    

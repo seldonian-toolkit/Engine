@@ -32,7 +32,7 @@ seldonian.parse\_tree.nodes.ConfusionMatrixBaseNode
    ..
    ..    ~ConfusionMatrixBaseNode.compute_HC_upperbound
    ..
-   ..    ~ConfusionMatrixBaseNode.mask_dataframe
+   ..    ~ConfusionMatrixBaseNode.mask_data
    ..
    ..    ~ConfusionMatrixBaseNode.predict_HC_lowerbound
    ..

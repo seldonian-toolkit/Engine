@@ -9,6 +9,13 @@ seldonian.dataset
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:                                         
+   
+      load_supervised_metadata
+   
    
 
    

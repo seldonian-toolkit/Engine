@@ -32,7 +32,7 @@ seldonian.parse\_tree.nodes.CVaRSQeBaseNode
    ..
    ..    ~CVaRSQeBaseNode.compute_HC_upperbound
    ..
-   ..    ~CVaRSQeBaseNode.mask_dataframe
+   ..    ~CVaRSQeBaseNode.mask_data
    ..
    ..    ~CVaRSQeBaseNode.predict_HC_lowerbound
    ..

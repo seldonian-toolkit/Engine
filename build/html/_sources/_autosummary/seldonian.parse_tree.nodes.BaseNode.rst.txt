@@ -32,7 +32,7 @@ seldonian.parse\_tree.nodes.BaseNode
    ..
    ..    ~BaseNode.compute_HC_upperbound
    ..
-   ..    ~BaseNode.mask_dataframe
+   ..    ~BaseNode.mask_data
    ..
    ..    ~BaseNode.predict_HC_lowerbound
    ..

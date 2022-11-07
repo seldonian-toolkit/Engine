@@ -32,7 +32,7 @@ seldonian.parse\_tree.nodes.MultiClassBaseNode
    ..
    ..    ~MultiClassBaseNode.compute_HC_upperbound
    ..
-   ..    ~MultiClassBaseNode.mask_dataframe
+   ..    ~MultiClassBaseNode.mask_data
    ..
    ..    ~MultiClassBaseNode.predict_HC_lowerbound
    ..

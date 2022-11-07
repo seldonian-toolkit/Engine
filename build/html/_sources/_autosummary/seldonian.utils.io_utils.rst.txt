@@ -17,7 +17,6 @@ seldonian.utils.io\_utils
       dir_path
       load_json
       load_pickle
-      load_supervised_metadata
       save_json
       save_pickle
    

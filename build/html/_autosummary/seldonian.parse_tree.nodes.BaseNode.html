@@ -160,9 +160,9 @@ evaluated at each observation in dataset</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode.mask_dataframe">
-<span class="sig-name descname"><span class="pre">mask_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.mask_dataframe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mask dataset’s dataframe using 
+<dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode.mask_data">
+<span class="sig-name descname"><span class="pre">mask_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.mask_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mask features and labels using 
 a joint AND mask where each of the
 conditional columns is True.</p>
 <dl class="field-list simple">
@@ -300,7 +300,7 @@ such as features and labels</p></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.compute_HC_lowerbound"><code class="docutils literal notranslate"><span class="pre">BaseNode.compute_HC_lowerbound()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.compute_HC_upper_and_lowerbound"><code class="docutils literal notranslate"><span class="pre">BaseNode.compute_HC_upper_and_lowerbound()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.compute_HC_upperbound"><code class="docutils literal notranslate"><span class="pre">BaseNode.compute_HC_upperbound()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.mask_dataframe"><code class="docutils literal notranslate"><span class="pre">BaseNode.mask_dataframe()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.mask_data"><code class="docutils literal notranslate"><span class="pre">BaseNode.mask_data()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.predict_HC_lowerbound"><code class="docutils literal notranslate"><span class="pre">BaseNode.predict_HC_lowerbound()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.predict_HC_upper_and_lowerbound"><code class="docutils literal notranslate"><span class="pre">BaseNode.predict_HC_upper_and_lowerbound()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.nodes.BaseNode.predict_HC_upperbound"><code class="docutils literal notranslate"><span class="pre">BaseNode.predict_HC_upperbound()</span></code></a></li>

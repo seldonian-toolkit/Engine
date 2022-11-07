@@ -31,4 +31,6 @@ seldonian.models
 
    seldonian.models.models
    seldonian.models.objectives
+   seldonian.models.pytorch_cnn
+   seldonian.models.pytorch_model
 

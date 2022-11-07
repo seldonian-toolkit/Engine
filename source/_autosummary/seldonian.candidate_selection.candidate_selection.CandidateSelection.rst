@@ -20,6 +20,8 @@ seldonian.candidate\_selection.candidate\_selection.CandidateSelection
    .. 
    ..    ~CandidateSelection.__init__
    ..
+   ..    ~CandidateSelection.calculate_batches
+   ..
    ..    ~CandidateSelection.evaluate_primary_objective
    ..
    ..    ~CandidateSelection.get_constraint_upper_bounds

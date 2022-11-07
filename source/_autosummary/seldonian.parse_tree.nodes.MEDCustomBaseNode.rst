@@ -32,7 +32,7 @@ seldonian.parse\_tree.nodes.MEDCustomBaseNode
    ..
    ..    ~MEDCustomBaseNode.compute_HC_upperbound
    ..
-   ..    ~MEDCustomBaseNode.mask_dataframe
+   ..    ~MEDCustomBaseNode.mask_data
    ..
    ..    ~MEDCustomBaseNode.precalculate_data
    ..
