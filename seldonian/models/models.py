@@ -47,7 +47,6 @@ class LinearRegressionModel(RegressionModel):
 		:return: predicted labels
 		:rtype: numpy ndarray
 		"""
-		# print(X)
 		return theta[0] + (X @ theta[1:])
 
 	def fit(self,X,Y):
@@ -166,9 +165,6 @@ class BaseLogisticRegressionModel(ClassificationModel):
 		:return: fitted model weights
 		:rtype: array of shape (j,k)
 		"""
-		print("in fit()")
-		print("X")
-		print(X)
 		# print(Y.shape)
 		reg = self.model_class().fit(X, Y)
 		theta = np.squeeze(np.vstack([reg.intercept_,reg.coef_.T]))

@@ -9,6 +9,8 @@ from seldonian.utils.tutorial_utils import (
 from seldonian.parse_tree.parse_tree import (
     make_parse_trees_from_constraints)
 
+import torch
+
 if __name__ == "__main__":
     np.random.seed(0)
     num_points=1000  
@@ -26,7 +28,8 @@ if __name__ == "__main__":
         constraint_strs,deltas)
 
     # 3. Define the underlying machine learning model
-    model = PytorchLRTestModel(input_dim=1,output_dim=1)
+    device = torch.device('cpu') # this example is a lot faster on CPU than GPU
+    model = PytorchLRTestModel(device,input_dim=1,output_dim=1)
 
     """4. Create a spec object, using some
     hidden defaults we won't worry about here
@@ -42,5 +45,5 @@ if __name__ == "__main__":
     # 5. Run seldonian algorithm using the spec object
     SA = SeldonianAlgorithm(spec)
     # passed_safety,solution = SA.run(write_cs_logfile=True,debug=True)
-    passed_safety,solution = SA.run()
+    passed_safety,solution = SA.run(debug=True)
     print(passed_safety,solution)

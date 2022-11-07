@@ -33,11 +33,14 @@ def gradient_descent_adam(
     upper_bounds_function,
     theta_init,
     lambda_init,
+    batch_calculator,
+    n_batches,
+    batch_size=100,
+    n_epochs=1,
     alpha_theta=0.05,
     alpha_lamb=0.05,
     beta_velocity=0.9,
     beta_rmsprop=0.9,
-    num_iters=200,
     gradient_library="autograd",
     verbose=False,
     debug=False,
@@ -127,87 +130,81 @@ def gradient_descent_adam(
         primary_objective,
         upper_bounds_function)
         
-    # It is possible user provided the function df/dtheta,
+    # It is possible that the user provided the function df/dtheta,
     # which can often speed up computing the gradients.
     # In that case, override the automatic gradient function
-
     if 'primary_gradient' in kwargs:
         grad_primary_theta = kwargs['primary_gradient']
     
     # Start gradient descent
-    for i in range(num_iters):
-        if verbose:
-            if i % 10 == 0:
-                print(f"Iteration {i}")
-        primary_val = primary_objective(theta)
-        g_vec = upper_bounds_function(theta)
-        # print("primary_val")
-        # print(primary_val)
-        # print("g_vec")
-        # print(g_vec)
-        # g_vec = g_vec.reshape(g_vec.shape[0],1)
-        if debug:
-            print("it,f,g,theta,lambda:",i,primary_val,g_vec,theta,lamb)
-        
-        # Check if this is best feasible value so far
-        if all([g<= 0 for g in g_vec]) and primary_val < best_primary:
-            found_feasible_solution = True
-            best_primary = np.copy(primary_val)
-            best_g_vec = np.copy(g_vec)
-            best_index = np.copy(i)
-            candidate_solution = np.copy(theta)
+    gd_index = 0
+    if verbose:
+        print(f"Have {n_epochs} epochs and {n_batches} batches of size {batch_size}\n")
+    for epoch in range(n_epochs):
+        for batch_index in range(n_batches):
+            if verbose:
+                if batch_index % 10 == 0:
+                    print(f"Epoch: {epoch}, batch iteration {batch_index}")
 
-        # store values
-        theta_vals.append(np.copy(theta))
-        lamb_vals.append(np.copy(lamb))
-        f_vals.append(np.copy(primary_val))
-        g_vals.append(np.copy(g_vec))
-        
-        L_val = primary_val + sum(lamb*g_vec) 
-        L_vals.append(L_val)
+            batch_calculator(batch_index,batch_size)
+            primary_val = primary_objective(theta)
+            g_vec = upper_bounds_function(theta)
+         
+            if debug:
+                print("epoch,batch_i,overall_i,f,g,theta,lambda:",epoch,batch_index,gd_index,primary_val,g_vec,theta,lamb)
+                print()
+            
+            # Check if this is best feasible value so far
+            if all([g<= 0 for g in g_vec]) and primary_val < best_primary:
+                found_feasible_solution = True
+                best_primary = np.copy(primary_val)
+                best_g_vec = np.copy(g_vec)
+                best_index = np.copy(gd_index)
+                candidate_solution = np.copy(theta)
 
-        # Obtain gradients of both terms in Lagrangian 
-        # at current values of theta and lambda
-        grad_primary_theta_val = grad_primary_theta(theta)
-        gu_theta_vec = grad_upper_bound_theta(theta)
-        
-        grad_secondary_theta_val_vec = gu_theta_vec * lamb[:, None] ## to multiply each row of gu_theta_vec by elements of lamb
-        # print("grad_secondary_theta_val_vec:")
-        # print(grad_secondary_theta_val_vec)
-        # print("np.sum(grad_secondary_theta_val_vec,axis=0)")
-        # print(np.sum(grad_secondary_theta_val_vec,axis=0))
-        # Gradient of sum is sum of gradients
-        # print("grad_primary_theta_val:")
-        # print(grad_primary_theta_val)
-        gradient_theta = grad_primary_theta_val + np.sum(grad_secondary_theta_val_vec,axis=0)
-        # print("gradient_theta:")
-        # print(gradient_theta)
-        
-        # gradient wr.t. to lambda is just g
-        gradient_lamb_vec = g_vec
+            # store values
+            theta_vals.append(np.copy(theta))
+            lamb_vals.append(np.copy(lamb))
+            f_vals.append(np.copy(primary_val))
+            g_vals.append(np.copy(g_vec))
+            
+            L_val = primary_val + sum(lamb*g_vec) 
+            L_vals.append(L_val)
 
-        # Momementum term
-        velocity_theta = beta_velocity*velocity_theta + (1.0-beta_velocity)*gradient_theta
+            # Obtain gradients of both terms in Lagrangian 
+            # at current values of theta and lambda
+            grad_primary_theta_val = grad_primary_theta(theta)
+            gu_theta_vec = grad_upper_bound_theta(theta)
+            
+            grad_secondary_theta_val_vec = gu_theta_vec * lamb[:, None] ## to multiply each row of gu_theta_vec by elements of lamb
+            gradient_theta = grad_primary_theta_val + np.sum(grad_secondary_theta_val_vec,axis=0)
+            
+            # gradient w.r.t. to lambda is just g
+            gradient_lamb_vec = g_vec
 
-        # RMS prop term
-        s_theta = beta_rmsprop*s_theta + (1.0-beta_rmsprop)*pow(gradient_theta,2)
+            # Momementum term
+            velocity_theta = beta_velocity*velocity_theta + (1.0-beta_velocity)*gradient_theta
 
-        # bias-correction
-        velocity_theta /= (1-pow(beta_velocity,i+1))
-        s_theta /= (1-pow(beta_rmsprop,i+1))
+            # RMS prop term
+            s_theta = beta_rmsprop*s_theta + (1.0-beta_rmsprop)*pow(gradient_theta,2)
 
-        # update weights
-        theta -= alpha_theta*velocity_theta/(np.sqrt(s_theta)+rms_offset) # gradient descent
-        lamb += alpha_lamb*gradient_lamb_vec # element wise update
-        
-        # If any values in lambda vector dip below 0, force them to be zero
-        lamb[lamb<0]=0
-        
-        # if nans or infs appear in any quantities then stop gradient descent
-        # and return NSF
-        if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
-            candidate_solution = "NSF"
-            break
+            # bias-correction
+            velocity_theta /= (1-pow(beta_velocity,gd_index+1))
+            s_theta /= (1-pow(beta_rmsprop,gd_index+1))
+
+            # update weights
+            theta -= alpha_theta*velocity_theta/(np.sqrt(s_theta)+rms_offset) # gradient descent
+            lamb += alpha_lamb*gradient_lamb_vec # element wise update
+            
+            # If any values in lambda vector dip below 0, force them to be zero
+            lamb[lamb<0]=0
+            
+            # if nans or infs appear in any quantities then stop gradient descent
+            # and return NSF
+            if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
+                candidate_solution = "NSF"
+                break
+            gd_index += 1
 
     solution = {}
     solution_found = True

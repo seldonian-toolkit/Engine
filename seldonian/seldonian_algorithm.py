@@ -314,5 +314,6 @@ class SeldonianAlgorithm():
 			
 		elif branch == 'candidate_selection':
 			cs = self.candidate_selection()
+			cs.calculate_batches(batch_index=0,batch_size=self.candidate_dataset.num_datapoints)
 			result = cs.evaluate_primary_objective(theta)
 		return result

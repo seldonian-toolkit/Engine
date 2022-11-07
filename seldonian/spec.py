@@ -157,6 +157,7 @@ class SupervisedSpec(Spec):
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
 			'gradient_library': "autograd",
+			'use_batches'   : False,
 			'hyper_search'  : None,
 			'verbose'       : True,
 		},
@@ -256,6 +257,7 @@ class RLSpec(Spec):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -283,11 +285,14 @@ def createSupervisedSpec(
 	metadata_pth,
 	constraint_strs,
 	deltas,
+	frac_data_in_safety=0.6,
 	save=True,
 	save_dir='.',
 	verbose=False):
 	"""Convenience function for creating SupervisedSpec object. 
-	Uses default model.
+	Uses many defaults which can later be changed by updating
+	the spec object. 
+
 	Saves spec.pkl file in save_dir
 
 	:param dataset: The dataset object containing data and metadata
@@ -332,7 +337,7 @@ def createSupervisedSpec(
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
-		frac_data_in_safety=0.6,
+		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
@@ -346,6 +351,7 @@ def createSupervisedSpec(
             'alpha_lamb'    : 0.01,
             'beta_velocity' : 0.9,
             'beta_rmsprop'  : 0.95,
+            'use_batches'   : False,
             'num_iters'     : 1000,
             'gradient_library': "autograd",
             'hyper_search'  : None,
@@ -371,7 +377,8 @@ def createRLSpec(
 	save_dir='.',
 	verbose=False):
 	"""Convenience function for creating RLSpec object. 
-	Saves spec.pkl file in save_dir
+	Uses many defaults which can later be changed by updating
+	the spec object. 
 
 	:type dataset: :py:class:`.DataSet`
 	:type policy: :py:class:`.Policy`
@@ -425,6 +432,7 @@ def createRLSpec(
 			'alpha_lamb': 0.005,
 			'beta_velocity': 0.9,
 			'beta_rmsprop': 0.95,
+			'use_batches' : False,
 			'num_iters': 30,
 			'hyper_search': None,
 			'gradient_library': 'autograd',

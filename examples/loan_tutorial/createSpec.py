@@ -62,6 +62,7 @@ if __name__ == '__main__':
             'alpha_lamb'    : 0.01,
             'beta_velocity' : 0.9,
             'beta_rmsprop'  : 0.95,
+            'use_batches'   : False,
             'num_iters'     : 1500,
             'gradient_library': "autograd",
             'hyper_search'  : None,

@@ -24,7 +24,6 @@ if __name__ == '__main__':
         filename=data_pth,
         metadata_filename=metadata_pth,
         file_type='csv')
-    sensitive_col_names = dataset.meta_information['sensitive_col_names']
     
     # Behavioral constraints
     deltas = [0.05]

@@ -113,23 +113,28 @@ class DataSetLoader():
 		return RLDataSet(
 			episodes=episodes,
 			meta_information=columns)
+
 		
 class DataSet(object):
 	def __init__(self,
+		num_datapoints,
 		meta_information,
 		regime,
 		**kwargs):
 		""" Object for holding dataframe and dataset metadata
 
+		:param num_datapoints: Number of rows or episodes (for RL) in the dataset
+		:type num_datapoints: int
 		:param meta_information: list of all column names in the dataframe
 		:type meta_information: List(str)
-
 		:param regime: The category of the machine learning algorithm,
 			e.g., supervised_learning or reinforcement_learning
 		:type regime: str
 		"""
+		self.num_datapoints = num_datapoints
 		self.meta_information = meta_information
 		self.regime = regime 
+
 
 class SupervisedDataSet(DataSet):
 	def __init__(self,
@@ -139,16 +144,17 @@ class SupervisedDataSet(DataSet):
 		num_datapoints,
 		meta_information):
 		super().__init__(
+			num_datapoints=num_datapoints,
 			meta_information=meta_information,
 			regime='supervised_learning')
 
 		self.features = features
+
 		assert isinstance(labels,np.ndarray), "labels must be a numpy array"
 		self.labels = labels
-		self.sensitive_attrs = sensitive_attrs
 
+		self.sensitive_attrs = sensitive_attrs
 		assert isinstance(self.sensitive_attrs,np.ndarray) or self.sensitive_attrs == [], "sensitive_attrs must be a numpy array or []"
-		self.num_datapoints = num_datapoints
 		
 		self.feature_col_names = meta_information['feature_col_names']
 		self.label_col_names = meta_information['label_col_names']
@@ -157,6 +163,7 @@ class SupervisedDataSet(DataSet):
 		self.n_features = len(self.feature_col_names)
 		self.n_labels = len(self.label_col_names)
 		self.n_sensitive_attrs = len(self.sensitive_col_names)
+
 	
 class RLDataSet(DataSet):
 	def __init__(self,episodes,meta_information=['O','A','R','pi_b'],
@@ -169,10 +176,11 @@ class RLDataSet(DataSet):
 			e.g. ['o','a','r','pi_b']
 		:type meta_information: list(str)
 		"""
+		self.episodes = episodes
 		super().__init__(
+			num_datapoints=len(self.episodes),
 			meta_information=meta_information,
 			regime='reinforcement_learning')
-		self.episodes = episodes
 
 
 class Episode(object):
@@ -197,6 +205,7 @@ class Episode(object):
 		+ f"{len(self.actions)} actions, type of first in array is {type(self.actions[0])}: {self.actions}\n"\
 		+ f"{len(self.rewards)} rewards, type of first in array is {type(self.rewards[0])}: {self.rewards}\n"\
 		+ f"{len(self.action_probs)} action_probs, type of first in array is {type(self.action_probs[0])}: {self.prob_actions}"
+
 
 def load_supervised_metadata(filename):
     """ Load metadata from JSON file into a dictionary
