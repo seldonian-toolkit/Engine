@@ -1,11 +1,11 @@
 # createSpec.py
+import autograd.numpy as np
 import os
 from seldonian.parse_tree.parse_tree import (ParseTree,
     make_parse_trees_from_constraints)
 
 from seldonian.dataset import DataSetLoader
-from seldonian.utils.io_utils import (load_json,save_pickle,
-    load_supervised_metadata)
+from seldonian.utils.io_utils import (load_json,save_pickle)
 from seldonian.spec import SupervisedSpec
 from seldonian.models.models import (
     BinaryLogisticRegressionModel as LogisticRegressionModel) 
@@ -16,27 +16,24 @@ if __name__ == '__main__':
     metadata_pth = "../../static/datasets/supervised/german_credit/metadata_german_loan.json"
     save_dir = '.'
     os.makedirs(save_dir,exist_ok=True)
-    # Load metadata
-    metadata_dict = load_json(metadata_pth)
+    # Create dataset from data and metadata file
+    regime='supervised_learning'
+    sub_regime='classification'
 
-    (regime, sub_regime, columns,
-        sensitive_columns) = load_supervised_metadata(metadata_pth)
-    
-    # Use logistic regression model
-    model = LogisticRegressionModel()
-    
-    # Set the primary objective to be log loss
-    primary_objective = objectives.binary_logistic_loss
-
-    # Load dataset from file
     loader = DataSetLoader(
         regime=regime)
 
     dataset = loader.load_supervised_dataset(
         filename=data_pth,
         metadata_filename=metadata_pth,
-        include_sensitive_columns=False,
         file_type='csv')
+    sensitive_col_names = dataset.meta_information['sensitive_col_names']
+
+    # Use logistic regression model
+    model = LogisticRegressionModel()
+    
+    # Set the primary objective to be log loss
+    primary_objective = objectives.binary_logistic_loss
     
     # Define behavioral constraints
     constraint_strs = ['min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M])) >= 0.9'] 
@@ -44,15 +41,15 @@ if __name__ == '__main__':
     
     # For each constraint (in this case only one), make a parse tree
     parse_trees = make_parse_trees_from_constraints(
-        constraint_strs,deltas,regime='supervised_learning',
-        sub_regime='classification',columns=columns)
+        constraint_strs,deltas,regime=regime,
+        sub_regime=sub_regime,columns=sensitive_col_names)
 
     # Save spec object, using defaults where necessary
     spec = SupervisedSpec(
         dataset=dataset,
         model=model,
         parse_trees=parse_trees,
-        sub_regime='classification',
+        sub_regime=sub_regime,
         frac_data_in_safety=0.6,
         primary_objective=primary_objective,
         initial_solution_fn=model.fit,
@@ -60,11 +57,12 @@ if __name__ == '__main__':
         optimization_technique='gradient_descent',
         optimizer='adam',
         optimization_hyperparams={
-            'lambda_init'   : 0.5,
+            'lambda_init'   : np.array([0.5]),
             'alpha_theta'   : 0.01,
             'alpha_lamb'    : 0.01,
             'beta_velocity' : 0.9,
             'beta_rmsprop'  : 0.95,
+            'use_batches'   : False,
             'num_iters'     : 1500,
             'gradient_library': "autograd",
             'hyper_search'  : None,

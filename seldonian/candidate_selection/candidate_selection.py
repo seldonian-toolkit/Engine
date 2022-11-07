@@ -2,10 +2,12 @@
 
 import os, pickle
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+import math
 import pandas as pd
 from functools import partial
 
 from seldonian.models import objectives
+from seldonian.dataset import SupervisedDataSet,RLDataSet
 
 class CandidateSelection(object):
 	def __init__(self,
@@ -67,21 +69,11 @@ class CandidateSelection(object):
 		self.candidate_dataset = candidate_dataset
 		self.n_safety = n_safety
 		if self.regime == 'supervised_learning':
-			# To evaluate the primary objective we will need
-			# features and labels separated and in the proper form
-
-			# Separate features from label
-			label_column = candidate_dataset.label_column
-			self.labels = self.candidate_dataset.df[label_column]
-			self.features = self.candidate_dataset.df.loc[:,
-				self.candidate_dataset.df.columns != label_column]
-
-			if not candidate_dataset.include_sensitive_columns:
-				self.features = self.features.drop(
-					columns=self.candidate_dataset.sensitive_column_names)
+			self.features = self.candidate_dataset.features
+			self.labels = self.candidate_dataset.labels
+			self.sensitive_attrs = self.candidate_dataset.sensitive_attrs
 		
 		self.parse_trees = parse_trees
-		
 		self.primary_objective = primary_objective # must accept theta, features, labels
 		self.optimization_technique = optimization_technique
 		self.optimizer = optimizer
@@ -91,6 +83,51 @@ class CandidateSelection(object):
 
 		if 'reg_coef' in kwargs:
 			self.reg_coef = kwargs['reg_coef']
+
+	def calculate_batches(self,batch_index,batch_size):
+		batch_start = batch_index*batch_size
+		batch_end = batch_start + batch_size
+		num_datapoints = self.candidate_dataset.num_datapoints
+		if self.regime == 'supervised_learning':
+			if batch_size < num_datapoints:	
+				if type(self.features) == list:
+					self.batch_features = [x[batch_start:batch_end] for x in self.features]
+					batch_num_datapoints = len(self.batch_features[0])
+				else:
+					self.batch_features = self.features[batch_start:batch_end]
+					batch_num_datapoints = len(self.batch_features)
+
+				self.batch_labels = self.labels[batch_start:batch_end]
+				self.batch_sensitive_attrs = self.sensitive_attrs[batch_start:batch_end]
+			else:
+				self.batch_features = self.features
+				self.batch_labels = self.labels
+				self.batch_sensitive_attrs = self.sensitive_attrs
+				self.batch_dataset = self.candidate_dataset
+				batch_num_datapoints = num_datapoints
+
+			self.batch_dataset = SupervisedDataSet(
+				self.batch_features,
+				self.batch_labels,
+				self.batch_sensitive_attrs,
+				num_datapoints=batch_num_datapoints,
+				meta_information=self.candidate_dataset.meta_information
+			)
+		
+		elif self.regime == 'reinforcement_learning':
+			if batch_size < num_datapoints:	
+				batch_episodes = self.candidate_dataset.episodes[batch_start:batch_end]
+				batch_num_datapoints = len(batch_episodes)
+			else:
+				batch_episodes = self.candidate_dataset.episodes
+				batch_num_datapoints = num_datapoints
+
+			self.batch_dataset = RLDataSet(
+				episodes=batch_episodes,
+				num_datapoints=batch_num_datapoints,
+				meta_information=self.candidate_dataset.meta_information
+			)
+		return
 
 	def run(self,**kwargs):
 		""" Run candidate selection
@@ -105,22 +142,42 @@ class CandidateSelection(object):
 
 			from seldonian.optimizers.gradient_descent import gradient_descent_adam
 
+			# Figure out number of batches  
+			if 'use_batches' not in kwargs:
+				raise KeyError(
+					"'use_batches' key is required in optimization_hyperparameters dictionary")
+			
+			if kwargs['use_batches'] == True:
+				batch_size = kwargs['batch_size']
+				n_batches = math.ceil(self.candidate_dataset.num_datapoints / batch_size)
+				n_epochs = kwargs['n_epochs']
+			else:
+				if 'num_iters' not in kwargs:
+					raise KeyError(
+						"'num_iters' key is required in optimization_hyperparameters dictionary"
+						"if 'use_batches' == False")
+				n_batches = 1
+				batch_size = self.candidate_dataset.num_datapoints
+				n_epochs = kwargs['num_iters']
+
 			gd_kwargs = dict(
 				primary_objective=self.evaluate_primary_objective,
 				n_constraints=len(self.parse_trees),
 				upper_bounds_function=self.get_constraint_upper_bounds,
+				n_batches=n_batches,
+			    batch_size=batch_size,
+			    n_epochs=n_epochs,
+			    batch_calculator=self.calculate_batches,
 				gradient_library=kwargs['gradient_library'],
 				alpha_theta=kwargs['alpha_theta'],
 			    alpha_lamb=kwargs['alpha_lamb'],
 			    beta_velocity=kwargs['beta_velocity'],
 			    beta_rmsprop=kwargs['beta_rmsprop'],
-			    num_iters=kwargs['num_iters'],
 				theta_init=self.initial_solution,
 				lambda_init=kwargs['lambda_init'],
 				verbose=kwargs['verbose'],
 				debug=kwargs['debug'],
 			)
-
 			# Option to use builtin primary gradient (could be faster than autograd)
 			if 'use_builtin_primary_gradient_fn' in kwargs:
 				if kwargs['use_builtin_primary_gradient_fn']==True:
@@ -133,12 +190,12 @@ class CandidateSelection(object):
 						# Now fix the features and labels so that the function 
 						# is only a function of theta
 						
-						def grad_primary_objective_theta(theta):
+						def grad_primary_objective_theta(theta,**kwargs):
 							return grad_primary_objective(
 								model=self.model,
 								theta=theta,
-								X=self.features.values,
-								Y=self.labels.values)
+								X=self.batch_features,
+								Y=self.batch_labels)
 							
 						gd_kwargs['primary_gradient'] = grad_primary_objective_theta
 					else:
@@ -158,8 +215,8 @@ class CandidateSelection(object):
 						return grad_primary_objective(
 							model=self.model,
 							theta=theta,
-							X=self.features.values,
-							Y=self.labels.values)
+							X=self.batch_features,
+							Y=self.batch_labels)
 
 					gd_kwargs['primary_gradient'] = grad_primary_objective_theta
 				else:
@@ -325,16 +382,16 @@ class CandidateSelection(object):
 			evaluated at theta
 		"""
 
-		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
+			
 			result = self.primary_objective(self.model,theta, 
-					self.features.values, self.labels.values)
+					self.batch_features, self.batch_labels)
 
 		elif self.regime == 'reinforcement_learning':
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
-			data_dict = {'episodes':self.candidate_dataset.episodes}
+			data_dict = {'episodes':self.batch_dataset.episodes}
 			result = -1.0*self.primary_objective(self.model,theta,
 				data_dict)
 
@@ -343,6 +400,7 @@ class CandidateSelection(object):
 			reg_term = self.reg_coef*np.dot(theta.T,theta)
 		else:
 			reg_term = 0
+
 		result += reg_term
 		return result
 
@@ -356,13 +414,15 @@ class CandidateSelection(object):
 		:return: Array of upper bounds on the constraint
 		:rtype: array
 		"""
+
 		upper_bounds = []
+
 		for pt in self.parse_trees:
 			pt.reset_base_node_dict()
 
 			bounds_kwargs = dict(
 				theta=theta,
-				dataset=self.candidate_dataset,
+				dataset=self.batch_dataset,
 				model=self.model,
 				branch='candidate_selection',
 				n_safety=self.n_safety,
@@ -373,3 +433,6 @@ class CandidateSelection(object):
 			upper_bounds.append(pt.root.upper)
 
 		return np.array(upper_bounds,dtype='float')
+
+
+		

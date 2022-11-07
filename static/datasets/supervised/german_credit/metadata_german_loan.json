@@ -1,7 +1,7 @@
 {
   "regime": "supervised_learning",
   "sub_regime": "classification",
-  "columns": [
+  "all_col_names": [
     "c__account_status_A11",
     "c__account_status_A12",
     "c__account_status_A13",
@@ -63,8 +63,10 @@
     "n__num_people_liable",
     "credit_rating"
   ],
-  "label_column": "credit_rating",
-  "sensitive_columns": [
+  "label_col_names": [
+    "credit_rating"
+  ],
+  "sensitive_col_names": [
     "F",
     "M"
   ]

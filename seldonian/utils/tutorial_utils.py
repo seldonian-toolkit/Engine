@@ -65,7 +65,6 @@ def generate_clipped_data(
     Y = np.clip(Y,clip_min,clip_max)
     return (X,Y)
 
-
 def make_synthetic_regression_dataset(
     num_points,
     loc_X=0.0,
@@ -114,15 +113,20 @@ def make_synthetic_regression_dataset(
             sigma_Y=sigma_Y)
 
     # 2. Define the metadata
-    columns = columns=['feature1','label']
+    meta_information = {}
+    meta_information['feature_col_names'] = ['feature1']
+    meta_information['label_col_names'] = ['label']
+    meta_information['sensitive_col_names'] = []
 
     # 3. Make a dataset object
-    rows = np.hstack([np.expand_dims(X,axis=1),
-        np.expand_dims(Y,axis=1)])
-    df = pd.DataFrame(rows,columns=columns)
+    features = np.expand_dims(X,axis=1)
+    labels = Y
 
-    dataset = SupervisedDataSet(df,
-        meta_information=columns,
-        label_column='label')
+    dataset = SupervisedDataSet(
+        features=features,
+        labels=labels,
+        sensitive_attrs=[],
+        num_datapoints=num_points,
+        meta_information=meta_information)
 
     return dataset

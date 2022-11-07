@@ -63,12 +63,13 @@ def sample_from_statistic(model,
 
 	if statistic_name == 'ACC':
 		# Accuracy
-		if theta.ndim == 1:
-			return vector_Accuracy_binary(
-				model,theta,data_dict['features'],data_dict['labels'])
-		else:
+		if kwargs['dataset'].meta_information['sub_regime'] == 'multiclass_classification':
 			return vector_Accuracy_multiclass(
 				model,theta,data_dict['features'],data_dict['labels'])
+		else:
+			return vector_Accuracy_binary(
+				model,theta,data_dict['features'],data_dict['labels'])
+			
 
 	""" RL statistics """
 	if statistic_name == 'J_pi_new':
@@ -166,9 +167,10 @@ def Mean_Squared_Error(model,theta,X,Y):
 	:return: Sample mean squared error
 	:rtype: float
 	"""
-	n = len(X)
+	n = len(Y) # Y guaranteed to be a numpy array, X isn't.
 	prediction = model.predict(theta,X) # vector of values
 	res = sum(pow(prediction-Y,2))/n
+
 	return res
 
 def gradient_Mean_Squared_Error(model,theta,X,Y):
@@ -185,7 +187,12 @@ def gradient_Mean_Squared_Error(model,theta,X,Y):
 	:return: Sample mean squared error
 	:rtype: float
 	"""
-	n = len(X)
+	if type(X) == list:
+		raise NotImplementedError(
+			"This function is not supported when features are in a list. "
+			"Convert features to a numpy array if possible or use autodiff "
+			" to get the gradient.")
+	n = len(Y)
 	prediction = model.predict(theta,X) # vector of values
 	err = prediction-Y
 	X_withintercept = np.hstack([np.ones((n,1)),np.array(X)])
@@ -316,7 +323,6 @@ def gradient_binary_logistic_loss(model,theta,X,Y):
 	:return: perceptron loss
 	:rtype: float
 	"""
-	
 	h = model.predict(theta,X)
 	X_withintercept = np.hstack([np.ones((len(X),1)),np.array(X)])
 	res = (1/len(X))*np.dot(X_withintercept.T, (h - Y))

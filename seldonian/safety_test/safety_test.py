@@ -2,6 +2,7 @@
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
+
 class SafetyTest(object):
 	def __init__(self,
 		safety_dataset,
@@ -34,16 +35,8 @@ class SafetyTest(object):
 		if self.regime == 'supervised_learning':
 			# To evaluate the primary objective we will need
 			# features and labels separated and in the proper form
-
-			# Separate features from label
-			label_column = safety_dataset.label_column
-			self.labels = self.safety_dataset.df[label_column]
-			self.features = self.safety_dataset.df.loc[:,
-				self.safety_dataset.df.columns != label_column]
-
-			if not safety_dataset.include_sensitive_columns:
-				self.features = self.features.drop(
-					columns=self.safety_dataset.sensitive_column_names)
+			self.features = self.safety_dataset.features
+			self.labels = self.safety_dataset.labels
 
 
 	def run(self,solution,**kwargs):
@@ -98,8 +91,9 @@ class SafetyTest(object):
 		
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
+		
 			result = primary_objective(self.model,theta, 
-					self.features.values, self.labels.values)
+					self.features, self.labels)
 			return result
 
 		elif self.regime == 'reinforcement_learning':

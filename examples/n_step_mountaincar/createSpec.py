@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     episodes = load_pickle(episode_file)
     dataset = RLDataSet(episodes=episodes)
-    env = Simglucose()
+    # env = Simglucose()
     # Initialize policy
     observation_space_bounds = np.array([[-1.2, 0.5], [-.07, .07]])
     observation_space = Continuous_Space(observation_space_bounds)

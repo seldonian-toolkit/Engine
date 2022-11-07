@@ -68,49 +68,15 @@ def test_base_node_bound_methods_updated(gpa_regression_dataset):
 	assert parse_trees[0].base_node_dict['Mean_Squared_Error']['bound_method'] == 'manual'
 	assert parse_trees[1].base_node_dict['Mean_Squared_Error']['bound_method'] == 'random'
 
-def test_not_enough_data():
+def test_not_enough_data(simulated_regression_dataset):
 	# dummy data for linear regression
-	rseed=0
-	np.random.seed(rseed) 
-	numPoints=3
-	columns=['feature1','label']
-	model = LinearRegressionModel()
-	X,Y = generate_data(
-		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
-	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
-	df = pd.DataFrame(rows,columns=columns)
 
 	constraint_strs = ['Mean_Squared_Error - 2.0']
 	deltas = [0.5]
-	parse_trees = []
-	
-	for ii in range(len(constraint_strs)):
-		constraint_str = constraint_strs[ii]
-
-		delta = deltas[ii]
-		# Create parse tree object
-		parse_tree = ParseTree(delta=delta,
-			regime='supervised_learning',sub_regime='regression',
-			columns=[])
-
-		# Fill out tree
-		parse_tree.create_from_ast(constraint_str)
-		# assign deltas for each base node
-		# use equal weighting for each base node
-		parse_tree.assign_deltas(weight_method='equal')
-
-		# Assign bounds needed on the base nodes
-		parse_tree.assign_bounds_needed()
-		
-		parse_trees.append(parse_tree)
-
-	deltas = [0.05]
-
-	dataset = SupervisedDataSet(df=df,meta_information=columns,
-		label_column='label',
-		sensitive_column_names=[],
-		include_sensitive_columns=False
-	)
+	numPoints=3
+	(dataset,model,primary_objective,
+        parse_trees) = simulated_regression_dataset(
+            constraint_strs,deltas,numPoints=numPoints)
 	frac_data_in_safety=0.6
 
 	# Create spec object
@@ -133,6 +99,7 @@ def test_not_enough_data():
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -161,6 +128,7 @@ def test_not_enough_data():
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -170,6 +138,95 @@ def test_not_enough_data():
 	with pytest.warns(UserWarning,match=warning_msg) as excinfo:
 		SA = SeldonianAlgorithm(spec_zeros)
 		passed_safety,solution = SA.run()
+
+def test_data_as_lists(simulated_regression_dataset_aslists):
+	# dummy data for linear regression
+
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.5]
+	numPoints=1000
+	(dataset,model,primary_objective,
+        parse_trees) = simulated_regression_dataset_aslists(
+            constraint_strs,deltas,numPoints=numPoints)
+	frac_data_in_safety=0.6
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 200,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+	
+	SA = SeldonianAlgorithm(spec)
+	candidate_features = SA.candidate_dataset.features
+	candidate_labels = SA.candidate_dataset.labels
+	assert type(candidate_features) == list
+	assert type(candidate_labels) == np.ndarray
+
+	with pytest.raises(NotImplementedError) as excinfo:
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
+	error_str = (
+		"This function is not supported when features are in a list. "
+		"Convert features to a numpy array if possible or use autodiff "
+		" to get the gradient.")
+	assert str(excinfo.value) == error_str
+
+	# Create spec object using autodiff
+	spec2 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=False,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+	
+	SA2 = SeldonianAlgorithm(spec2)
+	candidate_features = SA2.candidate_dataset.features
+	candidate_labels = SA2.candidate_dataset.labels
+	assert type(candidate_features) == list
+	assert type(candidate_labels) == np.ndarray
+
+	passed_safety,solution = SA2.run()
+	assert passed_safety == True
+	array_to_compare = np.array([0.02483889,0.98311923,0.02349485])
+	assert np.allclose(solution,array_to_compare)
 
 def test_bad_optimizer(gpa_regression_dataset):
 	""" Test that attempting to use an optimizer 
@@ -281,6 +338,7 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 10,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -348,6 +406,7 @@ def test_cvar_custom_base_node():
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 5,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -415,6 +474,7 @@ def test_cvar_lower_bound():
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 10,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -465,6 +525,7 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -518,6 +579,7 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -605,6 +667,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 				'beta_velocity' : 0.9,
 				'beta_rmsprop'  : 0.95,
 				'num_iters'     : 10,
+				'use_batches'   : False,
 				'gradient_library': "autograd",
 				'hyper_search'  : None,
 				'verbose'       : True,
@@ -659,6 +722,7 @@ def test_classification_statistics(gpa_classification_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 25,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -714,6 +778,7 @@ def test_NSF(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 100,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -839,6 +904,7 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -897,6 +963,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 100,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -955,6 +1022,7 @@ def test_nans_infs_gradient_descent(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -988,6 +1056,7 @@ def test_nans_infs_gradient_descent(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1042,6 +1111,7 @@ def test_run_safety_test_only(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 100,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1096,6 +1166,7 @@ def test_reg_coef(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 100,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1185,6 +1256,7 @@ def test_create_logfile(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1231,6 +1303,7 @@ def test_bad_autodiff_method(gpa_classification_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 25,
+			'use_batches'   : False,
 			'gradient_library': "superfast",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1247,9 +1320,8 @@ def test_bad_autodiff_method(gpa_classification_dataset):
 	assert str(excinfo.value) == error_str
 
 def test_lambda_init(gpa_regression_dataset):
-	""" Test that the gpa regression example runs 
-	with a two constraints using gradient descent. Make
-	sure safety test passes and solution is correct.
+	""" Test that lambda given with correct shape
+	works but with wrong shape raises an error
 	"""
 	# Load metadata
 	rseed=0
@@ -1263,6 +1335,8 @@ def test_lambda_init(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
+
+	# A float can work - assumption is that all constraints get this value
 	hyperparams1 = {
 			'lambda_init'   : 0.5,
 			'alpha_theta'   : 0.005,
@@ -1270,6 +1344,7 @@ def test_lambda_init(gpa_regression_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1294,12 +1369,13 @@ def test_lambda_init(gpa_regression_dataset):
 	passed_safety,solution = SA1.run()
 	
 	hyperparams2 = {
-			'lambda_init'   : np.array([0.5]),
+			'lambda_init'   : np.array([0.5,0.25]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1324,12 +1400,13 @@ def test_lambda_init(gpa_regression_dataset):
 	passed_safety,solution = SA2.run()
 		
 	hyperparams3 = {
-			'lambda_init'   : np.array([[0.5]]),
+			'lambda_init'   : np.array([0.5]),
 			'alpha_theta'   : 0.005,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1354,7 +1431,122 @@ def test_lambda_init(gpa_regression_dataset):
 	with pytest.raises(RuntimeError) as excinfo:
 		passed_safety,solution = SA3.run()
 
-	error_str = "lambda has wrong shape. Shape must be (n_constraints,1)"
+	error_str = ("lambda has wrong shape. "
+		"Shape must be (n_constraints,), "
+		"but shape is (1,)")
+	assert str(excinfo.value) == error_str
+
+	# Allow a list to be passed
+	hyperparams4 = {
+			'lambda_init'   : [0.05,0.15],
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	# Create spec object
+	spec4 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams=hyperparams4
+	)
+
+	# Run seldonian algorithm
+	SA4 = SeldonianAlgorithm(spec4)
+	
+	passed_safety,solution = SA4.run()
+
+	# But not a list of the wrong length
+	hyperparams5 = {
+			'lambda_init'   : [0.05],
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	# Create spec object
+	spec5 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams=hyperparams5
+	)
+
+	# Run seldonian algorithm
+	SA5 = SeldonianAlgorithm(spec5)
+	
+
+	with pytest.raises(RuntimeError) as excinfo:
+		passed_safety,solution = SA5.run()
+
+	error_str = ("lambda has wrong shape. "
+		"Shape must be (n_constraints,), "
+		"but shape is (1,)")
+	assert str(excinfo.value) == error_str
+
+	# Don't allow an array that has too many dimensions
+	hyperparams6 = {
+			'lambda_init'   : np.array([[0.05]]),
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 2,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	# Create spec object
+	spec6 = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams=hyperparams6
+	)
+
+	# Run seldonian algorithm
+	SA6 = SeldonianAlgorithm(spec6)
+	
+
+	with pytest.raises(RuntimeError) as excinfo:
+		passed_safety,solution = SA6.run()
+
+	error_str = ("lambda has wrong shape. "
+		"Shape must be (n_constraints,), "
+		"but shape is (1, 1)")
 	assert str(excinfo.value) == error_str
 
 def test_no_primary_provided(gpa_regression_dataset,
@@ -1391,6 +1583,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1433,6 +1626,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 10,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1482,6 +1676,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1529,6 +1724,7 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1536,6 +1732,7 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 		
 	)
 	SA = SeldonianAlgorithm(spec)
+	SA.set_initial_solution()
 	assert np.allclose(SA.initial_solution,np.zeros(10))
 
 	# Binary Classification
@@ -1566,7 +1763,8 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 10,
+			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1575,6 +1773,7 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 
 	# Create seldonian algorithm object
 	SA = SeldonianAlgorithm(spec)
+	SA.set_initial_solution()
 	assert np.allclose(SA.initial_solution,np.zeros(10))
 	
 	# Multi-class Classification
@@ -1605,7 +1804,8 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 			'alpha_lamb'    : 0.005,
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
-			'num_iters'     : 10,
+			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1614,10 +1814,10 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 
 	# Create seldonian algorithm object
 	SA = SeldonianAlgorithm(spec)
+	SA.set_initial_solution()
 	assert np.allclose(SA.initial_solution,np.zeros((10,3)))
 
 	
-
 """ RL based tests """
 
 def test_RL_builtin_or_custom_gradient_not_supported(
@@ -1665,6 +1865,7 @@ def test_RL_builtin_or_custom_gradient_not_supported(
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1700,6 +1901,7 @@ def test_RL_builtin_or_custom_gradient_not_supported(
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 2,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -1757,6 +1959,7 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 5,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,

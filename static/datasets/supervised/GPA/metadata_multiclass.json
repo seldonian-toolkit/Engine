@@ -1,10 +1,10 @@
 {
 	"regime":"supervised_learning",
 	"sub_regime":"multiclass_classification",
-	"columns":["M", "F", "Physics", "Biology", 
+	"all_col_names":["M", "F", "Physics", "Biology", 
 		"History", "Second_Language", "Geography", 
 		"Literature", "Portuguese_and_Essay", 
 		"Math", "Chemistry", "GPA_class"],
-	"label_column":"GPA_class",
-	"sensitive_columns":["M","F"]
+	"label_col_names":["GPA_class"],
+	"sensitive_col_names":["M","F"]
 }

@@ -66,7 +66,7 @@ def plot_gradient_descent(
 
         # Subplot: lambda[constraint_index]
         ax_lamb = axes_this_constraint[1]
-        lamb_vals_this_constraint = [x[constraint_index][0] for x in lamb_vals]
+        lamb_vals_this_constraint = [x[constraint_index] for x in lamb_vals]
         ax_lamb.plot(np.arange(len(lamb_vals)),lamb_vals_this_constraint,
             linewidth=2)
         ax_lamb.set_xlabel("Iteration")
@@ -78,8 +78,7 @@ def plot_gradient_descent(
 
         # Subplot: g[constraint_index]
         ax_g = axes_this_constraint[2]
-
-        g_vals_this_constraint = [x[constraint_index][0] for x in g_vals]
+        g_vals_this_constraint = [x[constraint_index] for x in g_vals]
         ax_g.plot(np.arange(len(g_vals)),g_vals_this_constraint,linewidth=2)
         ax_g.set_xlabel("Iteration")
         ax_g.set_ylabel(rf"$\mathrm{{HCUB}}(\hat{{g}}_{{{row_number}}}(\theta,D_\mathrm{{cand}}))$",fontsize=fontsize)

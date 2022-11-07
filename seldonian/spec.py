@@ -2,7 +2,8 @@
 import os
 import importlib 
 
-from seldonian.utils.io_utils import load_supervised_metadata,save_pickle
+from seldonian.utils.io_utils import save_pickle
+from seldonian.dataset import load_supervised_metadata
 from seldonian.models.models import *
 from seldonian.models import objectives
 from seldonian.parse_tree.parse_tree import (
@@ -156,6 +157,7 @@ class SupervisedSpec(Spec):
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
 			'gradient_library': "autograd",
+			'use_batches'   : False,
 			'hyper_search'  : None,
 			'verbose'       : True,
 		},
@@ -255,6 +257,7 @@ class RLSpec(Spec):
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'num_iters'     : 200,
+			'use_batches'   : False,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -282,11 +285,14 @@ def createSupervisedSpec(
 	metadata_pth,
 	constraint_strs,
 	deltas,
+	frac_data_in_safety=0.6,
 	save=True,
 	save_dir='.',
 	verbose=False):
 	"""Convenience function for creating SupervisedSpec object. 
-	Uses default model.
+	Uses many defaults which can later be changed by updating
+	the spec object. 
+
 	Saves spec.pkl file in save_dir
 
 	:param dataset: The dataset object containing data and metadata
@@ -303,8 +309,9 @@ def createSupervisedSpec(
 	:param verbose: Boolean glag to control verbosity 
 	"""
 	# Load metadata
-	(regime, sub_regime, columns,
-        sensitive_columns) = load_supervised_metadata(metadata_pth)
+	(regime, sub_regime, all_col_names, 
+		feature_col_names, label_col_names,
+		sensitive_col_names) = load_supervised_metadata(metadata_pth)
 
 	assert regime == 'supervised_learning'
 
@@ -323,14 +330,14 @@ def createSupervisedSpec(
 		deltas,
 		regime='supervised_learning',
 		sub_regime=sub_regime,
-		columns=columns,
+		columns=sensitive_col_names,
 		delta_weight_method='equal')
 
 	# Save spec object, using defaults where necessary
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
-		frac_data_in_safety=0.6,
+		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
 		parse_trees=parse_trees,
@@ -339,11 +346,12 @@ def createSupervisedSpec(
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
-			'lambda_init'   : 0.5,
+			'lambda_init'   : np.array([0.5]),
             'alpha_theta'   : 0.01,
             'alpha_lamb'    : 0.01,
             'beta_velocity' : 0.9,
             'beta_rmsprop'  : 0.95,
+            'use_batches'   : False,
             'num_iters'     : 1000,
             'gradient_library': "autograd",
             'hyper_search'  : None,
@@ -369,7 +377,8 @@ def createRLSpec(
 	save_dir='.',
 	verbose=False):
 	"""Convenience function for creating RLSpec object. 
-	Saves spec.pkl file in save_dir
+	Uses many defaults which can later be changed by updating
+	the spec object. 
 
 	:type dataset: :py:class:`.DataSet`
 	:type policy: :py:class:`.Policy`
@@ -423,6 +432,7 @@ def createRLSpec(
 			'alpha_lamb': 0.005,
 			'beta_velocity': 0.9,
 			'beta_rmsprop': 0.95,
+			'use_batches' : False,
 			'num_iters': 30,
 			'hyper_search': None,
 			'gradient_library': 'autograd',
@@ -435,7 +445,6 @@ def createRLSpec(
 		spec_save_name = os.path.join(save_dir, 'spec.pkl')
 		save_pickle(spec_save_name,spec,verbose=verbose)
 	return spec
-
 
 def validate_parse_trees(parse_trees):
 	""" Ensure that there are no duplicate 

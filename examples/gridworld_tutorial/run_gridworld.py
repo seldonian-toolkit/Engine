@@ -5,9 +5,12 @@ if __name__ == '__main__':
 	# load specfile
 	specfile = './spec.pkl'
 	spec = load_pickle(specfile)
-	spec.optimization_hyperparams['num_iters']=10
+	spec.optimization_hyperparams['num_iters']=20
 	spec.optimization_hyperparams['alpha_theta']=0.01
 	spec.optimization_hyperparams['alpha_lamb']=0.01
+	spec.optimization_hyperparams['use_batches']=True
+	spec.optimization_hyperparams['batch_size']=100
+	spec.optimization_hyperparams['n_epochs']=10
 	# Run Seldonian algorithm 
 	SA = SeldonianAlgorithm(spec)
 	passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)

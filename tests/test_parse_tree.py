@@ -8,7 +8,6 @@ from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet)
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.utils.io_utils import load_json
-from seldonian.utils.tutorial_utils import generate_data
 from seldonian.models.models import LinearRegressionModel
 from seldonian.RL.RL_model import RL_model
 
@@ -996,7 +995,6 @@ def test_math_functions_propagate():
 	dataset = loader.load_supervised_dataset(
 		filename=data_pth,
 		metadata_filename=metadata_pth,
-		include_sensitive_columns=False,
 		file_type='csv')
 
 	model_instance = LinearRegressionModel()
@@ -1005,7 +1003,7 @@ def test_math_functions_propagate():
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',
-		columns=dataset.df.columns)
+		columns=dataset.meta_information['sensitive_col_names'])
 	
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1203,38 +1201,42 @@ def test_duplicate_base_nodes():
 	pt.propagate_bounds()
 	assert pt.base_node_dict['FPR']['bound_computed'] == True
 
-def test_ttest_bound():
+def test_ttest_bound(simulated_regression_dataset):
 	# dummy data for linear regression
-	np.random.seed(0)
-	numPoints=1000
-
-	model_instance = LinearRegressionModel()
-	X,Y = generate_data(
-		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
-	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
-	df = pd.DataFrame(rows,columns=['feature1','label'])
-	
-	frac_data_in_safety=0.6
-	candidate_df, safety_df = train_test_split(
-			df, test_size=frac_data_in_safety, shuffle=False)
-	
-	candidate_dataset = SupervisedDataSet(candidate_df,
-		meta_information=['feature1','label'],
-		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False)
-
-	safety_dataset = SupervisedDataSet(safety_df,
-		meta_information=['feature1','label'],
-		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False)
 	
 	# First, single sided bound (MSE only needs upper bound)
-	constraint_str = 'Mean_Squared_Error - 2.0'
-	delta = 0.05 
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.05]
+	frac_data_in_safety=0.6
 
-	pt = ParseTree(delta,regime='supervised_learning',
+	(dataset,model,primary_objective,
+		parse_trees) = simulated_regression_dataset(
+			constraint_strs,deltas)
+	
+	features = dataset.features
+	labels = dataset.labels
+
+	(candidate_features, safety_features,
+		candidate_labels, safety_labels) = train_test_split(
+			features, labels,test_size=frac_data_in_safety, shuffle=False)
+	
+	candidate_dataset = SupervisedDataSet(
+		features=candidate_features,
+		labels=candidate_labels,
+		sensitive_attrs=[],
+		num_datapoints=len(candidate_features),
+		meta_information=dataset.meta_information)
+
+	safety_dataset = SupervisedDataSet(
+		features=safety_features,
+		labels=safety_labels,
+		sensitive_attrs=[],
+		num_datapoints=len(safety_features),
+		meta_information=dataset.meta_information)
+
+	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
-	pt.create_from_ast(constraint_str)
+	pt.create_from_ast(constraint_strs[0])
 	pt.assign_deltas(weight_method='equal')
 	pt.assign_bounds_needed()
 	
@@ -1248,8 +1250,8 @@ def test_ttest_bound():
 	
 	# Candidate selection
 	pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
-		n_safety=len(safety_df),
-		model=model_instance,
+		n_safety=len(safety_features),
+		model=model,
 		branch='candidate_selection',
 		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not bound_computed 
@@ -1257,7 +1259,7 @@ def test_ttest_bound():
 	pt.reset_base_node_dict(reset_data=True)
 	# Safety test
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
-		model=model_instance,
+		model=model,
 		branch='safety_test',
 		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not computed
@@ -1265,9 +1267,8 @@ def test_ttest_bound():
 
 	# Next, two sided bound 
 	constraint_str = 'abs(Mean_Squared_Error) - 2.0'
-	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised_learning',
+	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1280,8 +1281,8 @@ def test_ttest_bound():
 	
 	# Candidate selection
 	pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
-		n_safety=len(safety_df),
-		model=model_instance,
+		n_safety=len(safety_features),
+		model=model,
 		branch='candidate_selection',
 		regime='supervised_learning')
 	
@@ -1290,44 +1291,120 @@ def test_ttest_bound():
 	pt.reset_base_node_dict(reset_data=True)
 	# Safety test
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
-		model=model_instance,
+		model=model,
 		branch='safety_test',
 		regime='supervised_learning')
 	# assert pt.root.lower == float('-inf') # not computed
 	assert pt.root.upper == pytest.approx(-0.930726)
 
-def test_bad_bound_method():
+def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
+	# dummy data for linear regression
+	
+	# First, single sided bound (MSE only needs upper bound)
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.05]
+	frac_data_in_safety=0.6
+
+	(dataset,model,primary_objective,
+		parse_trees) = simulated_regression_dataset_aslists(
+			constraint_strs,deltas)
+	
+	features = dataset.features
+	labels = dataset.labels
+	n_points_tot = dataset.num_datapoints
+	n_candidate = int(round(n_points_tot*(1.0-frac_data_in_safety)))
+	candidate_features = [x[:n_candidate] for x in features]
+	safety_features = [x[n_candidate:] for x in features]
+
+	candidate_labels = labels[:n_candidate] 
+	safety_labels = labels[n_candidate:] 
+	
+	candidate_dataset = SupervisedDataSet(
+		features=candidate_features,
+		labels=candidate_labels,
+		sensitive_attrs=[],
+		num_datapoints=len(candidate_features),
+		meta_information=dataset.meta_information)
+
+	safety_dataset = SupervisedDataSet(
+		features=safety_features,
+		labels=safety_labels,
+		sensitive_attrs=[],
+		num_datapoints=len(safety_features),
+		meta_information=dataset.meta_information)
+
+	pt = ParseTree(deltas[0],regime='supervised_learning',
+		sub_regime='regression')
+	pt.create_from_ast(constraint_strs[0])
+	pt.assign_deltas(weight_method='equal')
+	pt.assign_bounds_needed()
+	
+	assert pt.n_nodes == 3
+	assert pt.n_base_nodes == 1
+	assert len(pt.base_node_dict) == 1
+	assert pt.root.name == 'sub'  
+	assert pt.root.left.will_lower_bound == False
+	assert pt.root.left.will_upper_bound == True
+	theta = np.array([0,1,2])
+	
+	# Candidate selection
+	pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
+		n_safety=len(safety_features),
+		model=model,
+		branch='candidate_selection',
+		regime='supervised_learning')
+	assert pt.root.lower == float('-inf') # not bound_computed 
+	assert pt.root.upper == pytest.approx(235.89950087)
+	pt.reset_base_node_dict(reset_data=True)
+	# Safety test
+	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
+		model=model,
+		branch='safety_test',
+		regime='supervised_learning')
+	assert pt.root.lower == float('-inf') # not computed
+	assert pt.root.upper == pytest.approx(166.0071908)
+
+
+def test_bad_bound_method(simulated_regression_dataset):
 	# dummy data for linear regression
 	np.random.seed(0)
 	numPoints=1000
 
-	model_instance = LinearRegressionModel()
-	X,Y = generate_data(
-		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
-	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
-	df = pd.DataFrame(rows,columns=['feature1','label'])
-	
+	# First, single sided bound (MSE only needs upper bound)
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.05]
 	frac_data_in_safety=0.6
-	candidate_df, safety_df = train_test_split(
-			df, test_size=frac_data_in_safety, shuffle=False)
-	
-	candidate_dataset = SupervisedDataSet(candidate_df,
-		meta_information=['feature1','label'],
-		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False)
 
-	safety_dataset = SupervisedDataSet(safety_df,
-		meta_information=['feature1','label'],
-		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False)
+	(dataset,model,primary_objective,
+		parse_trees) = simulated_regression_dataset(
+			constraint_strs,deltas)
+	
+	features = dataset.features
+	labels = dataset.labels
+
+	(candidate_features, safety_features,
+		candidate_labels, safety_labels) = train_test_split(
+			features, labels,test_size=frac_data_in_safety, shuffle=False)
+	
+	candidate_dataset = SupervisedDataSet(
+		features=candidate_features,
+		labels=candidate_labels,
+		sensitive_attrs=[],
+		num_datapoints=len(candidate_features),
+		meta_information=dataset.meta_information)
+
+	safety_dataset = SupervisedDataSet(
+		features=safety_features,
+		labels=safety_labels,
+		sensitive_attrs=[],
+		num_datapoints=len(safety_features),
+		meta_information=dataset.meta_information)
 	
 	# First, single sided bound (MSE only needs upper bound)
-	constraint_str = 'Mean_Squared_Error - 2.0'
-	delta = 0.05 
 
-	pt = ParseTree(delta,regime='supervised_learning',
+	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
-	pt.create_from_ast(constraint_str)
+	pt.create_from_ast(constraint_strs[0])
 	pt.assign_deltas(weight_method='equal')
 	pt.assign_bounds_needed()
 	
@@ -1344,8 +1421,8 @@ def test_bad_bound_method():
 	pt.base_node_dict['Mean_Squared_Error']['bound_method'] = bound_method
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
-			n_safety=len(safety_df),
-			model=model_instance,
+			n_safety=len(safety_features),
+			model=model,
 			branch='candidate_selection',
 			regime='supervised_learning')
 	
@@ -1357,7 +1434,7 @@ def test_bad_bound_method():
 	# Safety test
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
-			model=model_instance,
+			model=model,
 			branch='safety_test',
 			regime='supervised_learning')
 
@@ -1379,8 +1456,8 @@ def test_bad_bound_method():
 	# Candidate selection
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
-			n_safety=len(safety_df),
-			model=model_instance,
+			n_safety=len(safety_features),
+			model=model,
 			branch='candidate_selection',
 			regime='supervised_learning')
 	
@@ -1392,7 +1469,7 @@ def test_bad_bound_method():
 	# Safety test
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
-			model=model_instance,
+			model=model,
 			branch='safety_test',
 			regime='supervised_learning')
 
@@ -1414,8 +1491,8 @@ def test_bad_bound_method():
 	bound_method = 'bad-method'
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
-			n_safety=len(safety_df),
-			model=model_instance,
+			n_safety=len(safety_features),
+			model=model,
 			branch='candidate_selection',
 			regime='supervised_learning')
 	
@@ -1427,7 +1504,7 @@ def test_bad_bound_method():
 	# Safety test
 	with pytest.raises(NotImplementedError) as excinfo:
 		pt.propagate_bounds(theta=theta,dataset=safety_dataset,
-			model=model_instance,
+			model=model,
 			branch='safety_test',
 			regime='supervised_learning')
 
@@ -1435,34 +1512,32 @@ def test_bad_bound_method():
 	assert str(excinfo.value) == error_str
 
 def test_evaluate_constraint(
+	simulated_regression_dataset,
 	gpa_classification_dataset,
 	RL_gridworld_dataset):
 	# Evaluate constraint mean, not the bound
 	# test all of the statistics in all regimes
 
 	### Regression 
-	np.random.seed(0)
-	numPoints=1000
+	constraint_strs = ['Mean_Squared_Error - 2.0']
+	deltas = [0.05]
+	frac_data_in_safety=0.6
 
-	model_instance = LinearRegressionModel()
-	X,Y = generate_data(
-		numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
+	(dataset,model,primary_objective,
+		parse_trees) = simulated_regression_dataset(
+			constraint_strs,deltas)
+	
+	features = dataset.features
+	labels = dataset.labels
 
-	rows = np.hstack([np.expand_dims(X,axis=1),np.expand_dims(Y,axis=1)])
-	
-	df = pd.DataFrame(rows,columns=['feature1','label'])
-	
-	dataset = SupervisedDataSet(df,meta_information=['feature1','label'],
-		regime='supervised_learning',label_column='label',
-		include_sensitive_columns=False)
+	(candidate_features, safety_features,
+		candidate_labels, safety_labels) = train_test_split(
+			features, labels,test_size=frac_data_in_safety, shuffle=False)
 	
 	# MSE
-	constraint_str = 'Mean_Squared_Error - 2.0'
-	delta = 0.05 
-
-	pt = ParseTree(delta,regime='supervised_learning',
+	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
-	pt.create_from_ast(constraint_str)
+	pt.create_from_ast(constraint_strs[0])
 
 	pt.assign_deltas(weight_method='equal')
 	pt.assign_bounds_needed()
@@ -1472,7 +1547,7 @@ def test_evaluate_constraint(
 	
 	theta = np.array([0,1])
 	pt.evaluate_constraint(theta=theta,dataset=dataset,
-		model=model_instance,regime='supervised_learning',
+		model=model,regime='supervised_learning',
 		branch='safety_test')
 
 	assert pt.root.value == pytest.approx(-1.06248)
@@ -1578,7 +1653,6 @@ def test_single_conditional_columns_propagated():
 	dataset = loader.load_supervised_dataset(
 		filename=data_pth,
 		metadata_filename=metadata_pth,
-		include_sensitive_columns=False,
 		file_type='csv')
 
 	model_instance = LinearRegressionModel()
@@ -1587,7 +1661,7 @@ def test_single_conditional_columns_propagated():
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='regression',
-		columns=dataset.df.columns)
+		columns=dataset.meta_information['sensitive_col_names'])
 	
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')

@@ -57,17 +57,4 @@ def save_json(filename,data,indent=2,verbose=False):
         data = json.dump(data,outfile)
     if verbose:
         print(f"Saved {filename}\n")
-
-def load_supervised_metadata(filename):
-    """ Load metadata from JSON file into a dictionary
-
-    :param filename: The file to load
-    """
-    metadata_dict = load_json(filename)
-    regime = metadata_dict['regime']
-    columns = metadata_dict['columns']
-    assert regime == 'supervised_learning'
-    sensitive_columns = metadata_dict['sensitive_columns']
-    sub_regime = metadata_dict['sub_regime']
-    return regime, sub_regime, columns, sensitive_columns
     
