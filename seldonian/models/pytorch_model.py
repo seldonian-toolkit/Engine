@@ -16,7 +16,6 @@ def pytorch_predict(theta,X,model,**kwargs):
 
 	:param theta: model weights
 	:type theta: numpy ndarray
-
 	:param X: model features
 	:type X: numpy ndarray
 
@@ -42,9 +41,10 @@ def pytorch_predict_vjp(ans,theta,X,model):
 	obtaining the Jacobian d pred / dtheta. 
 	Must convert back to numpy array before returning 
 
+	:param ans: The result from the forward pass
+	:type ans: numpy ndarray
 	:param theta: model weights
 	:type theta: numpy ndarray
-
 	:param X: model features
 	:type X: numpy ndarray
 
@@ -71,7 +71,11 @@ class SupervisedPytorchBaseModel(SupervisedModel):
 	def __init__(self,device,**kwargs):
 		""" Base class for Supervised learning Seldonian
 		models implemented in Pytorch
-
+		 
+		:param device: The PyTorch device string indicating the
+			hardware on which to run the model,
+			e.g. "cpu", "cuda", "mps".
+		:type device: str
 		"""
 		super().__init__()
 		self.device=device

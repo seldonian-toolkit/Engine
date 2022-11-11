@@ -1,3 +1,4 @@
+# pytorch_mnist.py
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 
 from seldonian.spec import SupervisedSpec
@@ -7,18 +8,11 @@ from seldonian.models import objectives
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.parse_tree.parse_tree import (
     make_parse_trees_from_constraints)
-from seldonian.utils.io_utils import load_pickle
-
-import pandas as pd
 
 import torch
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
-# def manual_initial_weights(*args):
-#     f = "/Users/ahoag/beri/code/engine-repo-dev/examples/pytorch_mnist/logs/candidate_selection_log10.p"
-#     sol = load_pickle(f)
-#     return sol['theta_vals'][-1]
 
 if __name__ == "__main__":
     torch.manual_seed(0)
@@ -31,11 +25,20 @@ if __name__ == "__main__":
         transform = ToTensor(), 
         download = False,            
     )
-    N=60000
-    frac_data_in_safety = 0.6
-    features = np.array(train_data.data[0:N].reshape(N,1,28,28),dtype='float32')/255.0
-    labels = np.array(train_data.targets[0:N]) # these are 1D so don't need to reshape them
-    label_column='label'
+    test_data = datasets.MNIST(
+        root = data_folder,
+        train = False,                         
+        transform = ToTensor(), 
+        download = False,            
+    )
+    # Combine train and test data into a single tensor of 70,000 examples
+    all_data = torch.vstack((train_data.data,test_data.data))
+    all_targets = torch.hstack((train_data.targets,test_data.targets))
+    N=len(all_targets) 
+    assert N == 70000
+    frac_data_in_safety = 0.5
+    features = np.array(all_data.reshape(N,1,28,28),dtype='float32')/255.0
+    labels = np.array(all_targets) # these are 1D so don't need to reshape them
 
     meta_information = {}
     meta_information['feature_col_names'] = ['img']
@@ -56,7 +59,7 @@ if __name__ == "__main__":
     parse_trees = make_parse_trees_from_constraints(
         constraint_strs,deltas,regime=regime,
         sub_regime=sub_regime)
-    device = torch.device("mps")
+    device = torch.device("cuda")
     model = PytorchCNN(device)
 
     initial_solution_fn = model.get_initial_weights
@@ -79,7 +82,7 @@ if __name__ == "__main__":
             'beta_velocity' : 0.9,
             'beta_rmsprop'  : 0.95,
             'use_batches'   : True,
-            'batch_size'    : 100,
+            'batch_size'    : 150,
             'n_epochs'      : 5,
             'gradient_library': "autograd",
             'hyper_search'  : None,
@@ -88,7 +91,11 @@ if __name__ == "__main__":
     )
 
     SA = SeldonianAlgorithm(spec)
-    passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
+    passed_safety,solution = SA.run(debug=False,write_cs_logfile=True)
+    if passed_safety:
+        print("Passed safety test.")
+    else:
+        print("Failed safety test")
     st_primary_objective = SA.evaluate_primary_objective(theta=solution,
         branch='safety_test')
     print("Primary objective evaluated on safety test:")
