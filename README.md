@@ -4,7 +4,7 @@
 
 # Engine
 
-This is the source code repository for a framework for creating and running [Seldonian](http://aisafety.cs.umass.edu/) algorithms. 
+This is the source code repository for a framework for creating and running [Seldonian](https://seldonian.cs.umass.edu/) algorithms. 
 
 ## Installation
 
