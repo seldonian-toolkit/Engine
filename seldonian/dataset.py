@@ -204,7 +204,7 @@ class Episode(object):
 		f"{len(self.observations)} observations, type of first in array is {type(self.observations[0])}: {self.observations}\n"\
 		+ f"{len(self.actions)} actions, type of first in array is {type(self.actions[0])}: {self.actions}\n"\
 		+ f"{len(self.rewards)} rewards, type of first in array is {type(self.rewards[0])}: {self.rewards}\n"\
-		+ f"{len(self.action_probs)} action_probs, type of first in array is {type(self.action_probs[0])}: {self.prob_actions}"
+		+ f"{len(self.action_probs)} action_probs, type of first in array is {type(self.action_probs[0])}: {self.action_probs}"
 
 
 def load_supervised_metadata(filename):
