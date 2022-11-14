@@ -10,7 +10,7 @@ from seldonian.spec import createRLSpec
 def main():
     """ Run a trial of episodes and save to disk
     """  
-    n_episodes = 1000
+    n_episodes = 5000
     the_dict = {}
     the_dict["env"] = "gridworld"
     the_dict["agent"] = "Parameterized_non_learning_softmax_agent"
@@ -24,9 +24,9 @@ def main():
     print(f"data generation took {time() - start_time} seconds")
     
     # # Calculate J, the discounted sum of rewards
-    # returns = np.array([weighted_sum_gamma(ep.rewards,gamma=1.0) for ep in episodes])
-    # J = np.mean(returns)
-    # print(f"J = {J}")
+    returns = np.array([weighted_sum_gamma(ep.rewards,gamma=0.9) for ep in episodes])
+    J = np.mean(returns)
+    print(f"J = {J}")
 
 
 if __name__ == '__main__':

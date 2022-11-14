@@ -18,18 +18,19 @@ if __name__ == "__main__":
     torch.manual_seed(0)
     regime='supervised_learning'
     sub_regime='multiclass_classification'
-    data_folder = '../../../notebooks/data'
+    # data_folder = '../../../notebooks/data'
+    data_folder = './data'
     train_data = datasets.MNIST(
         root = data_folder,
         train = True,                         
         transform = ToTensor(), 
-        download = False,            
+        download = True,            
     )
     test_data = datasets.MNIST(
         root = data_folder,
         train = False,                         
         transform = ToTensor(), 
-        download = False,            
+        download = True,            
     )
     # Combine train and test data into a single tensor of 70,000 examples
     all_data = torch.vstack((train_data.data,test_data.data))
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     parse_trees = make_parse_trees_from_constraints(
         constraint_strs,deltas,regime=regime,
         sub_regime=sub_regime)
-    device = torch.device("cuda")
+    device = torch.device("mps")
     model = PytorchCNN(device)
 
     initial_solution_fn = model.get_initial_weights
