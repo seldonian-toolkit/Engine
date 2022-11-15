@@ -52,7 +52,7 @@ def run_trial(hyperparameter_and_setting_dict,
         # print(model_params)
         agent.set_new_params(model_params)
 
-    env = create_env(hyperparameter_and_setting_dict)
+    env = hyperparameter_and_setting_dict["env"]
     if hyperparameter_and_setting_dict["vis"]:
         env.start_visualizing()
 
@@ -130,7 +130,7 @@ def run_episode_from_dict(hyperparameter_and_setting_dict,model_params=None):
     :return: RL Episode
     :rtype: :py:class:`.Episode`
     """
-    env = create_env(hyperparameter_and_setting_dict)
+    env = hyperparameter_and_setting_dict["env"]
     env_desc = env.get_env_description()
     agent = create_agent(hyperparameter_and_setting_dict)
     if model_params is not None:
@@ -171,8 +171,8 @@ def create_agent(hyperparameter_and_setting_dict):
     :return: RL agent
     :rtype: :py:class:`.Agents.Agent`
     """
-    sample_env = create_env(hyperparameter_and_setting_dict)
-    env_desc = sample_env.get_env_description()
+    env = hyperparameter_and_setting_dict["env"]
+    env_desc = env.get_env_description()
     agent_type = hyperparameter_and_setting_dict["agent"]
     if agent_type == "discrete_random":
         return Discrete_Random_Agent(env_desc)
@@ -184,25 +184,3 @@ def create_agent(hyperparameter_and_setting_dict):
         return Keyboard_gridworld(env_desc)
     else:
         raise Exception(f"unknown agent type {agent_type}")
-
-def create_env(hyperparameter_and_setting_dict):
-    """ Create an environment from a dictionary specification
-    
-    :param hyperparameter_and_setting_dict: Specifies the
-        environment, agent, number of episodes per trial,
-        and number of trials
-
-    :return: RL environment
-    :rtype: :py:class:`.environments.Environment`
-    """
-    env_type = hyperparameter_and_setting_dict["env"]
-    if env_type == "gridworld":
-        return Gridworld()
-    elif env_type == "mountaincar":
-        return Mountaincar()
-    elif env_type == "n_step_mountaincar":
-        return N_step_mountaincar()
-    elif env_type == "simglucose":
-        return Simglucose()
-    else:
-        raise Exception(f"unknown agent type {env_type}")

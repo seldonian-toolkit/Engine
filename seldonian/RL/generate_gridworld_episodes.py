@@ -6,13 +6,14 @@ from seldonian.utils.RL_utils import *
 from seldonian.utils.io_utils import save_pickle
 from seldonian.utils.stats_utils import weighted_sum_gamma
 from seldonian.spec import createRLSpec
+from seldonian.RL.environments.gridworld import Gridworld
 
 def main():
     """ Run a trial of episodes and save to disk
     """  
-    n_episodes = 5000
+    n_episodes = 1000
     the_dict = {}
-    the_dict["env"] = "gridworld"
+    the_dict["env"] = Gridworld()
     the_dict["agent"] = "Parameterized_non_learning_softmax_agent"
     the_dict["num_episodes"] = n_episodes
     the_dict["vis"] = False
