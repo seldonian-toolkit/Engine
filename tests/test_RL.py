@@ -2,7 +2,8 @@ import pytest
 from seldonian.RL.Agents.Function_Approximators.Table import *
 from seldonian.RL.Agents.Policies.Policy import *
 from seldonian.RL.Agents.Policies.Softmax import *
-from seldonian.RL.environments.mountaincar import *
+from seldonian.RL.environments.n_step_mountaincar import N_step_mountaincar
+from seldonian.RL.environments.gridworld import Gridworld
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
 from seldonian.RL.Agents.Discrete_Random_Agent import *
 from seldonian.RL.RL_runner import run_trial
@@ -207,14 +208,14 @@ def test_generate_gridworld_episodes():
     """ Test that we can generate proper episodes for gridworld
     with the behavior policy (uniform random). """
     hyperparam_and_setting_dict = {}
-    hyperparam_and_setting_dict["env"] = "gridworld"
+    hyperparam_and_setting_dict["env"] = Gridworld()
     hyperparam_and_setting_dict["agent"] = "Parameterized_non_learning_softmax_agent"
-    hyperparam_and_setting_dict["num_episodes"] = 100
+    hyperparam_and_setting_dict["num_episodes"] = 10
     hyperparam_and_setting_dict["vis"] = False
 
     episodes, agent = run_trial(hyperparam_and_setting_dict)
 
-    assert len(episodes) == 100
+    assert len(episodes) == 10
     first_episode = episodes[0]
     observations = first_episode.observations
     actions = first_episode.actions
@@ -234,23 +235,23 @@ def test_generate_gridworld_episodes():
     assert all([pi == 0.25 for pi in pis])
 
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
-    assert len(dataset.episodes) == 100
+    assert len(dataset.episodes) == 10
 
 def test_generate_n_step_mountaincar_episodes():
     """ Test that we can generate proper episodes for n_step_mountaincar
     with the behavior policy (uniform random). """
     hyperparam_and_setting_dict = {}
-    hyperparam_and_setting_dict["env"] = "n_step_mountaincar"
+    hyperparam_and_setting_dict["env"] = N_step_mountaincar()
     hyperparam_and_setting_dict["agent"] = "Parameterized_non_learning_softmax_agent"
     hyperparam_and_setting_dict["basis"] = "Fourier"
     hyperparam_and_setting_dict["order"] = 2
     hyperparam_and_setting_dict["max_coupled_vars"] = -1
-    hyperparam_and_setting_dict["num_episodes"] = 100
+    hyperparam_and_setting_dict["num_episodes"] = 10
     hyperparam_and_setting_dict["vis"] = False
 
     episodes, agent = run_trial(hyperparam_and_setting_dict)
 
-    assert len(episodes) == 100
+    assert len(episodes) == 10
     first_episode = episodes[0]
     observations = first_episode.observations
     actions = first_episode.actions
@@ -270,4 +271,4 @@ def test_generate_n_step_mountaincar_episodes():
     assert all([pi == 1/3. for pi in pis])
 
     dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
-    assert len(dataset.episodes) == 100
+    assert len(dataset.episodes) == 10
