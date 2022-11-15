@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 	# Load loan spec file
-	cs_file = './logs/candidate_selection_log0.p'
+	cs_file = './logs/candidate_selection_log16.p'
 	savename = './loan_cs.png'
 	solution_dict = load_pickle(cs_file)
 	save=True

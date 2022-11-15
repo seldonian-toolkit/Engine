@@ -49,5 +49,5 @@ if __name__ == "__main__":
 
     cs_dict = SA.get_cs_result() # returns a dictionary with a lot of quantities evaluated at each step of gradient descent
     print(list(cs_dict.keys()))
-    print(cs_dict['f_vals'])
-    print(cs_dict['g_vals'])
+    # print(cs_dict['f_vals'])
+    # print(cs_dict['g_vals'])
