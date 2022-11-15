@@ -2,6 +2,7 @@ import pytest
 from seldonian.RL.Agents.Function_Approximators.Table import *
 from seldonian.RL.Agents.Policies.Policy import *
 from seldonian.RL.Agents.Policies.Softmax import *
+from seldonian.RL.environments.mountaincar import Mountaincar
 from seldonian.RL.environments.n_step_mountaincar import N_step_mountaincar
 from seldonian.RL.environments.gridworld import Gridworld
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
