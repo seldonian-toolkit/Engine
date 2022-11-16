@@ -8,7 +8,6 @@ from functools import partial, lru_cache
 
 from seldonian.utils.stats_utils import softmax
 
-import torch
 
 class SeldonianModel(object):
 	def __init__(self):
