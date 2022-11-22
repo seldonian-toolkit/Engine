@@ -1364,7 +1364,6 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 	assert pt.root.lower == float('-inf') # not computed
 	assert pt.root.upper == pytest.approx(166.0071908)
 
-
 def test_bad_bound_method(simulated_regression_dataset):
 	# dummy data for linear regression
 	np.random.seed(0)

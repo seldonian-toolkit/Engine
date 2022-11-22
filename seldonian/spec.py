@@ -78,7 +78,8 @@ class Spec(object):
 			'hyper_search'  : None,
 			'verbose'       : True,
 		},
-		regularization_hyperparams={}
+		regularization_hyperparams={},
+		batch_size_safety=None,
 		):
 		self.dataset = dataset
 		self.model = model 
@@ -93,6 +94,7 @@ class Spec(object):
 		self.optimizer = optimizer
 		self.optimization_hyperparams = optimization_hyperparams
 		self.regularization_hyperparams = regularization_hyperparams
+		self.batch_size_safety = batch_size_safety
 
 class SupervisedSpec(Spec):
 	""" Specification object for running Supervised learning
@@ -162,6 +164,7 @@ class SupervisedSpec(Spec):
 			'verbose'       : True,
 		},
 		regularization_hyperparams={},
+		batch_size_safety=None,
 		):
 		super().__init__(
 			dataset=dataset,
@@ -176,7 +179,8 @@ class SupervisedSpec(Spec):
 			optimization_technique=optimization_technique,
 			optimizer=optimizer,
 			optimization_hyperparams=optimization_hyperparams,
-			regularization_hyperparams=regularization_hyperparams)
+			regularization_hyperparams=regularization_hyperparams,
+			batch_size_safety=batch_size_safety)
 		self.sub_regime = sub_regime
 
 
@@ -263,6 +267,7 @@ class RLSpec(Spec):
 			'verbose'       : True,
 		},
 		regularization_hyperparams={},
+		batch_size_safety=None,
 		):
 
 		super().__init__(
@@ -278,7 +283,8 @@ class RLSpec(Spec):
 			optimization_technique=optimization_technique,
 			optimizer=optimizer,
 			optimization_hyperparams=optimization_hyperparams,
-			regularization_hyperparams=regularization_hyperparams)
+			regularization_hyperparams=regularization_hyperparams,
+			batch_size_safety=batch_size_safety)
 
 def createSupervisedSpec(
 	dataset,

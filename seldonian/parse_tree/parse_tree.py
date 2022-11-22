@@ -484,7 +484,6 @@ class ParseTree(object):
 
 		return node_class,node_kwargs
 		
-
 	def assign_deltas(self,weight_method='equal',
 		**kwargs):
 		""" 

@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	 
 	assert len(features) == N
 	assert len(labels) == N
-	frac_data_in_safety = 0.1
+	frac_data_in_safety = 0.5
 
 	meta_information = {}
 	meta_information['feature_col_names'] = ['img']
@@ -55,12 +55,12 @@ if __name__ == "__main__":
 	model = TensorFlowCNN()
 
 	initial_solution_fn = model.get_initial_weights
-	# theta_file = '../../../notebooks/best_theta_mnist_tensorflow.pkl'
-	# best_theta = load_pickle(theta_file)
+	theta_file = '../../../notebooks/best_theta_mnist_tensorflow.pkl'
+	best_theta = load_pickle(theta_file)
 	# print("loaded best theta:")
 	# print(best_theta)
 	# initial_solution_fn = lambda *args: initial_theta
-	
+	batch_size_safety=5000
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -85,6 +85,7 @@ if __name__ == "__main__":
 			'hyper_search'  : None,
 			'verbose'       : True,
 		},
+		batch_size_safety=batch_size_safety
 	)
 	# save_pickle('./spec.pkl',spec)
 	SA = SeldonianAlgorithm(spec)
@@ -94,9 +95,10 @@ if __name__ == "__main__":
 	# print(initial_weights)
 	# model.update_model_params(initial_weights)
 
-	passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
+	# passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
 	# f_cs_best = SA.evaluate_primary_objective(branch='candidate_selection',theta=best_theta)
-	# passed_safety,solution = SA.run_safety_test(candidate_solution=best_theta,debug=True)
+	passed_safety,solution = SA.run_safety_test(
+		candidate_solution=best_theta,batch_size_safety=batch_size_safety,debug=True)
 	# f_st_best = SA.evaluate_primary_objective(branch='safety_test',theta=best_theta)
 	# print("f_st_best:")
 	# print(f_st_best)

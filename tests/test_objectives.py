@@ -12,7 +12,7 @@ def test_binary_classification_measure_functions():
 	# j = 2 features
 	# labels are 0 or 1
 	model = BinaryLogisticRegressionModel()
-	
+	sub_regime = 'binary_classification'
 	Y = np.array([0,0,1,1]) # length i, true labels
 	X = np.array([
 		[0.0,0.0],
@@ -23,9 +23,9 @@ def test_binary_classification_measure_functions():
 	theta = np.array([0.0,-1.0,1.0]) # j+1 in length to account for intercept
 	y_pred = model.predict(theta,X) # length i
 	# Avg statistics
-	PR = objectives.Positive_Rate(model,theta,X)
+	PR = objectives.Positive_Rate(model,theta,X,Y)
 	assert PR == pytest.approx(0.5909536328157614)
-	NR = objectives.Negative_Rate(model,theta,X)
+	NR = objectives.Negative_Rate(model,theta,X,Y)
 	assert NR == pytest.approx(1.0-PR)
 	FPR = objectives.False_Positive_Rate(model,theta,X,Y)
 	# True label=0 was in first two datapoints. Avg(prob[1:3]) =~ 0.53
@@ -37,12 +37,12 @@ def test_binary_classification_measure_functions():
 	assert TPR == pytest.approx(1.0-FNR)
 	TNR = objectives.True_Negative_Rate(model,theta,X,Y)
 	assert TNR == pytest.approx(1.0-FPR)
-	ACC = objectives.Accuracy_binary(model,theta,X,Y)
+	ACC = objectives.Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	assert ACC == pytest.approx(0.5598653825)
 	# Vector statistics 
-	vector_PR = objectives.vector_Positive_Rate(model,theta,X)
+	vector_PR = objectives.vector_Positive_Rate(model,theta,X,Y)
 	assert np.allclose(vector_PR,y_pred)
-	vector_NR = objectives.vector_Negative_Rate(model,theta,X)
+	vector_NR = objectives.vector_Negative_Rate(model,theta,X,Y)
 	assert np.allclose(vector_NR,1.0-y_pred)
 	vector_FPR = objectives.vector_False_Positive_Rate(model,theta,X,Y)
 	# True label=0 was in first two datapoints. prob[1:3] = [0.5,0.5621765]
@@ -56,7 +56,7 @@ def test_binary_classification_measure_functions():
 	assert np.allclose(vector_TPR,1.0-arcomp_FNR)
 	vector_TNR = objectives.vector_True_Negative_Rate(model,theta,X,Y)
 	assert np.allclose(vector_TNR,1.0-arcomp_FPR)
-	vector_ACC = objectives.vector_Accuracy_binary(model,theta,X,Y)
+	vector_ACC = objectives.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	arcomp_ACC = np.array([0.5, 0.4378235 , 0.62245933, 0.6791787 ])
 	assert np.allclose(vector_ACC,arcomp_ACC)
 
@@ -66,7 +66,7 @@ def test_multiclass_classification_measure_functions():
 	# k = 3 classes
 	# labels are 0,1, or 2
 	model = MultiClassLogisticRegressionModel()
-	
+	sub_regime = 'multiclass_classification'
 	Y = np.array([0,0,1,1,2,2]) # length i, true labels
 	X = np.array([
 		[0.0,0.0],
@@ -83,11 +83,11 @@ def test_multiclass_classification_measure_functions():
 	y_pred = model.predict(theta,X) # (i,k)
 
 	# Accuracy
-	ACC = objectives.Accuracy_multiclass(model,theta,X,Y)
+	ACC = objectives.Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	assert ACC == pytest.approx(0.36639504)
 
 	# Vector accuracy
-	vector_ACC = objectives.vector_Accuracy_multiclass(model,theta,X,Y)
+	vector_ACC = objectives.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	arcomp_ACC = np.array([0.33333333,0.41922895,0.54654939,0.14024438,0.49951773,0.25949646])
 	assert np.allclose(vector_ACC,arcomp_ACC)
 
@@ -97,9 +97,11 @@ def test_multiclass_classification_measure_functions():
 		neg_mask = Y != class_index
 
 		# Avg statistics
-		PR = objectives.Positive_Rate(model,theta,X,class_index=class_index)
+		PR = objectives.Positive_Rate(model,theta,X,Y,
+			class_index=class_index)
 		assert PR == np.mean(y_pred[:,class_index])
-		NR = objectives.Negative_Rate(model,theta,X,class_index=class_index)
+		NR = objectives.Negative_Rate(model,theta,X,Y,
+			class_index=class_index)
 		assert NR == pytest.approx(1.0-PR)
 		FPR = objectives.False_Positive_Rate(model,theta,X,Y,
 			class_index=class_index)
@@ -116,23 +118,29 @@ def test_multiclass_classification_measure_functions():
 		assert TNR == pytest.approx(1.0 - FPR)
 	
 		# Vector statistics 
-		vector_PR = objectives.vector_Positive_Rate(model,theta,X,
+		vector_PR = objectives.vector_Positive_Rate(
+			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_PR,y_pred[:,class_index])
-		vector_NR = objectives.vector_Negative_Rate(model,theta,X,
+		vector_NR = objectives.vector_Negative_Rate(
+			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_NR,1.0-y_pred[:,class_index])
-		vector_FPR = objectives.vector_False_Positive_Rate(model,theta,X,Y,
+		vector_FPR = objectives.vector_False_Positive_Rate(
+			model,theta,X,Y,
 			class_index=class_index)
 		arcomp_FPR = y_pred[:,class_index][neg_mask]
 		assert np.allclose(vector_FPR,arcomp_FPR)
-		vector_FNR = objectives.vector_False_Negative_Rate(model,theta,X,Y,
+		vector_FNR = objectives.vector_False_Negative_Rate(
+			model,theta,X,Y,
 			class_index=class_index)
 		arcomp_FNR = 1.0-y_pred[:,class_index][pos_mask]
 		assert np.allclose(vector_FNR,arcomp_FNR)
-		vector_TPR = objectives.vector_True_Positive_Rate(model,theta,X,Y,
+		vector_TPR = objectives.vector_True_Positive_Rate(
+			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_TPR,1.0-arcomp_FNR)
-		vector_TNR = objectives.vector_True_Negative_Rate(model,theta,X,Y,
+		vector_TNR = objectives.vector_True_Negative_Rate(
+			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_TNR,1.0-arcomp_FPR)
