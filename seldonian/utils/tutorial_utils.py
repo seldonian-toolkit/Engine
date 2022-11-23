@@ -117,6 +117,7 @@ def make_synthetic_regression_dataset(
     meta_information['feature_col_names'] = ['feature1']
     meta_information['label_col_names'] = ['label']
     meta_information['sensitive_col_names'] = []
+    meta_information['sub_regime'] = 'regression'
 
     # 3. Make a dataset object
     features = np.expand_dims(X,axis=1)

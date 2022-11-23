@@ -11,8 +11,8 @@ from seldonian.models import objectives
 if __name__ == '__main__':
     data_pth = "../../static/datasets/supervised/GPA/gpa_classification_dataset.csv"
     metadata_pth = "../../static/datasets/supervised/GPA/metadata_classification.json"
-    # save_base_dir = '../../../interface_outputs'
-    save_base_dir='.'
+    save_base_dir = '../../../interface_outputs'
+    # save_base_dir='.'
     # Load metadata
     regime='supervised_learning'
     sub_regime='classification'
@@ -27,10 +27,9 @@ if __name__ == '__main__':
     
     # Behavioral constraints
     deltas = [0.05]
-    # for constraint_name in ["disparate_impact",
-    #     "demographic_parity","equalized_odds",
-    #     "equal_opportunity","predictive_equality"]:
-    for constraint_name in ["disparate_impact"]:
+    for constraint_name in ["disparate_impact",
+        "demographic_parity","equalized_odds",
+        "equal_opportunity","predictive_equality"]:
         save_dir = os.path.join(save_base_dir,f'gpa_{constraint_name}')
         os.makedirs(save_dir,exist_ok=True)
         # Define behavioral constraints

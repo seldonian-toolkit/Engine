@@ -34,6 +34,7 @@ if __name__ == "__main__":
         model=model,
         parse_trees=parse_trees,
         sub_regime='regression',
+        batch_size_safety=100,
     )
 
     # 5. Run seldonian algorithm using the spec object
