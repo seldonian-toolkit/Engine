@@ -112,6 +112,7 @@ def simulated_regression_dataset_aslists():
         meta_information['feature_col_names'] = ['feature1']
         meta_information['label_col_names'] = ['label']
         meta_information['sensitive_col_names'] = []
+        meta_information['sub_regime'] = sub_regime
 
         # 3. Make a dataset object
         features = [np.expand_dims(X1,axis=1),np.expand_dims(X2,axis=1)]
@@ -176,6 +177,7 @@ def simulated_regression_dataset():
         meta_information['feature_col_names'] = ['feature1']
         meta_information['label_col_names'] = ['label']
         meta_information['sensitive_col_names'] = []
+        meta_information['sub_regime'] = sub_regime
 
         # 3. Make a dataset object
         features = np.expand_dims(X,axis=1)

@@ -1816,7 +1816,6 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 	SA = SeldonianAlgorithm(spec)
 	SA.set_initial_solution()
 	assert np.allclose(SA.initial_solution,np.zeros((10,3)))
-
 	
 """ RL based tests """
 

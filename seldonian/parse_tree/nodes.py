@@ -134,13 +134,9 @@ class BaseNode(Node):
         not the bound.
         """ 
     
-        model = kwargs['model']
-        theta = kwargs['theta']
-        data_dict = kwargs['data_dict']
-        value = evaluate_statistic(model,
+        value = evaluate_statistic(
             statistic_name=self.measure_function_name,
-            theta=theta,
-            data_dict=data_dict)
+            **kwargs)
         return value
 
     def mask_data(self,

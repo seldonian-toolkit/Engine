@@ -1,8 +1,65 @@
 """ Objective functions """
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+import math
 
 from seldonian.utils.stats_utils import weighted_sum_gamma
+
+
+def batcher(func,N,batch_size,num_batches):
+	""" Calls function num_batches times,
+	batching up the inputs to the objective function
+	or measure function 
+
+	:param func: The function you want to call
+	:param N: The total number of datapoints
+	:type N: int
+	:param batch_size: The size of each batch
+	:type batch_size: int
+	:param num_batches: The number of batches
+	:type num_batches: int
+
+	:return: The value from calling function on
+		the batched up data 
+	"""
+	def wrapper(*args, **kw):   
+		regime = kw['regime']
+		model=args[0]
+		theta=args[1]
+		if regime == 'supervised_learning':
+			features=args[2]
+			labels=args[3]
+		elif regime == 'reinforcement_learning':
+			episodes = args[2]
+		print(f"Have {num_batches} batches of size {batch_size} in safety test")
+		if num_batches > 1:
+			res = np.zeros(N)
+			batch_start = 0 
+			for i in range(num_batches):
+				batch_end = batch_start + batch_size
+				if regime == 'supervised_learning':
+					if type(features) == list:
+						features_batch = [x[batch_start:batch_end] for x in features]
+					else:
+						features_batch = features[batch_start:batch_end]
+
+					labels_batch = labels[batch_start:batch_end]
+					batch_args = [model,theta,features_batch,labels_batch]
+					
+				elif regime == 'reinforcement_learning':
+					episodes_batch = episodes[batch_start:batch_end]
+					batch_args = [model,theta,episodes_batch]
+				
+				res[batch_start:batch_end] = func(
+						*batch_args,
+						**kw)
+
+				batch_start=batch_end
+		else:
+
+			res = func(*args,**kw)  
+		return res
+	return wrapper
 
 def sample_from_statistic(model,
 	statistic_name,theta,data_dict,**kwargs):
@@ -20,67 +77,52 @@ def sample_from_statistic(model,
 	:return: The evaluated statistic for each observation in the sample
 	:rtype: numpy ndarray(float)
 	"""
+	branch = kwargs['branch']
+	dataset = kwargs['dataset']
+	regime = dataset.regime
+	msr_func_kwargs = {'regime':regime}
 
-	""" Regression statistics """
-	if statistic_name == 'Mean_Squared_Error':
-		return vector_Squared_Error(
-			model,theta,data_dict['features'],data_dict['labels'])
+	if regime == 'supervised_learning':
+		args = [model,theta,data_dict['features'],data_dict['labels']]
+		sub_regime = dataset.meta_information['sub_regime']
+		msr_func_kwargs['sub_regime'] = sub_regime
+		if 'class_index' in kwargs:
+			msr_func_kwargs['class_index'] = kwargs['class_index']
+		if 'cm_true_index' in kwargs:
+			msr_func_kwargs['l_i'] = kwargs['cm_true_index']
+		if 'cm_pred_index' in kwargs:
+			msr_func_kwargs['l_k'] = kwargs['cm_pred_index']
+	
+	elif regime == 'reinforcement_learning':
+		episodes = data_dict['episodes']
+		args = [model,theta,episodes]
 
-	if statistic_name == 'Mean_Error':
-		return vector_Error(
-			model,theta,data_dict['features'],data_dict['labels'])
+	msr_func = measure_function_vector_mapper[statistic_name]
 
-	""" Classification statistics """
-	if statistic_name == 'PR':
-		return vector_Positive_Rate(
-			model,theta,data_dict['features'])
+	if branch == 'candidate_selection':
+		return msr_func(*args,**msr_func_kwargs)
 
-	if statistic_name == 'NR':
-		return vector_Negative_Rate(
-			model,theta,data_dict['features'])
+	elif branch == 'safety_test':
+		num_datapoints = dataset.num_datapoints
+		if 'batch_size_safety' in kwargs:
+			if kwargs['batch_size_safety'] is None:
+				batch_size_safety = num_datapoints
+				num_batches = 1
+			else:	
+				batch_size_safety = kwargs['batch_size_safety'] 
+				num_batches = math.ceil(num_datapoints / batch_size_safety)
 
-	if statistic_name == 'FPR':
-		return vector_False_Positive_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
-
-	if statistic_name == 'FNR':
-		return vector_False_Negative_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
-
-	if statistic_name == 'TPR':
-		return vector_True_Positive_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
-
-	if statistic_name == 'TNR':
-		return vector_True_Negative_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
-
-	if statistic_name == 'CM':
-		# Confusion matrix
-		return vector_confusion_matrix(
-			model,theta,data_dict['features'],data_dict['labels'],
-			kwargs['cm_true_index'],kwargs['cm_pred_index'])
-
-	if statistic_name == 'ACC':
-		# Accuracy
-		if kwargs['dataset'].meta_information['sub_regime'] == 'multiclass_classification':
-			return vector_Accuracy_multiclass(
-				model,theta,data_dict['features'],data_dict['labels'])
 		else:
-			return vector_Accuracy_binary(
-				model,theta,data_dict['features'],data_dict['labels'])
-			
-
-	""" RL statistics """
-	if statistic_name == 'J_pi_new':
-		return vector_IS_estimate(
-			model,theta,data_dict)
-
-	raise NotImplementedError(
-		f"Statistic: {statistic_name} is not implemented")
+			batch_size_safety = num_datapoints
+			num_batches = 1
+		return batcher(
+			msr_func,
+			N=num_datapoints,
+			batch_size=batch_size_safety,
+			num_batches=num_batches)(*args,**msr_func_kwargs)
 
 def evaluate_statistic(model,
-	statistic_name,theta,data_dict):
+	statistic_name,theta,data_dict,**kwargs):
 	""" Evaluate a provided statistic for the whole sample provided
 
 	:param model: SeldonianModel instance
@@ -94,65 +136,53 @@ def evaluate_statistic(model,
 	:return: The evaluated statistic over the whole sample
 	:rtype: float
 	"""
-	""" Regression statistics """
-	if statistic_name == 'Mean_Squared_Error':
-		return Mean_Squared_Error(
-			model,theta,data_dict['features'],data_dict['labels'])
+	branch = kwargs['branch']
+	dataset = kwargs['dataset']
+	regime = dataset.regime
+	msr_func_kwargs = {'regime':regime}
 
-	if statistic_name == 'Mean_Error':
-		return Mean_Error(
-			model,theta,data_dict['features'],data_dict['labels'])
+	if regime == 'supervised_learning':
+		args = [model,theta,data_dict['features'],data_dict['labels']]
+		sub_regime = dataset.meta_information['sub_regime']
+		msr_func_kwargs['sub_regime'] = sub_regime
+		if 'class_index' in kwargs:
+			msr_func_kwargs['class_index'] = kwargs['class_index']
+		if 'cm_true_index' in kwargs:
+			msr_func_kwargs['l_i'] = kwargs['cm_true_index']
+		if 'cm_pred_index' in kwargs:
+			msr_func_kwargs['l_k'] = kwargs['cm_pred_index']
+	
+	elif regime == 'reinforcement_learning':
+		episodes = data_dict['episodes']
+		args = [model,theta,episodes]
 
-	""" Classification statistics """
-	if statistic_name == 'PR':
-		return Positive_Rate(
-			model,theta,data_dict['features'])
+	msr_func = measure_function_mapper[statistic_name]
 
-	if statistic_name == 'NR':
-		return Negative_Rate(
-			model,theta,data_dict['features'])
+	if branch == 'candidate_selection':
+		return msr_func(*args,**msr_func_kwargs)
 
-	if statistic_name == 'FPR':
-		return False_Positive_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
+	elif branch == 'safety_test':
+		num_datapoints = dataset.num_datapoints
+		if 'batch_size_safety' in kwargs:
+			if kwargs['batch_size_safety'] is None:
+				batch_size_safety = num_datapoints
+				num_batches = 1
+			else:	
+				batch_size_safety = kwargs['batch_size_safety'] 
+				num_batches = math.ceil(num_datapoints / batch_size_safety)
 
-	if statistic_name == 'FNR':
-		return False_Negative_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
-
-	if statistic_name == 'TPR':
-		return True_Positive_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
-
-	if statistic_name == 'TNR':
-		return True_Negative_Rate(
-			model,theta,data_dict['features'],data_dict['labels'])
-
-	if statistic_name == 'CM':
-		# Confusion matrix
-		return confusion_matrix(
-			model,theta,data_dict['features'],data_dict['labels'],
-			kwargs['cm_true_index'],kwargs['cm_pred_index'])
-
-	if statistic_name == 'ACC':
-		if theta.ndim == 1:
-			return Accuracy_binary(
-				model,theta,data_dict['features'],data_dict['labels'])
 		else:
-			return Accuracy_multiclass(
-				model,theta,data_dict['features'],data_dict['labels'])
-
-	""" RL statistics """
-	if statistic_name == 'J_pi_new':
-		return IS_estimate(
-			model,theta,data_dict)
-
-	raise NotImplementedError(
-		f"Statistic: {statistic_name} is not implemented")
+			batch_size_safety = num_datapoints
+			num_batches = 1
+		return batcher(
+			msr_func,
+			N=num_datapoints,
+			batch_size=batch_size_safety,
+			num_batches=num_batches)(*args,**msr_func_kwargs)
 
 """ Regression """
 
-def Mean_Squared_Error(model,theta,X,Y):
+def Mean_Squared_Error(model,theta,X,Y,**kwargs):
 	"""
 	Calculate mean squared error over the whole sample
 
@@ -173,7 +203,7 @@ def Mean_Squared_Error(model,theta,X,Y):
 
 	return res
 
-def gradient_Mean_Squared_Error(model,theta,X,Y):
+def gradient_Mean_Squared_Error(model,theta,X,Y,**kwargs):
 	""" Gradient of the mean squared error 
 
 	:param model: SeldonianModel instance
@@ -198,7 +228,7 @@ def gradient_Mean_Squared_Error(model,theta,X,Y):
 	X_withintercept = np.hstack([np.ones((n,1)),np.array(X)])
 	return 2/n*np.dot(err,X_withintercept)
 
-def Mean_Error(model,theta,X,Y):
+def Mean_Error(model,theta,X,Y,**kwargs):
 	"""
 	Calculate mean error (y_hat-y) over the whole sample
 
@@ -218,7 +248,7 @@ def Mean_Error(model,theta,X,Y):
 	res = sum(prediction-Y)/n
 	return res
 
-def vector_Squared_Error(model,theta,X,Y):
+def vector_Squared_Error(model,theta,X,Y,**kwargs):
 	""" Calculate squared error for each observation
 	in the dataset
 	
@@ -236,7 +266,7 @@ def vector_Squared_Error(model,theta,X,Y):
 	prediction = model.predict(theta, X)
 	return pow(prediction-Y,2)
 	
-def vector_Error(model,theta,X,Y):
+def vector_Error(model,theta,X,Y,**kwargs):
 	""" Calculate mean error for each observation
 	in the dataset
 	
@@ -254,7 +284,7 @@ def vector_Error(model,theta,X,Y):
 	prediction = model.predict(theta, X)
 	return prediction-Y
 
-def gradient_Bounded_Squared_Error(model,theta,X,Y):
+def gradient_Bounded_Squared_Error(model,theta,X,Y,**kwargs):
 	""" Analytical gradient of the bounded squared error
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
@@ -290,7 +320,7 @@ def gradient_Bounded_Squared_Error(model,theta,X,Y):
 
 """ Classification """
 
-def binary_logistic_loss(model,theta,X,Y):
+def binary_logistic_loss(model,theta,X,Y,**kwargs):
 	""" Calculate average logistic loss 
 	over all data points for binary classification
 	
@@ -310,7 +340,7 @@ def binary_logistic_loss(model,theta,X,Y):
 	res = np.mean(-Y*np.log(Y_pred) - (1.0-Y)*np.log(1.0-Y_pred))
 	return res
 
-def gradient_binary_logistic_loss(model,theta,X,Y):
+def gradient_binary_logistic_loss(model,theta,X,Y,**kwargs):
 	""" Gradient of binary logistic loss w.r.t. theta
 	
 	:param model: SeldonianModel instance
@@ -328,7 +358,7 @@ def gradient_binary_logistic_loss(model,theta,X,Y):
 	res = (1/len(X))*np.dot(X_withintercept.T, (h - Y))
 	return res
 
-def multiclass_logistic_loss(model,theta,X,Y):
+def multiclass_logistic_loss(model,theta,X,Y,**kwargs):
 	""" Calculate average logistic loss 
 	over all data points for multi-class classification
 	
@@ -355,7 +385,7 @@ def multiclass_logistic_loss(model,theta,X,Y):
 	probs_trueclasses = Y_pred[np.arange(N),Y.astype('int')]
 	return -1/N*sum(np.log(probs_trueclasses))
 		
-def Positive_Rate(model,theta,X,**kwargs):
+def Positive_Rate(model,theta,X,Y,**kwargs):
 	"""
 	Calculate positive rate
 	for the whole sample.
@@ -373,20 +403,20 @@ def Positive_Rate(model,theta,X,**kwargs):
 	:rtype: float between 0 and 1
 	"""	
 	if 'class_index' in kwargs:
-		return _Positive_Rate_multiclass(model,theta,X,
+		return _Positive_Rate_multiclass(model,theta,X,Y,
 			class_index=kwargs['class_index'])
 	else:
-		return _Positive_Rate_binary(model,theta,X)
+		return _Positive_Rate_binary(model,theta,X,Y)
 
-def _Positive_Rate_binary(model,theta,X):
+def _Positive_Rate_binary(model,theta,X,Y,**kwargs):
 	prediction = model.predict(theta,X)
 	return np.sum(prediction)/len(X) # if all 1s then PR=1.
 
-def _Positive_Rate_multiclass(model,theta,X,class_index):
+def _Positive_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
 	prediction = model.predict(theta,X)
 	return np.sum(prediction[:,class_index])/len(X) # if all 1s then PR=1. 
 
-def Negative_Rate(model,theta,X,**kwargs):
+def Negative_Rate(model,theta,X,Y,**kwargs):
 	"""
 	Calculate negative rate
 	for the whole sample.
@@ -404,17 +434,17 @@ def Negative_Rate(model,theta,X,**kwargs):
 	:rtype: float between 0 and 1
 	"""
 	if 'class_index' in kwargs:
-		return _Negative_Rate_multiclass(model,theta,X,
+		return _Negative_Rate_multiclass(model,theta,X,Y,
 			class_index=kwargs['class_index'])
 	else:
-		return _Negative_Rate_binary(model,theta,X)
+		return _Negative_Rate_binary(model,theta,X,Y)
 
-def _Negative_Rate_binary(model,theta,X):
+def _Negative_Rate_binary(model,theta,X,Y,**kwargs):
 	# Average probability of predicting the negative class
 	prediction = model.predict(theta,X)
 	return np.sum(1.0-prediction)/len(X) # if all 1s then PR=1. 
 
-def _Negative_Rate_multiclass(model,theta,X,class_index):
+def _Negative_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
 	# Average probability of predicting class!=class_index
 	prediction = model.predict(theta,X)
 	return np.sum(1.0-prediction[:,class_index])/len(X)  
@@ -441,14 +471,14 @@ def False_Positive_Rate(model,theta,X,Y,**kwargs):
 	else:
 		return _False_Positive_Rate_binary(model,theta,X,Y)
 
-def _False_Positive_Rate_binary(model,theta,X,Y):
+def _False_Positive_Rate_binary(model,theta,X,Y,**kwargs):
 	# Average probability of predicting positive class
 	# subject to the truth being the other class
 	prediction = model.predict(theta,X)
 	neg_mask = Y!=1.0 
 	return np.sum(prediction[neg_mask])/len(X[neg_mask])
 
-def _False_Positive_Rate_multiclass(model,theta,X,Y,class_index):
+def _False_Positive_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
 	# Sum the probability of predicting class=class_index 
 	# subject to the true label being any other class
 	prediction = model.predict(theta,X)
@@ -477,14 +507,14 @@ def False_Negative_Rate(model,theta,X,Y,**kwargs):
 	else:
 		return _False_Negative_Rate_binary(model,theta,X,Y)
 
-def _False_Negative_Rate_binary(model,theta,X,Y):
+def _False_Negative_Rate_binary(model,theta,X,Y,**kwargs):
 	# Average probability of being in negative class
 	# subject to the truth being the positive class
 	prediction = model.predict(theta,X)
 	pos_mask = Y==1.0 
 	return np.sum(1.0-prediction[pos_mask])/len(X[pos_mask])
 
-def _False_Negative_Rate_multiclass(model,theta,X,Y,class_index):
+def _False_Negative_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
 	# Average probability of not having class=class_index 
 	# subject to the truth being class=class_index
 	prediction = model.predict(theta,X)
@@ -515,14 +545,14 @@ def True_Positive_Rate(model,theta,X,Y,**kwargs):
 	else:
 		return _True_Positive_Rate_binary(model,theta,X,Y)
 
-def _True_Positive_Rate_binary(model,theta,X,Y):
+def _True_Positive_Rate_binary(model,theta,X,Y,**kwargs):
 	# Average probability of predicting the positive class
 	# subject to the true label being the positive class
 	prediction = model.predict(theta,X)
 	pos_mask = Y==1.0 
 	return np.sum(prediction[pos_mask])/len(X[pos_mask])
 
-def _True_Positive_Rate_multiclass(model,theta,X,Y,class_index):
+def _True_Positive_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
 	# Average probability of predicting class=class_index
 	# subject to the true label having class=class_index
 	prediction = model.predict(theta,X)
@@ -553,59 +583,28 @@ def True_Negative_Rate(model,theta,X,Y,**kwargs):
 	else:
 		return _True_Negative_Rate_binary(model,theta,X,Y)
 	
-def _True_Negative_Rate_binary(model,theta,X,Y):
+def _True_Negative_Rate_binary(model,theta,X,Y,**kwargs):
 	# Average probability of being in negative class
 	# subject to the truth being the negative class
 	prediction = model.predict(theta,X)
 	neg_mask = Y!=1.0 
 	return np.sum(1.0-prediction[neg_mask])/len(X[neg_mask])
 
-def _True_Negative_Rate_multiclass(model,theta,X,Y,class_index):
+def _True_Negative_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
 	# Average probability of class!=class_index
 	# subject to the truth being class!=class_index
 	prediction = model.predict(theta,X)
 	neg_mask = Y!=class_index
 	return np.sum(1.0-prediction[:,class_index][neg_mask])/len(X[neg_mask])
-	
-def vector_Positive_Rate(model,theta,X,**kwargs):
+
+def True_Positive_Rate(model,theta,X,Y,**kwargs):
 	"""
-	Calculate positive rate
-	for each observation.
+	Calculate true positive rate
+	for the whole sample.
 	
-	This is the probability of being positive
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-
-	:return: Positive rate for each observation
-	:rtype: numpy ndarray(float between 0 and 1)
-	"""
-	if 'class_index' in kwargs:
-		return _vector_Positive_Rate_multiclass(
-			model,theta,X,class_index=kwargs['class_index'])
-	else:
-		return _vector_Positive_Rate_binary(
-			model,theta,X)
-
-def _vector_Positive_Rate_binary(model,theta,X):
-	# probability of class 1 for each observation
-	prediction = model.predict(theta,X) 
-	return prediction 
-
-def _vector_Positive_Rate_multiclass(model,theta,X,class_index):
-	# probability of class==class_index for each observation
-	prediction = model.predict(theta,X) 
-	return prediction[:,class_index]
-
-def vector_Negative_Rate(model,theta,X,**kwargs):
-	"""
-	Calculate negative rate
-	for each observation.
-
-	This is the probability of being negative
+	The is the sum of the probability of each 
+	sample being in the positive class when in fact it was in 
+	the positive class.
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
@@ -613,33 +612,23 @@ def vector_Negative_Rate(model,theta,X,**kwargs):
 	:param X: The features
 	:type X: numpy ndarray
 
-	:return: Positive rate for each observation
-	:rtype: numpy ndarray(float between 0 and 1)
+	:return: False positive rate for whole sample
+	:rtype: float between 0 and 1
 	"""
 	if 'class_index' in kwargs:
-		return _vector_Negative_Rate_multiclass(
-			model,theta,X,class_index=kwargs['class_index'])
+		return _True_Positive_Rate_multiclass(model,theta,X,Y,
+			class_index=kwargs['class_index'])
 	else:
-		return _vector_Negative_Rate_binary(
-			model,theta,X)
+		return _True_Positive_Rate_binary(model,theta,X,Y)
 
-def _vector_Negative_Rate_binary(model,theta,X):
-	# probability of class 0 for each observation
-	prediction = model.predict(theta,X)
-	return 1.0 - prediction
-
-def _vector_Negative_Rate_multiclass(model,theta,X,class_index):
-	# probability of class!=class_index for each observation
-	prediction = model.predict(theta,X)
-	return 1.0 - prediction[:,class_index]
-
-def vector_False_Positive_Rate(model,theta,X,Y,**kwargs):
+def Accuracy(model,theta,X,Y,**kwargs):
 	"""
-	Calculate false positive rate
-	for each observation
-
-	This is the probability of predicting positive
-	subject to the label actually being negative
+	Calculate true negative rate
+	for the whole sample.
+	
+	The is the sum of the probability of each 
+	sample being in the negative class when in fact it was in 
+	the negative class.
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
@@ -647,147 +636,54 @@ def vector_False_Positive_Rate(model,theta,X,Y,**kwargs):
 	:param X: The features
 	:type X: numpy ndarray
 
-	:return: False positive rate for each observation
-	:rtype: numpy ndarray(float between 0 and 1)
+	:return: False positive rate for whole sample
+	:rtype: float between 0 and 1
 	"""
-	if 'class_index' in kwargs:
-		return _vector_False_Positive_Rate_multiclass(
-			model,theta,X,Y,class_index=kwargs['class_index'])
+	if kwargs['sub_regime'] == 'multiclass_classification':
+		return _Accuracy_multiclass(model,theta,X,Y,**kwargs)
 	else:
-		return _vector_False_Positive_Rate_binary(
-			model,theta,X,Y)
-
-def _vector_False_Positive_Rate_binary(model,theta,X,Y):
-	# The probability the model predicts being in this class
-	# subject to the truth being in any other class
-	prediction = model.predict(theta,X)
-	neg_mask = Y!=1.0 # this includes false positives and true negatives
-	return prediction[neg_mask]
-
-def _vector_False_Positive_Rate_multiclass(model,theta,X,Y,class_index):
-	# The probability the model predicts being in this class
-	# subject to the truth being in any other class
-	prediction = model.predict(theta,X)
-	other_mask = Y != class_index
-	return prediction[:,class_index][other_mask]
-
-def vector_False_Negative_Rate(model,theta,X,Y,**kwargs):
-	"""
-	Calculate false negative rate
-	for each observation
+		return _Accuracy_binary(model,theta,X,Y,**kwargs)
 	
-	This is the probability of predicting negative
-	subject to the label actually being positive
+def _Accuracy_binary(model,theta,X,Y,**kwargs):
+	""" Calculate accuracy
+	over all data points for binary classification
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
 	:param X: The features
 	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
 
-	:return: False negative rate for each observation
-	:rtype: numpy ndarray(float between 0 and 1)
+	:return: accuracy
+	:rtype: float
 	"""
-	if 'class_index' in kwargs:
-		return _vector_False_Negative_Rate_multiclass(
-			model,theta,X,Y,class_index=kwargs['class_index'])
-	else:
-		return _vector_False_Negative_Rate_binary(
-			model,theta,X,Y)
+	n = len(X)
+	Y_pred_probs = model.predict(theta,X)
+	v = np.where(Y!=1,1.0-Y_pred_probs,Y_pred_probs)
+	return np.sum(v)/n
 
-def _vector_False_Negative_Rate_binary(model,theta,X,Y):
-	# The probability of being in positive class
-	# subject to the truth being the other class
-	prediction = model.predict(theta,X)
-	pos_mask = Y==1.0 # this includes false positives and true negatives
-	return 1.0-prediction[pos_mask]
-
-def _vector_False_Negative_Rate_multiclass(model,theta,X,Y,class_index):
-	# The probability the model predicts not being in this class
-	# subject to the truth being in this class
-	prediction = model.predict(theta,X)
-	pos_mask = Y==class_index # this includes false positives and true negatives
-	return (1.0-prediction[:,class_index])[pos_mask]
-
-def vector_True_Positive_Rate(model,theta,X,Y,**kwargs):
-	"""
-	This is the probability of predicting positive
-	subject to the label actually being positive
+def _Accuracy_multiclass(model,theta,X,Y,**kwargs):
+	""" Calculate accuracy
+	over all data points for multi-class classification
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
 	:param X: The features
 	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
 
-	:return: True positive rate for each observation
-	:rtype: numpy ndarray(float between 0 and 1)
+	:return: accuracy
+	:rtype: float
 	"""
-	if 'class_index' in kwargs:
-		return _vector_True_Positive_Rate_multiclass(
-			model,theta,X,Y,class_index=kwargs['class_index'])
-	else:
-		return _vector_True_Positive_Rate_binary(
-			model,theta,X,Y)
-	
-def _vector_True_Positive_Rate_binary(model,theta,X,Y):
-	"""
-	This is the probability of predicting positive
-	subject to the label actually being positive
-	"""
-	prediction = model.predict(theta,X)
-	pos_mask = Y==1.0 # this includes false positives and true negatives
-	return prediction[pos_mask]
+	n = len(X)
+	Y_pred_probs = model.predict(theta,X)
+	return np.sum(Y_pred_probs[np.arange(n),Y])/n
 
-def _vector_True_Positive_Rate_multiclass(model,theta,X,Y,class_index):
-	"""
-	This is the probability of predicting this class
-	subject to the label actually being this class
-	"""
-	prediction = model.predict(theta,X)
-	pos_mask = Y==class_index # this includes false positives and true negatives
-	return (prediction[:,class_index])[pos_mask]
-	
-def vector_True_Negative_Rate(model,theta,X,Y,**kwargs):
-	"""
-	This is the probability of predicting negative
-	subject to the label actually being negative
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-
-	:return: True negative rate for each observation
-	:rtype: numpy ndarray(float between 0 and 1)
-	"""
-	if 'class_index' in kwargs:
-		return _vector_True_Negative_Rate_multiclass(
-			model,theta,X,Y,class_index=kwargs['class_index'])
-	else:
-		return _vector_True_Negative_Rate_binary(
-			model,theta,X,Y)
-
-def _vector_True_Negative_Rate_binary(model,theta,X,Y):
-	"""
-	This is the probability of predicting negative
-	subject to the label actually being negative
-	"""
-	prediction = model.predict(theta,X)
-	neg_mask = Y!=1.0 
-	return 1.0 - prediction[neg_mask]
-
-def _vector_True_Negative_Rate_multiclass(model,theta,X,Y,class_index):
-	"""
-	This is the probability of predicting not this class
-	subject to the true label not being this class
-	"""
-	prediction = model.predict(theta,X)
-	neg_mask = Y!=class_index 
-	return (1.0 - prediction[:,class_index])[neg_mask]
-
-def confusion_matrix(model,theta,X,Y,l_i,l_k):
+def confusion_matrix(model,theta,X,Y,l_i,l_k,**kwargs):
 	"""
 	Get the probability of predicting class label l_k 
 	if the true class label was l_i. This is the C[l_i,l_k]
@@ -819,8 +715,289 @@ def confusion_matrix(model,theta,X,Y,l_i,l_k):
 
 	res = sum(Y_pred[:,l_k][true_mask])/N_mask 
 	return res
+	
+def vector_Positive_Rate(model,theta,X,Y,**kwargs):
+	"""
+	Calculate positive rate
+	for each observation.
+	
+	This is the probability of being positive
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
 
-def vector_confusion_matrix(model,theta,X,Y,l_i,l_k):
+	:return: Positive rate for each observation
+	:rtype: numpy ndarray(float between 0 and 1)
+	"""
+	if 'class_index' in kwargs:
+		return _vector_Positive_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_Positive_Rate_binary(
+			model,theta,X,Y)
+
+def _vector_Positive_Rate_binary(model,theta,X,Y,**kwargs):
+	# probability of class 1 for each observation
+	prediction = model.predict(theta,X) 
+	return prediction 
+
+def _vector_Positive_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
+	# probability of class==class_index for each observation
+	prediction = model.predict(theta,X) 
+	return prediction[:,class_index]
+
+def vector_Negative_Rate(model,theta,X,Y,**kwargs):
+	"""
+	Calculate negative rate
+	for each observation.
+
+	This is the probability of being negative
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+
+	:return: Positive rate for each observation
+	:rtype: numpy ndarray(float between 0 and 1)
+	"""
+	if 'class_index' in kwargs:
+		return _vector_Negative_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_Negative_Rate_binary(
+			model,theta,X,Y)
+
+def _vector_Negative_Rate_binary(model,theta,X,Y,**kwargs):
+	# probability of class 0 for each observation
+	prediction = model.predict(theta,X)
+	return 1.0 - prediction
+
+def _vector_Negative_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
+	# probability of class!=class_index for each observation
+	prediction = model.predict(theta,X)
+	return 1.0 - prediction[:,class_index]
+
+def vector_False_Positive_Rate(model,theta,X,Y,**kwargs):
+	"""
+	Calculate false positive rate
+	for each observation
+
+	This is the probability of predicting positive
+	subject to the label actually being negative
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+
+	:return: False positive rate for each observation
+	:rtype: numpy ndarray(float between 0 and 1)
+	"""
+	if 'class_index' in kwargs:
+		return _vector_False_Positive_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_False_Positive_Rate_binary(
+			model,theta,X,Y)
+
+def _vector_False_Positive_Rate_binary(model,theta,X,Y,**kwargs):
+	# The probability the model predicts being in this class
+	# subject to the truth being in any other class
+	prediction = model.predict(theta,X)
+	neg_mask = Y!=1.0 # this includes false positives and true negatives
+	return prediction[neg_mask]
+
+def _vector_False_Positive_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
+	# The probability the model predicts being in this class
+	# subject to the truth being in any other class
+	prediction = model.predict(theta,X)
+	other_mask = Y != class_index
+	return prediction[:,class_index][other_mask]
+
+def vector_False_Negative_Rate(model,theta,X,Y,**kwargs):
+	"""
+	Calculate false negative rate
+	for each observation
+	
+	This is the probability of predicting negative
+	subject to the label actually being positive
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+
+	:return: False negative rate for each observation
+	:rtype: numpy ndarray(float between 0 and 1)
+	"""
+	if 'class_index' in kwargs:
+		return _vector_False_Negative_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_False_Negative_Rate_binary(
+			model,theta,X,Y)
+
+def _vector_False_Negative_Rate_binary(model,theta,X,Y,**kwargs):
+	# The probability of being in positive class
+	# subject to the truth being the other class
+	prediction = model.predict(theta,X)
+	pos_mask = Y==1.0 # this includes false positives and true negatives
+	return 1.0-prediction[pos_mask]
+
+def _vector_False_Negative_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
+	# The probability the model predicts not being in this class
+	# subject to the truth being in this class
+	prediction = model.predict(theta,X)
+	pos_mask = Y==class_index # this includes false positives and true negatives
+	return (1.0-prediction[:,class_index])[pos_mask]
+
+def vector_True_Positive_Rate(model,theta,X,Y,**kwargs):
+	"""
+	This is the probability of predicting positive
+	subject to the label actually being positive
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+
+	:return: True positive rate for each observation
+	:rtype: numpy ndarray(float between 0 and 1)
+	"""
+	if 'class_index' in kwargs:
+		return _vector_True_Positive_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_True_Positive_Rate_binary(
+			model,theta,X,Y)
+	
+def _vector_True_Positive_Rate_binary(model,theta,X,Y,**kwargs):
+	"""
+	This is the probability of predicting positive
+	subject to the label actually being positive
+	"""
+	prediction = model.predict(theta,X)
+	pos_mask = Y==1.0 # this includes false positives and true negatives
+	return prediction[pos_mask]
+
+def _vector_True_Positive_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
+	"""
+	This is the probability of predicting this class
+	subject to the label actually being this class
+	"""
+	prediction = model.predict(theta,X)
+	pos_mask = Y==class_index # this includes false positives and true negatives
+	return (prediction[:,class_index])[pos_mask]
+	
+def vector_True_Negative_Rate(model,theta,X,Y,**kwargs):
+	"""
+	This is the probability of predicting negative
+	subject to the label actually being negative
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+
+	:return: True negative rate for each observation
+	:rtype: numpy ndarray(float between 0 and 1)
+	"""
+	if 'class_index' in kwargs:
+		return _vector_True_Negative_Rate_multiclass(
+			model,theta,X,Y,class_index=kwargs['class_index'])
+	else:
+		return _vector_True_Negative_Rate_binary(
+			model,theta,X,Y)
+
+def _vector_True_Negative_Rate_binary(model,theta,X,Y,**kwargs):
+	"""
+	This is the probability of predicting negative
+	subject to the label actually being negative
+	"""
+	prediction = model.predict(theta,X)
+	neg_mask = Y!=1.0 
+	return 1.0 - prediction[neg_mask]
+
+def _vector_True_Negative_Rate_multiclass(model,theta,X,Y,class_index,**kwargs):
+	"""
+	This is the probability of predicting not this class
+	subject to the true label not being this class
+	"""
+	prediction = model.predict(theta,X)
+	neg_mask = Y!=class_index 
+	return (1.0 - prediction[:,class_index])[neg_mask]
+
+def vector_Accuracy(model,theta,X,Y,**kwargs):
+	"""
+	This is the probability of predicting the
+	correct label
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+
+	:return: True negative rate for each observation
+	:rtype: numpy ndarray(float between 0 and 1)
+	"""
+	if kwargs['sub_regime'] == 'multiclass_classification':
+		return _vector_Accuracy_multiclass(
+			model,theta,X,Y,**kwargs)
+	else:
+		return _vector_Accuracy_binary(
+			model,theta,X,Y,**kwargs)
+
+def _vector_Accuracy_binary(model,theta,X,Y,**kwargs):
+	""" Calculate vector of probability of 
+	predicting the true label
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
+
+	:return: logistic loss
+	:rtype: float
+	"""
+	Y_pred_probs = model.predict(theta,X)
+	# Get probabilities of true positives and true negatives
+	# Use the vector Y_pred as it already has the true positive
+	# probs. Just need to replace the probabilites in the neg mask with 1-prob
+	return np.where(Y!=1,1.0-Y_pred_probs,Y_pred_probs)
+
+def _vector_Accuracy_multiclass(model,theta,X,Y,**kwargs):
+	""" Calculate vector of probability of 
+	predicting the true label for each data point
+	
+	:param model: SeldonianModel instance
+	:param theta: The parameter weights
+	:type theta: numpy ndarray
+	:param X: The features
+	:type X: numpy ndarray
+	:param Y: The labels
+	:type Y: numpy ndarray
+
+	:return: accuracy
+	:rtype: float
+	"""
+	n = len(X)
+	Y_pred_probs = model.predict(theta,X)
+	return Y_pred_probs[np.arange(n),Y]
+
+def vector_confusion_matrix(model,theta,X,Y,l_i,l_k,**kwargs):
 	"""
 	Get the probability of predicting class label l_k 
 	if the true class label was l_i. This is the C[l_i,l_k]
@@ -853,106 +1030,26 @@ def vector_confusion_matrix(model,theta,X,Y,l_i,l_k):
 	res = Y_pred[:,l_k][true_mask]
 	return res
 
-def Accuracy_binary(model,theta,X,Y):
-	""" Calculate accuracy
-	over all data points for binary classification
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-	:param Y: The labels
-	:type Y: numpy ndarray
-
-	:return: accuracy
-	:rtype: float
-	"""
-	n = len(X)
-	Y_pred_probs = model.predict(theta,X)
-	v = np.where(Y!=1,1.0-Y_pred_probs,Y_pred_probs)
-	return np.sum(v)/n
-
-def Accuracy_multiclass(model,theta,X,Y):
-	""" Calculate accuracy
-	over all data points for multi-class classification
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-	:param Y: The labels
-	:type Y: numpy ndarray
-
-	:return: accuracy
-	:rtype: float
-	"""
-	n = len(X)
-	Y_pred_probs = model.predict(theta,X)
-	return np.sum(Y_pred_probs[np.arange(n),Y])/n
-
-def vector_Accuracy_binary(model,theta,X,Y):
-	""" Calculate vector of probability of 
-	predicting the true label
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-	:param Y: The labels
-	:type Y: numpy ndarray
-
-	:return: logistic loss
-	:rtype: float
-	"""
-	Y_pred_probs = model.predict(theta,X)
-	# Get probabilities of true positives and true negatives
-	# Use the vector Y_pred as it already has the true positive
-	# probs. Just need to replace the probabilites in the neg mask with 1-prob
-	return np.where(Y!=1,1.0-Y_pred_probs,Y_pred_probs)
-
-def vector_Accuracy_multiclass(model,theta,X,Y):
-	""" Calculate vector of probability of 
-	predicting the true label for each data point
-	
-	:param model: SeldonianModel instance
-	:param theta: The parameter weights
-	:type theta: numpy ndarray
-	:param X: The features
-	:type X: numpy ndarray
-	:param Y: The labels
-	:type Y: numpy ndarray
-
-	:return: accuracy
-	:rtype: float
-	"""
-	n = len(X)
-	Y_pred_probs = model.predict(theta,X)
-	return Y_pred_probs[np.arange(n),Y]
-
 """ RL """
-def IS_estimate(model,theta,data_dict):
+def IS_estimate(model,theta,episodes,**kwargs):
 	""" Calculate the unweighted importance sampling estimate
 	on all episodes in the dataframe
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-	:param data_dict: The object containing data and metadata
+	:param episodes: List of episodes
 
 	:return: The IS estimate calculated over all episodes
 	:rtype: float
 	"""
-	episodes = data_dict['episodes']
 	if 'gamma' in model.env_kwargs:
 		gamma = model.env_kwargs['gamma']
 	else:
 		gamma = 1.0
 
 	IS_estimate = 0
-	for ii, ep in enumerate(episodes):
+	for ep in episodes:
 		pi_news = model.get_probs_from_observations_and_actions(
 			theta, ep.observations, ep.actions)
 		pi_ratios = pi_news / ep.action_probs
@@ -964,26 +1061,24 @@ def IS_estimate(model,theta,data_dict):
 
 	return IS_estimate
 
-def vector_IS_estimate(model, theta, data_dict):
+def vector_IS_estimate(model,theta,episodes,**kwargs):
 	""" Calculate the unweighted importance sampling estimate
 	on each episodes in the dataframe
 	
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
-	:param data_dict: The object containing data and metadata
+	:param episodes: List of episodes
 
 	:return: A vector of IS estimates calculated for each episode
 	:rtype: numpy ndarray(float)
 	"""
-	episodes = data_dict['episodes']
-	episodes = data_dict['episodes']
 	if 'gamma' in model.env_kwargs:
 		gamma = model.env_kwargs['gamma']
 	else:
 		gamma = 1.0
 	result = []
-	for ii, ep in enumerate(episodes):
+	for ep in episodes:
 		pi_news = model.get_probs_from_observations_and_actions(
 			theta, ep.observations, ep.actions)
 		pi_ratio_prod = np.prod(pi_news / ep.action_probs)
@@ -991,3 +1086,30 @@ def vector_IS_estimate(model, theta, data_dict):
 		result.append(pi_ratio_prod * weighted_return)
 
 	return np.array(result)
+
+""" Measure function mappers """ 
+measure_function_vector_mapper = {
+	'Mean_Squared_Error':vector_Squared_Error,
+	'Mean_Error':vector_Error,
+	'PR':vector_Positive_Rate,
+	'NR':vector_Negative_Rate,
+	'FPR':vector_False_Positive_Rate,
+	'FNR':vector_False_Negative_Rate,
+	'TPR':vector_True_Positive_Rate,
+	'TNR':vector_True_Negative_Rate,
+	'ACC':vector_Accuracy,
+	'J_pi_new':vector_IS_estimate,
+}
+
+measure_function_mapper = {
+	'Mean_Squared_Error':Mean_Squared_Error,
+	'Mean_Error':Mean_Error,
+	'PR':Positive_Rate,
+	'NR':Negative_Rate,
+	'FPR':False_Positive_Rate,
+	'FNR':False_Negative_Rate,
+	'TPR':True_Positive_Rate,
+	'TNR':True_Negative_Rate,
+	'ACC':Accuracy,
+	'J_pi_new':IS_estimate,
+}

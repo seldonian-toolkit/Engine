@@ -139,7 +139,10 @@ def gradient_descent_adam(
     # Start gradient descent
     gd_index = 0
     if verbose:
-        print(f"Have {n_epochs} epochs and {n_batches} batches of size {batch_size}\n")
+        n_iters_tot = n_epochs*n_batches
+        print(
+            f"Have {n_epochs} epochs and {n_batches} batches of size {batch_size} "
+            f"for a total of {n_iters_tot} iterations")
     for epoch in range(n_epochs):
         for batch_index in range(n_batches):
             if verbose:
@@ -175,7 +178,7 @@ def gradient_descent_adam(
             # at current values of theta and lambda
             grad_primary_theta_val = grad_primary_theta(theta)
             gu_theta_vec = grad_upper_bound_theta(theta)
-            
+
             grad_secondary_theta_val_vec = gu_theta_vec * lamb[:, None] ## to multiply each row of gu_theta_vec by elements of lamb
             gradient_theta = grad_primary_theta_val + np.sum(grad_secondary_theta_val_vec,axis=0)
             

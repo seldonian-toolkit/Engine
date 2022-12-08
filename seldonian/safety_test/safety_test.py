@@ -32,14 +32,8 @@ class SafetyTest(object):
 		self.parse_trees = parse_trees
 		self.regime = regime
 
-		if self.regime == 'supervised_learning':
-			# To evaluate the primary objective we will need
-			# features and labels separated and in the proper form
-			self.features = self.safety_dataset.features
-			self.labels = self.safety_dataset.labels
 
-
-	def run(self,solution,**kwargs):
+	def run(self,solution,batch_size_safety=None,**kwargs):
 		""" Loop over parse trees, calculate the bounds on leaf nodes
 		and propagate to the root node. The safety test passes if
 		the upper bounds of all parse tree root nodes are less than or equal to 0. 
@@ -47,6 +41,10 @@ class SafetyTest(object):
 		:param solution: 
 			The solution found by candidate selection
 		:type solution: numpy ndarray
+
+		:param batch_size_safety: The number of datapoints
+			to pass through the measure functions at a time
+		:type batch_size_safety: int
 
 		:return: passed, whether the candidate solution passed the safety test
 		:rtype: bool
@@ -62,7 +60,9 @@ class SafetyTest(object):
 				dataset=self.safety_dataset,
 				model=self.model,
 				branch='safety_test',
-				regime=self.regime
+				regime=self.regime,
+				batch_size_safety=batch_size_safety,
+				**kwargs
 				)
 			
 			pt.propagate_bounds(**bounds_kwargs)
@@ -70,8 +70,6 @@ class SafetyTest(object):
 			upperBound = pt.root.upper 
 			if upperBound > 0.0: # If the current constraint was not satisfied, the safety test failed
 				passed = False
-			# # reset bounds and data for each base node
-			# pt.reset_base_node_dict(reset_data=True)
 
 		return passed
 
@@ -92,17 +90,19 @@ class SafetyTest(object):
 		# Get value of the primary objective given model weights
 		if self.regime == 'supervised_learning':
 		
-			result = primary_objective(self.model,theta, 
-					self.features, self.labels)
+			result = primary_objective(
+				self.model,
+				theta, 
+				self.safety_dataset.features,
+				self.safety_dataset.labels)
 			return result
 
 		elif self.regime == 'reinforcement_learning':
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
-			data_dict = {'episodes':self.safety_dataset.episodes}
 			result = -1.0*primary_objective(self.model,theta,
-				data_dict)
+				self.safety_dataset.episodes)
 
 			if hasattr(self,'reg_coef'):
 				# reg_term = self.reg_coef*np.linalg.norm(theta)

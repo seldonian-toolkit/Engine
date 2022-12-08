@@ -248,11 +248,14 @@ class SeldonianAlgorithm():
 			return passed_safety,solution
 			
 		# Safety test
+		batch_size_safety = self.spec.batch_size_safety
 		passed_safety, solution = self.run_safety_test(
-			candidate_solution,debug=debug)
+			candidate_solution,
+			batch_size_safety=batch_size_safety,debug=debug)
 		return passed_safety, solution
 	
-	def run_safety_test(self,candidate_solution,debug=False):
+	def run_safety_test(self,candidate_solution,
+		batch_size_safety=None,debug=False):
 		"""
 		Runs safety test using solution from candidate selection
 		or some other means
@@ -268,7 +271,8 @@ class SeldonianAlgorithm():
 		"""
 			
 		st = self.safety_test()
-		passed_safety = st.run(candidate_solution)
+		passed_safety = st.run(candidate_solution,
+			batch_size_safety=batch_size_safety)
 		if not passed_safety:
 			if debug:
 				print("Failed safety test")
