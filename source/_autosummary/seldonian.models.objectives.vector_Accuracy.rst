@@ -1,6 +1,6 @@
-seldonian.models.objectives.Accuracy\_binary
+seldonian.models.objectives.vector\_Accuracy
 ============================================
 
 .. currentmodule:: seldonian.models.objectives
 
-.. autofunction:: Accuracy_binary
+.. autofunction:: vector_Accuracy
