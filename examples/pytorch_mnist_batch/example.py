@@ -46,7 +46,7 @@ if __name__ == "__main__":
     meta_information['label_col_names'] = ['label']
     meta_information['sensitive_col_names'] = []
     meta_information['sub_regime'] = sub_regime
-
+    # sensitive_attrs = np.random.randint()
     dataset = SupervisedDataSet(
         features=features,
         labels=labels,

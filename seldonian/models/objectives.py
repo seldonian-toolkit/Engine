@@ -31,7 +31,6 @@ def batcher(func,N,batch_size,num_batches):
 			labels=args[3]
 		elif regime == 'reinforcement_learning':
 			episodes = args[2]
-		print(f"Have {num_batches} batches of size {batch_size} in safety test")
 		if num_batches > 1:
 			res = np.zeros(N)
 			batch_start = 0 
@@ -56,13 +55,13 @@ def batcher(func,N,batch_size,num_batches):
 
 				batch_start=batch_end
 		else:
-
 			res = func(*args,**kw)  
 		return res
 	return wrapper
 
 def sample_from_statistic(model,
-	statistic_name,theta,data_dict,**kwargs):
+	statistic_name,theta,data_dict,
+	datasize,**kwargs):
 	""" Evaluate a provided statistic for each observation 
 	in the sample
 
@@ -103,21 +102,20 @@ def sample_from_statistic(model,
 		return msr_func(*args,**msr_func_kwargs)
 
 	elif branch == 'safety_test':
-		num_datapoints = dataset.num_datapoints
 		if 'batch_size_safety' in kwargs:
 			if kwargs['batch_size_safety'] is None:
-				batch_size_safety = num_datapoints
+				batch_size_safety = datasize
 				num_batches = 1
 			else:	
 				batch_size_safety = kwargs['batch_size_safety'] 
-				num_batches = math.ceil(num_datapoints / batch_size_safety)
+				num_batches = math.ceil(datasize / batch_size_safety)
 
 		else:
-			batch_size_safety = num_datapoints
+			batch_size_safety = datasize
 			num_batches = 1
 		return batcher(
 			msr_func,
-			N=num_datapoints,
+			N=datasize,
 			batch_size=batch_size_safety,
 			num_batches=num_batches)(*args,**msr_func_kwargs)
 

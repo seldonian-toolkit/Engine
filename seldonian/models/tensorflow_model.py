@@ -50,14 +50,14 @@ def tf_predict_vjp(ans,theta,X,model):
 
 	:return fn: A function representing the vector Jacobian operator
 	"""
+
+	local_predictions = model.predictions
+	local_tape = model.tape
 	def fn(v):
 		# v is a vector of shape ans, the return value of mypredict()
 		# return a 1D array [dF_i/dtheta[0],dF_i/dtheta[1],dF_i/dtheta[2]],
 		# where i is the data row index
-		# print("v:")
-		# print(v)
-		# input("next")
-		dpred_dtheta = model.backward_pass(v)
+		dpred_dtheta = model.backward_pass(local_predictions,local_tape,v.astype('float32'))
 		return dpred_dtheta
 	return fn
 
@@ -149,17 +149,15 @@ class SupervisedTensorFlowBaseModel(SupervisedModel):
 		self.tape = tape
 		return predictions
 
-	def backward_pass(self,v):
+	def backward_pass(self,predictions,tape,v):
 		""" Do a backward pass through the TensorFlow model and return the
 		(vector) gradient of the model with respect to theta as a numpy ndarray
 
-		:param external_grad: The gradient of the model with respect to itself
-			see: https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html#differentiation-in-autograd
-			for more details
+		:param v: The gradient of the model with respect to itself
 		:type external_grad: torch.Tensor 
 		"""
 		grad_params_list = []
-		grads = self.tape.gradient(self.predictions, 
+		grads = tape.gradient(predictions, 
 			self.tensorflow_model.trainable_weights,output_gradients=v)
 		for grad in grads:
 			grad_numpy = grad.numpy()

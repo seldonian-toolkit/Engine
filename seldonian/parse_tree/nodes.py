@@ -267,7 +267,6 @@ class BaseNode(Node):
                 # getting confidence intervals from bootstrap
                 # and RL cases
                 estimator_samples = self.zhat(**kwargs)
-
                 branch = kwargs['branch']
                 data_dict = kwargs['data_dict']
 
@@ -315,7 +314,7 @@ class BaseNode(Node):
         else:
             raise RuntimeError("bound_method not specified!")
     
-    def zhat(self,model,theta,data_dict,**kwargs):
+    def zhat(self,model,theta,data_dict,datasize,**kwargs):
         """
         Calculate an unbiased estimate of the 
         base variable node.
@@ -330,10 +329,10 @@ class BaseNode(Node):
             such as features and labels
         :type data_dict: dict
         """
-
         return sample_from_statistic(model=model,
             statistic_name=self.measure_function_name,
-            theta=theta,data_dict=data_dict,**kwargs)
+            theta=theta,data_dict=data_dict,
+            datasize=datasize,**kwargs)
 
     def predict_HC_lowerbound(self,
         data,
