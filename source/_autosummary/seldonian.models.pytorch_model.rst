@@ -26,7 +26,6 @@ seldonian.models.pytorch\_model
       :toctree:                                         
       :template: custom-class-template.rst              
    
-      PytorchLRTestModel
       SupervisedPytorchBaseModel
    
    

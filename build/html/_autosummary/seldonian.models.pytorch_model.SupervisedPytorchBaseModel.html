@@ -18,7 +18,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.optimizers" href="seldonian.optimizers.html" />
-    <link rel="prev" title="seldonian.models.pytorch_model.PytorchLRTestModel" href="seldonian.models.pytorch_model.PytorchLRTestModel.html" />
+    <link rel="prev" title="seldonian.models.pytorch_model.pytorch_predict_vjp" href="seldonian.models.pytorch_model.pytorch_predict_vjp.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -68,7 +68,7 @@ e.g. “cpu”, “cuda”, “mps”.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.pytorch_model.SupervisedPytorchBaseModel.backward_pass">
-<span class="sig-name descname"><span class="pre">backward_pass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">external_grad</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.pytorch_model.SupervisedPytorchBaseModel.backward_pass" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">backward_pass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_grad</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.pytorch_model.SupervisedPytorchBaseModel.backward_pass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do a backward pass through the PyTorch model and return the
 (vector) gradient of the model with respect to theta as a numpy ndarray</p>
 <dl class="field-list simple">
@@ -192,7 +192,6 @@ which must be reshaped</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.models.pytorch_cnn.html">seldonian.models.pytorch_cnn</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.pytorch_model.html">seldonian.models.pytorch_model</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.pytorch_model.pytorch_predict_vjp.html">seldonian.models.pytorch_model.pytorch_predict_vjp</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.models.pytorch_model.PytorchLRTestModel.html">seldonian.models.pytorch_model.PytorchLRTestModel</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.pytorch_model.SupervisedPytorchBaseModel</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.models.pytorch_model.SupervisedPytorchBaseModel"><code class="docutils literal notranslate"><span class="pre">SupervisedPytorchBaseModel</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.models.pytorch_model.SupervisedPytorchBaseModel.__init__"><code class="docutils literal notranslate"><span class="pre">SupervisedPytorchBaseModel.__init__()</span></code></a></li>
@@ -234,7 +233,7 @@ which must be reshaped</p>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.models.html">seldonian.models</a><ul>
   <li><a href="seldonian.models.pytorch_model.html">seldonian.models.pytorch_model</a><ul>
-      <li>Previous: <a href="seldonian.models.pytorch_model.PytorchLRTestModel.html" title="previous chapter">seldonian.models.pytorch_model.PytorchLRTestModel</a></li>
+      <li>Previous: <a href="seldonian.models.pytorch_model.pytorch_predict_vjp.html" title="previous chapter">seldonian.models.pytorch_model.pytorch_predict_vjp</a></li>
       <li>Next: <a href="seldonian.optimizers.html" title="next chapter">seldonian.optimizers</a></li>
   </ul></li>
   </ul></li>
