@@ -8,7 +8,6 @@ from seldonian.models.models import SupervisedModel
 import torch
 import torch.nn as nn
 
-
 @primitive
 def pytorch_predict(theta,X,model,**kwargs):
 	""" Do a forward pass through the PyTorch model.
@@ -26,12 +25,15 @@ def pytorch_predict(theta,X,model,**kwargs):
 	:rtype pred_numpy: numpy ndarray same shape as labels
 	"""
 	# First update model weights
-	
-	model.update_model_params(theta,**kwargs)
+	if not model.params_updated:
+		model.update_model_params(theta,**kwargs)
+		model.params_updated = True
 	# Do the forward pass
 	pred = model.forward_pass(X,**kwargs)
 	# set the predictions attribute of the model
+
 	model.predictions = pred
+
 	# Convert predictions into a numpy array
 	pred_numpy = pred.cpu().detach().numpy()
 	return pred_numpy
@@ -53,13 +55,15 @@ def pytorch_predict_vjp(ans,theta,X,model):
 
 	:return fn: A function representing the vector Jacobian operator
 	"""
+	local_predictions = model.predictions
 	def fn(v):
 		# v is a vector of shape ans, the return value of mypredict()
 		# return a 1D array [dF_i/dtheta[0],dF_i/dtheta[1],dF_i/dtheta[2]],
 		# where i is the data row index
-		model.zero_gradients()
 		external_grad = torch.from_numpy(v).float().to(model.device)
-		dpred_dtheta = model.backward_pass(external_grad)
+		dpred_dtheta = model.backward_pass(
+			local_predictions,external_grad)
+		model.params_updated = False # resets for the 
 		return np.array(dpred_dtheta)
 	return fn
 
@@ -82,6 +86,7 @@ class SupervisedPytorchBaseModel(SupervisedModel):
 		self.pytorch_model = self.create_model(**kwargs)
 		self.pytorch_model.to(self.device)
 		self.param_sizes = self.get_param_sizes()
+		self.params_updated = False
 
 	def predict(self,theta,X,**kwargs):
 		""" Do a forward pass through the PyTorch model.
@@ -125,18 +130,18 @@ class SupervisedPytorchBaseModel(SupervisedModel):
 		:type theta: numpy ndarray
 		"""
 		# Update model parameters using flattened array
-		with torch.no_grad():
-			i = 0
-			startindex = 0
-			for param in self.pytorch_model.parameters():
-				if param.requires_grad:
-					nparams = self.param_sizes[i]
-					param_shape = param.shape
-					theta_numpy = theta[startindex:startindex+nparams]
-					theta_torch = torch.from_numpy(theta_numpy).view(param_shape)
+		i = 0
+		startindex = 0
+		for param in self.pytorch_model.parameters():
+			if param.requires_grad:
+				nparams = self.param_sizes[i]
+				param_shape = param.shape
+				theta_numpy = theta[startindex:startindex+nparams]
+				theta_torch = torch.from_numpy(theta_numpy).view(param_shape)
+				with torch.no_grad():
 					param.copy_(theta_torch)
-					i+=1
-					startindex+=nparams
+				i+=1
+				startindex+=nparams
 		return
 
 	def zero_gradients(self):
@@ -158,11 +163,11 @@ class SupervisedPytorchBaseModel(SupervisedModel):
 		:return: predictions
 		:rtype: torch.Tensor
 		"""
-		X_torch = torch.tensor(X,requires_grad=True).float().to(self.device)
+		X_torch = torch.tensor(X).float().to(self.device)
 		predictions = self.pytorch_model(X_torch)
 		return predictions
 
-	def backward_pass(self,external_grad):
+	def backward_pass(self,predictions,external_grad):
 		""" Do a backward pass through the PyTorch model and return the
 		(vector) gradient of the model with respect to theta as a numpy ndarray
 
@@ -171,60 +176,17 @@ class SupervisedPytorchBaseModel(SupervisedModel):
 			for more details
 		:type external_grad: torch.Tensor 
 		"""
-		self.predictions.backward(gradient=external_grad,retain_graph=True)
+		self.zero_gradients()
+		predictions.backward(gradient=external_grad)
 		grad_params_list = []
 		for param in self.pytorch_model.parameters():
 			if param.requires_grad:
 				grad_numpy = param.grad.cpu().numpy()
 				grad_params_list.append(grad_numpy.flatten())
+
 		return np.concatenate(grad_params_list)
 
 	def create_model(self,**kwargs):
 		""" Create the pytorch model and return it
 		"""
 		raise NotImplementedError("Implement this method in child class")
-
-class PytorchLRTestModel(SupervisedPytorchBaseModel):
-	def __init__(self,device,input_dim,output_dim):
-		""" Implements linear regression using a single Pytorch linear layer
-
-		:param input_dim: Number of features
-		:param output_dim: Size of output layer (number of label columns)
-		"""
-		self.input_dim=input_dim
-		self.output_dim=output_dim
-		self.has_intercept=True
-		super().__init__(device)
-		
-	def create_model(self):
-		""" Create the pytorch model and return it
-		"""
-		return torch.nn.Linear(self.input_dim, self.output_dim)
-
-	def forward_pass(self,X,**kwargs):
-		""" Do a forward pass through the PyTorch model and return the 
-		model outputs (predicted labels). The outputs should be the same shape 
-		as the true labels
-	
-		:param X: model features
-		:type X: numpy ndarray
-
-		:return: predictions
-		:rtype: torch.Tensor
-		"""
-		X_torch = torch.tensor(X,requires_grad=True).float().to(self.device)
-		predictions = self.pytorch_model(X_torch).view(-1)
-		return predictions
-
-	def backward_pass(self,external_grad):
-		""" Do a backward pass through the PyTorch model and return the
-		(vector) gradient of the model with respect to theta as a numpy ndarray
-
-		:param external_grad: The gradient of the model with respect to itself
-			see: https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html#differentiation-in-autograd
-			for more details
-		:type external_grad: torch.Tensor 
-		"""
-		self.predictions.backward(gradient=external_grad,retain_graph=True)
-		grad = torch.cat((self.pytorch_model.bias.grad.cpu(),self.pytorch_model.weight.grad.cpu().view(-1)))
-		return grad
