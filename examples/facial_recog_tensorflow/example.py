@@ -19,7 +19,9 @@ if __name__ == "__main__":
 	regime='supervised_learning'
 	sub_regime='classification'
 	
-	N=23705
+	N=23700 # Clips off 5 samples (at random) to make total divisible by 150,
+	# the desired batch size
+	
 	# Get the data, load from file if already saved
 	savename_features = './features.pkl'
 	savename_labels = './labels.pkl'
@@ -27,10 +29,11 @@ if __name__ == "__main__":
 	if not all([os.path.exists(x) for x in [savename_features,
 			savename_labels,savename_sensitive_attrs]]):
 		print("loading data...")
-
 		data = pd.read_csv('../../../facial_recognition/Kaggle_UTKFace/age_gender.csv')
 		# Shuffle data since it is in order of age, then gender
-		data = data.sample(n=len(data),random_state=42)
+		data = data.sample(n=len(data),random_state=42).iloc[:N]
+		print("Randomly sampled data, first 20 points")
+		print(data.iloc[0:20])
 		# Convert pixels from string to numpy array
 		print("Converting pixels to array...")
 		data['pixels']=data['pixels'].apply(lambda x:  np.array(x.split(), dtype="float32"))
@@ -57,7 +60,7 @@ if __name__ == "__main__":
 		features = load_pickle(savename_features)
 		labels = load_pickle(savename_labels)
 		sensitive_attrs = load_pickle(savename_sensitive_attrs)
-
+	
 	assert len(features) == N
 	assert len(labels) == N
 	assert len(sensitive_attrs) == N
@@ -69,6 +72,7 @@ if __name__ == "__main__":
 	meta_information['label_col_names'] = ['label']
 	meta_information['sensitive_col_names'] = sensitive_col_names
 	meta_information['sub_regime'] = sub_regime
+	
 	print("Making SupervisedDataSet...")
 	dataset = SupervisedDataSet(
 		features=features,
@@ -81,7 +85,8 @@ if __name__ == "__main__":
 	# constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) <= 0.2']
 	constraint_strs = ['abs((ACC | [M]) - (ACC | [F])) <= 0.05']
 	deltas = [0.05] 
-	print("Making parse trees...")
+	print("Making parse trees... for constraint(s):")
+	print(constraint_strs," with deltas: ", deltas)
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,deltas,regime=regime,
 		sub_regime=sub_regime,columns=sensitive_col_names)
@@ -108,8 +113,8 @@ if __name__ == "__main__":
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'use_batches'   : True,
-			'batch_size'    : 150,
-			'n_epochs'      : 15,
+			'batch_size'    : 395,
+			'n_epochs'      : 70,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
@@ -117,7 +122,14 @@ if __name__ == "__main__":
 		batch_size_safety=1000
 	)
 	save_pickle('./spec.pkl',spec,verbose=True)
-	# SA = SeldonianAlgorithm(spec)
+	SA = SeldonianAlgorithm(spec)
 
-	# passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
-	
+	passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
+	if passed_safety:
+		print("Passed safety test")
+		st_primary_objective = SA.evaluate_primary_objective(theta=solution,
+		branch='safety_test')
+		print("Primary objective evaluated on safety test:")
+		print(st_primary_objective)
+	else:
+		print("Failed safety test")
