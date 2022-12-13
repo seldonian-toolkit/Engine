@@ -235,7 +235,7 @@ def test_generate_gridworld_episodes():
     assert first_reward == 0
     assert all([pi == 0.25 for pi in pis])
 
-    dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
+    dataset = RLDataSet(episodes=episodes)
     assert len(dataset.episodes) == 10
 
 def test_generate_n_step_mountaincar_episodes():
@@ -271,5 +271,5 @@ def test_generate_n_step_mountaincar_episodes():
     assert first_reward == -20.0
     assert all([pi == 1/3. for pi in pis])
 
-    dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
+    dataset = RLDataSet(episodes=episodes)
     assert len(dataset.episodes) == 10

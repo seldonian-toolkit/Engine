@@ -9,7 +9,7 @@ from seldonian.utils.stats_utils import weighted_sum_gamma
 def batcher(func,N,batch_size,num_batches):
 	""" Calls function num_batches times,
 	batching up the inputs to the objective function
-	or measure function 
+	or measure function.
 
 	:param func: The function you want to call
 	:param N: The total number of datapoints
@@ -95,7 +95,8 @@ def sample_from_statistic(model,
 	
 	elif regime == 'reinforcement_learning':
 		episodes = data_dict['episodes']
-		args = [model,theta,episodes]
+		weighted_returns = data_dict['weighted_returns']
+		args = [model,theta,episodes,weighted_returns]
 
 	msr_func = measure_function_vector_mapper[statistic_name]
 
@@ -115,6 +116,7 @@ def sample_from_statistic(model,
 		else:
 			batch_size_safety = num_datapoints
 			num_batches = 1
+
 		return batcher(
 			msr_func,
 			N=num_datapoints,
@@ -154,7 +156,8 @@ def evaluate_statistic(model,
 	
 	elif regime == 'reinforcement_learning':
 		episodes = data_dict['episodes']
-		args = [model,theta,episodes]
+		weighted_returns = data_dict['weighted_returns']
+		args = [model,theta,episodes,weighted_returns]
 
 	msr_func = measure_function_mapper[statistic_name]
 
@@ -174,6 +177,7 @@ def evaluate_statistic(model,
 		else:
 			batch_size_safety = num_datapoints
 			num_batches = 1
+
 		return batcher(
 			msr_func,
 			N=num_datapoints,
@@ -1031,7 +1035,7 @@ def vector_confusion_matrix(model,theta,X,Y,l_i,l_k,**kwargs):
 	return res
 
 """ RL """
-def IS_estimate(model,theta,episodes,**kwargs):
+def IS_estimate(model,theta,episodes,weighted_returns=None,**kwargs):
 	""" Calculate the unweighted importance sampling estimate
 	on all episodes in the dataframe
 	
@@ -1043,25 +1047,29 @@ def IS_estimate(model,theta,episodes,**kwargs):
 	:return: The IS estimate calculated over all episodes
 	:rtype: float
 	"""
-	if 'gamma' in model.env_kwargs:
-		gamma = model.env_kwargs['gamma']
-	else:
-		gamma = 1.0
+	# Possible that weighted returns were calculated ahead of time.
+	# If not, then calculated them here
+	if weighted_returns is None:
+		if 'gamma' in model.env_kwargs:
+			gamma = model.env_kwargs['gamma']
+		else:
+			gamma = 1.0
+		weighted_returns = [weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes]
 
 	IS_estimate = 0
-	for ep in episodes:
+	for ii,ep in enumerate(episodes):
 		pi_news = model.get_probs_from_observations_and_actions(
 			theta, ep.observations, ep.actions)
 		pi_ratios = pi_news / ep.action_probs
 		pi_ratio_prod = np.prod(pi_ratios)
-		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
-		IS_estimate += pi_ratio_prod * weighted_return
+		
+		IS_estimate += pi_ratio_prod * weighted_returns[ii]
 
 	IS_estimate /= len(episodes)
 
 	return IS_estimate
 
-def vector_IS_estimate(model,theta,episodes,**kwargs):
+def vector_IS_estimate(model,theta,episodes,weighted_returns,**kwargs):
 	""" Calculate the unweighted importance sampling estimate
 	on each episodes in the dataframe
 	
@@ -1073,17 +1081,13 @@ def vector_IS_estimate(model,theta,episodes,**kwargs):
 	:return: A vector of IS estimates calculated for each episode
 	:rtype: numpy ndarray(float)
 	"""
-	if 'gamma' in model.env_kwargs:
-		gamma = model.env_kwargs['gamma']
-	else:
-		gamma = 1.0
+	
 	result = []
-	for ep in episodes:
+	for ii,ep in enumerate(episodes):
 		pi_news = model.get_probs_from_observations_and_actions(
 			theta, ep.observations, ep.actions)
 		pi_ratio_prod = np.prod(pi_news / ep.action_probs)
-		weighted_return = weighted_sum_gamma(ep.rewards, gamma=gamma)
-		result.append(pi_ratio_prod * weighted_return)
+		result.append(pi_ratio_prod * weighted_returns[ii])
 
 	return np.array(result)
 

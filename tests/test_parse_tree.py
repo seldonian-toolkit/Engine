@@ -7,8 +7,9 @@ from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import (DataSetLoader,
 	SupervisedDataSet)
 from seldonian.safety_test.safety_test import SafetyTest
-from seldonian.utils.io_utils import load_json
+from seldonian.utils.io_utils import load_json,load_pickle
 from seldonian.models.models import LinearRegressionModel
+from seldonian.dataset import RLDataSet
 from seldonian.RL.RL_model import RL_model
 
 
@@ -1639,43 +1640,85 @@ def test_reset_parse_tree():
 	assert pt.base_node_dict['FNR']['lower'] == float('-inf')
 	assert pt.base_node_dict['FNR']['upper'] == float('inf')
 
-def test_single_conditional_columns_propagated():
+def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	np.random.seed(0)
-	data_pth = 'static/datasets/supervised/GPA/gpa_regression_dataset.csv'
-	metadata_pth = 'static/datasets/supervised/GPA/metadata_regression.json'
-
-	metadata_dict = load_json(metadata_pth)
-
-	loader = DataSetLoader(
-		regime='supervised_learning')
-
-	dataset = loader.load_supervised_dataset(
-		filename=data_pth,
-		metadata_filename=metadata_pth,
-		file_type='csv')
-
-	model_instance = LinearRegressionModel()
-
-	constraint_str = 'abs(Mean_Error|[M]) - 0.1'
-	delta = 0.05
-	pt = ParseTree(delta,regime='supervised_learning',
+	# Supervised learning
+	constraint_strs = ['abs(Mean_Error|[M]) - 0.1']
+	deltas = [0.05]
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+			constraint_strs,deltas)
+	
+	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression',
 		columns=dataset.meta_information['sensitive_col_names'])
 	
-	pt.create_from_ast(constraint_str)
+	pt.create_from_ast(constraint_strs[0])
 	pt.assign_deltas(weight_method='equal')
 
 	# propagate the bounds with example theta value
 	# theta = np.hstack([np.array([0.0,0.0]),np.random.uniform(-0.05,0.05,10)])
 	theta = np.random.uniform(-0.05,0.05,10)
 	pt.propagate_bounds(theta=theta,dataset=dataset,
-		model=model_instance,branch='safety_test',
+		model=model,branch='safety_test',
 		regime='supervised_learning')
 	assert pt.root.lower == pytest.approx(61.9001779655)
 	assert pt.root.upper == pytest.approx(62.1362236720)
 
 	assert len(pt.base_node_dict["Mean_Error | [M]"]['data_dict']['features']) == 22335
-	pt.reset_base_node_dict()
+
+	# Reinforcement learning
+	from seldonian.RL.RL_model import RL_model
+	from seldonian.RL.Agents.Policies.Softmax import DiscreteSoftmax
+	from seldonian.RL.Env_Description import Spaces, Env_Description
+	data_pth = 'static/datasets/RL/gridworld/gridworld_100episodes.pkl'
+
+	episodes = load_pickle(data_pth)
+	RL_meta_information = {
+		'episode_col_names': ['O', 'A', 'R', 'pi_b'],
+		'sensitive_col_names': ['M','F']
+	}
+	M = np.random.randint(0,2,len(episodes))
+	F = 1-M
+	sensitive_attrs = np.hstack((M.reshape(-1,1),F.reshape(-1,1)))
+	RL_dataset = RLDataSet(
+		episodes=episodes,
+		sensitive_attrs=sensitive_attrs,
+		meta_information=RL_meta_information)
+
+	
+	# Initialize policy
+	num_states = 9
+	observation_space = Spaces.Discrete_Space(0, num_states-1)
+	action_space = Spaces.Discrete_Space(0, 3)
+	env_description =  Env_Description.Env_Description(observation_space, action_space)
+	policy = DiscreteSoftmax(hyperparam_and_setting_dict={},
+		env_description=env_description)
+	env_kwargs={'gamma':0.9}
+	RLmodel = RL_model(policy=policy,env_kwargs=env_kwargs)
+
+	RL_constraint_strs = ['(J_pi_new | [M]) >= -0.25']
+	RL_deltas=[0.05]
+
+	RL_pt = ParseTree(RL_deltas[0],
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=RL_dataset.meta_information['sensitive_col_names'])
+	
+	RL_pt.create_from_ast(RL_constraint_strs[0])
+	RL_pt.assign_deltas(weight_method='equal')
+
+	# propagate the bounds with example theta value
+	# theta = np.hstack([np.array([0.0,0.0]),np.random.uniform(-0.05,0.05,10)])
+	RL_theta = np.random.uniform(-0.05,0.05,(9,4))
+	RL_pt.propagate_bounds(theta=RL_theta,dataset=RL_dataset,
+		model=RLmodel,branch='safety_test',
+		regime='reinforcement_learning')
+	assert RL_pt.root.lower == pytest.approx(-0.00556309)
+	assert RL_pt.root.upper == pytest.approx(0.333239520)
+
+	assert len(RL_pt.base_node_dict["J_pi_new | [M]"]['data_dict']['episodes']) == 52
+
 
 def test_build_tree():
 	""" Test the convenience function that builds the tree,

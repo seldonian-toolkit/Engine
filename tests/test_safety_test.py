@@ -99,7 +99,6 @@ def test_evaluate_primary_objective_regression(
     primary_obj_evl = st.evaluate_primary_objective(solution,primary_objective)
     assert primary_obj_evl == pytest.approx(0.94263425)
 
-
 def test_evaluate_primary_objective_RL(
     RL_gridworld_dataset):
     """ Test evaluating the primary objective 
@@ -143,7 +142,6 @@ def test_evaluate_primary_objective_RL(
         regime=regime)
     primary_obj_evl = st.evaluate_primary_objective(
         solution,primary_objective)
-    print(primary_obj_evl)
     assert primary_obj_evl == pytest.approx(0.45250228)
     
 
