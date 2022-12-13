@@ -80,6 +80,12 @@ class DataSetLoader():
 			column_names = metadata_dict['columns']
 		else:
 			column_names = ['episode_index','O','A','R','pi_b']
+		meta_information = {}
+		meta_information['episode_col_names'] = column_names
+		if 'sensitive_col_names' in metadata_dict:
+			meta_information['sensitive_col_names'] = metadata_dict['sensitive_col_names']
+		else:
+			meta_information['sensitive_col_names'] = []
 
 		df = pd.read_csv(filename,header=None)
 		df.columns = column_names
@@ -95,7 +101,7 @@ class DataSetLoader():
 		
 		return RLDataSet(
 			episodes=episodes,
-			meta_information=column_names)
+			meta_information=meta_information)
 	
 	def load_RL_dataset_from_episode_file(self,
 		filename):
@@ -106,13 +112,9 @@ class DataSetLoader():
 		:type filename: str
 		"""
 
-		columns = ["O","A","R","pi_b"]
-
 		episodes = load_pickle(filename)
-		
 		return RLDataSet(
-			episodes=episodes,
-			meta_information=columns)
+			episodes=episodes)
 
 		
 class DataSet(object):
@@ -166,7 +168,13 @@ class SupervisedDataSet(DataSet):
 
 	
 class RLDataSet(DataSet):
-	def __init__(self,episodes,meta_information=['O','A','R','pi_b'],
+	def __init__(self,
+		episodes,
+		meta_information={
+			'episode_col_names':['O','A','R','pi_b'],
+			'sensitive_col_names':[]
+		},
+		sensitive_attrs=[],
 		**kwargs):
 		""" Object for holding RL dataframe and dataset metadata
 	
@@ -176,7 +184,10 @@ class RLDataSet(DataSet):
 			e.g. ['o','a','r','pi_b']
 		:type meta_information: list(str)
 		"""
+		
 		self.episodes = episodes
+		self.sensitive_attrs = sensitive_attrs
+		self.sensitive_col_names = meta_information['sensitive_col_names']
 		super().__init__(
 			num_datapoints=len(self.episodes),
 			meta_information=meta_information,

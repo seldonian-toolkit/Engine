@@ -141,7 +141,8 @@ def test_load_RL_dataset():
 		filename=data_pth_csv,
 		metadata_filename=metadata_pth)
 
-	assert dataset_fromcsv.meta_information == columns
+	assert dataset_fromcsv.meta_information['episode_col_names'] == columns
+	assert dataset_fromcsv.meta_information['sensitive_col_names'] == []
 	episodes = dataset_fromcsv.episodes
 	assert len(episodes) == 100
 	assert np.allclose(episodes[0].observations[0:5],np.array([0,0,1,4,5]))

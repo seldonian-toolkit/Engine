@@ -416,6 +416,7 @@ def createRLSpec(
 	parse_trees = make_parse_trees_from_constraints(
 		constraint_strs,
 		deltas,
+		columns=dataset.sensitive_col_names,
 		regime='reinforcement_learning',
 		sub_regime='all',
 		delta_weight_method='equal')

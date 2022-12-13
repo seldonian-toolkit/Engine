@@ -80,33 +80,38 @@ class SeldonianAlgorithm():
 					"Warning: not enough data to "
 					"run the Seldonian algorithm.")
 				warnings.warn(warning_msg)
+			print(f"Safety dataset has {self.n_safety} datapoints")
+			print(f"Candidate dataset has {self.n_candidate} datapoints")
 
 		elif self.regime == 'reinforcement_learning':
-			self.env_kwargs = self.spec.model.env_kwargs
 
 			self.model = self.spec.model
 
-			episodes = self.spec.dataset.episodes
-			# Create candidate and safety datasets
-			n_episodes = len(episodes)
-			# For candidate take first 1.0-frac_data_in_safety fraction
-			# and for safety take remaining
-			self.n_candidate = int(round(n_episodes*(1.0-self.spec.frac_data_in_safety)))
-			self.n_safety = n_episodes - self.n_candidate
-			candidate_episodes = episodes[0:self.n_candidate]
-			safety_episodes = episodes[self.n_candidate:]
+			(
+				self.candidate_episodes,
+				self.safety_episodes,
+				self.candidate_sensitive_attrs,
+				self.safety_sensitive_attrs,
+				self.n_candidate,
+				self.n_safety
+
+			) = self.candidate_safety_split(
+					self.spec.frac_data_in_safety)
 
 			self.candidate_dataset = RLDataSet(
-				episodes=candidate_episodes,
+				episodes=self.candidate_episodes,
+				sensitive_attrs=self.candidate_sensitive_attrs,
 				meta_information=self.column_names)
 
 			self.safety_dataset = RLDataSet(
-				episodes=safety_episodes,
+				episodes=self.safety_episodes,
+				sensitive_attrs=self.safety_sensitive_attrs,
 				meta_information=self.column_names)
 
 			print(f"Safety dataset has {self.n_safety} episodes")
 			print(f"Candidate dataset has {self.n_candidate} episodes")
-			
+			print("Candidate sensitive_attrs:")
+
 		
 		if self.spec.primary_objective is None:
 			if self.regime == 'reinforcement_learning':
@@ -132,22 +137,33 @@ class SeldonianAlgorithm():
 		n_points_tot = self.dataset.num_datapoints
 		n_candidate = int(round(n_points_tot*(1.0-frac_data_in_safety)))
 		n_safety = n_points_tot - n_candidate
-		# Split features
-		if type(self.dataset.features) == list:
-			F_c = [x[:n_candidate] for x in self.dataset.features]
-			F_s = [x[n_candidate:] for x in self.dataset.features]
-		else:
-			F_c = self.dataset.features[:n_candidate] 
-			F_s = self.dataset.features[n_candidate:] 
-		# Split labels - must be numpy array
-		L_c = self.dataset.labels[:n_candidate] 
-		L_s = self.dataset.labels[n_candidate:]
+
+		if self.regime == 'supervised_learning':
+			# Split features
+			if type(self.dataset.features) == list:
+				F_c = [x[:n_candidate] for x in self.dataset.features]
+				F_s = [x[n_candidate:] for x in self.dataset.features]
+			else:
+				F_c = self.dataset.features[:n_candidate] 
+				F_s = self.dataset.features[n_candidate:] 
+			# Split labels - must be numpy array
+			L_c = self.dataset.labels[:n_candidate] 
+			L_s = self.dataset.labels[n_candidate:]
+
+			# Split sensitive attributes - must be numpy array
+			S_c = self.dataset.sensitive_attrs[:n_candidate] 
+			S_s = self.dataset.sensitive_attrs[n_candidate:]
+			return F_c,F_s,L_c,L_s,S_c,S_s,n_candidate,n_safety
+
+		elif self.regime == 'reinforcement_learning':
+			# Split episodes
+			E_c = self.dataset.episodes[0:n_candidate]
+			E_s = self.dataset.episodes[n_candidate:]
 		
-		# Split sensitive attributes - must be numpy array
-		S_c = self.dataset.sensitive_attrs[:n_candidate] 
-		S_s = self.dataset.sensitive_attrs[n_candidate:]
-		
-		return F_c,F_s,L_c,L_s,S_c,S_s,n_candidate,n_safety
+			# Split sensitive attributes - must be numpy array
+			S_c = self.dataset.sensitive_attrs[:n_candidate] 
+			S_s = self.dataset.sensitive_attrs[n_candidate:]
+			return E_c,E_s,S_c,S_s,n_candidate,n_safety
 
 	def candidate_selection(self,write_logfile=False):
 		""" Create the candidate selection object 

@@ -163,26 +163,31 @@ class BaseNode(Node):
 
         joint_mask = reduce(np.logical_and,
             (dataset.sensitive_attrs[:,col_index]==1 for col_index in sensitive_col_indices))
-
-        if type(dataset.features) == list:
-            masked_features = [x[joint_mask] for x in dataset.features]
-            masked_labels = [x[joint_mask] for x in dataset.labels]
-            # If possible, convert to numpy array. Not always possible, 
-            # e.g., if features are of different dimensions.
-            try:
-                masked_features = np.array(masked_features)
-                masked_labels = np.array(masked_labels)
+        if dataset.regime == 'supervised_learning':
+            if type(dataset.features) == list:
+                masked_features = [x[joint_mask] for x in dataset.features]
+                masked_labels = [x[joint_mask] for x in dataset.labels]
+                # If possible, convert to numpy array. Not always possible, 
+                # e.g., if features are of different dimensions.
+                try:
+                    masked_features = np.array(masked_features)
+                    masked_labels = np.array(masked_labels)
+                    n_masked = len(masked_features)
+                except Exception as e:
+                    # masked_features and masked_labels stay as lists
+                    n_masked = len(masked_features[0])
+            else:
+                # numpy array 
+                masked_features = dataset.features[joint_mask] 
+                masked_labels = dataset.labels[joint_mask]
                 n_masked = len(masked_features)
-            except Exception as e:
-                # masked_features and masked_labels stay as lists
-                n_masked = len(masked_features[0])
-        else:
-            # numpy array 
-            masked_features = dataset.features[joint_mask] 
-            masked_labels = dataset.labels[joint_mask]
-            n_masked = len(masked_features)
 
-        return masked_features,masked_labels,n_masked
+            return masked_features,masked_labels,n_masked
+        
+        elif dataset.regime == 'reinforcement_learning':
+            masked_episodes = np.asarray(dataset.episodes)[joint_mask]
+            n_masked = len(masked_episodes)
+            return masked_episodes,n_masked
 
     def calculate_data_forbound(self,**kwargs):
         """
@@ -225,17 +230,25 @@ class BaseNode(Node):
             gamma = model.env_kwargs['gamma']
             episodes = dataset.episodes
 
-            if branch == 'candidate_selection':
-                datasize = n_safety
+            if self.conditional_columns:
+                masked_episodes,n_masked = self.mask_data(
+                    dataset,self.conditional_columns)
             else:
-                datasize = len(episodes)
+                (masked_episodes,
+                    n_masked) = episodes,dataset.num_datapoints
+
+            if branch == 'candidate_selection':
+                frac_masked = n_masked/dataset.num_datapoints
+                datasize = int(round(frac_masked*n_safety))
+            else:
+                datasize = n_masked
             
             # Precalculate expected return from behavioral policy
-            returns = [weighted_sum_gamma(ep.rewards,gamma) for ep in episodes]
+            masked_returns = [weighted_sum_gamma(ep.rewards,gamma) for ep in masked_episodes]
 
             data_dict = {
-                'episodes':episodes,
-                'reward_sums_by_episode':returns
+                'episodes':masked_episodes,
+                'weighted_returns':masked_returns
             }
 
         return data_dict,datasize

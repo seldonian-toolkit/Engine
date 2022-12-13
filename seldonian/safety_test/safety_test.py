@@ -32,7 +32,6 @@ class SafetyTest(object):
 		self.parse_trees = parse_trees
 		self.regime = regime
 
-
 	def run(self,solution,batch_size_safety=None,**kwargs):
 		""" Loop over parse trees, calculate the bounds on leaf nodes
 		and propagate to the root node. The safety test passes if
@@ -101,8 +100,11 @@ class SafetyTest(object):
 			# Want to maximize the importance weight so minimize negative importance weight
 			# Adding regularization term so that large thetas make this less negative
 			# and therefore worse 
-			result = -1.0*primary_objective(self.model,theta,
-				self.safety_dataset.episodes)
+			result = -1.0*primary_objective(
+				model=self.model,
+				theta=theta,
+				episodes=self.safety_dataset.episodes,
+				weighted_returns=None)
 
 			if hasattr(self,'reg_coef'):
 				# reg_term = self.reg_coef*np.linalg.norm(theta)
