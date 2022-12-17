@@ -2,6 +2,9 @@ import copy
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from autograd import grad, jacobian, elementwise_grad as egrad
 
+import warnings
+from seldonian.warnings.custom_warnings import *
+
 def setup_gradients(
     gradient_library,
     primary_objective,
@@ -153,7 +156,7 @@ def gradient_descent_adam(
             batch_calculator(batch_index,batch_size)
             primary_val = primary_objective(theta)
             g_vec = upper_bounds_function(theta)
-         
+        
             if debug:
                 print("epoch,batch_i,overall_i,f,g,theta,lambda:",epoch,batch_index,gd_index,primary_val,g_vec,theta,lamb)
                 print()
@@ -175,10 +178,27 @@ def gradient_descent_adam(
             L_val = primary_val + sum(lamb*g_vec) 
             L_vals.append(L_val)
 
+            # if nans or infs appear in any quantities then stop gradient descent
+            # and return NSF
+            if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
+                warning_msg = (
+                    "Warning: a nan or inf was found during "
+                    "gradient descent. Stopping prematurely "
+                    "and returning NSF.")
+                warnings.warn(warning_msg)
+                candidate_solution = "NSF"
+                break
+
             # Obtain gradients of both terms in Lagrangian 
             # at current values of theta and lambda
+            # print("calculating df/dtheta...")
             grad_primary_theta_val = grad_primary_theta(theta)
+            # print("df/dtheta = ",grad_primary_theta_val)
+            
+            # print("calculating dU/dtheta...")
             gu_theta_vec = grad_upper_bound_theta(theta)
+            # print("dU/dtheta = ",gu_theta_vec)
+            # print()
 
             grad_secondary_theta_val_vec = gu_theta_vec * lamb[:, None] ## to multiply each row of gu_theta_vec by elements of lamb
             gradient_theta = grad_primary_theta_val + np.sum(grad_secondary_theta_val_vec,axis=0)
@@ -203,11 +223,6 @@ def gradient_descent_adam(
             # If any values in lambda vector dip below 0, force them to be zero
             lamb[lamb<0]=0
             
-            # if nans or infs appear in any quantities then stop gradient descent
-            # and return NSF
-            if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
-                candidate_solution = "NSF"
-                break
             gd_index += 1
         else: # only executed if inner loop did not break
             continue

@@ -1,10 +1,11 @@
 """ Objective functions """
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+from scipy import special
 import math
 
 from seldonian.utils.stats_utils import weighted_sum_gamma
-
+stability_const = 1e-15
 
 def batcher(func,N,batch_size,num_batches):
 	""" Calls function num_batches times,
@@ -334,8 +335,13 @@ def binary_logistic_loss(model,theta,X,Y,**kwargs):
 	:rtype: float
 	"""
 	Y_pred = model.predict(theta,X)
-	# binary 
-	res = np.mean(-Y*np.log(Y_pred) - (1.0-Y)*np.log(1.0-Y_pred))
+	# Add stability constant. This guards against
+	# predictions that are 0 or 1, which cause log(Y_pred) or 
+	# log(1.0-Y_pred) to be nan. If Y==0 and Y_pred == 1,
+	# cost will be np.log(1e-15) ~ -34.
+	# Similarly if Y==1 and Y_pred == 0. 
+	# It's a ceiling in the cost function, essentially.
+	res = np.mean(-Y*np.log(Y_pred+stability_const) - (1.0-Y)*np.log(1.0-Y_pred+stability_const))
 	return res
 
 def gradient_binary_logistic_loss(model,theta,X,Y,**kwargs):

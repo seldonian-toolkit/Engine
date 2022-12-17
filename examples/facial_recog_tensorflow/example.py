@@ -83,7 +83,8 @@ if __name__ == "__main__":
 
 	# constraint_strs = ['ACC >= 0.6']
 	# constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) <= 0.2']
-	constraint_strs = ['abs((ACC | [M]) - (ACC | [F])) <= 0.05']
+	# constraint_strs = ['abs((ACC | [M]) - (ACC | [F])) <= 0.1']
+	constraint_strs = ['min((ACC | [M])/(ACC | [F]),(ACC | [F])/(ACC | [M])) >= 0.8']
 	deltas = [0.05] 
 	print("Making parse trees... for constraint(s):")
 	print(constraint_strs," with deltas: ", deltas)
@@ -93,8 +94,12 @@ if __name__ == "__main__":
 
 	model = GenderClassifierCNN()
 
+	# f_debug_theta = './debug_theta.pkl'
+	# debug_theta = load_pickle(f_debug_theta)
+	# model.update_model_params(debug_theta)
+
 	initial_solution_fn = model.get_initial_weights
-	
+	# print(model.get_initial_weights())
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -114,15 +119,29 @@ if __name__ == "__main__":
 			'beta_rmsprop'  : 0.95,
 			'use_batches'   : True,
 			'batch_size'    : 395,
-			'n_epochs'      : 150,
+			'n_epochs'      : 100,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
 		},
-		batch_size_safety=1000
+		regularization_hyperparams={
+			'reg_coef':0.1
+		},
+		batch_size_safety=2000
 	)
 	save_pickle('./spec.pkl',spec,verbose=True)
 	SA = SeldonianAlgorithm(spec)
+
+	
+	# f_best_theta = './best_theta.pkl'
+	# best_theta = load_pickle(f_best_theta)
+	# st = SA.safety_test()
+	# passed = st.run(solution=best_theta,batch_size_safety=1000)
+	# print(passed)
+	# st_primary_objective = SA.evaluate_primary_objective(theta=best_theta,
+	# branch='safety_test')
+	# print("Primary objective evaluated on safety test:")
+	# print(st_primary_objective)
 
 	passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
 	if passed_safety:

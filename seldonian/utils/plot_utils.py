@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.ndimage import uniform_filter1d
 import matplotlib.pyplot as plt
 from functools import reduce
 
@@ -46,7 +47,10 @@ def plot_gradient_descent(
 	g_vals_masked = g_vals[final_mask]
 	lamb_vals_masked = np.array(lamb_vals)[final_mask]
 	L_vals_masked = np.array(L_vals)[final_mask]
-
+	its = np.arange(len(f_vals))
+	its_masked = its[final_mask]
+	# Running average f and L
+	f_runavg = uniform_filter1d(f_vals_masked,size=15)
 	best_index = solution['best_index']
 	best_f = solution['best_f']
 	best_g = solution['best_g']
@@ -65,7 +69,8 @@ def plot_gradient_descent(
 		
 		# Subplot: Primary objective, repeated for each row
 		ax_f = axes_this_constraint[0]
-		ax_f.plot(np.arange(len(f_vals_masked)),f_vals_masked,linewidth=2)
+		ax_f.plot(its_masked,f_vals_masked,linewidth=2)
+		ax_f.plot(its_masked,f_runavg,linewidth=1)
 		ax_f.set_xlabel("Iteration")
 
 		ax_f.set_ylabel(rf"$\hat{{f}}(\theta,D_\mathrm{{cand}})$: {primary_objective_name}",fontsize=fontsize)
@@ -75,7 +80,7 @@ def plot_gradient_descent(
 		# Subplot: lambda[constraint_index]
 		ax_lamb = axes_this_constraint[1]
 		lamb_vals_this_constraint = [x[constraint_index] for x in lamb_vals_masked]
-		ax_lamb.plot(np.arange(len(lamb_vals_masked)),lamb_vals_this_constraint,
+		ax_lamb.plot(its_masked,lamb_vals_this_constraint,
 			linewidth=2)
 		ax_lamb.set_xlabel("Iteration")
 		ax_lamb.set_ylabel(rf"$\lambda_{row_number}$",fontsize=fontsize)
@@ -87,7 +92,7 @@ def plot_gradient_descent(
 		# Subplot: g[constraint_index]
 		ax_g = axes_this_constraint[2]
 		g_vals_this_constraint = [x[constraint_index] for x in g_vals_masked]
-		ax_g.plot(np.arange(len(g_vals_masked)),g_vals_this_constraint,linewidth=2)
+		ax_g.plot(its_masked,g_vals_this_constraint,linewidth=2)
 		ax_g.set_xlabel("Iteration")
 		ax_g.set_ylabel(rf"$\mathrm{{HCUB}}(\hat{{g}}_{{{row_number}}}(\theta,D_\mathrm{{cand}}))$",fontsize=fontsize)
 		ax_g.fill_between(np.arange(len(g_vals_masked)),0.0,1e6,color='r',zorder=0,alpha=0.5)
@@ -98,7 +103,7 @@ def plot_gradient_descent(
 
 		# Subplot: Lagrangian, repeated for each row
 		ax_L = axes_this_constraint[3]
-		ax_L.plot(np.arange(len(L_vals_masked)),L_vals_masked,linewidth=2)
+		ax_L.plot(its_masked,L_vals_masked,linewidth=2)
 		ax_L.set_xlabel("Iteration")
 		ax_L.set_ylabel(r"$L(\theta,\lambda)$",fontsize=fontsize)
 		ax_L.axvline(x=best_index,linestyle='--',color='k')
