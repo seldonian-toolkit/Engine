@@ -81,10 +81,10 @@ if __name__ == "__main__":
 		num_datapoints=N,
 		meta_information=meta_information)
 
-	constraint_strs = ['ACC >= 0.6']
+	# constraint_strs = ['ACC >= 0.6']
 	# constraint_strs = ['abs((FPR | [M]) - (FPR | [F])) <= 0.2']
 	# constraint_strs = ['abs((ACC | [M]) - (ACC | [F])) <= 0.1']
-	# constraint_strs = ['min((ACC | [M])/(ACC | [F]),(ACC | [F])/(ACC | [M])) >= 0.8']
+	constraint_strs = ['min((ACC | [M])/(ACC | [F]),(ACC | [F])/(ACC | [M])) >= 0.8']
 	deltas = [0.05] 
 	print("Making parse trees for constraint(s):")
 	print(constraint_strs," with deltas: ", deltas)
@@ -119,8 +119,8 @@ if __name__ == "__main__":
 			'beta_velocity' : 0.9,
 			'beta_rmsprop'  : 0.95,
 			'use_batches'   : True,
-			'batch_size'    : 150,
-			'n_epochs'      : 20,
+			'batch_size'    : 237,
+			'n_epochs'      : 40,
 			'gradient_library': "autograd",
 			'hyper_search'  : None,
 			'verbose'       : True,
