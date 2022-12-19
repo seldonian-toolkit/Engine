@@ -103,8 +103,8 @@ class SupervisedPytorchBaseModel(SupervisedModel):
 		"""
 		return pytorch_predict(theta,X,self)
 
-	def get_initial_weights(self,*args):
-		""" Return initial weights as a flattened 1D array
+	def get_model_params(self,*args):
+		""" Return weights of the model as a flattened 1D array
 		Also return the number of elements in each model parameter """
 		layer_params_list = []
 		for param in self.pytorch_model.parameters():

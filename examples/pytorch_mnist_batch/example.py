@@ -63,7 +63,7 @@ if __name__ == "__main__":
     device = torch.device("mps")
     model = PytorchCNN(device)
 
-    initial_solution_fn = model.get_initial_weights
+    initial_solution_fn = model.get_model_params
     
     spec = SupervisedSpec(
         dataset=dataset,

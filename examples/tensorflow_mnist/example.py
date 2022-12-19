@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
 	model = TensorFlowCNN()
 
-	initial_solution_fn = model.get_initial_weights
+	initial_solution_fn = model.get_model_params
 	theta_file = '../../../notebooks/best_theta_mnist_tensorflow.pkl'
 	best_theta = load_pickle(theta_file)
 	# print("loaded best theta:")

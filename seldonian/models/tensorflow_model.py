@@ -95,7 +95,7 @@ class SupervisedTensorFlowBaseModel(SupervisedModel):
 		"""
 		return tf_predict(theta,X,self)
 
-	def get_initial_weights(self,*args):
+	def get_model_params(self,*args):
 		""" Return initial weights as a flattened 1D array
 		Also return the number of elements in each model parameter """
 		layer_params_list = []
