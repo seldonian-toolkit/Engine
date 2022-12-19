@@ -160,17 +160,18 @@ def gradient_descent_adam(
             # Check if this is best feasible value so far
             if all([g<= 0 for g in g_vec]) and primary_val < best_primary:
                 found_feasible_solution = True
-                best_primary = np.copy(primary_val)
-                best_g_vec = np.copy(g_vec)
-                best_index = np.copy(gd_index)
+                best_index = gd_index
+                best_primary = primary_val
+                best_lamb = lamb
+                best_g_vec = g_vec
+                best_L = L_val
                 candidate_solution = np.copy(theta)
 
             # store values
             theta_vals.append(np.copy(theta))
             lamb_vals.append(np.copy(lamb))
-            f_vals.append(np.copy(primary_val))
-            g_vals.append(np.copy(g_vec))
-            
+            f_vals.append(primary_val)
+            g_vals.append(g_vec)
             L_val = primary_val + sum(lamb*g_vec) 
             L_vals.append(L_val)
 
@@ -221,8 +222,10 @@ def gradient_descent_adam(
                     "Returning NSF"
                     )
             best_index = None
-            best_g_vec = None
             best_primary = None
+            best_lamb = None
+            best_g_vec = None
+            best_L = None
         else:   
             if debug:
                 print(
@@ -231,19 +234,23 @@ def gradient_descent_adam(
                     )
             # best g is when norm of g is minimized
             best_index = np.argmin(np.linalg.norm(g_vals,axis=1))
-            best_g_vec = g_vals[best_index]
             best_primary = f_vals[best_index]
+            best_lamb = lamb_vals[best_index]
+            best_g_vec = g_vals[best_index]
+            best_L = L_vals[best_index]
             candidate_solution = theta_vals[best_index]
 
     solution['candidate_solution'] = candidate_solution
     solution['best_index'] = best_index
-    solution['best_g'] = best_g_vec
     solution['best_f'] = best_primary
+    solution['best_g'] = best_g_vec
+    solution['best_lamb'] = best_lamb
+    solution['best_L'] = best_L
     solution['found_feasible_solution'] = found_feasible_solution
-    solution['theta_vals'] = theta_vals
-    solution['f_vals'] = f_vals
-    solution['g_vals'] = g_vals
-    solution['lamb_vals'] = lamb_vals
-    solution['L_vals'] = L_vals
+    solution['theta_vals'] = np.array(theta_vals)
+    solution['f_vals'] = np.array(f_vals)
+    solution['lamb_vals'] = np.array(lamb_vals)
+    solution['g_vals'] = np.array(g_vals)
+    solution['L_vals'] = np.array(L_vals)
 
     return solution

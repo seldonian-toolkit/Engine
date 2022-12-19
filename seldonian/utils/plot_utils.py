@@ -1,9 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from functools import reduce
+from scipy.ndimage import uniform_filter1d
 
 def plot_gradient_descent(
 	solution,
 	primary_objective_name,
+	plot_running_avg=False,
 	save=False,
 	savename='test.png',
 	show=True):
@@ -23,6 +26,8 @@ def plot_gradient_descent(
 	:param primary_objective_name: The label you want displayed on the plot
 		for the primary objective
 	:type primary_objective_name: str
+	:param plot_running_avg: Whether to plot running average of f and L
+	:type plot_running_avg: bool
 	:param save: Whether to save the plot
 	:type save: bool
 	:param savename: The full path where you want to save the plot
@@ -31,16 +36,41 @@ def plot_gradient_descent(
 		Only relevant when save=False
 	:type show: bool
 	"""
-	fontsize=10
+	# Extract values from dictionary
 	theta_vals = solution['theta_vals'] 
 	lamb_vals = solution['lamb_vals'] # i x j array where i is number of iterations, j is number of constraints
 	f_vals = solution['f_vals'] # length = i array where i is number of iterations 
 	g_vals = solution['g_vals'] # i x j array where i is number of iterations, j is number of constraints
 	L_vals = solution['L_vals']
-	
 	best_index = solution['best_index']
 	best_f = solution['best_f']
 	best_g = solution['best_g']
+	best_lamb = solution['best_lamb']
+	best_L = solution['best_L']
+
+	# Mask out nans and infs
+	masks = []
+	for q_i,q in enumerate([f_vals,g_vals,lamb_vals,L_vals]):
+		q = np.squeeze(q)
+		if q_i in [1,2]:
+			mask = np.isfinite(q).all(axis=-1)
+		else:
+			mask = np.isfinite(q)
+		masks.append(mask)
+
+	final_mask = reduce(np.logical_and,masks)
+
+	f_vals_masked = f_vals[final_mask]
+	g_vals_masked = g_vals[final_mask]
+	lamb_vals_masked = np.array(lamb_vals)[final_mask]
+	L_vals_masked = np.array(L_vals)[final_mask]
+	its = np.arange(len(f_vals))
+	its_masked = its[final_mask]
+
+	# Running average f and L
+	if plot_running_avg:
+		f_runavg = uniform_filter1d(f_vals_masked,size=15)
+		L_runavg = uniform_filter1d(L_vals_masked,size=15)
 
 	if 'constraint_strs' in solution.keys():
 		constraint_strs = solution['constraint_strs']
@@ -50,6 +80,7 @@ def plot_gradient_descent(
 	n_constraints = g_vals[0].shape[0]
 	n_cols = 4 
 
+	fontsize=10
 	fig = plt.figure(figsize=(10,4+(n_constraints-1)*2),
 		constrained_layout=True)
 
@@ -74,39 +105,43 @@ def plot_gradient_descent(
 		for col, ax in enumerate(axs):
 			if col == 0:
 				# Primary objective, same for each constraint
-				ax.plot(np.arange(len(f_vals)),f_vals,linewidth=2)
+				orig=ax.plot(its_masked,f_vals_masked,linewidth=2,label='orig')
+				if plot_running_avg:
+					runavg=ax.plot(its_masked,f_runavg,linewidth=1,label='running avg.')
+					ax.legend()
 				ax.set_xlabel("Iteration")
 				ax.set_ylabel(rf"$\hat{{f}}(\theta,D_\mathrm{{cand}})$: {primary_objective_name}",fontsize=fontsize)
 				ax.axvline(x=best_index,linestyle='--',color='k')
 				ax.axhline(y=best_f,linestyle='--',color='k')
 			if col == 1:
 				# lambda[constraint_index]
-				lamb_vals_this_constraint = [x[constraint_index] for x in lamb_vals]
-				ax.plot(np.arange(len(lamb_vals)),lamb_vals_this_constraint,
+				lamb_vals_this_constraint = [x[constraint_index] for x in lamb_vals_masked]
+				ax.plot(its_masked,lamb_vals_this_constraint,
 					linewidth=2)
 				ax.set_xlabel("Iteration")
 				ax.set_ylabel(rf"$\lambda_{row_number}$",fontsize=fontsize)
 				ax.axvline(x=best_index,linestyle='--',color='k')
-				best_lamb = lamb_vals[best_index][constraint_index]
-				ax.axhline(y=best_lamb,linestyle='--',color='k')
+				ax.axhline(y=best_lamb[constraint_index],linestyle='--',color='k')
 			if col == 2:
 				# g[constraint_index]
-				g_vals_this_constraint = [x[constraint_index] for x in g_vals]
-				ax.plot(np.arange(len(g_vals)),g_vals_this_constraint,linewidth=2)
+				g_vals_this_constraint = [x[constraint_index] for x in g_vals_masked]
+				ax.plot(its_masked,g_vals_this_constraint,linewidth=2)
 				ax.set_xlabel("Iteration")
 				ax.set_ylabel(rf"$\mathrm{{HCUB}}(\hat{{g}}_{{{row_number}}}(\theta,D_\mathrm{{cand}}))$",fontsize=fontsize)
-				ax.fill_between(np.arange(len(g_vals)),0.0,1e6,color='r',zorder=0,alpha=0.5)
+				ax.fill_between(its_masked,0.0,1e6,color='r',zorder=0,alpha=0.5)
 				ax.set_ylim(min(-0.25,min(g_vals_this_constraint)),max(0.25,max(g_vals_this_constraint)*1.2))
 				ax.axvline(x=best_index,linestyle='--',color='k')
 				ax.axhline(y=best_g[constraint_index],linestyle='--',color='k')
 				ax.set_xlim(0,len(g_vals))
 			if col == 3:
 				# Lagrangian, same for each constraint
-				ax.plot(np.arange(len(L_vals)),L_vals,linewidth=2)
+				orig=ax.plot(its_masked,L_vals_masked,linewidth=2,label='orig')
+				if plot_running_avg:
+					runavg=ax.plot(its_masked,L_runavg,linewidth=1,label='running avg.')
+					ax.legend()
 				ax.set_xlabel("Iteration")
 				ax.set_ylabel(r"$L(\theta,\lambda)$",fontsize=fontsize)
 				ax.axvline(x=best_index,linestyle='--',color='k')
-				best_L = L_vals[best_index]
 				ax.axhline(y=best_L,linestyle='--',color='k')
 	if save:
 		plt.savefig(savename,dpi=300)
