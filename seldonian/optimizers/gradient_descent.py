@@ -152,6 +152,7 @@ def gradient_descent_adam(
             batch_calculator(batch_index,batch_size)
             primary_val = primary_objective(theta)
             g_vec = upper_bounds_function(theta)
+            L_val = primary_val + sum(lamb*g_vec) 
          
             if debug:
                 print("epoch,batch_i,overall_i,f,g,theta,lambda:",epoch,batch_index,gd_index,primary_val,g_vec,theta,lamb)
@@ -172,7 +173,6 @@ def gradient_descent_adam(
             lamb_vals.append(np.copy(lamb))
             f_vals.append(primary_val)
             g_vals.append(g_vec)
-            L_val = primary_val + sum(lamb*g_vec) 
             L_vals.append(L_val)
 
             # Obtain gradients of both terms in Lagrangian 
