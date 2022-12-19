@@ -231,6 +231,9 @@ class CandidateSelection(object):
 				)
 			self.optimization_result = res
 			res['constraint_strs'] = [pt.constraint_str for pt in self.parse_trees]
+			res['batch_size'] = batch_size
+			res['n_epochs'] = n_epochs
+
 			if self.write_logfile:
 				log_counter = 0
 				logdir = os.path.join(os.getcwd(),
