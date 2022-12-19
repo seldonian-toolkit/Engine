@@ -230,7 +230,7 @@ class CandidateSelection(object):
 			res = gradient_descent_adam(**gd_kwargs
 				)
 			self.optimization_result = res
-
+			res['constraint_strs'] = [pt.constraint_str for pt in self.parse_trees]
 			if self.write_logfile:
 				log_counter = 0
 				logdir = os.path.join(os.getcwd(),

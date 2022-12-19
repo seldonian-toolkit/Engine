@@ -16,7 +16,8 @@ if __name__ == "__main__":
 
     # 2. Create parse trees from the behavioral constraints 
     # constraint strings:
-    constraint_strs = ['Mean_Squared_Error >= 1.25','Mean_Squared_Error <= 2.0']
+    constraint_strs = ['Mean_Squared_Error >= 1.25',
+        'Mean_Squared_Error <= 2.0']
     # confidence levels: 
     deltas = [0.1,0.1] 
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     # 5. Run seldonian algorithm using the spec object
     SA = SeldonianAlgorithm(spec)
 
-    passed_safety,solution = SA.run()
+    passed_safety,solution = SA.run(write_cs_logfile=True)
     print(passed_safety,solution)
 
     # Check the value of the primary objective on the safety dataset
