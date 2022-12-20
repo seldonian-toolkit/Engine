@@ -328,7 +328,7 @@ class BaseNode(Node):
         else:
             raise RuntimeError("bound_method not specified!")
     
-    def zhat(self,model,theta,data_dict,**kwargs):
+    def zhat(self,model,theta,data_dict,datasize,**kwargs):
         """
         Calculate an unbiased estimate of the 
         base variable node.
@@ -346,7 +346,8 @@ class BaseNode(Node):
 
         return sample_from_statistic(model=model,
             statistic_name=self.measure_function_name,
-            theta=theta,data_dict=data_dict,**kwargs)
+            theta=theta,data_dict=data_dict,
+            datasize=datasize,**kwargs)
 
     def predict_HC_lowerbound(self,
         data,
