@@ -2,6 +2,9 @@ import copy
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from autograd import grad, jacobian, elementwise_grad as egrad
 
+import warnings
+from seldonian.warnings.custom_warnings import *
+
 def setup_gradients(
     gradient_library,
     primary_objective,
@@ -175,6 +178,20 @@ def gradient_descent_adam(
             g_vals.append(g_vec)
             L_vals.append(L_val)
 
+            # if nans or infs appear in any quantities,
+            # then stop gradient descent and return NSF
+            if np.isinf(primary_val) or np.isnan(primary_val) \
+                or np.isinf(lamb).any() or np.isnan(lamb).any() \
+                or np.isinf(theta).any() or np.isnan(theta).any() \
+                or np.isinf(g_vec).any() or np.isnan(g_vec).any():
+                warning_msg = (
+                    "Warning: a nan or inf was found during "
+                    "gradient descent. Stopping prematurely "
+                    "and returning NSF.")
+                warnings.warn(warning_msg)
+                candidate_solution = "NSF"
+                break
+
             # Obtain gradients of both terms in Lagrangian 
             # at current values of theta and lambda
             grad_primary_theta_val = grad_primary_theta(theta)
@@ -203,12 +220,10 @@ def gradient_descent_adam(
             # If any values in lambda vector dip below 0, force them to be zero
             lamb[lamb<0]=0
             
-            # if nans or infs appear in any quantities then stop gradient descent
-            # and return NSF
-            if np.isinf(primary_val) or np.isnan(primary_val) or np.isinf(lamb).any() or np.isnan(lamb).any() or np.isinf(theta).any() or np.isnan(theta).any() or np.isinf(g_vec).any() or np.isnan(g_vec).any():
-                candidate_solution = "NSF"
-                break
             gd_index += 1
+        else: # only executed if inner loop did not break
+            continue
+        break # only executed if inner loop broke
 
     solution = {}
     solution_found = True
