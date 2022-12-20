@@ -4,12 +4,12 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import math
 
 from seldonian.utils.stats_utils import weighted_sum_gamma
-
+stability_const = 1e-15
 
 def batcher(func,N,batch_size,num_batches):
 	""" Calls function num_batches times,
 	batching up the inputs to the objective function
-	or measure function.
+	or measure function 
 
 	:param func: The function you want to call
 	:param N: The total number of datapoints
@@ -31,7 +31,7 @@ def batcher(func,N,batch_size,num_batches):
 			labels=args[3]
 		elif regime == 'reinforcement_learning':
 			episodes = args[2]
-		print(f"Have {num_batches} batches of size {batch_size} in safety test")
+			weighted_returns = args[3]
 		if num_batches > 1:
 			res = np.zeros(N)
 			batch_start = 0 
@@ -48,7 +48,8 @@ def batcher(func,N,batch_size,num_batches):
 					
 				elif regime == 'reinforcement_learning':
 					episodes_batch = episodes[batch_start:batch_end]
-					batch_args = [model,theta,episodes_batch]
+					weighted_returns_batch = weighted_returns[batch_start:batch_end]
+					batch_args = [model,theta,episodes_batch,weighted_returns_batch]
 				
 				res[batch_start:batch_end] = func(
 						*batch_args,
@@ -56,13 +57,13 @@ def batcher(func,N,batch_size,num_batches):
 
 				batch_start=batch_end
 		else:
-
 			res = func(*args,**kw)  
 		return res
 	return wrapper
 
 def sample_from_statistic(model,
-	statistic_name,theta,data_dict,**kwargs):
+	statistic_name,theta,data_dict,
+	datasize,**kwargs):
 	""" Evaluate a provided statistic for each observation 
 	in the sample
 
@@ -104,27 +105,26 @@ def sample_from_statistic(model,
 		return msr_func(*args,**msr_func_kwargs)
 
 	elif branch == 'safety_test':
-		num_datapoints = dataset.num_datapoints
 		if 'batch_size_safety' in kwargs:
 			if kwargs['batch_size_safety'] is None:
-				batch_size_safety = num_datapoints
+				batch_size_safety = datasize
 				num_batches = 1
 			else:	
 				batch_size_safety = kwargs['batch_size_safety'] 
-				num_batches = math.ceil(num_datapoints / batch_size_safety)
+				num_batches = math.ceil(datasize / batch_size_safety)
 
 		else:
-			batch_size_safety = num_datapoints
+			batch_size_safety = datasize
 			num_batches = 1
-
 		return batcher(
 			msr_func,
-			N=num_datapoints,
+			N=datasize,
 			batch_size=batch_size_safety,
 			num_batches=num_batches)(*args,**msr_func_kwargs)
 
 def evaluate_statistic(model,
-	statistic_name,theta,data_dict,**kwargs):
+	statistic_name,theta,data_dict,
+	datasize,**kwargs):
 	""" Evaluate a provided statistic for the whole sample provided
 
 	:param model: SeldonianModel instance
@@ -142,7 +142,6 @@ def evaluate_statistic(model,
 	dataset = kwargs['dataset']
 	regime = dataset.regime
 	msr_func_kwargs = {'regime':regime}
-
 	if regime == 'supervised_learning':
 		args = [model,theta,data_dict['features'],data_dict['labels']]
 		sub_regime = dataset.meta_information['sub_regime']
@@ -165,24 +164,23 @@ def evaluate_statistic(model,
 		return msr_func(*args,**msr_func_kwargs)
 
 	elif branch == 'safety_test':
-		num_datapoints = dataset.num_datapoints
 		if 'batch_size_safety' in kwargs:
 			if kwargs['batch_size_safety'] is None:
-				batch_size_safety = num_datapoints
+				batch_size_safety = datasize
 				num_batches = 1
 			else:	
 				batch_size_safety = kwargs['batch_size_safety'] 
-				num_batches = math.ceil(num_datapoints / batch_size_safety)
+				num_batches = math.ceil(datasize / batch_size_safety)
 
 		else:
-			batch_size_safety = num_datapoints
+			batch_size_safety = datasize
 			num_batches = 1
 
-		return batcher(
+		return np.mean(batcher(
 			msr_func,
-			N=num_datapoints,
+			N=datasize,
 			batch_size=batch_size_safety,
-			num_batches=num_batches)(*args,**msr_func_kwargs)
+			num_batches=num_batches)(*args,**msr_func_kwargs))
 
 """ Regression """
 
@@ -340,8 +338,13 @@ def binary_logistic_loss(model,theta,X,Y,**kwargs):
 	:rtype: float
 	"""
 	Y_pred = model.predict(theta,X)
-	# binary 
-	res = np.mean(-Y*np.log(Y_pred) - (1.0-Y)*np.log(1.0-Y_pred))
+	# Add stability constant. This guards against
+	# predictions that are 0 or 1, which cause log(Y_pred) or 
+	# log(1.0-Y_pred) to be nan. If Y==0 and Y_pred == 1,
+	# cost will be np.log(1e-15) ~ -34.
+	# Similarly if Y==1 and Y_pred == 0. 
+	# It's a ceiling in the cost function, essentially.
+	res = np.mean(-Y*np.log(Y_pred+stability_const) - (1.0-Y)*np.log(1.0-Y_pred+stability_const))
 	return res
 
 def gradient_binary_logistic_loss(model,theta,X,Y,**kwargs):
@@ -1043,7 +1046,6 @@ def IS_estimate(model,theta,episodes,weighted_returns=None,**kwargs):
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
 	:param episodes: List of episodes
-
 	:return: The IS estimate calculated over all episodes
 	:rtype: float
 	"""
@@ -1077,7 +1079,6 @@ def vector_IS_estimate(model,theta,episodes,weighted_returns,**kwargs):
 	:param theta: The parameter weights
 	:type theta: numpy ndarray
 	:param episodes: List of episodes
-
 	:return: A vector of IS estimates calculated for each episode
 	:rtype: numpy ndarray(float)
 	"""
@@ -1090,7 +1091,6 @@ def vector_IS_estimate(model,theta,episodes,weighted_returns,**kwargs):
 		result.append(pi_ratio_prod * weighted_returns[ii])
 
 	return np.array(result)
-
 """ Measure function mappers """ 
 measure_function_vector_mapper = {
 	'Mean_Squared_Error':vector_Squared_Error,
