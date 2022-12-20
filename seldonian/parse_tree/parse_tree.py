@@ -764,6 +764,10 @@ class ParseTree(object):
 
 					kwargs['data_dict'] = data_dict
 					kwargs['datasize'] = datasize
+
+				if isinstance(node,ConfusionMatrixBaseNode):
+					kwargs['cm_true_index'] = node.cm_true_index
+					kwargs['cm_pred_index'] = node.cm_pred_index
 				value = node.calculate_value(
 					**kwargs)
 				node.value = value
