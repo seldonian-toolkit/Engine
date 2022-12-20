@@ -26,7 +26,7 @@ seldonian.models.pytorch\_model.SupervisedPytorchBaseModel
    ..
    ..    ~SupervisedPytorchBaseModel.forward_pass
    ..
-   ..    ~SupervisedPytorchBaseModel.get_initial_weights
+   ..    ~SupervisedPytorchBaseModel.get_model_params
    ..
    ..    ~SupervisedPytorchBaseModel.get_param_sizes
    ..

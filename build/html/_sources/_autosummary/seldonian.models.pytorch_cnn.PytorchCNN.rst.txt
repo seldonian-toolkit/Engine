@@ -26,7 +26,7 @@ seldonian.models.pytorch\_cnn.PytorchCNN
    ..
    ..    ~PytorchCNN.forward_pass
    ..
-   ..    ~PytorchCNN.get_initial_weights
+   ..    ~PytorchCNN.get_model_params
    ..
    ..    ~PytorchCNN.get_param_sizes
    ..
