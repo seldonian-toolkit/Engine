@@ -89,8 +89,10 @@ def plot_gradient_descent(
 	
 	if not isinstance(subfigs,np.ndarray):
 		subfigs = np.array([subfigs])
-	
-	title=rf"KKT optimization for $L(\theta,\lambda) = \hat{{f}}(\theta,D_\mathrm{{cand}}) + \sum_{{k=1}}^{{{n_constraints}}}{{\lambda_k}} \mathrm{{HCUB}}(\hat{{g}}_k(\theta,D_\mathrm{{cand}})) $"	
+	fhat_str="\hat{{f}}"
+	D_str="D_\mathrm{{minibatch}}"
+	L_str = r"\mathcal{L}(\theta,\mathbf{\lambda})"
+	title=rf"KKT optimization for ${L_str} = {fhat_str}(\theta,{D_str}) + \sum_{{k=1}}^{{{n_constraints}}}{{\lambda_k}} \mathrm{{HCUB}}(\hat{{g}}_k(\theta,{D_str})) $"	
 	fig.suptitle(title)
 	
 	# 1 row per constraint, f and L subplots repeated in each row
@@ -110,7 +112,7 @@ def plot_gradient_descent(
 					runavg=ax.plot(its_masked,f_runavg,linewidth=1,label='running avg.')
 					ax.legend()
 				ax.set_xlabel("Iteration")
-				ax.set_ylabel(rf"$\hat{{f}}(\theta,D_\mathrm{{cand}})$: {primary_objective_name}",fontsize=fontsize)
+				ax.set_ylabel(rf"$\hat{{f}}(\theta,{D_str})$: {primary_objective_name}",fontsize=fontsize)
 				ax.axvline(x=best_index,linestyle='--',color='k')
 				ax.axhline(y=best_f,linestyle='--',color='k')
 			if col == 1:
@@ -127,7 +129,7 @@ def plot_gradient_descent(
 				g_vals_this_constraint = [x[constraint_index] for x in g_vals_masked]
 				ax.plot(its_masked,g_vals_this_constraint,linewidth=2)
 				ax.set_xlabel("Iteration")
-				ax.set_ylabel(rf"$\mathrm{{HCUB}}(\hat{{g}}_{{{row_number}}}(\theta,D_\mathrm{{cand}}))$",fontsize=fontsize)
+				ax.set_ylabel(rf"$\mathrm{{HCUB}}(\hat{{g}}_{{{row_number}}}(\theta,{D_str}))$",fontsize=fontsize)
 				ax.fill_between(its_masked,0.0,1e6,color='r',zorder=0,alpha=0.5)
 				ax.set_ylim(min(-0.25,min(g_vals_this_constraint)),max(0.25,max(g_vals_this_constraint)*1.2))
 				ax.axvline(x=best_index,linestyle='--',color='k')
@@ -140,7 +142,7 @@ def plot_gradient_descent(
 					runavg=ax.plot(its_masked,L_runavg,linewidth=1,label='running avg.')
 					ax.legend()
 				ax.set_xlabel("Iteration")
-				ax.set_ylabel(r"$L(\theta,\lambda)$",fontsize=fontsize)
+				ax.set_ylabel(rf"${L_str}$",fontsize=fontsize)
 				ax.axvline(x=best_index,linestyle='--',color='k')
 				ax.axhline(y=best_L,linestyle='--',color='k')
 	if save:
