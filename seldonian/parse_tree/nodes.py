@@ -283,47 +283,44 @@ class BaseNode(Node):
 
                 branch = kwargs['branch']
                 data_dict = kwargs['data_dict']
-
+                bound_kwargs = kwargs
+                bound_kwargs['data'] = estimator_samples
+                bound_kwargs['delta'] = self.delta
+                
+                # If lower and upper are both needed, 
+                # can't necessarily call lower and upper
+                # bound functions separately. Sometimes the joint bound
+                # is different from the individual bounds combined
                 if self.will_lower_bound and self.will_upper_bound:
                     if branch == 'candidate_selection':
                         lower,upper = self.predict_HC_upper_and_lowerbound(
-                            data=estimator_samples,
-                            delta=self.delta,
-                            **kwargs)  
+                            **bound_kwargs)
                     elif branch == 'safety_test':
                         lower,upper = self.compute_HC_upper_and_lowerbound(
-                            data=estimator_samples,
-                            delta=self.delta,
-                            **kwargs)  
+                            **bound_kwargs)
                     return {'lower':lower,'upper':upper}
                 
                 elif self.will_lower_bound:
                     if branch == 'candidate_selection':
                         lower = self.predict_HC_lowerbound(
-                            data=estimator_samples,
-                            delta=self.delta,
-                            **kwargs)  
+                            **bound_kwargs)
                     elif branch == 'safety_test':
                         lower = self.compute_HC_lowerbound(
-                            data=estimator_samples,
-                            delta=self.delta,
-                            **kwargs)  
+                            **bound_kwargs)
                     return {'lower':lower}
 
                 elif self.will_upper_bound:
                     if branch == 'candidate_selection':
                         upper = self.predict_HC_upperbound(
-                            data=estimator_samples,
-                            delta=self.delta,
-                            **kwargs)  
+                            **bound_kwargs)
                     elif branch == 'safety_test':
                         upper = self.compute_HC_upperbound(
-                            data=estimator_samples,
-                            delta=self.delta,
-                            **kwargs)  
+                            **bound_kwargs)
                     return {'upper':upper}
 
-                raise AssertionError("will_lower_bound and will_upper_bound cannot both be False")
+                raise AssertionError(
+                    "will_lower_bound and will_upper_bound "
+                    "cannot both be False") 
 
         else:
             raise RuntimeError("bound_method not specified!")
