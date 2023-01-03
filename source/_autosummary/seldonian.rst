@@ -32,6 +32,7 @@
    seldonian.RL
    seldonian.candidate_selection
    seldonian.dataset
+   seldonian.hyperparam_search
    seldonian.models
    seldonian.optimizers
    seldonian.parse_tree
