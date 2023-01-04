@@ -124,6 +124,20 @@ returned from running candidate selection</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.get_st_upper_bounds">
+<span class="sig-name descname"><span class="pre">get_st_upper_bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_st_upper_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the upper bounds on each constraint
+evaluated on the safety data from the last
+time the safety test was run. 
+returned from running candidate selection</p>
+<dl class="simple">
+<dt>“return: upper_bounds_dict, a dictionary where the keys</dt><dd><p>are the constraint strings and the values are the
+values of the upper bounds for that constraint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_cs_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs seldonian algorithm using spec object</p>
@@ -221,6 +235,7 @@ model weights found during candidate selection or ‘NSF’.</p>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_selection()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_cs_result()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_st_upper_bounds"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_st_upper_bounds()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run_safety_test()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.safety_test"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.safety_test()</span></code></a></li>
