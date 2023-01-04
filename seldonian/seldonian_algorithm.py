@@ -21,7 +21,10 @@ class SeldonianAlgorithm():
 		:type spec: :py:class:`.Spec` object
 		"""
 		self.spec = spec
-		self.has_been_run = False
+		self.cs_has_been_run = False
+		self.cs_result = None
+		self.st_has_been_run = False
+		self.st_result = None
 		
 		self.parse_trees = self.spec.parse_trees
 		# user can pass a dictionary that specifies 
@@ -248,15 +251,10 @@ class SeldonianAlgorithm():
 		:rtype: Tuple 
 		"""
 		self.set_initial_solution() # sets self.initial_solution so it can be used in candidate selection 
-		cs = self.candidate_selection(write_logfile=write_cs_logfile)
-		
-		candidate_solution = cs.run(**self.spec.optimization_hyperparams,
-			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
-			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
+		candidate_solution = self.run_candidate_selection(
+			write_logfile=write_cs_logfile,
 			debug=debug)
-	
-		self.has_been_run = True
-		self.cs_result = cs.optimization_result		
+		
 		if type(candidate_solution) == str and candidate_solution == 'NSF':
 			# can happen if nan or inf appeared in theta during optimization
 			solution = 'NSF'
@@ -266,10 +264,24 @@ class SeldonianAlgorithm():
 		# Safety test
 		batch_size_safety = self.spec.batch_size_safety
 		passed_safety, solution = self.run_safety_test(
-			candidate_solution,
-			batch_size_safety=batch_size_safety,debug=debug)
+			candidate_solution=candidate_solution,
+			batch_size_safety=batch_size_safety,
+			debug=debug)
+
 		return passed_safety, solution
+
+	def run_candidate_selection(self,write_logfile=False,debug=False):
+		cs = self.candidate_selection(write_logfile=write_logfile)
+		
+		candidate_solution = cs.run(**self.spec.optimization_hyperparams,
+			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
+			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
+			debug=debug)
 	
+		self.cs_has_been_run = True
+		self.cs_result = cs.optimization_result	
+		return candidate_solution
+
 	def run_safety_test(self,candidate_solution,
 		batch_size_safety=None,debug=False):
 		"""
@@ -297,18 +309,40 @@ class SeldonianAlgorithm():
 			solution = candidate_solution
 			if debug:
 				print("Passed safety test!")
+		self.st_has_been_run = True
+		self.st_result = st.st_result
 		return passed_safety, solution
 	
 	def get_cs_result(self):
 		""" Get the dictionary 
 		returned from running candidate selection
 		"""
-		if not self.has_been_run:
+		if not self.cs_has_been_run:
 			raise ValueError(
 				"Candidate selection has not "
-				"been run yet, so result is not available. "
-				" Call run() first")
+				"been run yet, so result is not available. ")
 		return self.cs_result
+
+	def get_st_upper_bounds(self):
+		""" Get the upper bounds on each constraint
+		evaluated on the safety data from the last
+		time the safety test was run. 
+		returned from running candidate selection
+
+		"return: upper_bounds_dict, a dictionary where the keys
+			are the constraint strings and the values are the
+			values of the upper bounds for that constraint
+		"""
+		if not self.st_has_been_run:
+			raise ValueError(
+				"Safety test has not "
+				"been run yet, so upper bounds are not available.")
+		upper_bounds_dict = {}
+		for pt in self.parse_trees:
+			cstr = pt.constraint_str
+			upper_bounds_dict[cstr] = self.st_result[cstr].root.upper
+
+		return upper_bounds_dict
 
 	def evaluate_primary_objective(self,branch,theta):
 		""" Get value of the primary objective given model weights,
@@ -327,6 +361,7 @@ class SeldonianAlgorithm():
 		"""
 		if type(theta) == str and theta == 'NSF':
 			raise ValueError("Cannot evaluate primary objective because theta='NSF'")
+
 		if branch == 'safety_test':
 			st = self.safety_test()
 			result = st.evaluate_primary_objective(theta,
@@ -334,6 +369,8 @@ class SeldonianAlgorithm():
 			
 		elif branch == 'candidate_selection':
 			cs = self.candidate_selection()
-			cs.calculate_batches(batch_index=0,batch_size=self.candidate_dataset.num_datapoints)
+			cs.calculate_batches(
+				batch_index=0,
+				batch_size=self.candidate_dataset.num_datapoints)
 			result = cs.evaluate_primary_objective(theta)
 		return result

@@ -976,7 +976,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	# Try to get candidate solution result before running
 	with pytest.raises(ValueError) as excinfo:
 		res = SA.get_cs_result()
-	error_str = "Candidate selection has not been run yet, so result is not available.  Call run() first"
+	error_str = "Candidate selection has not been run yet, so result is not available."
 	assert error_str in str(excinfo.value)
 	
 	passed_safety,solution = SA.run()
@@ -984,6 +984,73 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	res_keys = res.keys()
 	for key in ['candidate_solution', 'best_index', 'best_g', 'best_f', 'theta_vals', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
 		assert key in res_keys
+
+def test_get_safety_test_result(gpa_regression_dataset):
+	""" Test that the after running the SA on the 
+	gpa regression example, we can get the 
+	dictionary containing the parse trees evaluated 
+	on the safety test. We also test the method
+	that retrieves the upper bounds.
+	
+	Also check that before we run SA.run() this same 
+	method gives us an error. 
+	"""
+
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['Mean_Squared_Error >= 1.25',
+        'Mean_Squared_Error <= 2.0']
+	deltas = [0.1,0.1]
+
+	(dataset,model,
+		primary_objective,parse_trees) = gpa_regression_dataset(
+		constraint_strs=constraint_strs,
+		deltas=deltas)
+
+	frac_data_in_safety=0.6
+
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		parse_trees=parse_trees,
+		sub_regime='regression',
+		frac_data_in_safety=frac_data_in_safety,
+		primary_objective=primary_objective,
+		use_builtin_primary_gradient_fn=True,
+		initial_solution_fn=model.fit,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.005,
+			'alpha_lamb'    : 0.005,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 150,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
+
+
+	# # Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	# Try to get candidate solution result before running
+	with pytest.raises(ValueError) as excinfo:
+		res = SA.get_st_upper_bounds()
+	error_str = "Safety test has not been run yet, so upper bounds are not available."
+	assert error_str in str(excinfo.value)
+	
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	res = SA.get_st_upper_bounds()
+	assert len(res) == 2
+	print(res)
+	assert res['1.25-(Mean_Squared_Error)'] == pytest.approx(-0.19604227384297923)
+	assert res['Mean_Squared_Error-(2.0)'] == pytest.approx(-0.5219448029759275)
 
 def test_nans_infs_gradient_descent(gpa_regression_dataset):
 	""" Test that if nans or infs appear in theta in gradient

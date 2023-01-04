@@ -1,7 +1,7 @@
 """ Module for running safety test """
 
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
-
+import copy
 
 class SafetyTest(object):
 	def __init__(self,
@@ -31,6 +31,7 @@ class SafetyTest(object):
 		self.model = model
 		self.parse_trees = parse_trees
 		self.regime = regime
+		self.st_result = {} # stores parse tree evaluated on safety test data
 
 	def run(self,solution,batch_size_safety=None,**kwargs):
 		""" Loop over parse trees, calculate the bounds on leaf nodes
@@ -50,6 +51,7 @@ class SafetyTest(object):
 		
 		"""
 		passed = True
+		
 		for tree_i,pt in enumerate(self.parse_trees): 
 			# before we propagate reset the tree
 			pt.reset_base_node_dict()
@@ -67,6 +69,7 @@ class SafetyTest(object):
 			pt.propagate_bounds(**bounds_kwargs)
 			# Check if the i-th behavioral constraint is satisfied
 			upperBound = pt.root.upper 
+			self.st_result[pt.constraint_str] = copy.deepcopy(pt)
 			if upperBound > 0.0: # If the current constraint was not satisfied, the safety test failed
 				passed = False
 
