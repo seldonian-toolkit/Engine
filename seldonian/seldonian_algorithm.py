@@ -83,8 +83,9 @@ class SeldonianAlgorithm():
 					"Warning: not enough data to "
 					"run the Seldonian algorithm.")
 				warnings.warn(warning_msg)
-			print(f"Safety dataset has {self.n_safety} datapoints")
-			print(f"Candidate dataset has {self.n_candidate} datapoints")
+			if self.spec.verbose:
+				print(f"Safety dataset has {self.n_safety} datapoints")
+				print(f"Candidate dataset has {self.n_candidate} datapoints")
 
 		elif self.regime == 'reinforcement_learning':
 
@@ -272,7 +273,7 @@ class SeldonianAlgorithm():
 
 	def run_candidate_selection(self,write_logfile=False,debug=False):
 		cs = self.candidate_selection(write_logfile=write_logfile)
-		
+		print("running candidate selection")
 		candidate_solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
@@ -327,9 +328,8 @@ class SeldonianAlgorithm():
 		""" Get the upper bounds on each constraint
 		evaluated on the safety data from the last
 		time the safety test was run. 
-		returned from running candidate selection
 
-		"return: upper_bounds_dict, a dictionary where the keys
+		return: upper_bounds_dict, a dictionary where the keys
 			are the constraint strings and the values are the
 			values of the upper bounds for that constraint
 		"""
