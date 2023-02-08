@@ -273,7 +273,6 @@ class SeldonianAlgorithm():
 
 	def run_candidate_selection(self,write_logfile=False,debug=False):
 		cs = self.candidate_selection(write_logfile=write_logfile)
-		print("running candidate selection")
 		candidate_solution = cs.run(**self.spec.optimization_hyperparams,
 			use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
 			custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,

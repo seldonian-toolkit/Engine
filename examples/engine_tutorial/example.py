@@ -38,22 +38,24 @@ if __name__ == "__main__":
         batch_size_safety=100,
     )
     print(spec.optimization_hyperparams)
-    asd
 
     # 5. Run seldonian algorithm using the spec object
     SA = SeldonianAlgorithm(spec)
 
     passed_safety,solution = SA.run(write_cs_logfile=True)
     print(passed_safety,solution)
-    # Check the parse trees frozen after the safety test was run
-    pt1_str = parse_trees[0].constraint_str
-    print(SA.st_result[pt1_str].root.upper)
+#     # Check the parse trees frozen after the safety test was run
+#     # pt1_str = parse_trees[0].constraint_str
+#     print(SA.get_st_upper_bounds())
+#     cs_primary_objective = SA.evaluate_primary_objective(theta=solution,
+# branch='candidate_selection')
+    # print(cs_primary_objective)
     # Check the value of the primary objective on the safety dataset
     # st_primary_objective = SA.evaluate_primary_objective(theta=solution,
     # branch='safety_test')
     # print(st_primary_objective)
 
-    # cs_dict = SA.get_cs_result() # returns a dictionary with a lot of quantities evaluated at each step of gradient descent
-    # print(list(cs_dict.keys()))
+    cs_dict = SA.get_cs_result() # returns a dictionary with a lot of quantities evaluated at each step of gradient descent
+    print(list(cs_dict.keys()))
     # print(cs_dict['f_vals'])
     # print(cs_dict['g_vals'])

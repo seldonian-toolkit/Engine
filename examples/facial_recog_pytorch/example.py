@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
 		# Reshape pixels array
 		X = np.array(data['pixels'].tolist())
-		## Converting pixels from 1D to 4D
+		# Converting pixels from 1D to 4D
 		features = X.reshape(X.shape[0],1,48,48)
 		labels = data['gender'].values
 		M=data['gender'].values
@@ -89,15 +89,10 @@ if __name__ == "__main__":
 		constraint_strs,deltas,regime=regime,
 		sub_regime=sub_regime,columns=sensitive_col_names)
 	device = torch.device("mps")
-	# device = torch.device("cpu")
 	model = PytorchFacialRecog(device)
 
-	# f_debug_theta = './debug_theta.pkl'
-	# debug_theta = load_pickle(f_debug_theta)
-	# model.update_model_params(debug_theta)
 
 	initial_solution_fn = model.get_model_params
-	# print(model.get_initial_weights())
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -122,24 +117,11 @@ if __name__ == "__main__":
 			'hyper_search'  : None,
 			'verbose'       : True,
 		},
-		# regularization_hyperparams={
-		# 	'reg_coef':0.1
-		# },
 		batch_size_safety=2000
 	)
 	save_pickle('./spec.pkl',spec,verbose=True)
 	SA = SeldonianAlgorithm(spec)
 
-	
-	# f_best_theta = './best_theta.pkl'
-	# best_theta = load_pickle(f_best_theta)
-	# st = SA.safety_test()
-	# passed = st.run(solution=best_theta,batch_size_safety=1000)
-	# print(passed)
-	# st_primary_objective = SA.evaluate_primary_objective(theta=best_theta,
-	# branch='safety_test')
-	# print("Primary objective evaluated on safety test:")
-	# print(st_primary_objective)
 
 	passed_safety,solution = SA.run(debug=True,write_cs_logfile=True)
 	if passed_safety:

@@ -92,7 +92,7 @@ if __name__ == "__main__":
     )
 
     SA = SeldonianAlgorithm(spec)
-    passed_safety,solution = SA.run(debug=False,write_cs_logfile=True)
+    passed_safety,solution = SA.run(debug=False,write_cs_logfile=False)
     if passed_safety:
         print("Passed safety test.")
     else:
