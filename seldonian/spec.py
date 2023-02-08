@@ -80,6 +80,7 @@ class Spec(object):
 		},
 		regularization_hyperparams={},
 		batch_size_safety=None,
+		verbose=False,
 		):
 		self.dataset = dataset
 		self.model = model 
@@ -95,6 +96,7 @@ class Spec(object):
 		self.optimization_hyperparams = optimization_hyperparams
 		self.regularization_hyperparams = regularization_hyperparams
 		self.batch_size_safety = batch_size_safety
+		self.verbose = verbose
 
 class SupervisedSpec(Spec):
 	""" Specification object for running Supervised learning
@@ -165,6 +167,7 @@ class SupervisedSpec(Spec):
 		},
 		regularization_hyperparams={},
 		batch_size_safety=None,
+		verbose=False,
 		):
 		super().__init__(
 			dataset=dataset,
@@ -180,7 +183,8 @@ class SupervisedSpec(Spec):
 			optimizer=optimizer,
 			optimization_hyperparams=optimization_hyperparams,
 			regularization_hyperparams=regularization_hyperparams,
-			batch_size_safety=batch_size_safety)
+			batch_size_safety=batch_size_safety,
+			verbose=verbose)
 		self.sub_regime = sub_regime
 
 
@@ -268,6 +272,7 @@ class RLSpec(Spec):
 		},
 		regularization_hyperparams={},
 		batch_size_safety=None,
+		verbose=False,
 		):
 
 		super().__init__(
@@ -284,7 +289,8 @@ class RLSpec(Spec):
 			optimizer=optimizer,
 			optimization_hyperparams=optimization_hyperparams,
 			regularization_hyperparams=regularization_hyperparams,
-			batch_size_safety=batch_size_safety)
+			batch_size_safety=batch_size_safety,
+			verbose=verbose)
 
 def createSupervisedSpec(
 	dataset,
@@ -361,8 +367,9 @@ def createSupervisedSpec(
             'num_iters'     : 1000,
             'gradient_library': "autograd",
             'hyper_search'  : None,
-            'verbose'       : True,
+            'verbose'       : verbose,
 		},
+		verbose=verbose
 	)
 
 	spec_save_name = os.path.join(save_dir, 'spec.pkl')
@@ -446,6 +453,7 @@ def createRLSpec(
 			'verbose': verbose,
 		},
 		regularization_hyperparams={},
+		verbose=verbose
 	)
 
 	if save:
