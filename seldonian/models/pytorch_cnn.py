@@ -3,12 +3,13 @@ import torch.nn as nn
 
 class PytorchCNN(SupervisedPytorchBaseModel):
 	def __init__(self,device):
-		""" Implements a CNN with PyTorch. 
+		""" Implements an example CNN with PyTorch. 
 		CNN consists of two hidden layers followed 
 		by a linear + softmax output layer 
 
-		:param input_dim: Number of features
-		:param output_dim: Size of output layer (number of label columns)
+		:param device: The torch device, e.g., 
+			"cuda" (NVIDIA GPU), "cpu" for CPU only,
+			"mps" (Mac M1 GPU)
 		"""
 		super().__init__(device)
 

@@ -78,7 +78,6 @@ class LinearRegressionModelListFeatures(RegressionModel):
 		:rtype: numpy ndarray
 		"""
 		X_array = np.hstack(X)
-		dotprod = (X_array @ theta[1:])
 		return theta[0] + (X_array @ theta[1:])
 
 	def fit(self,X,Y):

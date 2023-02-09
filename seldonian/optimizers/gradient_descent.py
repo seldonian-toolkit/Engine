@@ -27,7 +27,6 @@ def setup_gradients(
         raise NotImplementedError(
             f"gradient library: {gradient_library}"
             " not supported")
-
     return grad_primary_theta,grad_upper_bound_theta
 
 def gradient_descent_adam(

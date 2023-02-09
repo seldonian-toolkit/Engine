@@ -206,7 +206,7 @@ def Mean_Squared_Error(model,theta,X,Y,**kwargs):
 	return res
 
 def gradient_Mean_Squared_Error(model,theta,X,Y,**kwargs):
-	""" Gradient of the mean squared error 
+	""" Gradient of the mean squared error w.r.t. theta
 
 	:param model: SeldonianModel instance
 	:param theta: The parameter weights
