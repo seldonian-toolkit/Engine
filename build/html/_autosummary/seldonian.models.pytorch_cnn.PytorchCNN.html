@@ -41,15 +41,14 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.pytorch_cnn.PytorchCNN.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.pytorch_cnn.PytorchCNN.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements a CNN with PyTorch. 
+<dd><p>Implements an example CNN with PyTorch. 
 CNN consists of two hidden layers followed 
 by a linear + softmax output layer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input_dim</strong> – Number of features</p></li>
-<li><p><strong>output_dim</strong> – Size of output layer (number of label columns)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>device</strong> – The torch device, e.g., 
+“cuda” (NVIDIA GPU), “cpu” for CPU only,
+“mps” (Mac M1 GPU)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -213,6 +212,8 @@ which must be reshaped</p>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.models.pytorch_model.html">seldonian.models.pytorch_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.models.sklearn_lr.html">seldonian.models.sklearn_lr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.models.sklearn_model.html">seldonian.models.sklearn_model</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a></li>
@@ -271,8 +272,8 @@ which must be reshaped</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="../_sources/_autosummary/seldonian.models.pytorch_cnn.PytorchCNN.rst.txt"
