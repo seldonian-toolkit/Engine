@@ -59,21 +59,14 @@ models implemented in scikit-learn</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.sklearn_model.SupervisedSkLearnBaseModel.backward_pass">
 <span class="sig-name descname"><span class="pre">backward_pass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_grad</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.sklearn_model.SupervisedSkLearnBaseModel.backward_pass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do a backward pass through the PyTorch model and return the
+<dd><p>Do a backward pass through the model and return the
 (vector) gradient of the model with respect to theta as a numpy ndarray</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>external_grad</strong> (<em>torch.Tensor</em>) – The gradient of the model with respect to itself
-see: <a class="reference external" href="https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html#differentiation-in-autograd">https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html#differentiation-in-autograd</a>
-for more details</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.sklearn_model.SupervisedSkLearnBaseModel.create_model">
 <span class="sig-name descname"><span class="pre">create_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.sklearn_model.SupervisedSkLearnBaseModel.create_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create the pytorch model and return it</p>
+<dd><p>Create the sklearn model and return it</p>
 </dd></dl>
 
 <dl class="py method">
@@ -91,7 +84,7 @@ is just a call to self.sklearn_model.predict()</p>
 <dd class="field-even"><p>predictions</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
+<dd class="field-odd"><p>numpy ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -105,7 +98,7 @@ is just a call to self.sklearn_model.predict()</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.sklearn_model.SupervisedSkLearnBaseModel.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.sklearn_model.SupervisedSkLearnBaseModel.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do a forward pass through the PyTorch model.
+<dd><p>Do a forward pass through the sklearn model.
 Must convert back to numpy array before returning</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
