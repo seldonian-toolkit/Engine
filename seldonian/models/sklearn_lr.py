@@ -2,7 +2,6 @@ import autograd.numpy as np
 
 from .sklearn_model import SupervisedSkLearnBaseModel
 from sklearn.linear_model import LinearRegression
-import torch.nn as nn
 
 
 class SkLearnLinearRegressor(SupervisedSkLearnBaseModel):

@@ -5,12 +5,9 @@ import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from autograd.extend import primitive, defvjp
 from seldonian.models.models import SupervisedModel
 
-import torch
-import torch.nn as nn
-
 @primitive
 def sklearn_predict(theta,X,model,**kwargs):
-	""" Do a forward pass through the PyTorch model.
+	""" Do a forward pass through the sklearn model.
 	Must convert back to numpy array before returning 
 
 	:param theta: model weights
@@ -19,7 +16,7 @@ def sklearn_predict(theta,X,model,**kwargs):
 	:type X: numpy ndarray
 
 	:param model: An instance of a class inheriting from
-		SupervisedPytorchBaseModel 
+		SupervisedSkLearnBaseModel
 
 	:return pred_numpy: model predictions 
 	:rtype pred_numpy: numpy ndarray same shape as labels
@@ -79,7 +76,7 @@ class SupervisedSkLearnBaseModel(SupervisedModel):
 		self.params_updated = False
 
 	def predict(self,theta,X,**kwargs):
-		""" Do a forward pass through the PyTorch model.
+		""" Do a forward pass through the sklearn model.
 		Must convert back to numpy array before returning 
 
 		:param theta: model weights
@@ -130,22 +127,18 @@ class SupervisedSkLearnBaseModel(SupervisedModel):
 		:type X: numpy ndarray
 
 		:return: predictions 
-		:rtype: torch.Tensor
+		:rtype: numpy ndarray
 		"""
 		raise NotImplementedError("Implement this method in child class")
 
 	def backward_pass(self,predictions,external_grad):
-		""" Do a backward pass through the PyTorch model and return the
+		""" Do a backward pass through the model and return the
 		(vector) gradient of the model with respect to theta as a numpy ndarray
 
-		:param external_grad: The gradient of the model with respect to itself
-			see: https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html#differentiation-in-autograd
-			for more details
-		:type external_grad: torch.Tensor 
 		"""
 		raise NotImplementedError("Implement this method in child class")
 
 	def create_model(self,**kwargs):
-		""" Create the pytorch model and return it
+		""" Create the sklearn model and return it
 		"""
 		raise NotImplementedError("Implement this method in child class")
