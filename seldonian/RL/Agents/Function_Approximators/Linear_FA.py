@@ -1,8 +1,9 @@
 from seldonian.RL.Agents.Function_Approximators.Function_Approximator import *
 
+
 class Linear_FA(Function_Approximator):
     def __init__(self, basis, env_description):
-        """ Base class for linear function approximators. 
+        """Base class for linear function approximators.
 
         :param basis: The basis to use for encoding features
         :param env_description: an object for accessing attributes
@@ -12,9 +13,10 @@ class Linear_FA(Function_Approximator):
         self.basis = basis
         self.weights = np.zeros((basis.num_features, env_description.get_num_actions()))
 
+
 class Linear_state_action_value_FA(Linear_FA):
     def __init__(self, basis, env_description):
-        """A linear state action value function approximator. 
+        """A linear state action value function approximator.
 
         :param basis: The basis to use for encoding features
         :param env_description: an object for accessing attributes

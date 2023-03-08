@@ -1,5 +1,6 @@
-import autograd.numpy as np   # Thinly-wrapped version of Numpy
+import autograd.numpy as np  # Thinly-wrapped version of Numpy
 from scipy.stats import t
+
 
 def stddev(v):
     """
@@ -11,14 +12,15 @@ def stddev(v):
     :return: Standard deviation with Bessel's correction
     :rtype: float
     """
-    return np.std(v,ddof=1)         
+    return np.std(v, ddof=1)
+
 
 def tinv(p, nu):
     """
-    Returns the inverse of Student's t CDF 
+    Returns the inverse of Student's t CDF
     using the degrees of freedom in nu for the corresponding
-    probabilities in p. 
-    
+    probabilities in p.
+
     Python implementation of Matlab's tinv function:
     https://www.mathworks.com/help/stats/tinv.html
 
@@ -31,21 +33,23 @@ def tinv(p, nu):
     """
     return t.ppf(p, nu)
 
-def weighted_sum_gamma(arr,gamma=0.9):
-    """ Calculate weighted sum of an array,
-    where weights are gamma**(index of arr). 
+
+def weighted_sum_gamma(arr, gamma=0.9):
+    """Calculate weighted sum of an array,
+    where weights are gamma**(index of arr).
     Used in calculating sum of discounted rewards in RL
 
     :param arr: An input array
     :type arr: Numpy ndarray
     :param gamma: The constant used for weighting the array,
         also called the discount factor in RL
-    :type gamma: float  
+    :type gamma: float
     :return: The weighted sum
-    :rtype: float  
+    :rtype: float
     """
-    weights = np.power(gamma,range(len(arr)))
-    return np.average(arr,weights=weights)*np.sum(weights)
+    weights = np.power(gamma, range(len(arr)))
+    return np.average(arr, weights=weights) * np.sum(weights)
+
 
 def softmax(x):
-    return np.exp(x)/sum(np.exp(x))
+    return np.exp(x) / sum(np.exp(x))

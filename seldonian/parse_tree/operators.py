@@ -64,7 +64,7 @@ during the construction of parse trees
 	arrays are boolean:
 	[need_A_lower, need_A_upper]
 """
-import autograd.numpy as np   # Thinly-wrapped version of Numpy
+import autograd.numpy as np  # Thinly-wrapped version of Numpy
 import pandas as pd
 import ast
 
@@ -72,97 +72,91 @@ from .nodes import *
 
 
 measure_functions_dict = {
-	'supervised_learning': {
-		'classification':
-			[
-			'PR',
-			'NR',
-			'FPR',
-			'TPR',
-			'FNR',
-			'TNR',
-			'ACC',
-			],
-		'multiclass_classification':
-			[
-			'CM',
-			'PR',
-			'NR',
-			'FPR',
-			'TPR',
-			'FNR',
-			'TNR',
-			'ACC',
-			],
-		'regression':
-			[
-			'Mean_Error',
-			'Mean_Squared_Error'
-			]
-		},
-	'reinforcement_learning': {'all':['J_pi_new']}
+    "supervised_learning": {
+        "classification": [
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "multiclass_classification": [
+            "CM",
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "regression": ["Mean_Error", "Mean_Squared_Error"],
+    },
+    "reinforcement_learning": {"all": ["J_pi_new"]},
 }
 
 custom_base_node_dict = {
-	'MED_MF':MEDCustomBaseNode,
-	'CVaRSQE':CVaRSQeBaseNode,
+    "MED_MF": MEDCustomBaseNode,
+    "CVaRSQE": CVaRSQeBaseNode,
 }
 
 op_mapper = {
-	ast.Sub: 'sub',
-	ast.Add: 'add',
-	ast.Mult:'mult',
-	ast.Div: 'div',
-	ast.Pow: 'pow'
+    ast.Sub: "sub",
+    ast.Add: "add",
+    ast.Mult: "mult",
+    ast.Div: "div",
+    ast.Pow: "pow",
 }
 
 not_supported_op_mapper = {
-	ast.Mod: 'mod',
-	ast.BitXor: '^',
-	ast.LShift: '<<',
-	ast.RShift: '>>',
-	ast.BitAnd: '&',
-	ast.FloorDiv: '//',
-	ast.UAdd:'+',
-	ast.Not:'not',
-	ast.Invert:'~'
+    ast.Mod: "mod",
+    ast.BitXor: "^",
+    ast.LShift: "<<",
+    ast.RShift: ">>",
+    ast.BitAnd: "&",
+    ast.FloorDiv: "//",
+    ast.UAdd: "+",
+    ast.Not: "not",
+    ast.Invert: "~",
 }
 
 bounds_required_dict = {
-	'add':{
-	'lower':[1,0,1,0],
-	'upper':[0,1,0,1],
-	},
-	'sub':{
-	'lower':[1,0,0,1],
-	'upper':[0,1,1,0],
-	},
-	'mult':{
-	'lower':[1,1,1,1],
-	'upper':[1,1,1,1],
-	},
-	'div':{
-	'lower':[1,1,1,1],
-	'upper':[1,1,1,1],
-	},
-	'pow':{
-	'lower':[1,1,1,1],
-	'upper':[1,1,1,1],
-	},
-	'min':{
-	'lower':[1,0,1,0],
-	'upper':[0,1,0,1],
-	},
-	'max':{
-	'lower':[1,0,1,0],
-	'upper':[0,1,0,1],
-	},
-	'abs':{
-	'lower':[1,1],
-	'upper':[1,1],
-	},
-	'exp':{
-	'lower':[1,0],
-	'upper':[0,1],
-	},
+    "add": {
+        "lower": [1, 0, 1, 0],
+        "upper": [0, 1, 0, 1],
+    },
+    "sub": {
+        "lower": [1, 0, 0, 1],
+        "upper": [0, 1, 1, 0],
+    },
+    "mult": {
+        "lower": [1, 1, 1, 1],
+        "upper": [1, 1, 1, 1],
+    },
+    "div": {
+        "lower": [1, 1, 1, 1],
+        "upper": [1, 1, 1, 1],
+    },
+    "pow": {
+        "lower": [1, 1, 1, 1],
+        "upper": [1, 1, 1, 1],
+    },
+    "min": {
+        "lower": [1, 0, 1, 0],
+        "upper": [0, 1, 0, 1],
+    },
+    "max": {
+        "lower": [1, 0, 1, 0],
+        "upper": [0, 1, 0, 1],
+    },
+    "abs": {
+        "lower": [1, 1],
+        "upper": [1, 1],
+    },
+    "exp": {
+        "lower": [1, 0],
+        "upper": [0, 1],
+    },
 }

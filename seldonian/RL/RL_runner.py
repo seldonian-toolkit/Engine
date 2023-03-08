@@ -13,10 +13,11 @@ from seldonian.dataset import Episode
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 
+
 def run_all_trials(hyperparameter_and_setting_dict):
-    """ Run many trials, each of which consist
+    """Run many trials, each of which consist
     of the same number of episodes.
-    
+
     :param hyperparameter_and_setting_dict: Specifies the
         environment, agent, number of episodes per trial,
         and number of trials
@@ -30,10 +31,12 @@ def run_all_trials(hyperparameter_and_setting_dict):
         trials.append(run_trial(hyperparameter_and_setting_dict)[0])
     return trials
 
-def run_trial(hyperparameter_and_setting_dict,
-    model_params=None,parallel=False,n_workers=8):
-    """ Run a single trial consists of an arbitrary number of episodes.
-    
+
+def run_trial(
+    hyperparameter_and_setting_dict, model_params=None, parallel=False, n_workers=8
+):
+    """Run a single trial consists of an arbitrary number of episodes.
+
     :param hyperparameter_and_setting_dict: Specifies the
         environment, agent and number of episodes to run
     :type hyperparameter_and_setting_dict: dict
@@ -59,12 +62,14 @@ def run_trial(hyperparameter_and_setting_dict,
     if parallel:
         from concurrent.futures import ProcessPoolExecutor
         import multiprocessing as mp
+
         param1 = (hyperparameter_and_setting_dict for _ in range(num_episodes))
         param2 = (model_params for _ in range(num_episodes))
         # run_episode_from_dict(hyperparameter_and_setting_dict,model_params)
-        with ProcessPoolExecutor(max_workers=n_workers,
-            mp_context=mp.get_context('fork')) as ex:
-            results = ex.map(run_episode_from_dict,param1,param2)
+        with ProcessPoolExecutor(
+            max_workers=n_workers, mp_context=mp.get_context("fork")
+        ) as ex:
+            results = ex.map(run_episode_from_dict, param1, param2)
             for ep in results:
                 episodes.append(ep)
     else:
@@ -72,11 +77,12 @@ def run_trial(hyperparameter_and_setting_dict,
             episodes.append(run_episode(agent, env))
     return episodes, agent
 
-def run_trial_given_agent_and_env(agent,env,num_episodes):
-    """ A wrapper for run_trial() where parameters 
+
+def run_trial_given_agent_and_env(agent, env, num_episodes):
+    """A wrapper for run_trial() where parameters
     are specified explicity rather than via a dictionary.
 
-    :param agent: RL Agent 
+    :param agent: RL Agent
     :param env: RL Environment
     :param num_episodes: Number of episodes to run
 
@@ -88,11 +94,12 @@ def run_trial_given_agent_and_env(agent,env,num_episodes):
         episodes.append(run_episode(agent, env))
     return episodes
 
-def run_episode(agent, env):
-    """ Run a single episode 
 
-    :param agent: RL Agent 
-    :param env: RL Environment 
+def run_episode(agent, env):
+    """Run a single episode
+
+    :param agent: RL Agent
+    :param env: RL Environment
 
     :return: RL Episode
     :rtype: :py:class:`.Episode`
@@ -121,11 +128,12 @@ def run_episode(agent, env):
 
     return Episode(observations, actions, rewards, prob_actions)
 
-def run_episode_from_dict(hyperparameter_and_setting_dict,model_params=None):
-    """ Run a single episode 
 
-    :param agent: RL Agent 
-    :param env: RL Environment 
+def run_episode_from_dict(hyperparameter_and_setting_dict, model_params=None):
+    """Run a single episode
+
+    :param agent: RL Agent
+    :param env: RL Environment
 
     :return: RL Episode
     :rtype: :py:class:`.Episode`
@@ -161,9 +169,10 @@ def run_episode_from_dict(hyperparameter_and_setting_dict,model_params=None):
 
     return Episode(observations, actions, rewards, prob_actions)
 
+
 def create_agent(hyperparameter_and_setting_dict):
-    """ Create an agent from a dictionary specification
-    
+    """Create an agent from a dictionary specification
+
     :param hyperparameter_and_setting_dict: Specifies the
         environment, agent, number of episodes per trial,
         and number of trials
@@ -179,7 +188,9 @@ def create_agent(hyperparameter_and_setting_dict):
     elif agent_type == "mountain_car_rough_solution":
         return Mountain_car_rough_solution()
     elif agent_type == "Parameterized_non_learning_softmax_agent":
-        return Parameterized_non_learning_softmax_agent(env_desc, hyperparameter_and_setting_dict)
+        return Parameterized_non_learning_softmax_agent(
+            env_desc, hyperparameter_and_setting_dict
+        )
     elif agent_type == "Keyboard_gridworld":
         return Keyboard_gridworld(env_desc)
     else:

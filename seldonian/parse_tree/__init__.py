@@ -1,1 +1,1 @@
-"""Set of modules for building parse trees from behavioral constraints """ 
+"""Set of modules for building parse trees from behavioral constraints """

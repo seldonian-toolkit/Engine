@@ -7,9 +7,9 @@ from seldonian.utils.io_utils import save_pickle
 from seldonian.utils.stats_utils import weighted_sum_gamma
 from seldonian.spec import createRLSpec
 
+
 def main():
-    """ Run a trial of episodes and save to disk
-    """  
+    """Run a trial of episodes and save to disk"""
     n_episodes = 500
     the_dict = {}
     the_dict["env"] = "n_step_mountaincar"
@@ -20,17 +20,17 @@ def main():
     the_dict["num_episodes"] = n_episodes
     the_dict["vis"] = False
     start_time = time()
-    episodes, agent = run_trial(the_dict,parallel=True)
+    episodes, agent = run_trial(the_dict, parallel=True)
     print(len(episodes))
-    save_pickle(f"n_step_mountaincar_{n_episodes}episodes.pkl",episodes)
+    save_pickle(f"n_step_mountaincar_{n_episodes}episodes.pkl", episodes)
     assert len(episodes) == n_episodes
     print(f"data generation took {time() - start_time} seconds")
-    
+
     # Calculate J, the discounted sum of rewards
-    returns = np.array([weighted_sum_gamma(ep.rewards,gamma=1.0) for ep in episodes])
+    returns = np.array([weighted_sum_gamma(ep.rewards, gamma=1.0) for ep in episodes])
     J = np.mean(returns)
     print(f"J = {J}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

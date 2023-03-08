@@ -24,22 +24,23 @@ from seldonian.RL.RL_model import *
 
 
 def main():
-
     hyperparameter_and_setting_dict = define_hyperparameter_and_setting_dict()
     start_time = time()
     episodes, agent = run_trial(hyperparameter_and_setting_dict)
     print(f"data generation took {time() - start_time} seconds")
 
     hyperparameter_and_setting_dict["num_episodes"] = 1
-    dataset = RLDataSet(episodes=episodes,meta_information=['O','A','R','pi'])
+    dataset = RLDataSet(episodes=episodes, meta_information=["O", "A", "R", "pi"])
 
     # print(dataset.episodes[0])
     # print(f"{len(episodes)} episodes")
     metadata_pth = get_metadata_path(hyperparameter_and_setting_dict["env"])
-    save_dir = '.'
+    save_dir = "."
     constraint_string = get_constraint_string(hyperparameter_and_setting_dict["env"])
-    RL_model = fake_dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_string)
-    data_dict = {"episodes" : episodes}
+    RL_model = fake_dataset2spec(
+        save_dir, metadata_pth, dataset, agent, constraint_string
+    )
+    data_dict = {"episodes": episodes}
     start_time_is_estimates = time()
     for _ in range(100000):
         mock_vector_IS_estimate(agent.get_params(), data_dict, RL_model)
@@ -55,30 +56,33 @@ def get_metadata_path(env_name):
     else:
         error(f"unknown env name {env_name}")
 
+
 def get_constraint_string(env):
     if env == "gridworld":
-        return ['-0.25 - J_pi_new']
+        return ["-0.25 - J_pi_new"]
     else:
         error(f"Unknown env {env}")
 
+
 def fake_dataset2spec(save_dir, metadata_pth, dataset, agent, constraint_strs):
     # Load metadata
-    with open(metadata_pth, 'r') as infile:
+    with open(metadata_pth, "r") as infile:
         metadata_dict = json.load(infile)
 
-    RL_module_name = metadata_dict['RL_module_name']
+    RL_module_name = metadata_dict["RL_module_name"]
     RL_environment_module = importlib.import_module(
-        f'seldonian.RL.environments.{RL_module_name}')
-    RL_env_class_name = metadata_dict['RL_class_name']
+        f"seldonian.RL.environments.{RL_module_name}"
+    )
+    RL_env_class_name = metadata_dict["RL_class_name"]
     RL_environment_obj = getattr(RL_environment_module, RL_env_class_name)()
 
-    RL_model_instance = RL_model(agent,RL_environment_obj)
+    RL_model_instance = RL_model(agent, RL_environment_obj)
     primary_objective = RL_model_instance.sample_IS_estimate
     return RL_model_instance
 
 
 def mock_vector_IS_estimate(theta, data_dict, rl_model):
-    """ Calculate the unweighted importance sampling estimate
+    """Calculate the unweighted importance sampling estimate
     on each episodes in the dataframe
 
     :param theta: The parameter weights
@@ -90,12 +94,14 @@ def mock_vector_IS_estimate(theta, data_dict, rl_model):
     :return: A vector of IS estimates calculated for each episode
     :rtype: numpy ndarray(float)
     """
-    episodes = data_dict['episodes']
+    episodes = data_dict["episodes"]
     # weighted_reward_sums_by_episode = data_dict['reward_sums_by_episode']
     ep = episodes[0]
 
-    #start loop in real function
-    pi_news = rl_model.get_probs_from_observations_and_actions(theta, ep.observations, ep.actions)
+    # start loop in real function
+    pi_news = rl_model.get_probs_from_observations_and_actions(
+        theta, ep.observations, ep.actions
+    )
     # print("pi news:")
     # print(pi_news)
     pi_ratio_prod = np.prod(pi_news / ep.pis)
@@ -107,5 +113,5 @@ def mock_vector_IS_estimate(theta, data_dict, rl_model):
     # end loop in real function
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

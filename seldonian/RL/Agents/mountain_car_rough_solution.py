@@ -1,6 +1,7 @@
 from seldonian.RL.Agents.Agent import *
 import autograd.numpy as np
 
+
 class Mountain_car_rough_solution(Agent):
     def choose_action(self, observation):
         if observation[1] < 0:
