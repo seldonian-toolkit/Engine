@@ -41,11 +41,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MultiClassBaseNode.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MultiClassBaseNode.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>A base node for computing 
-the classification statistic 
+<dd><p>A base node for computing
+the classification statistic
 for a single class against all
-other classes. For example, 
-if one has 3 classes and wants the 
+other classes. For example,
+if one has 3 classes and wants the
 false positive rate of the first class,
 they would write “FPR_[0]” in their constraint
 and we would calculate the rate at which
@@ -61,7 +61,7 @@ of basenode</p>
 the statistic, e.g. false positive rate</p></li>
 <li><p><strong>lower</strong> (<em>float</em>) – Lower confidence bound</p></li>
 <li><p><strong>upper</strong> (<em>float</em>) – Upper confidence bound</p></li>
-<li><p><strong>conditional_columns</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – When calculating confidence bounds on a measure 
+<li><p><strong>conditional_columns</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – When calculating confidence bounds on a measure
 function, condition on these columns being == 1</p></li>
 </ul>
 </dd>
@@ -82,7 +82,7 @@ function, condition on these columns being == 1</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MultiClassBaseNode.calculate_bounds">
 <span class="sig-name descname"><span class="pre">calculate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MultiClassBaseNode.calculate_bounds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate confidence bounds given a bound_method, 
+<dd><p>Calculate confidence bounds given a bound_method,
 such as t-test.</p>
 </dd></dl>
 
@@ -96,7 +96,7 @@ for confidence bound calculation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MultiClassBaseNode.calculate_value">
 <span class="sig-name descname"><span class="pre">calculate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MultiClassBaseNode.calculate_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the value of the node 
+<dd><p>Calculate the value of the node
 given model weights, etc. This is
 the expected value of the base variable,
 not the bound.</p>
@@ -110,7 +110,7 @@ Used in safety test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -126,12 +126,12 @@ evaluated at each observation in dataset</p></li>
 Used in safety test.</p>
 <p>Depending on the bound_method,
 this is not always equivalent
-to calling compute_HC_lowerbound() and 
+to calling compute_HC_lowerbound() and
 compute_HC_upperbound() independently.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -148,7 +148,7 @@ Used in safety test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -160,7 +160,7 @@ evaluated at each observation in dataset</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MultiClassBaseNode.mask_data">
 <span class="sig-name descname"><span class="pre">mask_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MultiClassBaseNode.mask_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mask features and labels using 
+<dd><p>Mask features and labels using
 a joint AND mask where each of the
 conditional columns is True.</p>
 <dl class="field-list simple">
@@ -189,7 +189,7 @@ Used in candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -206,12 +206,12 @@ that we expect to pass the safety test.
 Used in candidate selection.</p>
 <p>Depending on the bound_method,
 this is not always equivalent
-to calling predict_HC_lowerbound() and 
+to calling predict_HC_lowerbound() and
 predict_HC_upperbound() independently.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -229,7 +229,7 @@ Used in candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -241,14 +241,14 @@ evaluated at each observation in dataset</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.MultiClassBaseNode.zhat">
 <span class="sig-name descname"><span class="pre">zhat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.MultiClassBaseNode.zhat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate an unbiased estimate of the 
+<dd><p>Calculate an unbiased estimate of the
 base variable node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>models.SeldonianModel object</em>) – The machine learning model</p></li>
 <li><p><strong>theta</strong> (<em>numpy ndarray</em>) – model weights</p></li>
-<li><p><strong>data_dict</strong> (<em>dict</em>) – Contains inputs to model, 
+<li><p><strong>data_dict</strong> (<em>dict</em>) – Contains inputs to model,
 such as features and labels</p></li>
 </ul>
 </dd>

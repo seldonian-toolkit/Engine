@@ -47,7 +47,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>safety_dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – The dataset object containing safety data</p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="seldonian.models.models.SeldonianModel.html#seldonian.models.models.SeldonianModel" title="seldonian.models.models.SeldonianModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeldonianModel</span></code></a> object) – The Seldonian model object</p></li>
-<li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
+<li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the
 behavioral constraints</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
 e.g., supervised_learning or reinforcement_learning</p></li>
@@ -71,13 +71,13 @@ e.g., supervised_learning or reinforcement_learning</p></li>
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest.evaluate_primary_objective">
 <span class="sig-name descname"><span class="pre">evaluate_primary_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.evaluate_primary_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get value of the primary objective given model weights,
-theta, on the safety dataset. Wrapper for primary_objective where 
+theta, on the safety dataset. Wrapper for primary_objective where
 data is fixed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p></li>
-<li><p><strong>primary_objective</strong> – The primary objective function 
+<li><p><strong>primary_objective</strong> – The primary objective function
 you want to evaluate</p></li>
 </ul>
 </dd>

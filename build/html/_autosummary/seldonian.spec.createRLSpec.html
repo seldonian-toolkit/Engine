@@ -37,7 +37,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.spec.createRLSpec">
 <span class="sig-name descname"><span class="pre">createRLSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint_strs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_builtin_primary_gradient_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.spec.createRLSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience function for creating RLSpec object. 
+<dd><p>Convenience function for creating RLSpec object.
 Uses many defaults which can later be changed by updating
 the spec object.</p>
 <dl class="field-list simple">
@@ -45,14 +45,14 @@ the spec object.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>constraint_strs</strong> – List of constraint strings</p></li>
 <li><p><strong>deltas</strong> – List of confidence thresholds</p></li>
-<li><p><strong>env_kwargs</strong> (<em>dict</em>) – Kwargs passed to RL_model pertaining to environment, 
+<li><p><strong>env_kwargs</strong> (<em>dict</em>) – Kwargs passed to RL_model pertaining to environment,
 such as gamma, the discount factor</p></li>
 <li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – Fraction of data used in safety test.
 The remaining fraction will be used in candidate selection</p></li>
-<li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide 
+<li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide
 initial model weights in candidate selection</p></li>
 <li><p><strong>use_builtin_primary_gradient_fn</strong> (<em>bool</em><em>, </em><em>defaults to True</em>) – Whether to use the built-in
-function for the gradient of the primary objective, 
+function for the gradient of the primary objective,
 if one exists. If False, uses autograd</p></li>
 <li><p><strong>save</strong> – Boolean flag determining whether to save to a file</p></li>
 <li><p><strong>save_dir</strong> (<em>str</em>) – Directory where to save the spec.pkl file</p></li>

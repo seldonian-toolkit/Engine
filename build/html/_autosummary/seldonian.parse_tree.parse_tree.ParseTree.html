@@ -45,22 +45,22 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> (<em>float</em>) – Confidence level. Specifies the maximum probability 
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level. Specifies the maximum probability
 that the algorithm can return a solution violat the
 behavioral constraint.</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
 e.g., supervised_learning or reinforcement_learning</p></li>
-<li><p><strong>sub_regime</strong> (<em>str</em>) – The sub-category of ml algorithm, e.g. 
+<li><p><strong>sub_regime</strong> (<em>str</em>) – The sub-category of ml algorithm, e.g.
 classification or regression for supervised learning.
 Use ‘all’ for RL.</p></li>
-<li><p><strong>columns</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – The names of the columns in the dataframe. 
+<li><p><strong>columns</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – The names of the columns in the dataframe.
 Used to determine if conditional columns provided by user
 are appropriate.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>root</strong> (<em>nodes.Node object</em>) – Root node which contains the whole tree 
+<li><p><strong>root</strong> (<em>nodes.Node object</em>) – Root node which contains the whole tree
 via left and right child attributes.
 Gets assigned when tree is built</p></li>
 <li><p><strong>constraint_str</strong> (<em>str</em>) – The string expression for the behavioral
@@ -68,17 +68,17 @@ constraint</p></li>
 <li><p><strong>n_nodes</strong> (<em>int</em>) – Total number of nodes in the parse tree</p></li>
 <li><p><strong>n_base_nodes</strong> (<em>int</em>) – Number of base variable nodes in the parse tree.
 Does not include constants. If a base variable,
-such as PR | [M] appears more than once in the 
-constraint_str each appearance contributes 
+such as PR | [M] appears more than once in the
+constraint_str each appearance contributes
 to n_base_nodes</p></li>
 <li><p><strong>base_node_dict</strong> (<em>dict</em>) – Keeps track of unique base variable nodes,
-their confidence bounds and whether 
+their confidence bounds and whether
 the bounds have been calculated
 for a given base node already.
-Helpful for handling case where we have 
+Helpful for handling case where we have
 duplicate base nodes</p></li>
 <li><p><strong>node_fontsize</strong> (<em>int</em>) – Fontsize used for graphviz visualizations</p></li>
-<li><p><strong>available_measure_functions</strong> (<em>int</em>) – A list of measure functions for the 
+<li><p><strong>available_measure_functions</strong> (<em>int</em>) – A list of measure functions for the
 given regime and sub-regime, e.g. “Mean_Error”
 for supervised regression or “PR”, i.e. Positive Rate
 for supervised classification.</p></li>
@@ -126,8 +126,8 @@ for supervised classification.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._assign_bounds_helper">
 <span class="sig-name descname"><span class="pre">_assign_bounds_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_needed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_needed</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._assign_bounds_helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to traverse the parse tree 
-and assign which bounds we need to calculate 
+<dd><p>Helper function to traverse the parse tree
+and assign which bounds we need to calculate
 on the base nodes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -143,7 +143,7 @@ on the base nodes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._assign_deltas_helper">
 <span class="sig-name descname"><span class="pre">_assign_deltas_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._assign_deltas_helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to traverse the parse tree 
+<dd><p>Helper function to traverse the parse tree
 and assign delta values to base nodes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -197,7 +197,7 @@ to children of this node.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._evaluator_helper">
 <span class="sig-name descname"><span class="pre">_evaluator_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._evaluator_helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function for traversing 
+<dd><p>Helper function for traversing
 through the tree to evaluate the constraint</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -262,8 +262,8 @@ through the tree to evaluate the constraint</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._pow">
 <span class="sig-name descname"><span class="pre">_pow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._pow" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the confidence interval on 
-pow(a,b) where 
+<dd><p>Get the confidence interval on
+pow(a,b) where
 b and b are both be intervals</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -278,8 +278,8 @@ b and b are both be intervals</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str">
 <span class="sig-name descname"><span class="pre">_preprocess_constraint_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if inequalities present and 
-move everything to one side so final 
+<dd><p>Check if inequalities present and
+move everything to one side so final
 constraint string is in the form: {constraint_str} &lt;= 0</p>
 <p>Also does some validation checks to make sure string
 that was passed is valid</p>
@@ -311,7 +311,7 @@ from which we build the parse tree</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._propagator_helper">
 <span class="sig-name descname"><span class="pre">_propagator_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._propagator_helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function for traversing 
+<dd><p>Helper function for traversing
 through the tree and propagating confidence bounds</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -352,11 +352,11 @@ and postitive infinity if in upper bound</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed">
 <span class="sig-name descname"><span class="pre">assign_bounds_needed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Breadth first search through the tree and 
+<dd><p>Breadth first search through the tree and
 decide which bounds are required to compute
-on each child node. Eventually we get to base nodes. 
-There are cases where it is not always 
-necessary to compute both lower and upper 
+on each child node. Eventually we get to base nodes.
+There are cases where it is not always
+necessary to compute both lower and upper
 bounds because at the end all we care about
 is the upper bound of the root node.</p>
 </dd></dl>
@@ -378,16 +378,16 @@ among unique base nodes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.build_tree">
 <span class="sig-name descname"><span class="pre">build_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.build_tree" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience function for building the tree from 
-a constraint string, 
-weighting of deltas to each base node, and 
+<dd><p>Convenience function for building the tree from
+a constraint string,
+weighting of deltas to each base node, and
 assigning which nodes need upper and lower bounding</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>constraint_str</strong> (<em>str</em>) – mathematical expression written in Python syntax
 from which we build the parse tree</p></li>
-<li><p><strong>delta_weight_method</strong> (<em>str</em><em>, </em><em>defaults to 'equal'</em>) – str, 
+<li><p><strong>delta_weight_method</strong> (<em>str</em><em>, </em><em>defaults to 'equal'</em>) – str,
 How you want to assign the deltas to the base nodes.
 The default ‘equal’ splits up delta equally
 among unique base nodes</p></li>
@@ -415,7 +415,7 @@ from which we build the parse tree</p>
 <dd><p>Evaluate the constraint itself (not bounds)
 Postorder traverse (left, right, root)
 through the tree and calculate the values
-of the base nodes 
+of the base nodes
 then propagate bounds using propagation logic</p>
 </dd></dl>
 
@@ -473,7 +473,7 @@ then propagate bounds using propagation logic</p>
 <dd><p>Reset base node dict to initial obs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>reset_data</strong> (<em>bool</em>) – Whether to reset the cached data 
+<dd class="field-odd"><p><strong>reset_data</strong> (<em>bool</em>) – Whether to reset the cached data
 for each base node. This is needed less frequently
 than one needs to reset the bounds.</p>
 </dd>

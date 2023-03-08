@@ -51,7 +51,7 @@ find optimal data split.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spec</strong> (<a class="reference internal" href="seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object) – The specification object with the complete
 set of parameters for running the Seldonian algorithm</p></li>
-<li><p><strong>all_frac_data_in_candidate_selection</strong> (<em>numpy.ndarray</em>) – Array containing the values of fraction of data in 
+<li><p><strong>all_frac_data_in_candidate_selection</strong> (<em>numpy.ndarray</em>) – Array containing the values of fraction of data in
 candidate solution that are being considered</p></li>
 </ul>
 </dd>
@@ -106,7 +106,7 @@ candidate solution that are being considered</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – a dataset object containing data</p></li>
-<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – fraction of data used in safety test, 
+<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – fraction of data used in safety test,
 the remaining fraction will be used in candidate selection</p></li>
 </ul>
 </dd>
@@ -159,7 +159,7 @@ self.dataset split according to frac_data_in_safety</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>candidate_dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – a dataset object containing data that should be used to   
+<li><p><strong>candidate_dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – a dataset object containing data that should be used to
 to find the initial soluion.</p></li>
 <li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – fraction of data used in safety test.
 The remaining fraction will be used in candidate selection</p></li>
@@ -176,7 +176,7 @@ The remaining fraction will be used in candidate selection</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_total</strong> (<em>int</em>) – the total amount of data</p></li>
-<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – fraction of data used in safety test, 
+<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – fraction of data used in safety test,
 the remaining fraction will be used in candidate selection</p></li>
 </ul>
 </dd>
@@ -193,7 +193,7 @@ the remaining fraction will be used in candidate selection</p></li>
 <li><p><strong>candidate_dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – a dataset object containing candidate solution dataset</p></li>
 <li><p><strong>safety_dataset</strong> (<a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a> object) – a dataset object containing safety dataset</p></li>
 <li><p><strong>n_safety</strong> (<em>int</em>) – size of safety dataset</p></li>
-<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – fraction of data used in safety test, 
+<li><p><strong>frac_data_in_safety</strong> (<em>float</em>) – fraction of data used in safety test,
 the remaining fraction will be used in candidate selection</p></li>
 <li><p><strong>write_cs_logfile</strong> – Whether to write candidate selection
 log file</p></li>
@@ -201,7 +201,7 @@ log file</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(passed_safety, solution). passed_safety 
+<dd class="field-even"><p>(passed_safety, solution). passed_safety
 indicates whether solution found during candidate selection
 passes the safety test. solution is the optimized
 model weights found during candidate selection or ‘NSF’.</p>
@@ -227,7 +227,7 @@ or other process</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(passed_safety, solution). passed_safety 
+<dd class="field-even"><p>(passed_safety, solution). passed_safety
 indicates whether solution found during candidate selection
 passes the safety test. solution is the optimized
 model weights found during candidate selection or ‘NSF’.</p>

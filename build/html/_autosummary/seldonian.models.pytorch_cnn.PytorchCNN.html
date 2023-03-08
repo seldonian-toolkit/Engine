@@ -41,12 +41,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.pytorch_cnn.PytorchCNN.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.pytorch_cnn.PytorchCNN.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements an example CNN with PyTorch. 
-CNN consists of two hidden layers followed 
+<dd><p>Implements an example CNN with PyTorch.
+CNN consists of two hidden layers followed
 by a linear + softmax output layer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device</strong> – The torch device, e.g., 
+<dd class="field-odd"><p><strong>device</strong> – The torch device, e.g.,
 “cuda” (NVIDIA GPU), “cpu” for CPU only,
 “mps” (Mac M1 GPU)</p>
 </dd>
@@ -91,8 +91,8 @@ output in a fully connected layer to 10 output classes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.pytorch_cnn.PytorchCNN.forward_pass">
 <span class="sig-name descname"><span class="pre">forward_pass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.pytorch_cnn.PytorchCNN.forward_pass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do a forward pass through the PyTorch model and return the 
-model outputs (predicted labels). The outputs should be the same shape 
+<dd><p>Do a forward pass through the PyTorch model and return the
+model outputs (predicted labels). The outputs should be the same shape
 as the true labels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

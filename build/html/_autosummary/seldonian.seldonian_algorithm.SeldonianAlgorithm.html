@@ -41,11 +41,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object for running the Seldonian algorithm and getting 
+<dd><p>Object for running the Seldonian algorithm and getting
 introspection into candidate selection and safety test</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>spec</strong> (<a class="reference internal" href="seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object) – The specification object with the complete 
+<dd class="field-odd"><p><strong>spec</strong> (<a class="reference internal" href="seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object) – The specification object with the complete
 set of parameters for running the Seldonian algorithm</p>
 </dd>
 </dl>
@@ -65,7 +65,7 @@ set of parameters for running the Seldonian algorithm</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split">
 <span class="sig-name descname"><span class="pre">candidate_safety_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split features, labels and sensitive attributes 
+<dd><p>Split features, labels and sensitive attributes
 into candidate and safety sets</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -95,7 +95,7 @@ containing details of candidate selection</p>
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective">
 <span class="sig-name descname"><span class="pre">evaluate_primary_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">branch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get value of the primary objective given model weights,
-theta, on either the candidate selection dataset 
+theta, on either the candidate selection dataset
 or the safety dataset. This is just a wrapper for
 primary_objective where data is fixed.</p>
 <dl class="field-list simple">
@@ -106,7 +106,7 @@ primary_objective where data is fixed.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the value of the primary objective 
+<dd class="field-even"><p>the value of the primary objective
 evaluated for the given branch at the provided
 value of theta</p>
 </dd>
@@ -119,7 +119,7 @@ value of theta</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result">
 <span class="sig-name descname"><span class="pre">get_cs_result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the dictionary 
+<dd><p>Get the dictionary
 returned from running candidate selection</p>
 </dd></dl>
 
@@ -149,7 +149,7 @@ log file</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(passed_safety, solution). passed_safety 
+<dd class="field-even"><p>(passed_safety, solution). passed_safety
 indicates whether solution found during candidate selection
 passes the safety test. solution is the optimized
 model weights found during candidate selection or ‘NSF’.</p>
@@ -174,7 +174,7 @@ or other process</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(passed_safety, solution). passed_safety 
+<dd class="field-even"><p>(passed_safety, solution). passed_safety
 indicates whether solution found during candidate selection
 passes the safety test. solution is the optimized
 model weights found during candidate selection or ‘NSF’.</p>

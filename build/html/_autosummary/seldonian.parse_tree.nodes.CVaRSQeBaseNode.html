@@ -41,10 +41,10 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Custom base node that calculates the upper and 
+<dd><p>Custom base node that calculates the upper and
 lower bounds on CVaR_alpha (with alpha fixed to 0.1)
 of the squared error. We are using the positive
-definition of CVaR_alpha, i.e. “…the expected value 
+definition of CVaR_alpha, i.e. “…the expected value
 if we only consider the samples that are at least VaR_alpha,”
 where VaR_alpha “… is the largest value such that at least 100*alpha%
 of samples will be larger than it.” - Thomas &amp; Miller 2019:
@@ -82,7 +82,7 @@ See Theorem 3 for upper bound and Theorem 4 for lower bound</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_bounds">
 <span class="sig-name descname"><span class="pre">calculate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.calculate_bounds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate confidence bounds given a bound_method, 
+<dd><p>Calculate confidence bounds given a bound_method,
 such as t-test.</p>
 </dd></dl>
 
@@ -124,12 +124,12 @@ Used in safety test.</p>
 Used in safety test.</p>
 <p>Depending on the bound_method,
 this is not always equivalent
-to calling compute_HC_lowerbound() and 
+to calling compute_HC_lowerbound() and
 compute_HC_upperbound() independently.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -158,7 +158,7 @@ Used in safety test</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.mask_data">
 <span class="sig-name descname"><span class="pre">mask_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.mask_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mask features and labels using 
+<dd><p>Mask features and labels using
 a joint AND mask where each of the
 conditional columns is True.</p>
 <dl class="field-list simple">
@@ -204,12 +204,12 @@ that we expect to pass the safety test.
 Used in candidate selection.</p>
 <p>Depending on the bound_method,
 this is not always equivalent
-to calling predict_HC_lowerbound() and 
+to calling predict_HC_lowerbound() and
 predict_HC_upperbound() independently.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable  
+<li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
@@ -239,14 +239,14 @@ Used in candidate selection</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.CVaRSQeBaseNode.zhat">
 <span class="sig-name descname"><span class="pre">zhat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.CVaRSQeBaseNode.zhat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate an unbiased estimate of the 
+<dd><p>Calculate an unbiased estimate of the
 base variable node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>models.SeldonianModel object</em>) – The machine learning model</p></li>
 <li><p><strong>theta</strong> (<em>numpy ndarray</em>) – model weights</p></li>
-<li><p><strong>data_dict</strong> (<em>dict</em>) – Contains inputs to model, 
+<li><p><strong>data_dict</strong> (<em>dict</em>) – Contains inputs to model,
 such as features and labels</p></li>
 </ul>
 </dd>

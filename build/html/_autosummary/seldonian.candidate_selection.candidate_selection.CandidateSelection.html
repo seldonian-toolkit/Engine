@@ -47,22 +47,22 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>models.model.SeldonianModel object</em>) – The Seldonian model object</p></li>
 <li><p><strong>candidate_dataset</strong> (<em>dataset.Dataset object</em>) – The dataset object containing candidate data</p></li>
-<li><p><strong>n_safety</strong> (<em>int</em>) – The length of the safety dataset, used 
+<li><p><strong>n_safety</strong> (<em>int</em>) – The length of the safety dataset, used
 when predicting confidence bounds during candidate selection</p></li>
-<li><p><strong>parse_trees</strong> (<em>List</em><em>(</em><em>parse_tree.ParseTree objects</em><em>)</em>) – List of parse tree objects containing the 
+<li><p><strong>parse_trees</strong> (<em>List</em><em>(</em><em>parse_tree.ParseTree objects</em><em>)</em>) – List of parse tree objects containing the
 behavioral constraints</p></li>
 <li><p><strong>primary_objective</strong> (<em>function</em><em> or </em><em>class method</em>) – The objective function that would
 be solely optimized in the absence of behavioral constraints,
 i.e. the loss function</p></li>
-<li><p><strong>optimization_technique</strong> (<em>str</em>) – The method for optimization during 
+<li><p><strong>optimization_technique</strong> (<em>str</em>) – The method for optimization during
 candidate selection. E.g. ‘gradient_descent’, ‘barrier_function’</p></li>
-<li><p><strong>optimizer</strong> (<em>str</em>) – The string name of the optimizer used 
+<li><p><strong>optimizer</strong> (<em>str</em>) – The string name of the optimizer used
 during candidate selection</p></li>
-<li><p><strong>initial_solution</strong> (<em>array</em>) – The model weights used to initialize 
+<li><p><strong>initial_solution</strong> (<em>array</em>) – The model weights used to initialize
 the optimizer</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
 e.g., supervised_learning or reinforcement_learning</p></li>
-<li><p><strong>write_logfile</strong> (<em>bool</em>) – Whether to write outputs of candidate selection 
+<li><p><strong>write_logfile</strong> (<em>bool</em>) – Whether to write outputs of candidate selection
 to disk</p></li>
 </ul>
 </dd>
@@ -84,7 +84,7 @@ to disk</p></li>
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective">
 <span class="sig-name descname"><span class="pre">evaluate_primary_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get value of the primary objective given model weights,
-theta. Wrapper for self.primary_objective where 
+theta. Wrapper for self.primary_objective where
 data is fixed. Used as input to gradient descent</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -118,7 +118,7 @@ given model weights, theta. Used as input to gradient descent.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier">
 <span class="sig-name descname"><span class="pre">objective_with_barrier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier" title="Permalink to this definition">¶</a></dt>
-<dd><p>The objective function to be optimized if 
+<dd><p>The objective function to be optimized if
 minimization_technique == ‘barrier’. Adds in a
 large penalty when any of the constraints are violated.</p>
 <dl class="field-list simple">
@@ -126,7 +126,7 @@ large penalty when any of the constraints are violated.</p>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the value of the objective function 
+<dd class="field-even"><p>the value of the objective function
 evaluated at theta</p>
 </dd>
 </dl>

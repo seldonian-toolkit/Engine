@@ -50,25 +50,25 @@ The remaining fraction will be used in candidate selection</p></li>
 <li><p><strong>primary_objective</strong> (<em>function</em><em> or </em><em>class method</em>) – The objective function that would
 be solely optimized in the absence of behavioral constraints,
 i.e., the loss function</p></li>
-<li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide 
+<li><p><strong>initial_solution_fn</strong> (<em>function</em>) – Function to provide
 initial model weights in candidate selection</p></li>
-<li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the 
+<li><p><strong>parse_trees</strong> (List(<a class="reference internal" href="seldonian.parse_tree.parse_tree.ParseTree.html#seldonian.parse_tree.parse_tree.ParseTree" title="seldonian.parse_tree.parse_tree.ParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParseTree</span></code></a> objects)) – List of parse tree objects containing the
 behavioral constraints</p></li>
 <li><p><strong>base_node_bound_method_dict</strong> (<em>dict</em><em>, </em><em>defaults to {}</em>) – A dictionary specifying the
 bounding method to use for each base node</p></li>
 <li><p><strong>use_builtin_primary_gradient_fn</strong> (<em>bool</em><em>, </em><em>defaults to True</em>) – Whether to use the built-in
-function for the gradient of the primary objective, 
+function for the gradient of the primary objective,
 if one exists. If False, uses autograd</p></li>
-<li><p><strong>custom_primary_gradient_fn</strong> (<em>function</em><em>, </em><em>defaults to None</em>) – A function for computing 
+<li><p><strong>custom_primary_gradient_fn</strong> (<em>function</em><em>, </em><em>defaults to None</em>) – A function for computing
 the gradient of the primary objective. If None,
 falls back on builtin function or autograd</p></li>
-<li><p><strong>optimization_technique</strong> (<em>str</em><em>, </em><em>defaults to 'gradient_descent'</em>) – The method for optimization during 
+<li><p><strong>optimization_technique</strong> (<em>str</em><em>, </em><em>defaults to 'gradient_descent'</em>) – The method for optimization during
 candidate selection. E.g. ‘gradient_descent’, ‘barrier_function’</p></li>
-<li><p><strong>optimizer</strong> (<em>str</em><em>, </em><em>defaults to 'adam'</em>) – The string name of the optimizer used 
+<li><p><strong>optimizer</strong> (<em>str</em><em>, </em><em>defaults to 'adam'</em>) – The string name of the optimizer used
 during candidate selection</p></li>
-<li><p><strong>optimization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for 
+<li><p><strong>optimization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for
 optimization during candidate selection. See <a class="reference internal" href="../overview.html#candidate-selection"><span class="std std-ref">Candidate Selection</span></a>.</p></li>
-<li><p><strong>regularization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for 
+<li><p><strong>regularization_hyperparams</strong> (<em>dict</em>) – Hyperparameters for
 regularization during candidate selection. See <a class="reference internal" href="../overview.html#candidate-selection"><span class="std std-ref">Candidate Selection</span></a>.</p></li>
 </ul>
 </dd>
