@@ -15,4 +15,6 @@ dist
 docs/source/_autosummary
 **/spec.pkl
 **/.ipynb_checkpoints
-
+examples/headless_*/*pkl
+examples/pytorch_*/*pkl
+examples/pytorch_*/data

@@ -251,7 +251,7 @@ class SeldonianAlgorithm():
 			model weights found during candidate selection or 'NSF'.
 		:rtype: Tuple 
 		"""
-		self.set_initial_solution() # sets self.initial_solution so it can be used in candidate selection 
+		self.set_initial_solution(verbose=debug) # sets self.initial_solution so it can be used in candidate selection 
 		candidate_solution = self.run_candidate_selection(
 			write_logfile=write_cs_logfile,
 			debug=debug)
