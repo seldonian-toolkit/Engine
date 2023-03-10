@@ -70,6 +70,6 @@ if __name__ == '__main__':
         }
     )
 
-    spec_save_name = os.path.join(save_dir,'spec.pkl')
+    spec_save_name = os.path.join(save_dir,'loans_disparate_impact_0.1_spec.pkl')
     save_pickle(spec_save_name,spec)
     print(f"Saved Spec object to: {spec_save_name}")
