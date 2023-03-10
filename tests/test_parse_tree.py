@@ -31,6 +31,7 @@ two_interval_options = [
 ]
 
 single_interval_options = [
+	[1,2],
 	[-3.2,-2.0],
 	[-3.2,2.0],
 	[-5.1,0],
@@ -157,6 +158,7 @@ answer_dict = {
 		[float('inf'),float('inf')]
 	],
 	'abs': [
+		[1.0,2.0],
 		[2.0,3.2],
 		[0,3.2],
 		[0,5.1],
@@ -166,6 +168,18 @@ answer_dict = {
 		[0,float('inf')],
 		[0,float('inf')],
 		[float('inf'),float('inf')]
+	],
+	'log': [
+		[0.0,np.log(2)],
+		[float('-inf'),float('inf')],
+		[float('-inf'),np.log(2)],
+		[float('-inf'),float('-inf')],
+		[float('-inf'),np.log(0.5)],
+		[float('-inf'),float('-inf')],
+		[float('-inf'),np.log(15342)],
+		[float('-inf'),float('inf')],
+		[float('-inf'),float('inf')],
+		[float('inf'),float('inf')],
 	]
 
 }
@@ -314,6 +328,20 @@ def test_abs_bounds(interval_index,edge):
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
 	assert pt.base_node_dict['a']['bound_computed'] == True
+
+@pytest.mark.parametrize('interval_index',range(len(single_interval_options)))
+def test_log_bounds(interval_index,edge):
+	### Absolute value ###
+
+	a=single_interval_options[interval_index]
+	answer = answer_dict['log'][interval_index]
+	pt = edge('log',a)
+	pt.propagate_bounds()
+	# Use approx due to floating point imprecision
+	assert pt.root.lower == pytest.approx(answer[0])
+	assert pt.root.upper == pytest.approx(answer[1])
+	assert pt.base_node_dict['a']['bound_computed'] == True
+
 
 ##################
 ### Node tests ###

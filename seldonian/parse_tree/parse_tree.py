@@ -307,7 +307,7 @@ class ParseTree(object):
                     f" {new_node.name}()."
                     " It appears you provided more than two arguments"
                 )
-            if ast_node.func.id in ["abs", "exp"] and len(ast_node.args) > 1:
+            if ast_node.func.id in ["abs", "exp", "log"] and len(ast_node.args) > 1:
                 raise RuntimeError(
                     "Please check the syntax of the function:"
                     f" {new_node.name}()."
@@ -844,6 +844,10 @@ class ParseTree(object):
             # takes one node
             return np.exp(a)
 
+        if node.name == "log":
+            # takes one node
+            return np.log(a)
+
         else:
             raise NotImplementedError(
                 "Encountered an operation we do not yet support", node.name
@@ -925,6 +929,11 @@ class ParseTree(object):
             # takes one node
             a = (node.left.lower, node.left.upper)
             return self._exp(a)
+
+        if node.name == "log":
+            # takes one node
+            a = (node.left.lower, node.left.upper)
+            return self._log(a)
 
         else:
             raise NotImplementedError(
@@ -1114,6 +1123,20 @@ class ParseTree(object):
         lower = self._protect_nan(np.exp(a[0]), "lower")
 
         upper = self._protect_nan(np.exp(a[1]), "upper")
+
+        return (lower, upper)
+
+    def _log(self,a):
+        """
+        Take log of a confidence interval
+
+        :param a:
+                Confidence interval like: (lower,upper)
+        :type a: tuple
+        """
+        lower = self._protect_nan(np.log(a[0]), "lower")
+
+        upper = self._protect_nan(np.log(a[1]), "upper")
 
         return (lower, upper)
 

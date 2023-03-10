@@ -61,7 +61,7 @@ def edge():
 	def edge_function(operator_type,left_bounds,
 		regime='supervised_learning',sub_regime='classification'):
 		# A parse tree with a single edge
-		assert operator_type in ['abs','exp']
+		assert operator_type in ['abs','exp','log']
 		root = InternalNode(operator_type)
 		root.left = BaseNode('a')
 		pt = ParseTree(delta=0.05,regime=regime,sub_regime=sub_regime)
