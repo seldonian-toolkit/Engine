@@ -577,6 +577,21 @@ def test_math_functions():
 				"It appears you provided more than one argument")
 	assert str(excinfo.value) == error_str
 
+
+	constraint_str = 'log((PR | [X]), (PR | [Y]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised_learning',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Please check the syntax of the function: "
+				f"log(). "
+				"It appears you provided more than one argument")
+	assert str(excinfo.value) == error_str
+
 	constraint_str = 'max((PR | [X]))'
 	delta = 0.05
 	pt = ParseTree(delta,
@@ -1045,6 +1060,24 @@ def test_math_functions_propagate():
 		regime='supervised_learning')
 	assert pt.root.lower == pytest.approx(0.5990300)
 	assert pt.root.upper == pytest.approx(0.5999346)
+
+	constraint_str = '1+log(FPR)'
+	delta = 0.05
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification',
+		columns=dataset.meta_information['sensitive_col_names'])
+	
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+
+	# propagate the bounds with example theta value
+	# theta = np.hstack([np.array([0.0,0.0]),np.random.uniform(-0.05,0.05,10)])
+	theta = np.random.uniform(-0.05,0.05,10)
+	pt.propagate_bounds(theta=theta,dataset=dataset,
+		model=model_instance,branch='safety_test',
+		regime='supervised_learning')
+	assert pt.root.lower == pytest.approx(-2.5187904943528903)
+	assert pt.root.upper == pytest.approx(-2.470509955060809)
 
 def test_deltas_assigned_equally():
 	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
