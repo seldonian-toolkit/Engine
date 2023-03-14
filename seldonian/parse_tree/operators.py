@@ -18,7 +18,8 @@ during the construction of parse trees
 		- 'TPR': True positive rate
 		- 'FNR': False negative rate
 		- 'TNR': True negative rate
-		- 'logistic_loss': Logistic loss
+		- 'ACC': Accuracy
+        - 'CM': Confusion matrix (only relevant for multi-class classification)
 		
 		Supervised regression:
 			
