@@ -31,6 +31,7 @@ two_interval_options = [
 ]
 
 single_interval_options = [
+	[1,2],
 	[-3.2,-2.0],
 	[-3.2,2.0],
 	[-5.1,0],
@@ -157,6 +158,7 @@ answer_dict = {
 		[float('inf'),float('inf')]
 	],
 	'abs': [
+		[1.0,2.0],
 		[2.0,3.2],
 		[0,3.2],
 		[0,5.1],
@@ -166,6 +168,18 @@ answer_dict = {
 		[0,float('inf')],
 		[0,float('inf')],
 		[float('inf'),float('inf')]
+	],
+	'log': [
+		[0.0,np.log(2)],
+		[float('-inf'),float('inf')],
+		[float('-inf'),np.log(2)],
+		[float('-inf'),float('-inf')],
+		[float('-inf'),np.log(0.5)],
+		[float('-inf'),float('-inf')],
+		[float('-inf'),np.log(15342)],
+		[float('-inf'),float('inf')],
+		[float('-inf'),float('inf')],
+		[float('inf'),float('inf')],
 	]
 
 }
@@ -314,6 +328,20 @@ def test_abs_bounds(interval_index,edge):
 	assert pt.root.lower == pytest.approx(answer[0])
 	assert pt.root.upper == pytest.approx(answer[1])
 	assert pt.base_node_dict['a']['bound_computed'] == True
+
+@pytest.mark.parametrize('interval_index',range(len(single_interval_options)))
+def test_log_bounds(interval_index,edge):
+	### Absolute value ###
+
+	a=single_interval_options[interval_index]
+	answer = answer_dict['log'][interval_index]
+	pt = edge('log',a)
+	pt.propagate_bounds()
+	# Use approx due to floating point imprecision
+	assert pt.root.lower == pytest.approx(answer[0])
+	assert pt.root.upper == pytest.approx(answer[1])
+	assert pt.base_node_dict['a']['bound_computed'] == True
+
 
 ##################
 ### Node tests ###
@@ -546,6 +574,21 @@ def test_math_functions():
 	
 	error_str = ("Please check the syntax of the function: "
 				f"exp(). "
+				"It appears you provided more than one argument")
+	assert str(excinfo.value) == error_str
+
+
+	constraint_str = 'log((PR | [X]), (PR | [Y]))'
+	delta = 0.05
+	pt = ParseTree(delta,
+		regime='supervised_learning',
+		sub_regime='classification',
+		columns=['X','Y','Z'])
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.create_from_ast(constraint_str)
+	
+	error_str = ("Please check the syntax of the function: "
+				f"log(). "
 				"It appears you provided more than one argument")
 	assert str(excinfo.value) == error_str
 
@@ -1017,6 +1060,24 @@ def test_math_functions_propagate():
 		regime='supervised_learning')
 	assert pt.root.lower == pytest.approx(0.5990300)
 	assert pt.root.upper == pytest.approx(0.5999346)
+
+	constraint_str = '1+log(FPR)'
+	delta = 0.05
+	pt = ParseTree(delta,regime='supervised_learning',
+		sub_regime='classification',
+		columns=dataset.meta_information['sensitive_col_names'])
+	
+	pt.create_from_ast(constraint_str)
+	pt.assign_deltas(weight_method='equal')
+
+	# propagate the bounds with example theta value
+	# theta = np.hstack([np.array([0.0,0.0]),np.random.uniform(-0.05,0.05,10)])
+	theta = np.random.uniform(-0.05,0.05,10)
+	pt.propagate_bounds(theta=theta,dataset=dataset,
+		model=model_instance,branch='safety_test',
+		regime='supervised_learning')
+	assert pt.root.lower == pytest.approx(-2.5187904943528903)
+	assert pt.root.upper == pytest.approx(-2.470509955060809)
 
 def test_deltas_assigned_equally():
 	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
