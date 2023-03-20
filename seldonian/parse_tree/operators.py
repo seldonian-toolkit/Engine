@@ -18,7 +18,8 @@ during the construction of parse trees
 		- 'TPR': True positive rate
 		- 'FNR': False negative rate
 		- 'TNR': True negative rate
-		- 'logistic_loss': Logistic loss
+		- 'ACC': Accuracy
+        - 'CM': Confusion matrix (only relevant for multi-class classification)
 		
 		Supervised regression:
 			
@@ -156,6 +157,10 @@ bounds_required_dict = {
         "upper": [1, 1],
     },
     "exp": {
+        "lower": [1, 0],
+        "upper": [0, 1],
+    },
+    "log": {
         "lower": [1, 0],
         "upper": [0, 1],
     },

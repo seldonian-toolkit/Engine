@@ -940,15 +940,7 @@ def test_unary_op():
 					" A unary operator was used which we do not support: "
 					f"+")
 	assert str(excinfo.value) == error_str
-	# assert pt.root.name == 'sub'
-	# assert pt.root.right.value == 10
-	# assert pt.root.left.name == 'mult'
-	# assert pt.root.left.left.value == -1
-	# assert pt.root.left.right.name == 'abs'
-	# assert pt.root.left.right.left.name == 'Mean_Error | [M]'
-	# assert pt.n_nodes == 6
-	# assert pt.n_base_nodes == 1
-	# assert len(pt.base_node_dict) == 1
+	
 
 def test_raise_error_on_excluded_operators():
 
@@ -1066,12 +1058,12 @@ def test_math_functions_propagate():
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',
 		columns=dataset.meta_information['sensitive_col_names'])
+	# pt.build_tree(constraint_str)
 	
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
 
 	# propagate the bounds with example theta value
-	# theta = np.hstack([np.array([0.0,0.0]),np.random.uniform(-0.05,0.05,10)])
 	theta = np.random.uniform(-0.05,0.05,10)
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,branch='safety_test',
