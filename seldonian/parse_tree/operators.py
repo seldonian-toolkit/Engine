@@ -160,4 +160,8 @@ bounds_required_dict = {
         "lower": [1, 0],
         "upper": [0, 1],
     },
+    "log": {
+        "lower": [1, 0],
+        "upper": [0, 1],
+    },
 }
