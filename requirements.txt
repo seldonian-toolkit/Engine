@@ -6,7 +6,6 @@ numpy==1.21
 pandas==1.4
 pytest==7.0
 scikit_learn==1.1
-scipy==1.7
+scipy==1.7.3
 setuptools==58.0
-torch==1.12
 tqdm==4.64
