@@ -81,6 +81,24 @@ to disk</p></li>
 </tbody>
 </table>
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches">
+<span class="sig-name descname"><span class="pre">calculate_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a batch dataset to be used in gradient descent.
+Does not return anything, instead sets self.batch_dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_index</strong> (<em>int</em>) – The batch number (0-indexed)</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The size of the batches</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective">
 <span class="sig-name descname"><span class="pre">evaluate_primary_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get value of the primary objective given model weights,
@@ -179,6 +197,7 @@ evaluated at theta</p>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection"><code class="docutils literal notranslate"><span class="pre">CandidateSelection</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__init__()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__repr__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__repr__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.calculate_batches()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.get_constraint_upper_bounds()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.objective_with_barrier()</span></code></a></li>
