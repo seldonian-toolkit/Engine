@@ -89,6 +89,16 @@ class CandidateSelection(object):
             self.reg_coef = kwargs["reg_coef"]
 
     def calculate_batches(self, batch_index, batch_size):
+        """Create a batch dataset to be used in gradient descent.
+        Does not return anything, instead sets self.batch_dataset.
+
+        :param batch_index: The batch number (0-indexed)
+        :type batch_index: int
+        :param batch_size: The size of the batches 
+        :type batch_size: int
+        
+        :return: None
+        """
         batch_start = batch_index * batch_size
         batch_end = batch_start + batch_size
         num_datapoints = self.candidate_dataset.num_datapoints
