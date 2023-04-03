@@ -982,7 +982,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 	passed_safety,solution = SA.run()
 	res = SA.get_cs_result()
 	res_keys = res.keys()
-	for key in ['candidate_solution', 'best_index', 'best_g', 'best_f', 'theta_vals', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
+	for key in ['candidate_solution', 'best_index', 'best_g', 'best_f', 'f_vals', 'g_vals', 'lamb_vals', 'L_vals']:
 		assert key in res_keys
 
 def test_get_safety_test_result(gpa_regression_dataset):

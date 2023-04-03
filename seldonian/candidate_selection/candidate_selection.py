@@ -101,6 +101,7 @@ class CandidateSelection(object):
         """
         batch_start = batch_index * batch_size
         batch_end = batch_start + batch_size
+
         num_datapoints = self.candidate_dataset.num_datapoints
         if self.regime == "supervised_learning":
             if batch_size < num_datapoints:
@@ -150,7 +151,13 @@ class CandidateSelection(object):
                 num_datapoints=batch_num_datapoints,
                 meta_information=self.candidate_dataset.meta_information,
             )
-        return
+        # If this batch is smaller than the batch size and not the first batch
+        # then that means we shouldn't consider a candidate solution calculated from it 
+        print(batch_index,batch_start,batch_end,batch_num_datapoints)
+        if batch_index > 0 and (batch_num_datapoints < batch_size):
+            return True
+        else: 
+            return False
 
     def run(self, **kwargs):
         """Run candidate selection
