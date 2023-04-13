@@ -52,37 +52,64 @@ class SeldonianAlgorithm:
         self.regime = self.dataset.regime
         self.column_names = self.dataset.meta_information
 
+
+        if self.spec.primary_objective is None:
+            if self.regime == "reinforcement_learning":
+                self.spec.primary_objective = objectives.IS_estimate
+            elif self.regime == "supervised_learning":
+                if self.spec.sub_regime in ["classification", "binary_classification"]:
+                    self.spec.primary_objective = objectives.binary_logistic_loss
+                elif self.spec.sub_regime == "multiclass_classification":
+                    self.spec.primary_objective = objectives.multiclass_logistic_loss
+                elif self.spec.sub_regime == "regression":
+                    self.spec.primary_objective = objectives.Mean_Squared_Error
+
+        # Create or load candidate selection and safety data splits.
         if self.regime == "supervised_learning":
             self.sub_regime = self.spec.sub_regime
             self.model = self.spec.model
-            # Split into candidate and safety datasets
 
-            (
-                self.candidate_features,
-                self.safety_features,
-                self.candidate_labels,
-                self.safety_labels,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
-            self.candidate_dataset = SupervisedDataSet(
-                features=self.candidate_features,
-                labels=self.candidate_labels,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                num_datapoints=self.n_candidate,
-                meta_information=self.dataset.meta_information,
-            )
+            if ((self.spec.candidate_dataset is None) or (self.spec.safety_dataset is None)
+                    or (self.spec.datasplit_info is None)):
+                # Split into candidate and safety datasets if not done already in spec.
+                (
+                    self.candidate_features,
+                    self.safety_features,
+                    self.candidate_labels,
+                    self.safety_labels,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
+                self.candidate_dataset = SupervisedDataSet(
+                    features=self.candidate_features,
+                    labels=self.candidate_labels,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    num_datapoints=self.n_candidate,
+                    meta_information=self.dataset.meta_information,
+                )
+                self.safety_dataset = SupervisedDataSet(
+                    features=self.safety_features,
+                    labels=self.safety_labels,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    num_datapoints=self.n_safety,
+                    meta_information=self.dataset.meta_information,
+                )
+            else:
+                # Load datasplit and datasplit information from the spec.
+                self.candidate_dataset = self.spec.candidate_dataset
+                self.safety_dataset = self.spec.safety_dataset
+                self.candidate_features = self.spec.datasplit_info["candidate_features"]
+                self.safety_features = self.spec.datasplit_info["safety_features"]
+                self.candidate_labels = self.spec.datasplit_info["candidate_labels"]
+                self.safety_labels = self.spec.datasplit_info["safety_labels"]
+                self.candidate_sensitive_attrs = self.spec.datasplit_info["candidate_sensitive_attrs"]
+                self.safety_sensitive_attrs = self.spec.datasplit_info["safety_sensitive_attrs"]
+                self.n_candidate = self.spec.datasplit_info["n_candidate"]
+                self.n_safety = self.spec.datasplit_info["n_safety"]
 
-            self.safety_dataset = SupervisedDataSet(
-                features=self.safety_features,
-                labels=self.safety_labels,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                num_datapoints=self.n_safety,
-                meta_information=self.dataset.meta_information,
-            )
-
+            # Warnings.
             if self.n_candidate < 2 or self.n_safety < 2:
                 warning_msg = (
                     "Warning: not enough data to " "run the Seldonian algorithm."
@@ -95,41 +122,45 @@ class SeldonianAlgorithm:
         elif self.regime == "reinforcement_learning":
             self.model = self.spec.model
 
-            (
-                self.candidate_episodes,
-                self.safety_episodes,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
+            if ((self.spec.candidate_dataset is None) or (self.spec.safety_dataset is None)
+                    or (self.spec.datasplit_info is None)):
+                # Split into candidate and safety datasets if not done already in spec.
+                (
+                    self.candidate_episodes,
+                    self.safety_episodes,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-            self.candidate_dataset = RLDataSet(
-                episodes=self.candidate_episodes,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                meta_information=self.column_names,
-            )
+                self.candidate_dataset = RLDataSet(
+                    episodes=self.candidate_episodes,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    meta_information=self.column_names,
+                )
 
-            self.safety_dataset = RLDataSet(
-                episodes=self.safety_episodes,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                meta_information=self.column_names,
-            )
+                self.safety_dataset = RLDataSet(
+                    episodes=self.safety_episodes,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    meta_information=self.column_names,
+                )
 
             print(f"Safety dataset has {self.n_safety} episodes")
             print(f"Candidate dataset has {self.n_candidate} episodes")
             print("Candidate sensitive_attrs:")
 
-        if self.spec.primary_objective is None:
-            if self.regime == "reinforcement_learning":
-                self.spec.primary_objective = objectives.IS_estimate
-            elif self.regime == "supervised_learning":
-                if self.spec.sub_regime in ["classification", "binary_classification"]:
-                    self.spec.primary_objective = objectives.binary_logistic_loss
-                elif self.spec.sub_regime == "multiclass_classification":
-                    self.spec.primary_objective = objectives.multiclass_logistic_loss
-                elif self.spec.sub_regime == "regression":
-                    self.spec.primary_objective = objectives.Mean_Squared_Error
+        else:
+            # Load datasplit and datasplit information from the spec.
+            self.candidate_dataset = self.spec.candidate_dataset
+            self.safety_dataset = self.spec.safety_dataset
+            self.candidate_episodes = self.spec.datasplit_info["candidate_episodes"]
+            self.safety_episodes = self.spec.datasplit_info["safety_episodes"]
+            self.candidate_sensitive_attrs = self.spec.datasplit_info["candidate_sensitive_attrs"]
+            self.safety_sensitive_attrs = self.spec.datasplit_info["safety_sensitive_attrs"]
+            self.n_candidate = self.spec.datasplit_info["n_candidate"]
+            self.n_safety = self.spec.datasplit_info["n_safety"]
+
 
     def candidate_safety_split(self, frac_data_in_safety):
         """Split features, labels and sensitive attributes
