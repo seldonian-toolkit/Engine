@@ -95,7 +95,13 @@ measure_functions_dict = {
         ],
         "regression": ["Mean_Error", "Mean_Squared_Error"],
     },
-    "reinforcement_learning": {"all": ["J_pi_new"]},
+    "reinforcement_learning": {
+        "all":
+        	[
+    		"J_pi_new",
+            "J_pi_new_PDIS",
+            ]
+        },
 }
 
 custom_base_node_dict = {
