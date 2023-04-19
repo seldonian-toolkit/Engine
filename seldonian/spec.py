@@ -298,6 +298,96 @@ class RLSpec(Spec):
         )
 
 
+def createSimpleSupervisedSpec(
+    dataset,
+    constraint_strs,
+    deltas,
+    sub_regime='regression',
+    sensitive_col_names=[],
+    frac_data_in_safety=0.6,
+    save=True,
+    save_dir=".",
+    verbose=False,
+):
+    """Convenience function for creating SupervisedSpec object
+    without a metadata file.
+    
+    Saves spec.pkl file in save_dir
+
+    :param dataset: The dataset object containing data and metadata
+    :type dataset: :py:class:`.DataSet`
+    :param constraint_strs: Constraint strings
+    :type constraint_strs: List(str)
+    :param deltas: Confidence thresholds
+    :type deltas: List(float)
+    :param sub_regime: "classification" or "regression"
+    :param sensitive_col_names: List of sensitive column names
+    :type sensitive_col_names: List(str)
+    :param frac_data_in_safety: Fraction of data used in safety test.
+            The remaining fraction will be used in candidate selection
+    :type frac_data_in_safety: float
+    :param save: Boolean flag determining whether to save to a file
+    :param save_dir: Directory where to save the spec.pkl file
+    :type save_dir: str
+    :param verbose: Boolean glag to control verbosity
+    """
+
+    assert dataset.regime == "supervised_learning"
+
+    if sub_regime == "regression":
+        model = LinearRegressionModel()
+        primary_objective = objectives.Mean_Squared_Error
+    elif sub_regime in ["classification", "binary_classification"]:
+        model = BinaryLogisticRegressionModel()
+        primary_objective = objectives.binary_logistic_loss
+    elif sub_regime == "multiclass_classification":
+        model = MultiClassLogisticRegressionModel()
+        primary_objective = objectives.multiclass_logistic_loss
+
+    parse_trees = make_parse_trees_from_constraints(
+        constraint_strs,
+        deltas,
+        regime="supervised_learning",
+        sub_regime=sub_regime,
+        columns=sensitive_col_names,
+        delta_weight_method="equal",
+    )
+
+    # Save spec object, using defaults where necessary
+    spec = SupervisedSpec(
+        dataset=dataset,
+        model=model,
+        frac_data_in_safety=frac_data_in_safety,
+        primary_objective=primary_objective,
+        use_builtin_primary_gradient_fn=True,
+        parse_trees=parse_trees,
+        sub_regime=sub_regime,
+        initial_solution_fn=None,
+        optimization_technique="gradient_descent",
+        optimizer="adam",
+        optimization_hyperparams={
+            "lambda_init": 0.5,
+            "alpha_theta": 0.005,
+            "alpha_lamb": 0.005,
+            "beta_velocity": 0.9,
+            "beta_rmsprop": 0.95,
+            "num_iters": 200,
+            "gradient_library": "autograd",
+            "use_batches": False,
+            "hyper_search": None,
+            "verbose": True,
+        },
+        regularization_hyperparams={},
+        batch_size_safety=None,
+        verbose=verbose,
+    )
+
+    spec_save_name = os.path.join(save_dir, "spec.pkl")
+    if save:
+        save_pickle(spec_save_name, spec, verbose=verbose)
+    return spec
+
+
 def createSupervisedSpec(
     dataset,
     metadata_pth,

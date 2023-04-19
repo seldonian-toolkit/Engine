@@ -1,6 +1,6 @@
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 from seldonian.models.models import LinearRegressionModel
-from seldonian.spec import SupervisedSpec
+from seldonian.spec import createSimpleSupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.utils.tutorial_utils import (
     make_synthetic_regression_dataset)
@@ -14,15 +14,11 @@ if __name__ == "__main__":
     dataset = make_synthetic_regression_dataset(
         num_points=num_points)
 
-    # 2. Create parse trees from the behavioral constraints 
-    # constraint strings:
+    # 2. Specify behavioral constraints 
+
     constraint_strs = ['Mean_Squared_Error >= 1.25',
         'Mean_Squared_Error <= 2.0']
-    # confidence levels: 
-    deltas = [0.1,0.1] 
-
-    parse_trees = make_parse_trees_from_constraints(
-        constraint_strs,deltas)
+    deltas = [0.1,0.1] # confidence levels
 
     # 3. Define the underlying machine learning model
     model = LinearRegressionModel()
@@ -30,32 +26,21 @@ if __name__ == "__main__":
     """4. Create a spec object, using some
     hidden defaults we won't worry about here
     """
-    spec = SupervisedSpec(
+    spec = createSimpleSupervisedSpec(
         dataset=dataset,
-        model=model,
-        parse_trees=parse_trees,
+        constraint_strs=constraint_strs,
+        deltas=deltas,
         sub_regime='regression',
-        batch_size_safety=100,
     )
-    print(spec.optimization_hyperparams)
 
     # 5. Run seldonian algorithm using the spec object
     SA = SeldonianAlgorithm(spec)
+    # print(SA.initial_solution)
 
     passed_safety,solution = SA.run(write_cs_logfile=True)
     print(passed_safety,solution)
-#     # Check the parse trees frozen after the safety test was run
-#     # pt1_str = parse_trees[0].constraint_str
-#     print(SA.get_st_upper_bounds())
-#     cs_primary_objective = SA.evaluate_primary_objective(theta=solution,
-# branch='candidate_selection')
-    # print(cs_primary_objective)
-    # Check the value of the primary objective on the safety dataset
-    # st_primary_objective = SA.evaluate_primary_objective(theta=solution,
-    # branch='safety_test')
-    # print(st_primary_objective)
 
     cs_dict = SA.get_cs_result() # returns a dictionary with a lot of quantities evaluated at each step of gradient descent
-    print(list(cs_dict.keys()))
+    # print(list(cs_dict.keys()))
     # print(cs_dict['f_vals'])
     # print(cs_dict['g_vals'])
