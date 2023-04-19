@@ -1166,6 +1166,86 @@ def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
 
     return np.array(result)
 
+def custom_cumprod(x):
+    """Custom implementation of np.cumprod that works with autograd
+    Source: https://github.com/HIPS/autograd/issues/257
+
+    :param x: The input array
+    :type x: numpy ndarray
+    :return: The cumulative product of the array
+    :rtype: numpy ndarray(float)
+    """
+
+    cumprods = []
+    for i in range(x.size):
+        current_num = x[i]
+        
+        if i == 0:
+            cumprods.append(current_num)
+        else:
+            prev_num = cumprods[i-1]
+            next_num = prev_num*current_num
+            cumprods.append(next_num)
+
+    return np.array(cumprods)
+
+def PDIS_estimate(model, theta, episodes, weighted_returns=None, **kwargs)->float:
+    """Calculate per decision importance sampling estimate
+    on all episodes in the dataframe
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :return: The PDIS estimate calculated over all episodes
+    :rtype: float
+    """
+
+    gamma = model.env_kwargs["gamma"] if "gamma" in model.env_kwargs else 1.0
+    PDIS_est = 0.
+    for ep in episodes:
+        discount = np.power(gamma, range(len(ep.rewards)))
+        pi_news = model.get_probs_from_observations_and_actions(
+            theta, ep.observations, ep.actions
+        )
+        pi_ratios = pi_news / ep.action_probs
+
+        # autograd doesn't support np.cumprod
+        pi_ratio_prods = custom_cumprod(pi_ratios)
+
+        PDIS_est += np.sum(pi_ratio_prods * discount * ep.rewards)
+
+    PDIS_est /= len(episodes)
+
+    return PDIS_est
+
+def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
+    """Calculate per decision importance sampling estimate
+    on each episodes in the dataframe
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :return: A vector of PDIS estimates calculated for each episode
+    :rtype: numpy ndarray(float)
+    """
+
+    gamma = model.env_kwargs["gamma"] if "gamma" in model.env_kwargs else 1.0
+    PDIS_vector = []
+    for ep in episodes:
+        discount = np.power(gamma, range(len(ep.rewards)))
+        pi_news = model.get_probs_from_observations_and_actions(
+            theta, ep.observations, ep.actions
+        )
+        pi_ratios = pi_news / ep.action_probs
+        
+        # autograd doesn't support np.cumprod
+        pi_ratio_prods = custom_cumprod(pi_ratios)
+
+        PDIS_vector.append( np.sum(pi_ratio_prods * discount * ep.rewards) )
+
+    return np.array(PDIS_vector)
 
 """ Measure function mappers """
 measure_function_vector_mapper = {
@@ -1179,6 +1259,7 @@ measure_function_vector_mapper = {
     "TNR": vector_True_Negative_Rate,
     "ACC": vector_Accuracy,
     "J_pi_new": vector_IS_estimate,
+    'J_pi_new_PDIS':vector_PDIS_estimate,
 }
 
 measure_function_mapper = {
@@ -1192,4 +1273,5 @@ measure_function_mapper = {
     "TNR": True_Negative_Rate,
     "ACC": Accuracy,
     "J_pi_new": IS_estimate,
+    'J_pi_new_PDIS':PDIS_estimate,
 }
