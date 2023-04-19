@@ -153,7 +153,6 @@ class CandidateSelection(object):
             )
         # If this batch is smaller than the batch size and not the first batch
         # then that means we shouldn't consider a candidate solution calculated from it 
-        print(batch_index,batch_start,batch_end,batch_num_datapoints)
         if batch_index > 0 and (batch_num_datapoints < batch_size):
             return True
         else: 
