@@ -21,12 +21,14 @@ seldonian.models.objectives
       Mean_Error
       Mean_Squared_Error
       Negative_Rate
+      PDIS_estimate
       Positive_Rate
       True_Negative_Rate
       True_Positive_Rate
       batcher
       binary_logistic_loss
       confusion_matrix
+      custom_cumprod
       evaluate_statistic
       gradient_Bounded_Squared_Error
       gradient_Mean_Squared_Error
@@ -39,6 +41,7 @@ seldonian.models.objectives
       vector_False_Positive_Rate
       vector_IS_estimate
       vector_Negative_Rate
+      vector_PDIS_estimate
       vector_Positive_Rate
       vector_Squared_Error
       vector_True_Negative_Rate
