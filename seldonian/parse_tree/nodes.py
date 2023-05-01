@@ -5,7 +5,7 @@ import autograd.numpy as np
 
 from seldonian.models.objectives import sample_from_statistic, evaluate_statistic
 from seldonian.utils.stats_utils import *
-
+from .mcmc.mcmc import run_mcmc_default
 
 class Node(object):
     def __init__(self, name, lower, upper):
@@ -273,17 +273,20 @@ class BaseNode(Node):
                 return {"lower": lower, "upper": upper}
 
             else:
-                # Real confidence bound
+                # Real confidence bound / credible bound
 
                 # --TODO-- abstract away to support things like
                 # getting confidence intervals from bootstrap
                 # and RL cases
                 estimator_samples = self.zhat(**kwargs)
+                if kwargs["mode"] == "bayesian":
+                    posterior_samples = run_mcmc_default(self.measure_function_name, estimator_samples, **kwargs)
 
                 branch = kwargs["branch"]
                 data_dict = kwargs["data_dict"]
                 bound_kwargs = kwargs
-                bound_kwargs["data"] = estimator_samples
+                bound_kwargs["data"] = estimator_samples if kwargs["mode"] == "frequentist" else posterior_samples
+                bound_kwargs["bound_method"] = "ttest" if kwargs["mode"] == "frequentist" else "quantile"
                 bound_kwargs["delta"] = self.delta
 
                 # If lower and upper are both needed,
@@ -371,6 +374,8 @@ class BaseNode(Node):
                 lower = data.mean() - 2 * stddev(data) / np.sqrt(datasize) * tinv(
                     1.0 - delta, datasize - 1
                 )
+            elif bound_method == "quantile":
+                lower = np.quantile(data, delta, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
@@ -401,6 +406,8 @@ class BaseNode(Node):
                 lower = data.mean() + 2 * stddev(data) / np.sqrt(datasize) * tinv(
                     1.0 - delta, datasize - 1
                 )
+            elif bound_method == "quantile":
+                lower = np.quantile(data, 1 - delta, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
@@ -442,6 +449,9 @@ class BaseNode(Node):
 
             elif bound_method == "manual":
                 pass
+            elif bound_method == "quantile":
+                lower = np.quantile(data, delta / 2, method="inverted_cdf")
+                upper = np.quantile(data, 1 - delta / 2, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method}" " is not supported"
@@ -471,6 +481,8 @@ class BaseNode(Node):
                 lower = data.mean() - stddev(data) / np.sqrt(datasize) * tinv(
                     1.0 - delta, datasize - 1
                 )
+            elif bound_method == "quantile":
+                lower = np.quantile(data, delta, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method}" " is not supported"
@@ -499,6 +511,8 @@ class BaseNode(Node):
                 upper = data.mean() + stddev(data) / np.sqrt(datasize) * tinv(
                     1.0 - delta, datasize - 1
                 )
+            elif bound_method == "quantile":
+                upper = np.quantile(data, 1 - delta, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method}" " is not supported"
@@ -539,6 +553,9 @@ class BaseNode(Node):
 
             elif bound_method == "manual":
                 pass
+            elif bound_method == "quantile":
+                lower = np.quantile(data, delta / 2, method="inverted_cdf")
+                upper = np.quantile(data, 1 - delta / 2, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method}" " is not supported"

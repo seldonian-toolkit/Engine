@@ -6,7 +6,7 @@ import copy
 
 class SafetyTest(object):
     def __init__(
-        self, safety_dataset, model, parse_trees, regime="supervised_learning", **kwargs
+        self, safety_dataset, model, parse_trees, mode, regime="supervised_learning", **kwargs
     ):
         """
         Object for running safety test
@@ -29,6 +29,7 @@ class SafetyTest(object):
         self.model = model
         self.parse_trees = parse_trees
         self.regime = regime
+        self.mode = mode
         self.st_result = {}  # stores parse tree evaluated on safety test data
 
     def run(self, solution, batch_size_safety=None, **kwargs):
@@ -61,6 +62,7 @@ class SafetyTest(object):
                 branch="safety_test",
                 regime=self.regime,
                 batch_size_safety=batch_size_safety,
+                mode=self.mode,
                 **kwargs
             )
 

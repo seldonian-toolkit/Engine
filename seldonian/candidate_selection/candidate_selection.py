@@ -18,6 +18,7 @@ class CandidateSelection(object):
         n_safety,
         parse_trees,
         primary_objective,
+        mode,
         optimization_technique="barrier_function",
         optimizer="Powell",
         initial_solution=None,
@@ -68,6 +69,7 @@ class CandidateSelection(object):
 
         """
         self.regime = regime
+        self.mode = mode
         self.model = model
         self.candidate_dataset = candidate_dataset
         self.n_safety = n_safety
@@ -389,6 +391,7 @@ class CandidateSelection(object):
                 branch="candidate_selection",
                 n_safety=self.n_safety,
                 regime=self.regime,
+                mode=self.mode
             )
 
             pt.propagate_bounds(**bounds_kwargs)
@@ -479,6 +482,7 @@ class CandidateSelection(object):
                 branch="candidate_selection",
                 n_safety=self.n_safety,
                 regime=self.regime,
+                mode=self.mode
             )
 
             pt.propagate_bounds(**bounds_kwargs)

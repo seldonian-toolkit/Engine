@@ -22,6 +22,7 @@ class SeldonianAlgorithm:
         :type spec: :py:class:`.Spec` object
         """
         self.spec = spec
+        self.mode = spec.mode
         self.cs_has_been_run = False
         self.cs_result = None
         self.st_has_been_run = False
@@ -189,6 +190,7 @@ class SeldonianAlgorithm:
             initial_solution=self.initial_solution,
             regime=self.regime,
             write_logfile=write_logfile,
+            mode=self.mode
         )
 
         cs = CandidateSelection(**cs_kwargs, **self.spec.regularization_hyperparams)
@@ -202,6 +204,7 @@ class SeldonianAlgorithm:
             model=self.model,
             parse_trees=self.spec.parse_trees,
             regime=self.regime,
+            mode=self.mode
         )
 
         st = SafetyTest(**st_kwargs)

@@ -81,6 +81,7 @@ class Spec(object):
         regularization_hyperparams={},
         batch_size_safety=None,
         verbose=False,
+        mode="frequentist",
     ):
         self.dataset = dataset
         self.model = model
@@ -97,6 +98,7 @@ class Spec(object):
         self.regularization_hyperparams = regularization_hyperparams
         self.batch_size_safety = batch_size_safety
         self.verbose = verbose
+        self.mode = mode
 
 
 class SupervisedSpec(Spec):
@@ -171,6 +173,7 @@ class SupervisedSpec(Spec):
         regularization_hyperparams={},
         batch_size_safety=None,
         verbose=False,
+        mode="frequentist",
     ):
         super().__init__(
             dataset=dataset,
@@ -188,6 +191,7 @@ class SupervisedSpec(Spec):
             regularization_hyperparams=regularization_hyperparams,
             batch_size_safety=batch_size_safety,
             verbose=verbose,
+            mode=mode,
         )
         self.sub_regime = sub_regime
 

@@ -12,9 +12,6 @@ from seldonian.warnings.custom_warnings import *
 from .nodes import *
 from .operators import *
 
-default_bound_method = "ttest"
-
-
 class ParseTree(object):
     def __init__(self, delta, regime, sub_regime, columns=[]):
         """
@@ -266,7 +263,7 @@ class ParseTree(object):
             # then make a new entry
             if new_node.name not in self.base_node_dict:
                 self.base_node_dict[new_node.name] = {
-                    "bound_method": default_bound_method,
+                    "bound_method": "default",
                     "bound_computed": False,
                     "value_computed": False,
                     "lower": float("-inf"),
