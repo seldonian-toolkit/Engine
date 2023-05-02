@@ -5,16 +5,22 @@ from .likelihood import get_likelihood_ratio
 
 class MetropolisHastings:
 
-    def __init__(self, proposal_width, prior_type, prior_mean, prior_width, likelihood_ratio):
+    def __init__(self, proposal_width, prior_type, prior_mean, prior_width, likelihood_ratio, infer_std):
         self.proposal_dist = ProposalDistribution(proposal_width)
-        self.prior_dist = PriorDistribution(prior_type, prior_mean, prior_width)
+        self.prior_dist = PriorDistribution(prior_type, prior_mean, prior_width, infer_std)
         self.likelihood_ratio = likelihood_ratio
+        self.infer_std = infer_std
 
     def run(self, N=200000, skip_interval=20, burn_in=5000):
         verbose = False
         if verbose:
             print("Running MCMC:")
-        g = 0 # initial g
+        
+        if self.infer_std:
+            # mean and std
+            g = np.array([0, 5])    # start with N(0, 1)
+        else:
+            g = 0 # initial g
 
         samples = []    # samples obtained
         all_gs = [g]    # keep track of every g in the chain
@@ -51,8 +57,13 @@ class MetropolisHastings:
             if t == N:
                 break
 
-        if verbose:
-            print("Acceptance rate:", acceptance_count / N)
+        # if verbose:
+        print("Acceptance rate:", acceptance_count / N)
+
+        if self.infer_std:
+            # keep only mean
+            # print(np.mean(np.array(samples)[:, 1]))
+            samples = np.array(samples)[:, 0]
 
         return samples, all_gs
     
@@ -60,13 +71,25 @@ class MetropolisHastings:
 def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
     """
     Default MCMC settings using jeffrey's pior.
+
+    :ivar infer_std:
+        If true, infer std using mcmc.
+        Else, use std derived from candidate
+        data.
+    :vartype infer_std: bool
     """
 
     # --TODO-- automatic tune proposal width
     # such that the acceptance rate is between
     # 0.2 and 0.8.
 
-    proposal_width = 0.2
+    infer_std = True
+
+    if infer_std:
+        proposal_width = 0.1
+    else:
+        proposal_width = 0.2
+
     if kwargs["branch"] == "candidate_selection":
         prior_type = "jeffrey"
         prior_width = None
@@ -81,9 +104,9 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
         prior_mean = None
 
 
-    likelihood_ratio = get_likelihood_ratio(statistic_name, zhat, datasize)
+    likelihood_ratio = get_likelihood_ratio(statistic_name, zhat, datasize, infer_std)
 
-    mh = MetropolisHastings(proposal_width, prior_type, prior_mean, prior_width, likelihood_ratio)
+    mh = MetropolisHastings(proposal_width, prior_type, prior_mean, prior_width, likelihood_ratio, infer_std)
     samples, _ = mh.run(N=100000, skip_interval=10, burn_in=3000)
 
     # if kwargs["branch"] == "safety_test":
