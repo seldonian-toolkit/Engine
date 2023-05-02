@@ -86,11 +86,13 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
     mh = MetropolisHastings(proposal_width, prior_type, prior_mean, prior_width, likelihood_ratio)
     samples, _ = mh.run(N=100000, skip_interval=10, burn_in=3000)
 
-    # import matplotlib.pyplot as plt
-    # plt.hist(samples, bins=100, density=True)
-    # plt.show()
+    # if kwargs["branch"] == "safety_test":
+    #     import matplotlib.pyplot as plt
+    #     plt.hist(samples, bins=100, density=True)
+    #     plt.axvline(np.quantile(samples, 0.9, method="inverted_cdf"))
+    #     plt.show()
 
-    # print(np.quantile(samples, 0.95, method="inverted_cdf") - 2, )
+    # print(np.quantile(samples, 0.9, method="inverted_cdf") )
 
 
     return samples

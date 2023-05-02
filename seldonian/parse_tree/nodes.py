@@ -375,7 +375,7 @@ class BaseNode(Node):
                     1.0 - delta, datasize - 1
                 )
             elif bound_method == "quantile":
-                lower = np.quantile(data, delta, method="inverted_cdf")
+                lower = np.quantile(data, delta / 2, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
@@ -407,7 +407,7 @@ class BaseNode(Node):
                     1.0 - delta, datasize - 1
                 )
             elif bound_method == "quantile":
-                lower = np.quantile(data, 1 - delta, method="inverted_cdf")
+                lower = np.quantile(data, 1 - delta / 2, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
@@ -450,8 +450,8 @@ class BaseNode(Node):
             elif bound_method == "manual":
                 pass
             elif bound_method == "quantile":
-                lower = np.quantile(data, delta / 2, method="inverted_cdf")
-                upper = np.quantile(data, 1 - delta / 2, method="inverted_cdf")
+                lower = np.quantile(data, delta / 4, method="inverted_cdf")
+                upper = np.quantile(data, 1 - delta / 4, method="inverted_cdf")
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method}" " is not supported"

@@ -27,8 +27,13 @@ def get_likelihood_ratio(statistic_name, zhat, datasize):
     # print("Power:", power)
 
     if statistic_name == "Mean_Squared_Error":
-        # use std of zhat as std of normal assumption
-        std = np.std(zhat)
+        # Use std of zhat as std of normal assumption
+        # Scale std of zhat to predict what would be
+        # the std for safety data (replace denominator
+        # of variance with size of safety set instead of
+        # size of candidate set)
+        std = np.std(zhat) * np.sqrt(len(zhat) / datasize)
+        # print(std)
 
         # Wrap likelihood ratio function such that
         # it only takes proposal g and original (current) g
