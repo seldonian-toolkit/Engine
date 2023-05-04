@@ -83,7 +83,7 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
     # such that the acceptance rate is between
     # 0.2 and 0.8.
 
-    infer_std = True
+    infer_std = False
 
     if infer_std:
         proposal_width = 0.1
@@ -97,11 +97,15 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
 
     elif kwargs["branch"] == "safety_test":
         # use candidate zhat mean to construct prior for safety test
-        # prior_type = "normal"
-        # prior_mean = mean_zhat
-        prior_type = "jeffrey"
-        prior_width = None
-        prior_mean = None
+        if kwargs["use_candidate_prior"]:
+            prior_type = "normal"
+            prior_mean = kwargs["zhat_mean"]
+            # print(prior_mean)
+            prior_width = 0.5
+        else:
+            prior_type = "jeffrey"
+            prior_width = None
+            prior_mean = None
 
 
     likelihood_ratio = get_likelihood_ratio(statistic_name, zhat, datasize, infer_std)
@@ -109,11 +113,23 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
     mh = MetropolisHastings(proposal_width, prior_type, prior_mean, prior_width, likelihood_ratio, infer_std)
     samples, _ = mh.run(N=100000, skip_interval=10, burn_in=3000)
 
+    
+
     # if kwargs["branch"] == "safety_test":
-    #     import matplotlib.pyplot as plt
-    #     plt.hist(samples, bins=100, density=True)
-    #     plt.axvline(np.quantile(samples, 0.9, method="inverted_cdf"))
-    #     plt.show()
+    # import matplotlib.pyplot as plt
+    # from scipy.stats import t
+    # plt.hist(samples, bins=100, density=True, label="posterior", alpha=0.5)
+    # plt.axvline(np.quantile(samples, 0.9, method="inverted_cdf"))
+
+    # print(np.quantile(samples, 0.95), np.mean(zhat) + np.std(zhat) / np.sqrt(datasize) * t.ppf(0.95, datasize - 1))
+
+    # normal_samples = np.random.normal(loc=np.mean(zhat), scale=np.std(zhat) / np.sqrt(datasize), size=(10000,))
+    # plt.hist(normal_samples, bins=100, density=True, label="gaussian", alpha=0.5)
+
+    # plt.hist(zhat, bins=100, density=True, label="zhat", alpha=0.5)
+    # plt.legend()
+    # plt.show()
+
 
     # print(np.quantile(samples, 0.9, method="inverted_cdf") )
 

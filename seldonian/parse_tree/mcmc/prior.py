@@ -1,4 +1,4 @@
-
+import numpy as np
 
 class PriorDistribution:
 
@@ -16,6 +16,9 @@ class PriorDistribution:
             else:
                 return 1
         elif self.type == "normal":
-            raise NotImplementedError()
+            if self.infer_std:
+                raise NotImplementedError()
+            else:
+                return np.exp(- ((proposal - self.mean) ** 2 - (original - self.mean) ** 2) / 2 / self.width ** 2)
         else:
             raise NotImplementedError()

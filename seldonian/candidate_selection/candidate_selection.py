@@ -391,7 +391,8 @@ class CandidateSelection(object):
                 branch="candidate_selection",
                 n_safety=self.n_safety,
                 regime=self.regime,
-                mode=self.mode
+                mode=self.mode,
+                use_candidate_prior=False
             )
 
             pt.propagate_bounds(**bounds_kwargs)

@@ -204,7 +204,7 @@ class SeldonianAlgorithm:
             model=self.model,
             parse_trees=self.spec.parse_trees,
             regime=self.regime,
-            mode=self.mode
+            mode=self.mode,
         )
 
         st = SafetyTest(**st_kwargs)
@@ -293,7 +293,7 @@ class SeldonianAlgorithm:
             **self.spec.optimization_hyperparams,
             use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
             custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
-            debug=debug,
+            debug=debug
         )
 
         self.cs_has_been_run = True
@@ -316,7 +316,8 @@ class SeldonianAlgorithm:
         """
 
         st = self.safety_test()
-        passed_safety = st.run(candidate_solution, batch_size_safety=batch_size_safety)
+        passed_safety = st.run(candidate_solution, batch_size_safety=batch_size_safety, 
+                               candidate_dataset=self.candidate_dataset, use_candidate_prior=self.spec.use_candidate_prior)
         if not passed_safety:
             if debug:
                 print("Failed safety test")
