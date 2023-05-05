@@ -4,6 +4,7 @@ import autograd.numpy as np
 def Mean_Squared_Error_Likelihood_Ratio(proposal, original, zhat, std):
     if std == 0:
         std = 1e-15
+    # print(proposal, original, np.exp(- ((zhat - proposal) ** 2 - (zhat - original) ** 2).sum() / 2 / std ** 2))
     return np.exp(- ((zhat - proposal) ** 2 - (zhat - original) ** 2).sum() / 2 / std ** 2)
 
 ##### Likelihood Ratio Functions when also infer std
@@ -21,6 +22,7 @@ def Mean_Squared_Error_Likelihood_Ratio_Infer_Std(proposal, original, zhat):
     mean_orig, std_orig = original
 
     likelihood_ratio = np.exp(-(((zhat - mean_prop) / std_prop) ** 2 - ((zhat - mean_orig) / std_orig) ** 2).sum() / 2 + np.log(std_orig / std_prop) * len(zhat))
+    # print(likelihood_ratio)
     return likelihood_ratio
 
 ################################

@@ -6,7 +6,7 @@ from .likelihood import get_likelihood_ratio
 class MetropolisHastings:
 
     def __init__(self, proposal_width, prior_type, prior_mean, prior_width, likelihood_ratio, infer_std):
-        self.proposal_dist = ProposalDistribution(proposal_width)
+        self.proposal_dist = ProposalDistribution(proposal_width, infer_std)
         self.prior_dist = PriorDistribution(prior_type, prior_mean, prior_width, infer_std)
         self.likelihood_ratio = likelihood_ratio
         self.infer_std = infer_std
@@ -85,10 +85,7 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
 
     infer_std = True
 
-    if infer_std:
-        proposal_width = 0.1
-    else:
-        proposal_width = 0.2
+    proposal_width = 0.2
 
     if kwargs["branch"] == "candidate_selection":
         prior_type = "jeffrey"
