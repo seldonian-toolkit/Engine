@@ -83,7 +83,7 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
     # such that the acceptance rate is between
     # 0.2 and 0.8.
 
-    infer_std = False
+    infer_std = True
 
     if infer_std:
         proposal_width = 0.1
@@ -100,8 +100,8 @@ def run_mcmc_default(statistic_name, zhat, datasize, **kwargs):
         if kwargs["use_candidate_prior"]:
             prior_type = "normal"
             prior_mean = kwargs["zhat_mean"]
-            # print(prior_mean)
-            prior_width = 0.5
+            print("HERE", prior_mean)
+            prior_width = 0.1
         else:
             prior_type = "jeffrey"
             prior_width = None

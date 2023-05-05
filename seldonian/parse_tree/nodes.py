@@ -293,7 +293,6 @@ class BaseNode(Node):
 
                         value = self.calculate_value(**candidate_kwargs)
                         kwargs["zhat_mean"] = value
-
                     posterior_samples = run_mcmc_default(self.measure_function_name, estimator_samples, **kwargs)
 
                 branch = kwargs["branch"]

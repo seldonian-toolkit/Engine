@@ -394,7 +394,6 @@ class CandidateSelection(object):
                 mode=self.mode,
                 use_candidate_prior=False
             )
-
             pt.propagate_bounds(**bounds_kwargs)
 
             # Check if the i-th behavioral constraint is satisfied

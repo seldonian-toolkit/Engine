@@ -28,6 +28,7 @@ class SeldonianAlgorithm:
         self.st_has_been_run = False
         self.st_result = None
 
+
         self.parse_trees = self.spec.parse_trees
         # user can pass a dictionary that specifies
         # the bounding method for each base node
