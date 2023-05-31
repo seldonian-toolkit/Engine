@@ -1133,7 +1133,7 @@ def IS_estimate(model, theta, episodes, weighted_returns=None, **kwargs):
     IS_estimate = 0
     for ii, ep in enumerate(episodes):
         pi_news = model.get_probs_from_observations_and_actions(
-            theta, ep.observations, ep.actions
+            theta, ep.observations, ep.actions, ep.action_probs
         )
         pi_ratios = pi_news / ep.action_probs
         pi_ratio_prod = np.prod(pi_ratios)
@@ -1160,7 +1160,7 @@ def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     result = []
     for ii, ep in enumerate(episodes):
         pi_news = model.get_probs_from_observations_and_actions(
-            theta, ep.observations, ep.actions
+            theta, ep.observations, ep.actions, ep.action_probs
         )
         pi_ratio_prod = np.prod(pi_news / ep.action_probs)
         result.append(pi_ratio_prod * weighted_returns[ii])
@@ -1184,7 +1184,7 @@ def PDIS_estimate(model, theta, episodes, weighted_returns=None, **kwargs)->floa
     for ep in episodes:
         discount = np.power(gamma, range(len(ep.rewards)))
         pi_news = model.get_probs_from_observations_and_actions(
-            theta, ep.observations, ep.actions
+            theta, ep.observations, ep.actions, ep.action_probs
         )
         pi_ratios = pi_news / ep.action_probs
 
@@ -1214,7 +1214,7 @@ def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     for ep in episodes:
         discount = np.power(gamma, range(len(ep.rewards)))
         pi_news = model.get_probs_from_observations_and_actions(
-            theta, ep.observations, ep.actions
+            theta, ep.observations, ep.actions, ep.action_probs
         )
         pi_ratios = pi_news / ep.action_probs
         

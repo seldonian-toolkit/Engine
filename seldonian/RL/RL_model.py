@@ -20,7 +20,7 @@ class RL_model(SeldonianModel):  # consist of agent, env
             self.env_kwargs["gamma"] = 1.0
 
     def get_probs_from_observations_and_actions(
-        self, new_params, observations, actions
+        self, new_params, observations, actions, action_probs,
     ):
         """Get action probablities given a list of observations and actions
         taken given those observations
@@ -28,6 +28,7 @@ class RL_model(SeldonianModel):  # consist of agent, env
         :param new_params: Parameter weights to use
         :param observations: Array of observations
         :param actions: Array of actions
+        :param action_probs: Array of action probabilities from the behavior policy
 
         :return: Array of probabilities
         """
@@ -38,7 +39,7 @@ class RL_model(SeldonianModel):  # consist of agent, env
                 f"different number of observations ({observations}) and actions ({actions})"
             )
 
-        probs = list(map(self.policy.get_prob_this_action, observations, actions))
+        probs = list(map(self.policy.get_prob_this_action, observations, actions, action_probs))
         # If the policy uses a cache, make sure to clear it
         # This is necessary because cache is only correct
         # for a given set of param weights
@@ -50,15 +51,16 @@ class RL_model(SeldonianModel):  # consist of agent, env
 
         return np.array(probs)
 
-    def get_prob_this_action(self, observation, action):
+    def get_prob_this_action(self, observation, action, action_prob):
         """Get action probability given a single observation, action
         pair
 
-        :param observations: Array of observations
-        :param actions: Array of actions
+        :param observation: Observation on a single timestep
+        :param action: Action on a single timestep
+        :param action_prob: Action probability on a single timestep
 
         :return: Probability of taking this action given observation
         :rtype: float
         """
 
-        return self.policy.get_prob_this_action(observation, action)
+        return self.policy.get_prob_this_action(observation, action, action_prob)
