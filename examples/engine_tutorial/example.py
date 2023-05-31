@@ -4,8 +4,6 @@ from seldonian.spec import createSimpleSupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.utils.tutorial_utils import (
     make_synthetic_regression_dataset)
-from seldonian.parse_tree.parse_tree import (
-    make_parse_trees_from_constraints)
 
 if __name__ == "__main__":
     np.random.seed(0)
@@ -37,8 +35,20 @@ if __name__ == "__main__":
     SA = SeldonianAlgorithm(spec)
     # print(SA.initial_solution)
 
-    passed_safety,solution = SA.run(write_cs_logfile=True)
+    passed_safety,solution = SA.run()
     print(passed_safety,solution)
+
+    st_primary_objective = SA.evaluate_primary_objective(
+        theta=solution,
+        branch='safety_test')
+    print(st_primary_objective)
+
+    cs_primary_objective = SA.evaluate_primary_objective(
+    theta=solution,
+    branch='candidate_selection')
+    print(cs_primary_objective)
+
+    print(SA.get_st_upper_bounds())
 
     cs_dict = SA.get_cs_result() # returns a dictionary with a lot of quantities evaluated at each step of gradient descent
     # print(list(cs_dict.keys()))
