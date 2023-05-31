@@ -20,6 +20,7 @@ seldonian.RL.Agents.Policies.Softmax
       :template: custom-class-template.rst              
    
       DiscreteSoftmax
+      MixedSoftmax
       Softmax
    
    

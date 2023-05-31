@@ -28,7 +28,6 @@ seldonian.models.objectives
       batcher
       binary_logistic_loss
       confusion_matrix
-      custom_cumprod
       evaluate_statistic
       gradient_Bounded_Squared_Error
       gradient_Mean_Squared_Error

@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>seldonian.models.objectives &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -80,61 +79,58 @@
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.confusion_matrix.html#seldonian.models.objectives.confusion_matrix" title="seldonian.models.objectives.confusion_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">confusion_matrix</span></code></a>(model, theta, X, Y, l_i, ...)</p></td>
 <td><p>Get the probability of predicting class label l_k if the true class label was l_i. This is the C[l_i,l_k] element of the confusion matrix, C. Let:         i = number of datapoints         j = number of features (including bias term, if provied)         k = number of classes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.custom_cumprod.html#seldonian.models.objectives.custom_cumprod" title="seldonian.models.objectives.custom_cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_cumprod</span></code></a>(x)</p></td>
-<td><p>Custom implementation of np.cumprod that works with autograd Source: <a class="reference external" href="https://github.com/HIPS/autograd/issues/257">https://github.com/HIPS/autograd/issues/257</a></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.evaluate_statistic.html#seldonian.models.objectives.evaluate_statistic" title="seldonian.models.objectives.evaluate_statistic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_statistic</span></code></a>(model, statistic_name, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.evaluate_statistic.html#seldonian.models.objectives.evaluate_statistic" title="seldonian.models.objectives.evaluate_statistic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_statistic</span></code></a>(model, statistic_name, ...)</p></td>
 <td><p>Evaluate a provided statistic for the whole sample provided</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.gradient_Bounded_Squared_Error.html#seldonian.models.objectives.gradient_Bounded_Squared_Error" title="seldonian.models.objectives.gradient_Bounded_Squared_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_Bounded_Squared_Error</span></code></a>(model, theta, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.gradient_Bounded_Squared_Error.html#seldonian.models.objectives.gradient_Bounded_Squared_Error" title="seldonian.models.objectives.gradient_Bounded_Squared_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_Bounded_Squared_Error</span></code></a>(model, theta, ...)</p></td>
 <td><p>Analytical gradient of the bounded squared error :param model: SeldonianModel instance :param theta: The parameter weights :type theta: numpy ndarray :param X: The features :type X: numpy ndarray :param Y: The labels :type Y: numpy ndarray</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.gradient_Mean_Squared_Error.html#seldonian.models.objectives.gradient_Mean_Squared_Error" title="seldonian.models.objectives.gradient_Mean_Squared_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_Mean_Squared_Error</span></code></a>(model, theta, X, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.gradient_Mean_Squared_Error.html#seldonian.models.objectives.gradient_Mean_Squared_Error" title="seldonian.models.objectives.gradient_Mean_Squared_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_Mean_Squared_Error</span></code></a>(model, theta, X, ...)</p></td>
 <td><p>Gradient of the mean squared error w.r.t.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.gradient_binary_logistic_loss.html#seldonian.models.objectives.gradient_binary_logistic_loss" title="seldonian.models.objectives.gradient_binary_logistic_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_binary_logistic_loss</span></code></a>(model, theta, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.gradient_binary_logistic_loss.html#seldonian.models.objectives.gradient_binary_logistic_loss" title="seldonian.models.objectives.gradient_binary_logistic_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_binary_logistic_loss</span></code></a>(model, theta, ...)</p></td>
 <td><p>Gradient of binary logistic loss w.r.t.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.multiclass_logistic_loss.html#seldonian.models.objectives.multiclass_logistic_loss" title="seldonian.models.objectives.multiclass_logistic_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiclass_logistic_loss</span></code></a>(model, theta, X, Y, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.multiclass_logistic_loss.html#seldonian.models.objectives.multiclass_logistic_loss" title="seldonian.models.objectives.multiclass_logistic_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiclass_logistic_loss</span></code></a>(model, theta, X, Y, ...)</p></td>
 <td><p>Calculate average logistic loss over all data points for multi-class classification</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.sample_from_statistic.html#seldonian.models.objectives.sample_from_statistic" title="seldonian.models.objectives.sample_from_statistic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_from_statistic</span></code></a>(model, statistic_name, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.sample_from_statistic.html#seldonian.models.objectives.sample_from_statistic" title="seldonian.models.objectives.sample_from_statistic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_from_statistic</span></code></a>(model, statistic_name, ...)</p></td>
 <td><p>Evaluate a provided statistic for each observation in the sample</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Accuracy.html#seldonian.models.objectives.vector_Accuracy" title="seldonian.models.objectives.vector_Accuracy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Accuracy</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Accuracy.html#seldonian.models.objectives.vector_Accuracy" title="seldonian.models.objectives.vector_Accuracy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Accuracy</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
 <td><p>This is the probability of predicting the correct label</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Error.html#seldonian.models.objectives.vector_Error" title="seldonian.models.objectives.vector_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Error</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Error.html#seldonian.models.objectives.vector_Error" title="seldonian.models.objectives.vector_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Error</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
 <td><p>Calculate mean error for each observation in the dataset</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_False_Negative_Rate.html#seldonian.models.objectives.vector_False_Negative_Rate" title="seldonian.models.objectives.vector_False_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_False_Negative_Rate</span></code></a>(model, theta, X, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_False_Negative_Rate.html#seldonian.models.objectives.vector_False_Negative_Rate" title="seldonian.models.objectives.vector_False_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_False_Negative_Rate</span></code></a>(model, theta, X, ...)</p></td>
 <td><p>Calculate false negative rate for each observation</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_False_Positive_Rate.html#seldonian.models.objectives.vector_False_Positive_Rate" title="seldonian.models.objectives.vector_False_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_False_Positive_Rate</span></code></a>(model, theta, X, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_False_Positive_Rate.html#seldonian.models.objectives.vector_False_Positive_Rate" title="seldonian.models.objectives.vector_False_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_False_Positive_Rate</span></code></a>(model, theta, X, ...)</p></td>
 <td><p>Calculate false positive rate for each observation</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_IS_estimate.html#seldonian.models.objectives.vector_IS_estimate" title="seldonian.models.objectives.vector_IS_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_IS_estimate</span></code></a>(model, theta, episodes, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_IS_estimate.html#seldonian.models.objectives.vector_IS_estimate" title="seldonian.models.objectives.vector_IS_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_IS_estimate</span></code></a>(model, theta, episodes, ...)</p></td>
 <td><p>Calculate the unweighted importance sampling estimate on each episodes in the dataframe</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Negative_Rate.html#seldonian.models.objectives.vector_Negative_Rate" title="seldonian.models.objectives.vector_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Negative_Rate</span></code></a>(model, theta, X, Y, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Negative_Rate.html#seldonian.models.objectives.vector_Negative_Rate" title="seldonian.models.objectives.vector_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Negative_Rate</span></code></a>(model, theta, X, Y, ...)</p></td>
 <td><p>Calculate negative rate for each observation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_PDIS_estimate.html#seldonian.models.objectives.vector_PDIS_estimate" title="seldonian.models.objectives.vector_PDIS_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_PDIS_estimate</span></code></a>(model, theta, episodes, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_PDIS_estimate.html#seldonian.models.objectives.vector_PDIS_estimate" title="seldonian.models.objectives.vector_PDIS_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_PDIS_estimate</span></code></a>(model, theta, episodes, ...)</p></td>
 <td><p>Calculate per decision importance sampling estimate on each episodes in the dataframe</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Positive_Rate.html#seldonian.models.objectives.vector_Positive_Rate" title="seldonian.models.objectives.vector_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Positive_Rate</span></code></a>(model, theta, X, Y, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Positive_Rate.html#seldonian.models.objectives.vector_Positive_Rate" title="seldonian.models.objectives.vector_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Positive_Rate</span></code></a>(model, theta, X, Y, ...)</p></td>
 <td><p>Calculate positive rate for each observation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Squared_Error.html#seldonian.models.objectives.vector_Squared_Error" title="seldonian.models.objectives.vector_Squared_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Squared_Error</span></code></a>(model, theta, X, Y, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_Squared_Error.html#seldonian.models.objectives.vector_Squared_Error" title="seldonian.models.objectives.vector_Squared_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_Squared_Error</span></code></a>(model, theta, X, Y, ...)</p></td>
 <td><p>Calculate squared error for each observation in the dataset</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_True_Negative_Rate.html#seldonian.models.objectives.vector_True_Negative_Rate" title="seldonian.models.objectives.vector_True_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_True_Negative_Rate</span></code></a>(model, theta, X, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_True_Negative_Rate.html#seldonian.models.objectives.vector_True_Negative_Rate" title="seldonian.models.objectives.vector_True_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_True_Negative_Rate</span></code></a>(model, theta, X, ...)</p></td>
 <td><p>This is the probability of predicting negative subject to the label actually being negative</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_True_Positive_Rate.html#seldonian.models.objectives.vector_True_Positive_Rate" title="seldonian.models.objectives.vector_True_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_True_Positive_Rate</span></code></a>(model, theta, X, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_True_Positive_Rate.html#seldonian.models.objectives.vector_True_Positive_Rate" title="seldonian.models.objectives.vector_True_Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_True_Positive_Rate</span></code></a>(model, theta, X, ...)</p></td>
 <td><p>This is the probability of predicting positive subject to the label actually being positive</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_confusion_matrix.html#seldonian.models.objectives.vector_confusion_matrix" title="seldonian.models.objectives.vector_confusion_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_confusion_matrix</span></code></a>(model, theta, X, Y, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.vector_confusion_matrix.html#seldonian.models.objectives.vector_confusion_matrix" title="seldonian.models.objectives.vector_confusion_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_confusion_matrix</span></code></a>(model, theta, X, Y, ...)</p></td>
 <td><p>Get the probability of predicting class label l_k if the true class label was l_i. This is the C[l_i,l_k] element of the confusion matrix, C. Let:         i = number of datapoints         j = number of features (including bias term, if provied)         k = number of classes.</p></td>
 </tr>
 </tbody>
@@ -184,7 +180,6 @@
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.batcher.html">seldonian.models.objectives.batcher</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.binary_logistic_loss.html">seldonian.models.objectives.binary_logistic_loss</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.confusion_matrix.html">seldonian.models.objectives.confusion_matrix</a></li>
-<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.custom_cumprod.html">seldonian.models.objectives.custom_cumprod</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.evaluate_statistic.html">seldonian.models.objectives.evaluate_statistic</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.gradient_Bounded_Squared_Error.html">seldonian.models.objectives.gradient_Bounded_Squared_Error</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.gradient_Mean_Squared_Error.html">seldonian.models.objectives.gradient_Mean_Squared_Error</a></li>
@@ -263,7 +258,7 @@
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

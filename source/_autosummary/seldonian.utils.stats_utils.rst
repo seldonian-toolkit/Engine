@@ -14,6 +14,7 @@ seldonian.utils.stats\_utils
    .. autosummary::
       :toctree:                                         
    
+      custom_cumprod
       softmax
       stddev
       tinv

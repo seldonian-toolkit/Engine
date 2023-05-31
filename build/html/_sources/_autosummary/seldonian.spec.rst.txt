@@ -15,6 +15,7 @@ seldonian.spec
       :toctree:                                         
    
       createRLSpec
+      createSimpleSupervisedSpec
       createSupervisedSpec
       validate_parse_trees
    

@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax &#8212; Seldonian Engine pre-release documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -14,7 +13,7 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.RL.Agents.Policies.Softmax.Softmax" href="seldonian.RL.Agents.Policies.Softmax.Softmax.html" />
+    <link rel="next" title="seldonian.RL.Agents.Policies.Softmax.MixedSoftmax" href="seldonian.RL.Agents.Policies.Softmax.MixedSoftmax.html" />
     <link rel="prev" title="seldonian.RL.Agents.Policies.Softmax" href="seldonian.RL.Agents.Policies.Softmax.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -163,13 +162,14 @@ and number of trials</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action">
-<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_prob</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the probability of a selected action in a given obsertavtion</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>observation</strong> – The current obseravation of the environment</p></li>
 <li><p><strong>action</strong> – The selected action</p></li>
+<li><p><strong>action_prob</strong> – The probability of the selected action</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -272,6 +272,7 @@ space is discrete or continous</p>
 </li>
 </ul>
 </li>
+<li class="toctree-l7"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.MixedSoftmax.html">seldonian.RL.Agents.Policies.Softmax.MixedSoftmax</a></li>
 <li class="toctree-l7"><a class="reference internal" href="seldonian.RL.Agents.Policies.Softmax.Softmax.html">seldonian.RL.Agents.Policies.Softmax.Softmax</a></li>
 </ul>
 </li>
@@ -320,7 +321,7 @@ space is discrete or continous</p>
   <li><a href="seldonian.RL.Agents.Policies.html">seldonian.RL.Agents.Policies</a><ul>
   <li><a href="seldonian.RL.Agents.Policies.Softmax.html">seldonian.RL.Agents.Policies.Softmax</a><ul>
       <li>Previous: <a href="seldonian.RL.Agents.Policies.Softmax.html" title="previous chapter">seldonian.RL.Agents.Policies.Softmax</a></li>
-      <li>Next: <a href="seldonian.RL.Agents.Policies.Softmax.Softmax.html" title="next chapter">seldonian.RL.Agents.Policies.Softmax.Softmax</a></li>
+      <li>Next: <a href="seldonian.RL.Agents.Policies.Softmax.MixedSoftmax.html" title="next chapter">seldonian.RL.Agents.Policies.Softmax.MixedSoftmax</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -356,7 +357,7 @@ space is discrete or continous</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
