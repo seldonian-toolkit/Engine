@@ -3,7 +3,8 @@
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
 import math
 
-from seldonian.utils.stats_utils import weighted_sum_gamma
+from seldonian.utils.stats_utils import (weighted_sum_gamma,
+    custom_cumprod)
 
 stability_const = 1e-15
 
@@ -1165,29 +1166,6 @@ def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
         result.append(pi_ratio_prod * weighted_returns[ii])
 
     return np.array(result)
-
-def custom_cumprod(x):
-    """Custom implementation of np.cumprod that works with autograd
-    Source: https://github.com/HIPS/autograd/issues/257
-
-    :param x: The input array
-    :type x: numpy ndarray
-    :return: The cumulative product of the array
-    :rtype: numpy ndarray(float)
-    """
-
-    cumprods = []
-    for i in range(x.size):
-        current_num = x[i]
-        
-        if i == 0:
-            cumprods.append(current_num)
-        else:
-            prev_num = cumprods[i-1]
-            next_num = prev_num*current_num
-            cumprods.append(next_num)
-
-    return np.array(cumprods)
 
 def PDIS_estimate(model, theta, episodes, weighted_returns=None, **kwargs)->float:
     """Calculate per decision importance sampling estimate

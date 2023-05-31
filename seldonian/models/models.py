@@ -155,20 +155,18 @@ class BaseLogisticRegressionModel(ClassificationModel):
         Let:
                 i = number of datapoints
                 j = number of features (including bias term, if provied)
-                k = number of classes
+                k = number of classes 
 
         :param X: The features
         :type X: array of shape (i,j)
         :param Y: The labels
-        :type Y: array of shape (i,k)
+        :type Y: array of shape (i,k) 
         :return: fitted model weights
         :rtype: array of shape (j,k)
         """
-        # print(Y.shape)
         reg = self.model_class().fit(X, Y)
         theta = np.squeeze(np.vstack([reg.intercept_, reg.coef_.T]))
         return theta
-        # return np.squeeze(np.hstack([reg.intercept_.reshape(-1,1),reg.coef_]))
 
 
 class BinaryLogisticRegressionModel(BaseLogisticRegressionModel):
@@ -178,11 +176,10 @@ class BinaryLogisticRegressionModel(BaseLogisticRegressionModel):
 
     def predict(self, theta, X):
         """Predict the probability of
-        having each class label for each data point
+        having the positive class label for each data point
         in X. Let:
                 i = number of datapoints
                 j = number of features (including bias term, if provied)
-                k = number of classes
 
         :param theta: The parameter weights
         :type theta: array of length j or shape (j,1)
@@ -191,7 +188,7 @@ class BinaryLogisticRegressionModel(BaseLogisticRegressionModel):
         :return: predictions for each class each observation
         :rtype: array of length i or shape (i,1)
         """
-        Z = theta[0] + (X @ theta[1:])  # (i,j) x (j,k) -> (i,k)
+        Z = theta[0] + (X @ theta[1:])  # (i,j) x (j,1) -> (i,1)
         Y_pred = 1 / (1 + np.exp(-Z))
         return Y_pred
 
