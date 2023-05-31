@@ -181,7 +181,7 @@ class SupervisedPytorchBaseModel(SupervisedModel):
         :type external_grad: torch.Tensor
         """
         self.zero_gradients()
-        predictions.backward(gradient=external_grad)
+        predictions.backward(gradient=external_grad,retain_graph=True)
         grad_params_list = []
         for param in self.pytorch_model.parameters():
             if param.requires_grad:
