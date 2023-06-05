@@ -170,7 +170,9 @@ class CandidateSelection(object):
             candidate_solution = self.model.fit(
                 self.features,
                 self.labels,
-                self.candidate_dataset.feature_col_names
+                self.candidate_dataset,
+                self.parse_trees,
+                self.n_safety
 
             )
             self.optimization_result = candidate_solution
