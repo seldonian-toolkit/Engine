@@ -164,7 +164,18 @@ class CandidateSelection(object):
         :return: Optimized model weights or 'NSF'
         :rtype: array or str
         """
-        if self.optimization_technique == "gradient_descent":
+        if self.optimization_technique == "decision_tree":
+            # build decision tree using the candidate data
+            # Set candidate_solution equal to the fitted tree
+            candidate_solution = self.model.fit(
+                self.features,
+                self.labels,
+                self.candidate_dataset.feature_col_names
+
+            )
+            self.optimization_result = candidate_solution
+        
+        elif self.optimization_technique == "gradient_descent":
             if self.optimizer != "adam":
                 raise NotImplementedError(
                     f"Optimizer: {self.optimizer} is not supported"

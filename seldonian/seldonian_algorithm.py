@@ -209,6 +209,9 @@ class SeldonianAlgorithm:
 
     def set_initial_solution(self, verbose=False):
         if self.regime == "supervised_learning":
+            if self.spec.optimization_technique == "decision_tree":
+                self.initial_solution = None
+                return self.initial_solution
             if self.spec.initial_solution_fn is None:
                 if verbose:
                     print(
