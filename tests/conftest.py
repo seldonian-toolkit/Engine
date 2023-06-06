@@ -474,3 +474,42 @@ def N_step_mountaincar_dataset():
 		return dataset,policy,env_kwargs,primary_objective
 	
 	return generate_dataset
+
+@pytest.fixture
+def RL_gridworld_dataset_alt_rewards():
+	from seldonian.RL.environments import gridworld
+	from seldonian.RL.RL_model import RL_model
+	from seldonian.RL.Agents.Policies.Softmax import DiscreteSoftmax
+	from seldonian.RL.Env_Description import Spaces, Env_Description
+
+	def generate_dataset():
+		np.random.seed(0)
+
+		# Load data from file into dataset
+		data_pth = 'static/datasets/RL/gridworld/gridworld_100episodes_2altrewards.pkl'
+		metadata_pth = 'static/datasets/RL/gridworld/gridworld_2altrewards_metadata.json'
+
+		loader = DataSetLoader(
+			regime="reinforcement_learning")
+
+		dataset = loader.load_RL_dataset_from_episode_file(
+			filename=data_pth)
+
+		# Env description 
+		num_states = 9 # 3x3 gridworld
+		observation_space = Spaces.Discrete_Space(0, num_states-1)
+		action_space = Spaces.Discrete_Space(0, 3)
+		env_description = Env_Description.Env_Description(observation_space, action_space)
+		# RL model. setting dict not needed for discrete observation and action space
+		policy = DiscreteSoftmax(
+			env_description=env_description,
+			hyperparam_and_setting_dict={}
+		)
+
+		env_kwargs={'gamma':0.9}
+
+		primary_objective = objectives.IS_estimate
+
+		return dataset,policy,env_kwargs,primary_objective
+	
+	return generate_dataset

@@ -2097,3 +2097,54 @@ def test_RL_gridworld_black_box(RL_gridworld_dataset):
 				"Use gradient_descent instead.")
 
 	assert error_str in str(excinfo.value)
+
+def test_RL_gridworld_alt_rewards(RL_gridworld_dataset_alt_rewards):
+	""" Test that we can put constraints on returns that use alternate rewards
+	"""
+	rseed=99
+	np.random.seed(rseed)
+	constraint_strs = ['-0.25 - J_pi_new_[1]']
+	deltas = [0.05]
+	
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[],
+		delta_weight_method='equal')
+	(dataset,policy,
+		env_kwargs,primary_objective) = RL_gridworld_dataset_alt_rewards()
+
+	frac_data_in_safety = 0.6
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+	# Create spec object
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=False,
+		primary_objective=primary_objective,
+		initial_solution_fn = None,
+		parse_trees=parse_trees,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 5,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# # Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+
+
