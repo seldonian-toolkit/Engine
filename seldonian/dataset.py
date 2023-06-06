@@ -197,7 +197,7 @@ class RLDataSet(DataSet):
 
 
 class Episode(object):
-    def __init__(self, observations, actions, rewards, action_probs):
+    def __init__(self, observations, actions, rewards, action_probs, alt_rewards=[]):
         """Object for holding RL episodes
 
         :param observations: List of observations for each timestep
@@ -211,15 +211,35 @@ class Episode(object):
         self.actions = np.array(actions)
         self.rewards = np.array(rewards)
         self.action_probs = np.array(action_probs)
+        self.alt_rewards = np.array(alt_rewards)
+        self.n_alt_rewards = 0 if self.alt_rewards.size == 0 else self.alt_rewards.shape[1]
 
     def __str__(self):
-        return (
+        s = (
             f"return = {sum(self.rewards)}\n"
             + f"{len(self.observations)} observations, type of first in array is {type(self.observations[0])}: {self.observations}\n"
             + f"{len(self.actions)} actions, type of first in array is {type(self.actions[0])}: {self.actions}\n"
             + f"{len(self.rewards)} rewards, type of first in array is {type(self.rewards[0])}: {self.rewards}\n"
             + f"{len(self.action_probs)} action_probs, type of first in array is {type(self.action_probs[0])}: {self.action_probs}"
         )
+        if self.n_alt_rewards > 0:
+            for ii in range(self.n_alt_rewards):
+                alt_reward = self.alt_rewards[:,ii]
+                s += (
+                        f"\n{len(alt_reward)} of alt reward {ii+1} of {self.n_alt_rewards}, "
+                        f"type of first in array is {type(alt_reward[0])}: {alt_reward}"
+                     )
+        return s
+
+    def __repr__(self):
+        n_timesteps = len(self.observations)
+        tup_str = "(obs,action,primary_reward,pi_b)_i"
+        if self.n_alt_rewards > 0:
+            alt_rewards_str = ",".join([f"alt_reward_{ii}" for ii in range(1,self.n_alt_rewards+1)])
+            tup_str = tup_str.replace(")_i","," + alt_rewards_str + ")_i")
+        repr_s = f"Episode with {n_timesteps} timesteps: {tup_str}"
+        
+        return repr_s
 
 
 def load_supervised_metadata(filename):
