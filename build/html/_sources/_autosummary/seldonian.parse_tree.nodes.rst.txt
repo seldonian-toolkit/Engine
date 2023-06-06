@@ -27,6 +27,7 @@ seldonian.parse\_tree.nodes
       MEDCustomBaseNode
       MultiClassBaseNode
       Node
+      RLAltRewardBaseNode
    
    
 
