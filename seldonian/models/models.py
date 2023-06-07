@@ -1,9 +1,14 @@
 """ Main module containing Seldonian machine learning models """
+from functools import partial, lru_cache
 import copy
+from collections import Counter
+import math
+
+import scipy.stats
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
 from autograd.extend import primitive, defvjp
+
 from sklearn.linear_model import LinearRegression, LogisticRegression, SGDClassifier
-from functools import partial, lru_cache
 
 from seldonian.utils.stats_utils import softmax
 
@@ -264,26 +269,19 @@ class RandomClassifierModel(ClassificationModel):
         """
         return 0.5 * np.ones(len(X))
 
-import numpy as np
-import graphviz
-import scipy.stats
-from collections import Counter
-import math
-
-from seldonian.models.models import ClassificationModel
 
 class DTNode():
-    def __init__(self):
+    def __init__(self,unique_id):
         """ Base class for decision tree nodes """
         self.left = None
         self.right = None
         self.parent = None
-
+        self.unique_id = unique_id
 
 class DTLeafNode(DTNode):
-    def __init__(self,label):
+    def __init__(self,label,unique_id):
         """ Leaf nodes just have a single label"""
-        super().__init__()
+        super().__init__(unique_id)
         self.label = label
     
     def __repr__(self):
@@ -291,11 +289,11 @@ class DTLeafNode(DTNode):
         
 
 class DTInternalNode(DTNode):
-    def __init__(self,feature_name,value):
+    def __init__(self,feature_name,value,unique_id):
         """ Internal nodes have one feature and one value that splits the feature
         Left child nodes have feature <= value and right child nodes have feature > value
         """
-        super().__init__()
+        super().__init__(unique_id)
         self.feature_name = feature_name
         self.value = value
     
@@ -303,7 +301,7 @@ class DTInternalNode(DTNode):
         return f"Internal node feature_name={self.feature_name}, value={self.value}"
         
 
-class SeldoDecisionTreeClassifier():
+class SeldoDecisionTreeClassifier(ClassificationModel):
     def __init__(self,all_feature_names,num_quantiles_split=5,min_samples_split=2):
         """
         :param num_quantiles_split: The number of quantiles to use when checking values
@@ -314,20 +312,20 @@ class SeldoDecisionTreeClassifier():
         self.num_quantiles_split = num_quantiles_split
         self.min_samples_split = min_samples_split
 
-    def fit(self,features,labels,feature_names,candidate_dataset,parse_trees,n_safety,parent_node=None):
+    def fit(self,features,labels,feature_names,candidate_dataset,parse_trees,n_safety,parent_node=None,branch=None):
         """ 
         """
         
         # If all examples in the data have the same label, return a leaf node with that label
         if np.all(labels == labels[0]):
-            print("making leaf node")
-            return DTLeafNode(labels[0])
+            # print("making leaf node")
+            return DTLeafNode(labels[0],np.random.randint(0,2e10))
 
         # If there are no more features to split on, return a leaf node with the most common label
         if features.size == 0:
-            print("making leaf node")
+            # print("making leaf node")
             most_common_label = scipy.stats.mode(labels)[0][0]
-            return DTLeafNode(most_common_label)
+            return DTLeafNode(most_common_label,np.random.randint(0,2e10))
 
         # Find the feature and value that give the highest information gain
         best_feature_index, best_value = self.find_best_split(
@@ -337,22 +335,23 @@ class SeldoDecisionTreeClassifier():
             candidate_dataset,
             parse_trees,
             n_safety,
-            parent_node)
+            parent_node,
+            branch)
         
         if not best_feature_index:
             # Was not able to find a split that resulted in at least min_samples_split samples
             most_common_label = scipy.stats.mode(labels)[0][0]
-            return DTLeafNode(most_common_label)
+            return DTLeafNode(most_common_label,np.random.randint(0,2e10))
 
         # Remove the best feature from the list of features and names 
         best_feature_name = feature_names[best_feature_index]
-        print(f"Best feature,val: {best_feature_name}, {best_value}")
+        # print(f"Best feature,val: {best_feature_name}, {best_value}")
         best_feature = features[:,best_feature_index]
         features = np.delete(features,best_feature_index,1) # the final 1 indicates column-wise since features is 2D
         feature_names = np.delete(feature_names,best_feature_index) 
 
         # Create a decision tree node with the best feature and value
-        root = DTInternalNode(best_feature_name, best_value)
+        root = DTInternalNode(best_feature_name, best_value,np.random.randint(0,2e10))
         if parent_node:
             # print("Parent node exists. Setting parent.")
             root.parent = parent_node
@@ -363,9 +362,9 @@ class SeldoDecisionTreeClassifier():
 
         # Recursively build the left and right subtrees
         root.left = self.fit(F_l_subset, L_l_subset, feature_names, candidate_dataset, 
-            parse_trees, n_safety, parent_node=root)
+            parse_trees, n_safety, parent_node=root, branch="left")
         root.right = self.fit(F_r_subset,L_r_subset, feature_names, candidate_dataset, 
-            parse_trees, n_safety, parent_node=root)
+            parse_trees, n_safety, parent_node=root, branch="right")
 
         return root
 
@@ -377,8 +376,9 @@ class SeldoDecisionTreeClassifier():
         candidate_dataset, 
         parse_trees, 
         n_safety, 
-        parent_node):
-        print("finding best split")
+        parent_node,
+        branch):
+        # print("finding best split")
         best_feature_index = None
         best_value = None
         best_gain = 0
@@ -386,6 +386,7 @@ class SeldoDecisionTreeClassifier():
         n_col = features.shape[1]
         for ii in range(n_col):
             feature = features[:,ii]
+            feature_name = feature_names[ii]
             # Iterate over each unique value of the feature
             for value in self.unique_values(feature):
                 # Split the data into two subsets based on the feature and value
@@ -398,26 +399,11 @@ class SeldoDecisionTreeClassifier():
                 prob_pos_left = sum(L_l_subset)/len(L_l_subset) # fraction of labels with value 1    
                 prob_pos_right = sum(L_r_subset)/len(L_r_subset) # fraction of labels with value 1
 
-                if parent_node == None: 
-                    this_root = DTInternalNode(feature_names[ii],value=value)
-                    this_root.left = DTLeafNode(prob_pos_left)
-                    this_root.right = DTLeafNode(prob_pos_right)    
-                else:
-                    this_parent = copy.deepcopy(parent_node)
+                new_root = self.make_proposed_tree(feature_name,value,parent_node,prob_pos_left,prob_pos_right,branch)
 
-                    this_root = self.get_projenitor(this_parent)
-                    self.update_progenitor_line(this_root,prob_pos_left,prob_pos_right)
-                    # print("found this_root:")
-                    # print(this_root)
-                    # print("with left child:")
-                    # print(this_root.left)
-                    # print("with right child:")
-                    # print(this_root.right)
-                    # print("But parent_node.left:")
-                    # print(parent_node.left)
                 # Calculate the information gain of the split
-                # this_root=None
-                e_gain = self.effective_gain(labels, L_l_subset, L_r_subset, candidate_dataset, parse_trees, n_safety, this_root)
+                e_gain = self.effective_gain(labels, L_l_subset, L_r_subset, candidate_dataset, parse_trees, n_safety, new_root)
+
                 # remove prospective children from parent_node
                 # parent_node.left = None
                 # parent_node.right = None
@@ -480,7 +466,7 @@ class SeldoDecisionTreeClassifier():
     def effective_gain(self, labels, L_l_subset, L_r_subset, candidate_dataset, parse_trees, n_safety, root):
         # First information gain
         # print("calculating effective gain using root:")
-        # print(root)
+        # self.print_progenitor_line(root)
         e_gain = self.information_gain(labels, L_l_subset, L_r_subset)
 
         # Now check the g_upper values from the parse tree  
@@ -511,7 +497,7 @@ class SeldoDecisionTreeClassifier():
                 # If up until now all previous constraints passed,
                 # then we need to predict that the test will fail
                 # and potentially add a penalty to the objective
-                print("Upper bound greater than 0")
+                # print("Upper bound greater than 0")
                 if predictSafetyTest:
                     # Set this flag to indicate that we don't think the safety test will pass
                     predictSafetyTest = False
@@ -538,9 +524,75 @@ class SeldoDecisionTreeClassifier():
 
         return entropy
 
+    def get_projenitor(self,node):
+        if node.parent:
+            return self.get_projenitor(node.parent)
+        else:
+            return node
+
+    def print_progenitor_line(self,node):
+        print(node)
+        if node.left:
+            print("node.left:")
+            self.print_progenitor_line(node.left)
+        if node.right:
+            print("node.right:")
+            self.print_progenitor_line(node.right)
+        return
+
+    def make_proposed_tree(self,feature_name,value,parent_node,prob_pos_left,prob_pos_right,branch):
+        if parent_node == None:
+            # print("no parent, making one")
+            # then this is the beginning of the tree.
+            # make a node and the two proposed children 
+            new_root = DTInternalNode(feature_name,value,np.random.randint(0,2e10))
+            new_root.left = DTLeafNode(prob_pos_left,np.random.randint(0,2e10))
+            new_root.right = DTLeafNode(prob_pos_right,np.random.randint(0,2e10))   
+        else:
+            # print("Parent exists")
+            # print(parent_node)
+            # then this is not the beginning of the tree.
+            # we need to get the progenitor, make a copy of it
+            old_root = self.get_projenitor(parent_node)
+            # print("Found old root from parent:")
+            # print(old_root)
+            new_root = copy.deepcopy(old_root)
+            # print("made new root from a copy")
+            # print(new_root)
+            # Now we need to add the proposed leaf nodes to the parent node
+            # in the new tree
+            # print("adding proposed children with probs left and right:")
+            # print(prob_pos_left,prob_pos_right)
+            self.add_proposed_children(new_root,feature_name,value,parent_node,prob_pos_left,prob_pos_right,branch)
+            # print("added proposed children. Here is the new root:")
+            # self.print_progenitor_line(new_root)
+
+
+        return new_root
+
+    def add_proposed_children(self,new_root,feature_name,value,parent,prob_pos_left,prob_pos_right,branch):
+
+        if not new_root:
+            return
+        if new_root.unique_id != parent.unique_id:
+            self.add_proposed_children(new_root.left,feature_name,value,parent,prob_pos_left,prob_pos_right,branch)
+            self.add_proposed_children(new_root.right,feature_name,value,parent,prob_pos_left,prob_pos_right,branch)
+        else:
+            if branch == 'left':
+                new_root.left = DTInternalNode(feature_name,value,np.random.randint(0,2e10))
+                new_root.left.left = DTLeafNode(prob_pos_left,np.random.randint(0,2e10))
+                new_root.left.right = DTLeafNode(prob_pos_right,np.random.randint(0,2e10))
+            elif branch == 'right':
+                new_root.right = DTInternalNode(feature_name,value,np.random.randint(0,2e10))
+                new_root.right.left = DTLeafNode(prob_pos_left,np.random.randint(0,2e10))
+                new_root.right.right = DTLeafNode(prob_pos_right,np.random.randint(0,2e10))
+            return
+
     def predict_single_row(self,node,row,feature_names):
-        # print("in predict_single_row with node: ")
-        # print(node)
+        # If we are at a dead end (only the case when proposing splits while building the tree),
+        # then we have no information
+        if not node: 
+            return 0.5 
         # check if we are at a leaf node
         if isinstance(node,DTLeafNode):
             return node.label
@@ -557,33 +609,3 @@ class SeldoDecisionTreeClassifier():
         for row in X:
             y_pred.append(self.predict_single_row(root,row,self.all_feature_names))
         return np.array(y_pred)
-
-    def get_projenitor(self,node):
-        # print("in get_projenitor with node:")
-        # print(node)
-        if node.parent:
-            return self.get_projenitor(node.parent)
-        else:
-            return node
-
-    def update_progenitor_line(self,node,prob_pos_left,prob_pos_right):
-        # print("in get_projenitor with node:")
-        # print(node)
-        if not (node.left or node.right):
-            node.left = DTLeafNode(prob_pos_left)
-            node.right = DTLeafNode(prob_pos_right)  
-            return
-        else:
-            self.update_progenitor_line(node.left,prob_pos_left,prob_pos_right)
-            self.update_progenitor_line(node.right,prob_pos_left,prob_pos_right)
-
-    def print_progenitor_line(self,node):
-        
-        print(node)
-        if node.left:
-            print("node.left:")
-            self.print_progenitor_line(node.left)
-        if node.right:
-            print("node.right:")
-            self.print_progenitor_line(node.right)
-        return
