@@ -784,6 +784,15 @@ def test_rl_alt_reward_string():
 	assert pt.root.left.name == 'J_pi_new_[2] | [A,B]'
 	assert pt.root.left.alt_reward_number == 2
 
+	constraint_str = 'J_pi_new_PDIS_[1] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'J_pi_new_PDIS'
+	assert pt.root.left.name == 'J_pi_new_PDIS_[1]'
+	assert pt.root.left.alt_reward_number == 1
+
 def test_rl_alt_reward_precalc_return():
 	np.random.seed(0)
 	
@@ -792,7 +801,7 @@ def test_rl_alt_reward_precalc_return():
 	from seldonian.RL.Env_Description import Spaces, Env_Description
 	data_pth = 'static/datasets/RL/gridworld/gridworld_100episodes_2altrewards.pkl'
 	loader = DataSetLoader(regime="reinforcement_learning")
-	RL_dataset = loader.load_RL_dataset_from_episode_file(data_pth)
+	dataset = loader.load_RL_dataset_from_episode_file(data_pth)
 	
 	# Initialize policy
 	num_states = 9
@@ -802,34 +811,61 @@ def test_rl_alt_reward_precalc_return():
 	policy = DiscreteSoftmax(hyperparam_and_setting_dict={},
 		env_description=env_description)
 	env_kwargs={'gamma':0.9}
-	RLmodel = RL_model(policy=policy,env_kwargs=env_kwargs)
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
 
-	RL_constraint_strs = ['J_pi_new_[1] >= -0.25']
-	RL_deltas=[0.05]
+	IS_constraint_strs = ['J_pi_new_[1] >= -0.25']
+	IS_deltas=[0.05]
 
-	RL_pt = ParseTree(delta=RL_deltas[0],
+	IS_pt = ParseTree(delta=IS_deltas[0],
 		regime='reinforcement_learning',
 		sub_regime='all',
 		columns=[])
 	
-	RL_pt.create_from_ast(RL_constraint_strs[0])
-	RL_pt.assign_deltas(weight_method='equal')
+	IS_pt.create_from_ast(IS_constraint_strs[0])
+	IS_pt.assign_deltas(weight_method='equal')
 
 	# propagate the bounds with example theta value
 	theta = np.random.uniform(-0.05,0.05,(9,4))
-	RL_pt.propagate_bounds(theta=theta,dataset=RL_dataset,
-		model=RLmodel,branch='candidate_selection',
+	IS_pt.propagate_bounds(theta=theta,dataset=dataset,
+		model=model,branch='candidate_selection',
 		regime='reinforcement_learning',
 		n_safety=150)
-	assert RL_pt.root.lower == pytest.approx(-0.92395544668)
-	assert RL_pt.root.upper == pytest.approx(8.01612852017466)
-	RL_pt.reset_base_node_dict(reset_data=True)
-	RL_pt.evaluate_constraint(theta=theta,dataset=RL_dataset,
-		model=RLmodel,regime='reinforcement_learning',
+	assert IS_pt.root.lower == pytest.approx(-0.92395544668)
+	assert IS_pt.root.upper == pytest.approx(8.01612852017466)
+	IS_pt.reset_base_node_dict(reset_data=True)
+	IS_pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model,regime='reinforcement_learning',
 		branch='safety_test')
-	assert RL_pt.root.value == pytest.approx(3.5460865367462726)
+	assert IS_pt.root.value == pytest.approx(3.5460865367462726)
 
-	weighted_returns_alt_reward = RL_pt.base_node_dict["J_pi_new_[1]"]['data_dict']['weighted_returns']
+	weighted_returns_alt_reward = IS_pt.base_node_dict["J_pi_new_[1]"]['data_dict']['weighted_returns']
+	assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
+
+	PDIS_constraint_strs = ['J_pi_new_PDIS_[1] >= -0.25']
+	PDIS_deltas=[0.05]
+
+	PDIS_pt = ParseTree(delta=PDIS_deltas[0],
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[])
+	
+	PDIS_pt.create_from_ast(PDIS_constraint_strs[0])
+	PDIS_pt.assign_deltas(weight_method='equal')
+
+	# propagate the bounds with example theta value
+	PDIS_pt.propagate_bounds(theta=theta,dataset=dataset,
+		model=model,branch='candidate_selection',
+		regime='reinforcement_learning',
+		n_safety=150)
+	assert PDIS_pt.root.lower == pytest.approx(-0.14631012356483214)
+	assert PDIS_pt.root.upper == pytest.approx(0.3068278441442427)
+	PDIS_pt.reset_base_node_dict(reset_data=True)
+	PDIS_pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model,regime='reinforcement_learning',
+		branch='safety_test')
+	assert PDIS_pt.root.value == pytest.approx(0.08025886028)
+
+	weighted_returns_alt_reward = PDIS_pt.base_node_dict["J_pi_new_PDIS_[1]"]['data_dict']['weighted_returns']
 	assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
 
 
