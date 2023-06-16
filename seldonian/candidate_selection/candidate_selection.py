@@ -164,7 +164,7 @@ class CandidateSelection(object):
         :return: Optimized model weights or 'NSF'
         :rtype: array or str
         """
-        if self.optimization_technique == "decision_tree":
+        if self.optimization_technique == "tree":
             # build decision tree using the candidate data
             # Set candidate_solution equal to the fitted tree
             candidate_solution = self.model.fit(
