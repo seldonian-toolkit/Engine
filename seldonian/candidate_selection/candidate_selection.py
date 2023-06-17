@@ -165,7 +165,7 @@ class CandidateSelection(object):
         :rtype: array or str
         """
         if self.optimization_technique == "tree":
-            # build decision tree using the candidate data
+            # build decision tree(s) using the candidate data
             # Set candidate_solution equal to the fitted tree
             candidate_solution = self.model.fit(
                 self.features,
