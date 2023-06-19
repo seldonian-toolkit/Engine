@@ -2,6 +2,7 @@
 from functools import partial, lru_cache
 import copy
 from collections import Counter
+from itertools import compress
 import math
 
 import scipy.stats
@@ -575,6 +576,7 @@ class SeldoRandomForestClassifier(ClassificationModel):
     def fit(self,features,labels,feature_names,candidate_dataset,parse_trees,n_safety):
         from seldonian.dataset import SupervisedDataSet
         trees = []
+        weights = np.zeros(self.num_estimators)
         for ii in range(self.num_estimators):
             print(f"building tree {ii+1}/{self.num_estimators}")
             # Create a resampled dataset that is the same features but just rows shuffled, with replacement
@@ -592,12 +594,30 @@ class SeldoRandomForestClassifier(ClassificationModel):
             tree = self.build_tree(resamp_features,resamp_labels,feature_names,resamp_dataset,parse_trees,n_safety)
             # Evaluate whether we predict we would pass the safety test if we had just this one tree
             predict_safety_test,upper_bounds = self.get_upper_bounds_single_tree(tree,resamp_dataset,parse_trees,n_safety)
-            if predict_safety_test:
-                # print("This tree is predicted to PASS the safety test. Adding to forest")
-                trees.append(tree)
+            weights[ii] = np.sum(upper_bounds)
+            trees.append(tree)
         if not trees:
             return "NSF"
-        return trees
+        # print("weights before any masking or normalization")
+        # print(weights)
+        # Remove trees whose upper bounds are not finit
+        finite_mask = np.isfinite(weights)
+        # trees = list(np.array(trees)[finite_mask])
+        trees = list(compress(trees,finite_mask))
+        weights = weights[finite_mask]
+        if len(trees) == 1:
+            weights[0] = 1.0
+            return trees,weights
+        # print("weights after masking out nonfinite")
+        # print(weights)
+        pos_weights = weights>0
+        min_weights = weights.min()
+        max_weights = weights.max()
+        weights = 1-((weights-min_weights)/(max_weights-min_weights))
+        weights[pos_weights]/=self.num_estimators
+        # print("weights after normalizing:")
+        # print(weights)
+        return trees, weights
 
     def build_tree(self,features,labels,feature_names,candidate_dataset,parse_trees,n_safety,depth=0):
         """
@@ -660,7 +680,7 @@ class SeldoRandomForestClassifier(ClassificationModel):
             pt.reset_base_node_dict()
 
             bounds_kwargs = dict(
-                theta=[decision_tree],
+                theta=([decision_tree],[1.0]),
                 dataset=candidate_dataset,
                 model=self,
                 branch="candidate_selection",
@@ -854,6 +874,7 @@ class SeldoRandomForestClassifier(ClassificationModel):
         # check if we are at a leaf node
         if isinstance(node,DTLeafNode):
             return node.label
+
         f,v = node.feature_name,node.value
         f_index = self.all_feature_names.index(f)
         if row[f_index]<=v:
@@ -861,18 +882,41 @@ class SeldoRandomForestClassifier(ClassificationModel):
         else:
             return self.predict_single_row(node.right,row)
 
-    def predict(self,trees,X):
-        # check if we are at a leaf node
+    # def predict(self,trees,X):
+    #     if len(trees) == 1:
+    #         y_pred = [self.predict_single_row(trees[0], row) for row in X]
+    #     else:
+    #         y_pred = []
+    #         for row in X:
+    #             predictions = [self.predict_single_row(tree, row) for tree in trees]
+    #             bagged_prediction = max(set(predictions),key=predictions.count) # most common vote
+    #             y_pred.append(bagged_prediction)
+    #     return np.array(y_pred)
+
+    def predict(self,sol,X):
+        trees,weights = sol
         if len(trees) == 1:
             y_pred = [self.predict_single_row(trees[0], row) for row in X]
         else:
             y_pred = []
             for row in X:
-                predictions = [self.predict_single_row(tree, row) for tree in trees]
-                bagged_prediction = max(set(predictions),key=predictions.count) # most common vote
+                votes = [self.predict_single_row(tree, row) for tree in trees]
+                bagged_prediction = self.weighted_vote(votes,weights)
+                # print("votes,weights,bagged_prediction:")
+                # print(votes,weights,bagged_prediction)
+                # bagged_prediction = max(set(predictions),key=predictions.count) # most common vote
                 y_pred.append(bagged_prediction)
         return np.array(y_pred)
 
+    def weighted_vote(self,votes,weights):
+        vote_dict = {}
+        for ii in range(len(votes)):
+            v,w = votes[ii],weights[ii]
+            if v in vote_dict:
+                vote_dict[v]+=w
+            else:
+                vote_dict[v]=w
+        return max(vote_dict,key=lambda f: vote_dict[f])
 
 class SeldoRandomForestClassifierIgnoreConstraints(ClassificationModel):
     def __init__(self,all_feature_names,num_estimators=10,num_quantiles_split=5,min_samples_split=2,max_depth=None,n_features_for_split=None):
