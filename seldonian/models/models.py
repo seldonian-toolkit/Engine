@@ -592,6 +592,7 @@ class SeldoRandomForestClassifier(ClassificationModel):
                 num_datapoints=nrows,
                 meta_information=candidate_dataset.meta_information)
             tree = self.build_tree(resamp_features,resamp_labels,feature_names,resamp_dataset,parse_trees,n_safety)
+
             # Evaluate whether we predict we would pass the safety test if we had just this one tree
             predict_safety_test,upper_bounds = self.get_upper_bounds_single_tree(tree,resamp_dataset,parse_trees,n_safety)
             weights[ii] = np.sum(upper_bounds)
@@ -633,6 +634,7 @@ class SeldoRandomForestClassifier(ClassificationModel):
         # return a leaf node with the most common label
         if features.size == 0 or depth == self.max_depth:
             # print("making leaf node")
+            # print("No more features or hit max depth")
             most_common_label = scipy.stats.mode(labels)[0][0]
             return DTLeafNode(most_common_label,np.random.randint(0,2e10))
 
@@ -646,7 +648,7 @@ class SeldoRandomForestClassifier(ClassificationModel):
             n_safety
         )
         
-        if not best_feature_index:
+        if best_feature_index is None:
             # Was not able to find a split that resulted in at least min_samples_split samples
             most_common_label = scipy.stats.mode(labels)[0][0]
             return DTLeafNode(most_common_label,np.random.randint(0,2e10))
@@ -917,6 +919,7 @@ class SeldoRandomForestClassifier(ClassificationModel):
             else:
                 vote_dict[v]=w
         return max(vote_dict,key=lambda f: vote_dict[f])
+
 
 class SeldoRandomForestClassifierIgnoreConstraints(ClassificationModel):
     def __init__(self,all_feature_names,num_estimators=10,num_quantiles_split=5,min_samples_split=2,max_depth=None,n_features_for_split=None):
