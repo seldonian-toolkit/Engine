@@ -9,7 +9,7 @@ from seldonian.dataset import (DataSetLoader,
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.utils.io_utils import load_json,load_pickle
 from seldonian.models.models import LinearRegressionModel
-from seldonian.dataset import RLDataSet
+from seldonian.dataset import RLDataSet,RLMetaData
 from seldonian.RL.RL_model import RL_model
 
 
@@ -1143,7 +1143,7 @@ def test_math_functions_propagate():
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',
-		columns=dataset.meta_information['sensitive_col_names'])
+		columns=dataset.meta.sensitive_col_names)
 	
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1161,7 +1161,7 @@ def test_math_functions_propagate():
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',
-		columns=dataset.meta_information['sensitive_col_names'])
+		columns=dataset.meta.sensitive_col_names)
 	# pt.build_tree(constraint_str)
 	
 	pt.create_from_ast(constraint_str)
@@ -1383,14 +1383,14 @@ def test_ttest_bound(simulated_regression_dataset):
 		labels=candidate_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(candidate_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	safety_dataset = SupervisedDataSet(
 		features=safety_features,
 		labels=safety_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(safety_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
@@ -1482,14 +1482,14 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 		labels=candidate_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(candidate_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	safety_dataset = SupervisedDataSet(
 		features=safety_features,
 		labels=safety_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(safety_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
@@ -1548,14 +1548,14 @@ def test_bad_bound_method(simulated_regression_dataset):
 		labels=candidate_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(candidate_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	safety_dataset = SupervisedDataSet(
 		features=safety_features,
 		labels=safety_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(safety_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 	
 	# First, single sided bound (MSE only needs upper bound)
 
@@ -1808,7 +1808,7 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	
 	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression',
-		columns=dataset.meta_information['sensitive_col_names'])
+		columns=dataset.meta.sensitive_col_names)
 	
 	pt.create_from_ast(constraint_strs[0])
 	pt.assign_deltas(weight_method='equal')
@@ -1831,17 +1831,17 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	data_pth = 'static/datasets/RL/gridworld/gridworld_100episodes.pkl'
 
 	episodes = load_pickle(data_pth)
-	RL_meta_information = {
-		'episode_col_names': ['O', 'A', 'R', 'pi_b'],
-		'sensitive_col_names': ['M','F']
-	}
+	RL_meta = RLMetaData(
+		all_col_names=['episode_index','O', 'A', 'R', 'pi_b'],
+		sensitive_col_names=['M','F']
+	)
 	M = np.random.randint(0,2,len(episodes))
 	F = 1-M
 	sensitive_attrs = np.hstack((M.reshape(-1,1),F.reshape(-1,1)))
 	RL_dataset = RLDataSet(
 		episodes=episodes,
 		sensitive_attrs=sensitive_attrs,
-		meta_information=RL_meta_information)
+		meta=RL_meta)
 
 	
 	# Initialize policy
@@ -1860,7 +1860,7 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	RL_pt = ParseTree(RL_deltas[0],
 		regime='reinforcement_learning',
 		sub_regime='all',
-		columns=RL_dataset.meta_information['sensitive_col_names'])
+		columns=RL_dataset.meta.sensitive_col_names)
 	
 	RL_pt.create_from_ast(RL_constraint_strs[0])
 	RL_pt.assign_deltas(weight_method='equal')

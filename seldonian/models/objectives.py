@@ -87,7 +87,7 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, datasize, **k
 
     if regime == "supervised_learning":
         args = [model, theta, data_dict["features"], data_dict["labels"]]
-        sub_regime = dataset.meta_information["sub_regime"]
+        sub_regime = dataset.meta.sub_regime
         msr_func_kwargs["sub_regime"] = sub_regime
         if "class_index" in kwargs:
             msr_func_kwargs["class_index"] = kwargs["class_index"]
@@ -143,7 +143,7 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, datasize, **kwar
     msr_func_kwargs = {"regime": regime}
     if regime == "supervised_learning":
         args = [model, theta, data_dict["features"], data_dict["labels"]]
-        sub_regime = dataset.meta_information["sub_regime"]
+        sub_regime = dataset.meta.sub_regime
         msr_func_kwargs["sub_regime"] = sub_regime
         if "class_index" in kwargs:
             msr_func_kwargs["class_index"] = kwargs["class_index"]

@@ -50,7 +50,7 @@ class SeldonianAlgorithm:
 
         self.dataset = self.spec.dataset
         self.regime = self.dataset.regime
-        self.column_names = self.dataset.meta_information
+        self.column_names = self.dataset.meta.all_col_names
 
         if self.regime == "supervised_learning":
             self.sub_regime = self.spec.sub_regime
@@ -72,7 +72,7 @@ class SeldonianAlgorithm:
                 labels=self.candidate_labels,
                 sensitive_attrs=self.candidate_sensitive_attrs,
                 num_datapoints=self.n_candidate,
-                meta_information=self.dataset.meta_information,
+                meta=self.dataset.meta,
             )
 
             self.safety_dataset = SupervisedDataSet(
@@ -80,7 +80,7 @@ class SeldonianAlgorithm:
                 labels=self.safety_labels,
                 sensitive_attrs=self.safety_sensitive_attrs,
                 num_datapoints=self.n_safety,
-                meta_information=self.dataset.meta_information,
+                meta=self.dataset.meta,
             )
 
             if self.n_candidate < 2 or self.n_safety < 2:
@@ -107,13 +107,13 @@ class SeldonianAlgorithm:
             self.candidate_dataset = RLDataSet(
                 episodes=self.candidate_episodes,
                 sensitive_attrs=self.candidate_sensitive_attrs,
-                meta_information=self.column_names,
+                meta=self.dataset.meta,
             )
 
             self.safety_dataset = RLDataSet(
                 episodes=self.safety_episodes,
                 sensitive_attrs=self.safety_sensitive_attrs,
-                meta_information=self.column_names,
+                meta=self.dataset.meta,
             )
 
             print(f"Safety dataset has {self.n_safety} episodes")

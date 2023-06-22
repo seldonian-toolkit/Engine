@@ -29,30 +29,19 @@ class DataSetLoader:
         :type file_type: str, defaults to 'csv'
         """
         # Load metadata
-        (
-            regime,
-            sub_regime,
-            all_col_names,
-            feature_col_names,
-            label_col_names,
-            sensitive_col_names,
-        ) = load_supervised_metadata(metadata_filename)
-
-        # infer feature column names
-        meta_information = {}
-        meta_information["feature_col_names"] = feature_col_names
-        meta_information["label_col_names"] = label_col_names
-        meta_information["sensitive_col_names"] = sensitive_col_names
-        meta_information["sub_regime"] = sub_regime
+        meta = load_supervised_metadata(metadata_filename)
 
         if file_type.lower() == "csv":
-            df = pd.read_csv(filename, header=None, names=all_col_names)
+            df = pd.read_csv(filename, header=None, names=meta.all_col_names)
             # separate out features, labels, and sensitive attrs
-            features = df.loc[:, feature_col_names].values
+            features = df.loc[:, meta.feature_col_names].values
             labels = np.squeeze(
-                df.loc[:, label_col_names].values
+                df.loc[:, meta.label_col_names].values
             )  # converts shape from (N,1) -> (N,) if only a single label column.
-            sensitive_attrs = df.loc[:, sensitive_col_names].values
+            if meta.sensitive_col_names != []:
+                sensitive_attrs = df.loc[:, meta.sensitive_col_names].values
+            else:
+                sensitive_attrs = []
             num_datapoints = len(df)
         else:
             raise NotImplementedError(f"File type: {file_type} not supported")
@@ -62,7 +51,7 @@ class DataSetLoader:
             labels=labels,
             sensitive_attrs=sensitive_attrs,
             num_datapoints=num_datapoints,
-            meta_information=meta_information,
+            meta=meta,
         )
 
     def load_RL_dataset_from_csv(self, filename, metadata_filename=None):
@@ -77,51 +66,63 @@ class DataSetLoader:
         :type metadata_filename: str
         """
 
+        required_col_names = ["episode_index", "O", "A", "R", "pi_b"]
         # Load metadata
-        if metadata_filename:
-            metadata_dict = load_json(metadata_filename)
-            column_names = metadata_dict["columns"]
-        else:
-            column_names = ["episode_index", "O", "A", "R", "pi_b"]
-        meta_information = {}
-        meta_information["episode_col_names"] = column_names
-        if "sensitive_col_names" in metadata_dict:
-            meta_information["sensitive_col_names"] = metadata_dict[
-                "sensitive_col_names"
-            ]
-        else:
-            meta_information["sensitive_col_names"] = []
-
+        meta = load_RL_metadata(metadata_filename,required_col_names)
+       
         df = pd.read_csv(filename, header=None)
-        df.columns = column_names
+        df.columns = meta.all_col_names
         episodes = []
-
+        # Set flag if there are alt rewards
+        has_alt_rewards = False
+        n_min_required_cols = len(required_col_names)
+        if len(meta.all_col_names) > n_min_required_cols:
+            if "R_alt_1" in meta.all_col_names:
+                has_alt_rewards = True
+                n_alt_rewards = len(meta.all_col_names) - n_min_required_cols
+            else:
+                raise RuntimeError(
+                    "You specified in 'all_col_names' more than the minimum "
+                    f"required number of columns: {n_min_required_cols} "
+                    "and the extra column names do not follow the 'R_alt_1','R_alt_2', ... pattern. "
+                    "Update the names of these columns, which represent the optional alternate rewards.")
         for episode_index in df.episode_index.unique():
             df_ep = df.loc[df.episode_index == episode_index]
+            if has_alt_rewards:
+                alt_reward_names = [f"R_alt_{ii}" for ii in range(1,n_alt_rewards+1)]
+                alt_rewards = df.loc[:,alt_reward_names].values
+            else:
+                alt_rewards = []
+
             episode = Episode(
-                observations=df_ep.iloc[:, 1].values,
-                actions=df_ep.iloc[:, 2].values,
-                rewards=df_ep.iloc[:, 3].values,
-                action_probs=df_ep.iloc[:, 4].values,
+                observations=df_ep.O.values,
+                actions=df_ep.A.values,
+                rewards=df_ep.R.values,
+                action_probs=df_ep.pi_b.values,
+                alt_rewards=alt_rewards
             )
             episodes.append(episode)
+        if meta.sensitive_col_names != []:
+            sensitive_attrs = df.loc[:, meta.sensitive_col_names].values
+        else:
+            sensitive_attrs = []
+        return RLDataSet(episodes=episodes, meta=meta)
 
-        return RLDataSet(episodes=episodes, meta_information=meta_information)
-
-    def load_RL_dataset_from_episode_file(self, filename):
+    def load_RL_dataset_from_episode_file(self, filename, metadata_filename=None):
         """Create RLDataSet object from file
 
         :param filename: The file
                 containing the pickled lists of :py:class:`.Episode` objects
         :type filename: str
         """
-
+        required_col_names = ["episode_index", "O", "A", "R", "pi_b"]
         episodes = load_pickle(filename)
-        return RLDataSet(episodes=episodes)
+        meta = load_RL_metadata(metadata_filename,required_col_names)
+        return RLDataSet(episodes=episodes,meta=meta)
 
 
 class DataSet(object):
-    def __init__(self, num_datapoints, meta_information, regime, **kwargs):
+    def __init__(self, num_datapoints, meta, regime, **kwargs):
         """Object for holding dataframe and dataset metadata
 
         :param num_datapoints: Number of rows or episodes (for RL) in the dataset
@@ -133,17 +134,17 @@ class DataSet(object):
         :type regime: str
         """
         self.num_datapoints = num_datapoints
-        self.meta_information = meta_information
+        self.meta = meta
         self.regime = regime
 
 
 class SupervisedDataSet(DataSet):
     def __init__(
-        self, features, labels, sensitive_attrs, num_datapoints, meta_information
+        self, features, labels, sensitive_attrs, num_datapoints, meta
     ):
         super().__init__(
             num_datapoints=num_datapoints,
-            meta_information=meta_information,
+            meta=meta,
             regime="supervised_learning",
         )
 
@@ -157,9 +158,9 @@ class SupervisedDataSet(DataSet):
             isinstance(self.sensitive_attrs, np.ndarray) or self.sensitive_attrs == []
         ), "sensitive_attrs must be a numpy array or []"
 
-        self.feature_col_names = meta_information["feature_col_names"]
-        self.label_col_names = meta_information["label_col_names"]
-        self.sensitive_col_names = meta_information["sensitive_col_names"]
+        self.feature_col_names = meta.feature_col_names
+        self.label_col_names = meta.label_col_names
+        self.sensitive_col_names = meta.sensitive_col_names
 
         self.n_features = len(self.feature_col_names)
         self.n_labels = len(self.label_col_names)
@@ -170,10 +171,7 @@ class RLDataSet(DataSet):
     def __init__(
         self,
         episodes,
-        meta_information={
-            "episode_col_names": ["O", "A", "R", "pi_b"],
-            "sensitive_col_names": [],
-        },
+        meta,
         sensitive_attrs=[],
         **kwargs,
     ):
@@ -188,10 +186,10 @@ class RLDataSet(DataSet):
 
         self.episodes = episodes
         self.sensitive_attrs = sensitive_attrs
-        self.sensitive_col_names = meta_information["sensitive_col_names"]
+        self.sensitive_col_names = meta.sensitive_col_names
         super().__init__(
             num_datapoints=len(self.episodes),
-            meta_information=meta_information,
+            meta=meta,
             regime="reinforcement_learning",
         )
 
@@ -242,6 +240,47 @@ class Episode(object):
         return repr_s
 
 
+class MetaData(object):
+    def __init__(self, regime, sub_regime, all_col_names, sensitive_col_names=None):
+        """Base class for holding dataset metadata
+        """
+        self.regime = regime
+        self.sub_regime = sub_regime
+        self.all_col_names = all_col_names
+        self.sensitive_col_names = sensitive_col_names
+
+
+class SupervisedMetaData(MetaData):
+    def __init__(
+        self,
+        sub_regime, 
+        all_col_names, 
+        feature_col_names,
+        label_col_names,
+        sensitive_col_names=[]):
+        """Class for holding supervised learning dataset metadata
+        """
+        super().__init__("supervised_learning",sub_regime,all_col_names,sensitive_col_names)
+        self.feature_col_names = feature_col_names
+        self.label_col_names = label_col_names
+
+
+class RLMetaData(MetaData):
+    def __init__(
+        self,
+        all_col_names, 
+        sensitive_col_names=[]):
+        """Class for holding supervised learning dataset metadata
+        """
+        super().__init__(
+            regime="reinforcement_learning",
+            sub_regime="all",
+            all_col_names=all_col_names,
+            sensitive_col_names=sensitive_col_names
+        )
+
+
+
 def load_supervised_metadata(filename):
     """Load metadata from JSON file into a dictionary
 
@@ -258,19 +297,52 @@ def load_supervised_metadata(filename):
         "multiclass_classification",
     ]
     all_col_names = metadata_dict["all_col_names"]
+    
     label_col_names = metadata_dict["label_col_names"]
-    sensitive_col_names = metadata_dict["sensitive_col_names"]
-    # infer feature column names - keep order same
-    feature_col_names = [
-        x
-        for x in all_col_names
-        if (x not in label_col_names) and (x not in sensitive_col_names)
-    ]
-    return (
-        regime,
-        sub_regime,
-        all_col_names,
+
+    if "sensitive_col_names" not in metadata_dict:
+        sensitive_col_names = []
+    else:
+        sensitive_col_names = metadata_dict["sensitive_col_names"]
+
+    if "feature_col_names" not in metadata_dict:
+        # infer feature column names - keep order same
+        feature_col_names = [
+            x
+            for x in all_col_names
+            if (x not in label_col_names) and (x not in sensitive_col_names)
+        ]
+    else:
+        feature_col_names = metadata_dict["feature_col_names"]
+
+    
+    return SupervisedMetaData(
+        sub_regime, 
+        all_col_names, 
         feature_col_names,
         label_col_names,
-        sensitive_col_names,
+        sensitive_col_names, 
     )
+
+def load_RL_metadata(metadata_filename,required_col_names):
+    if metadata_filename:
+        metadata_dict = load_json(metadata_filename)
+        all_col_names = metadata_dict["all_col_names"]
+        if not all([x in all_col_names for x in required_col_names]):
+            raise RuntimeError(
+                "You are missing some or all of the following required columns "
+                "in the 'all_col_names' key of your metadata file:"
+                f"{required_col_names}")
+        if "sensitive_col_names" in metadata_dict:
+            sensitive_col_names = metadata_dict["sensitive_col_names"]
+        else:
+            sensitive_col_names = []
+    
+    else:
+        all_col_names = required_col_names
+        sensitive_col_names = []
+
+    meta = RLMetaData(
+        all_col_names=all_col_names,
+        sensitive_col_names=sensitive_col_names)
+    return meta

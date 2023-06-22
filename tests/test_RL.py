@@ -8,7 +8,7 @@ from seldonian.RL.environments.gridworld import Gridworld
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
 from seldonian.RL.Agents.Discrete_Random_Agent import *
 from seldonian.RL.RL_runner import run_trial
-from seldonian.dataset import RLDataSet
+from seldonian.dataset import RLDataSet,RLMetaData
 import autograd.numpy as np
 
 def test_tables():
@@ -108,7 +108,6 @@ def test_MixedSoftmax():
     assert np.allclose(sm3.get_action_probs_from_action_values([1.1, -2.2, 3.3]), e_to_something_stable / sum(e_to_something_stable))
     assert sm3.get_prob_this_action(0,0,1/4) == 1/3*alpha3 + 1/4*(1-alpha3)
     assert sm3.get_prob_this_action(0,0,1/2) == 1/3*alpha3 + 1/2*(1-alpha3)
-
 
 def test_Parameterized_non_learning_softmax_agent():
     """test Parameterized_non_learning_softmax_agent"""
@@ -273,7 +272,11 @@ def test_generate_gridworld_episodes():
     assert first_reward == 0
     assert all([pi == 0.25 for pi in pis])
 
-    dataset = RLDataSet(episodes=episodes)
+    meta = RLMetaData(
+        all_col_names=["episode_index", "O", "A", "R", "pi_b"],
+        sensitive_col_names=[]
+    )
+    dataset = RLDataSet(episodes=episodes,meta=meta)
     assert len(dataset.episodes) == 10
 
 def test_generate_n_step_mountaincar_episodes():
@@ -309,5 +312,9 @@ def test_generate_n_step_mountaincar_episodes():
     assert first_reward == -20.0
     assert all([pi == 1/3. for pi in pis])
 
-    dataset = RLDataSet(episodes=episodes)
+    meta = RLMetaData(
+        all_col_names=["episode_index", "O", "A", "R", "pi_b"],
+        sensitive_col_names=[]
+    )
+    dataset = RLDataSet(episodes=episodes,meta=meta)
     assert len(dataset.episodes) == 10

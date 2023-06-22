@@ -7,8 +7,7 @@ from seldonian.parse_tree.parse_tree import *
 from seldonian.utils.io_utils import (load_json,
 	load_pickle)
 from seldonian.utils.tutorial_utils import generate_data
-from seldonian.dataset import (DataSetLoader,
-	RLDataSet,SupervisedDataSet)
+from seldonian.dataset import *
 from seldonian.spec import SupervisedSpec
 from seldonian.models import objectives 
 from seldonian.models.models import *
@@ -108,11 +107,13 @@ def simulated_regression_dataset_aslists():
 		X1,Y = generate_data(
 			numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
 		X2 = X1**2
-		meta_information = {}
-		meta_information['feature_col_names'] = ['feature1']
-		meta_information['label_col_names'] = ['label']
-		meta_information['sensitive_col_names'] = []
-		meta_information['sub_regime'] = sub_regime
+		meta = SupervisedMetaData(
+	        sub_regime="regression", 
+	        all_col_names=["feature1","label"], 
+	        feature_col_names=["feature1"],
+	        label_col_names=["label"],
+	        sensitive_col_names=[]
+	        )
 
 		# 3. Make a dataset object
 		features = [np.expand_dims(X1,axis=1),np.expand_dims(X2,axis=1)]
@@ -131,7 +132,7 @@ def simulated_regression_dataset_aslists():
 			labels=labels,
 			sensitive_attrs=sensitive_attrs,
 			num_datapoints=numPoints,
-			meta_information=meta_information)
+			meta=meta)
 
 		# For each constraint, make a parse tree
 		parse_trees = []
@@ -173,11 +174,13 @@ def simulated_regression_dataset():
 		X,Y = generate_data(
 			numPoints,loc_X=0.0,loc_Y=0.0,sigma_X=1.0,sigma_Y=1.0)
 		
-		meta_information = {}
-		meta_information['feature_col_names'] = ['feature1']
-		meta_information['label_col_names'] = ['label']
-		meta_information['sensitive_col_names'] = []
-		meta_information['sub_regime'] = sub_regime
+		meta = SupervisedMetaData(
+	        sub_regime="regression", 
+	        all_col_names=["feature1","label"], 
+	        feature_col_names=["feature1"],
+	        label_col_names=["label"],
+	        sensitive_col_names=[]
+	        )
 
 		# 3. Make a dataset object
 		features = np.expand_dims(X,axis=1)
@@ -195,7 +198,7 @@ def simulated_regression_dataset():
 			labels=labels,
 			sensitive_attrs=[],
 			num_datapoints=numPoints,
-			meta_information=meta_information)
+			meta=meta)
 
 		# For each constraint, make a parse tree
 		parse_trees = []

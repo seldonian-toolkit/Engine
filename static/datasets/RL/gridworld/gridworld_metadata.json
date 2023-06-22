@@ -1,6 +1,4 @@
 {
-	"columns":["episode_index","O","A","R","pi"],
-	"regime":"RL",
-	"RL_module_name":"gridworld",
-	"RL_class_name":"Gridworld"
+	"all_col_names":["episode_index","O","A","R","pi_b"],
+	"regime":"RL"
 }
