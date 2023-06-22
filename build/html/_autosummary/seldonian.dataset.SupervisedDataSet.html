@@ -13,8 +13,8 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.hyperparam_search" href="seldonian.hyperparam_search.html" />
-    <link rel="prev" title="seldonian.dataset.RLDataSet" href="seldonian.dataset.RLDataSet.html" />
+    <link rel="next" title="seldonian.dataset.SupervisedMetaData" href="seldonian.dataset.SupervisedMetaData.html" />
+    <link rel="prev" title="seldonian.dataset.RLMetaData" href="seldonian.dataset.RLMetaData.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -35,11 +35,11 @@
 <h1>seldonian.dataset.SupervisedDataSet<a class="headerlink" href="#seldonian-dataset-superviseddataset" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.dataset.SupervisedDataSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SupervisedDataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_attrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.SupervisedDataSet" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SupervisedDataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_attrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.SupervisedDataSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSet</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.SupervisedDataSet.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_attrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_information</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.SupervisedDataSet.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_attrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.SupervisedDataSet.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object for holding dataframe and dataset metadata</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -93,11 +93,14 @@ e.g., supervised_learning or reinforcement_learning</p></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_RL_metadata.html">seldonian.dataset.load_RL_metadata</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_supervised_metadata.html">seldonian.dataset.load_supervised_metadata</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSet.html">seldonian.dataset.DataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.Episode.html">seldonian.dataset.Episode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.MetaData.html">seldonian.dataset.MetaData</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLDataSet.html">seldonian.dataset.RLDataSet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.RLMetaData.html">seldonian.dataset.RLMetaData</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.SupervisedDataSet</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#seldonian.dataset.SupervisedDataSet"><code class="docutils literal notranslate"><span class="pre">SupervisedDataSet</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.dataset.SupervisedDataSet.__init__"><code class="docutils literal notranslate"><span class="pre">SupervisedDataSet.__init__()</span></code></a></li>
@@ -106,6 +109,7 @@ e.g., supervised_learning or reinforcement_learning</p></li>
 </li>
 </ul>
 </li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.SupervisedMetaData.html">seldonian.dataset.SupervisedMetaData</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.hyperparam_search.html">seldonian.hyperparam_search</a></li>
@@ -130,8 +134,8 @@ e.g., supervised_learning or reinforcement_learning</p></li>
   <li><a href="../api.html">API</a><ul>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.dataset.html">seldonian.dataset</a><ul>
-      <li>Previous: <a href="seldonian.dataset.RLDataSet.html" title="previous chapter">seldonian.dataset.RLDataSet</a></li>
-      <li>Next: <a href="seldonian.hyperparam_search.html" title="next chapter">seldonian.hyperparam_search</a></li>
+      <li>Previous: <a href="seldonian.dataset.RLMetaData.html" title="previous chapter">seldonian.dataset.RLMetaData</a></li>
+      <li>Next: <a href="seldonian.dataset.SupervisedMetaData.html" title="next chapter">seldonian.dataset.SupervisedMetaData</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

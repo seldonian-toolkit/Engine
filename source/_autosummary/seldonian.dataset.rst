@@ -14,6 +14,7 @@ seldonian.dataset
    .. autosummary::
       :toctree:                                         
    
+      load_RL_metadata
       load_supervised_metadata
    
    
@@ -29,8 +30,11 @@ seldonian.dataset
       DataSet
       DataSetLoader
       Episode
+      MetaData
       RLDataSet
+      RLMetaData
       SupervisedDataSet
+      SupervisedMetaData
    
    
 
