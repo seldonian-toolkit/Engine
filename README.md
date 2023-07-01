@@ -10,7 +10,7 @@ This is the source code repository for a framework for creating and running [Sel
 
 To use the latest stable version:
 ```
-pip install seldonian-toolkit
+pip install seldonian-engine
 ```
 
 To run this code as a developer, create a virtual environment. Then install the package locally, e.g. 
