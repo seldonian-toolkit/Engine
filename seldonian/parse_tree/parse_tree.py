@@ -374,6 +374,10 @@ class ParseTree(object):
                             node_kwargs["cm_pred_index"] = left_node_kwargs[
                                 "cm_pred_index"
                             ]
+                        elif node_class.__name__ == "RLAltRewardBaseNode":
+                            node_kwargs["alt_reward_number"] = left_node_kwargs[
+                                "alt_reward_number"
+                            ]
                         else:
                             node_kwargs["class_index"] = left_node_kwargs["class_index"]
                     else:
@@ -474,6 +478,8 @@ class ParseTree(object):
             "TNR_",
             "TPR_",
             "FNR_",
+            "J_pi_new_",
+            "J_pi_new_PDIS_"
         ]:
             raise NotImplementedError(
                 "Error parsing your expression."
@@ -498,9 +504,20 @@ class ParseTree(object):
             node_kwargs["name"] = node_name
             node_kwargs["cm_true_index"] = row_index
             node_kwargs["cm_pred_index"] = col_index
-
+        elif ast_node.value.id in ["J_pi_new_","J_pi_new_PDIS_"]:
+            # alternate reward function
+            node_class = RLAltRewardBaseNode
+            try:
+                # 3.8 syntax
+                alt_reward_number = ast_node.slice.value.value
+            except AttributeError:
+                alt_reward_number = ast_node.slice.value
+            node_name = f"{ast_node.value.id}[{alt_reward_number}]"
+            node_kwargs = {}
+            node_kwargs["name"] = node_name
+            node_kwargs["alt_reward_number"] = alt_reward_number
         else:
-            # It's one of the PR_[i] functions
+            # It's one of the PR_[i], FPR_[i], etc. functions
             node_class = MultiClassBaseNode
             # ast API changed after Python 3.8 in how it handles slices
             try:
@@ -700,6 +717,8 @@ class ParseTree(object):
                         datasize = self.base_node_dict[node.name]["datasize"]
                     else:
                         # Data not prepared already. Need to do that.
+                        if isinstance(node, RLAltRewardBaseNode):
+                            kwargs["alt_reward_number"] = node.alt_reward_number
                         data_dict, datasize = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
                         self.base_node_dict[node.name]["datasize"] = datasize
@@ -776,6 +795,9 @@ class ParseTree(object):
                         data_dict = self.base_node_dict[node.name]["data_dict"]
                         datasize = self.base_node_dict[node.name]["datasize"]
                     else:
+                        print("Calculating data for bound")
+                        if isinstance(node, RLAltRewardBaseNode):
+                            kwargs["alt_reward_number"] = node.alt_reward_number
                         data_dict, datasize = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
                         self.base_node_dict[node.name]["datasize"] = datasize
@@ -786,6 +808,7 @@ class ParseTree(object):
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
+                
                 value = node.calculate_value(**kwargs)
                 node.value = value
                 self.base_node_dict[node.name]["value_computed"] = True

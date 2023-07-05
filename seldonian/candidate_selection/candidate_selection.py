@@ -130,7 +130,7 @@ class CandidateSelection(object):
                 self.batch_labels,
                 self.batch_sensitive_attrs,
                 num_datapoints=batch_num_datapoints,
-                meta_information=self.candidate_dataset.meta_information,
+                meta=self.candidate_dataset.meta,
             )
 
         elif self.regime == "reinforcement_learning":
@@ -149,7 +149,7 @@ class CandidateSelection(object):
                 episodes=batch_episodes,
                 sensitive_attrs=self.batch_sensitive_attrs,
                 num_datapoints=batch_num_datapoints,
-                meta_information=self.candidate_dataset.meta_information,
+                meta=self.candidate_dataset.meta,
             )
         # If this batch is smaller than the batch size and not the first batch
         # then that means we shouldn't consider a candidate solution calculated from it 

@@ -34,7 +34,7 @@ def test_run_safety_test_regression(
         labels=safety_labels,
         sensitive_attrs=[],
         num_datapoints=len(safety_features),
-        meta_information=dataset.meta_information)
+        meta=dataset.meta)
 
     # A candidate solution that we know should fail
     candidate_solution = np.array([20,4])
@@ -86,7 +86,7 @@ def test_evaluate_primary_objective_regression(
         labels=safety_labels,
         sensitive_attrs=[],
         num_datapoints=len(safety_features),
-        meta_information=dataset.meta_information)
+        meta=dataset.meta)
 
     # A candidate solution that we know is bad
     solution = np.array([20,4])
@@ -134,7 +134,7 @@ def test_evaluate_primary_objective_RL(
     safety_dataset = RLDataSet(
         episodes=safety_episodes,
         num_datapoints=len(safety_episodes),
-        meta_information=dataset.meta_information)
+        meta=dataset.meta)
 
     # A candidate solution that we know is bad
     solution = np.zeros((9,4))

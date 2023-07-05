@@ -246,9 +246,19 @@ class BaseNode(Node):
                 datasize = n_masked
 
             # Precalculate expected return from behavioral policy
-            masked_returns = [
-                weighted_sum_gamma(ep.rewards, gamma) for ep in masked_episodes
-            ]
+            if "alt_reward_number" in kwargs:
+                # use the alternate reward specified in the constraint string
+                # when calculating the return
+                alt_reward_number = kwargs["alt_reward_number"]
+                alt_reward_index = alt_reward_number - 1
+                masked_returns = [
+                    weighted_sum_gamma(ep.alt_rewards[:, alt_reward_index], gamma)
+                    for ep in masked_episodes
+                ]
+            else:
+                masked_returns = [
+                    weighted_sum_gamma(ep.rewards, gamma) for ep in masked_episodes
+                ]
 
             data_dict = {
                 "episodes": masked_episodes,
@@ -661,6 +671,56 @@ class MultiClassBaseNode(BaseNode):
             **kwargs,
         )
         self.class_index = class_index
+
+
+class RLAltRewardBaseNode(BaseNode):
+    def __init__(
+        self,
+        name,
+        alt_reward_number,
+        lower=float("-inf"),
+        upper=float("inf"),
+        conditional_columns=[],
+        **kwargs,
+    ):
+        """A base node for computing
+        the IS estimate using an alternate
+        reward function (i.e. one besides the primary reward).
+        There can be an arbitrary number of
+        alternate rewards, so the "alt_reward_number"
+        attribute allows one to reference the specific
+        alternate reward. These are 1-indexed,
+        so if one wants to reference the second
+        alternate reward, the base node string would be:
+        "J_pi_new_[2]"
+        Inherits all of the attributes/methods
+        of basenode
+
+        :param name:
+            The name of the node, e.g. "J_pi_new_[1]"
+        :type name: str
+        :param alt_reward_number:
+            Which alternate reward to use when
+            calculating the IS estimate. 1-indexed.
+        :param lower:
+            Lower confidence bound
+        :type lower: float
+        :param upper:
+            Upper confidence bound
+        :type upper: float
+        :param conditional_columns:
+            When calculating confidence bounds on a measure
+            function, condition on these columns being == 1
+        :type conditional_columns: List(str)
+        """
+        super().__init__(
+            name=name,
+            lower=lower,
+            upper=upper,
+            conditional_columns=conditional_columns,
+            **kwargs,
+        )
+        self.alt_reward_number = alt_reward_number
 
 
 class MEDCustomBaseNode(BaseNode):

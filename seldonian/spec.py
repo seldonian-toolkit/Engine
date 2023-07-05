@@ -418,24 +418,17 @@ def createSupervisedSpec(
     :param verbose: Boolean glag to control verbosity
     """
     # Load metadata
-    (
-        regime,
-        sub_regime,
-        all_col_names,
-        feature_col_names,
-        label_col_names,
-        sensitive_col_names,
-    ) = load_supervised_metadata(metadata_pth)
+    meta = load_supervised_metadata(metadata_pth)
 
-    assert regime == "supervised_learning"
+    assert meta.regime == "supervised_learning"
 
-    if sub_regime == "regression":
+    if meta.sub_regime == "regression":
         model = LinearRegressionModel()
         primary_objective = objectives.Mean_Squared_Error
-    elif sub_regime in ["classification", "binary_classification"]:
+    elif meta.sub_regime in ["classification", "binary_classification"]:
         model = BinaryLogisticRegressionModel()
         primary_objective = objectives.binary_logistic_loss
-    elif sub_regime == "multiclass_classification":
+    elif meta.sub_regime == "multiclass_classification":
         model = MultiClassLogisticRegressionModel()
         primary_objective = objectives.multiclass_logistic_loss
 
@@ -443,8 +436,8 @@ def createSupervisedSpec(
         constraint_strs,
         deltas,
         regime="supervised_learning",
-        sub_regime=sub_regime,
-        columns=sensitive_col_names,
+        sub_regime=meta.sub_regime,
+        columns=meta.sensitive_col_names,
         delta_weight_method="equal",
     )
 
@@ -456,7 +449,7 @@ def createSupervisedSpec(
         primary_objective=primary_objective,
         use_builtin_primary_gradient_fn=True,
         parse_trees=parse_trees,
-        sub_regime=sub_regime,
+        sub_regime=meta.sub_regime,
         initial_solution_fn=model.fit,
         optimization_technique="gradient_descent",
         optimizer="adam",
