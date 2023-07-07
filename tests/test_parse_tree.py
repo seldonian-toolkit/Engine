@@ -775,7 +775,6 @@ def test_rl_alt_reward_string():
 	assert pt.root.left.name == 'J_pi_new_[1]'
 	assert pt.root.left.alt_reward_number == 1
 
-
 	constraint_str = '(J_pi_new_[2] | [A,B]) - 0.5'
 	pt = ParseTree(delta,regime='reinforcement_learning',
 		sub_regime='all',columns=['A','B'])
@@ -792,6 +791,45 @@ def test_rl_alt_reward_string():
 	assert pt.root.left.measure_function_name == 'J_pi_new_PDIS'
 	assert pt.root.left.name == 'J_pi_new_PDIS_[1]'
 	assert pt.root.left.alt_reward_number == 1
+
+def test_rl_alt_reward_bad_string():
+	# Test that using non-numeric characters for the alt reward number raises an error
+	delta = 0.05
+	constraint_str = 'J_pi_new_[N] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_[1.1] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_PDIS_[M] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_PDIS_[5.9] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
 
 def test_rl_alt_reward_precalc_return():
 	np.random.seed(0)
@@ -867,7 +905,6 @@ def test_rl_alt_reward_precalc_return():
 
 	weighted_returns_alt_reward = PDIS_pt.base_node_dict["J_pi_new_PDIS_[1]"]['data_dict']['weighted_returns']
 	assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
-
 
 def test_measure_function_with_conditional_bad_syntax_captured():
 	delta=0.05

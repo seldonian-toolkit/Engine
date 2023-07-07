@@ -512,10 +512,18 @@ class ParseTree(object):
                 alt_reward_number = ast_node.slice.value.value
             except AttributeError:
                 alt_reward_number = ast_node.slice.value
+            # Validate that alt_reward_number is an integer
+            if type(alt_reward_number) != int:
+                raise RuntimeError(
+                    "The alternate reward number you entered was not an integer."
+                )
             node_name = f"{ast_node.value.id}[{alt_reward_number}]"
             node_kwargs = {}
             node_kwargs["name"] = node_name
             node_kwargs["alt_reward_number"] = alt_reward_number
+            print("alt_reward_number:")
+            print(alt_reward_number)
+            print(type(alt_reward_number))
         else:
             # It's one of the PR_[i], FPR_[i], etc. functions
             node_class = MultiClassBaseNode
