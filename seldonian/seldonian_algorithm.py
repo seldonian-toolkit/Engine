@@ -22,10 +22,12 @@ class SeldonianAlgorithm:
         :type spec: :py:class:`.Spec` object
         """
         self.spec = spec
+        self.mode = spec.mode
         self.cs_has_been_run = False
         self.cs_result = None
         self.st_has_been_run = False
         self.st_result = None
+
 
         self.parse_trees = self.spec.parse_trees
         # user can pass a dictionary that specifies
@@ -189,6 +191,7 @@ class SeldonianAlgorithm:
             initial_solution=self.initial_solution,
             regime=self.regime,
             write_logfile=write_logfile,
+            mode=self.mode
         )
 
         cs = CandidateSelection(**cs_kwargs, **self.spec.regularization_hyperparams)
@@ -202,6 +205,7 @@ class SeldonianAlgorithm:
             model=self.model,
             parse_trees=self.spec.parse_trees,
             regime=self.regime,
+            mode=self.mode,
         )
 
         st = SafetyTest(**st_kwargs)
@@ -290,7 +294,7 @@ class SeldonianAlgorithm:
             **self.spec.optimization_hyperparams,
             use_builtin_primary_gradient_fn=self.spec.use_builtin_primary_gradient_fn,
             custom_primary_gradient_fn=self.spec.custom_primary_gradient_fn,
-            debug=debug,
+            debug=debug
         )
 
         self.cs_has_been_run = True
@@ -313,7 +317,8 @@ class SeldonianAlgorithm:
         """
 
         st = self.safety_test()
-        passed_safety = st.run(candidate_solution, batch_size_safety=batch_size_safety)
+        passed_safety = st.run(candidate_solution, batch_size_safety=batch_size_safety, 
+                               candidate_dataset=self.candidate_dataset, use_candidate_prior=self.spec.use_candidate_prior)
         if not passed_safety:
             if debug:
                 print("Failed safety test")
