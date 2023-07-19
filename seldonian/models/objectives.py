@@ -64,8 +64,32 @@ def batcher(func, N, batch_size, num_batches):
 
     return wrapper
 
+def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
+    regime = kwargs["regime"]
+    dataset = kwargs["dataset"]
+    msr_func_kwargs = {"regime": regime}
+    
+    if regime == "supervised_learning":
+        num_datapoints = len(data_dict["labels"])
+        args = [model, theta, data_dict["features"], data_dict["labels"]]
+        sub_regime = dataset.meta.sub_regime
+        msr_func_kwargs["sub_regime"] = sub_regime
+        if "class_index" in kwargs:
+            msr_func_kwargs["class_index"] = kwargs["class_index"]
+        if "cm_true_index" in kwargs:
+            msr_func_kwargs["l_i"] = kwargs["cm_true_index"]
+        if "cm_pred_index" in kwargs:
+            msr_func_kwargs["l_k"] = kwargs["cm_pred_index"]
 
-def sample_from_statistic(model, statistic_name, theta, data_dict, datasize, **kwargs):
+    elif regime == "reinforcement_learning":
+        episodes = data_dict["episodes"]
+        num_datapoints = len(episodes)
+        weighted_returns = data_dict["weighted_returns"]
+        args = [model, theta, episodes, weighted_returns]
+
+    return args,msr_func_kwargs,num_datapoints
+
+def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
     """Evaluate a provided statistic for each observation
     in the sample
 
@@ -81,25 +105,20 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, datasize, **k
     :rtype: numpy ndarray(float)
     """
     branch = kwargs["branch"]
-    dataset = kwargs["dataset"]
-    regime = dataset.regime
-    msr_func_kwargs = {"regime": regime}
-
-    if regime == "supervised_learning":
-        args = [model, theta, data_dict["features"], data_dict["labels"]]
-        sub_regime = dataset.meta.sub_regime
-        msr_func_kwargs["sub_regime"] = sub_regime
-        if "class_index" in kwargs:
-            msr_func_kwargs["class_index"] = kwargs["class_index"]
-        if "cm_true_index" in kwargs:
-            msr_func_kwargs["l_i"] = kwargs["cm_true_index"]
-        if "cm_pred_index" in kwargs:
-            msr_func_kwargs["l_k"] = kwargs["cm_pred_index"]
-
-    elif regime == "reinforcement_learning":
-        episodes = data_dict["episodes"]
-        weighted_returns = data_dict["weighted_returns"]
-        args = [model, theta, episodes, weighted_returns]
+    regime = kwargs["regime"]
+    sub_regime = kwargs["dataset"].meta.sub_regime
+    
+    (
+        args,
+        msr_func_kwargs,
+        num_datapoints
+    ) = _setup_params_for_stat_funcs(
+        model=model,
+        theta=theta, 
+        data_dict=data_dict,
+        sub_regime=sub_regime,
+        **kwargs
+    )
 
     msr_func = measure_function_vector_mapper[statistic_name]
 
@@ -109,21 +128,21 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, datasize, **k
     elif branch == "safety_test":
         if "batch_size_safety" in kwargs:
             if kwargs["batch_size_safety"] is None:
-                batch_size_safety = datasize
+                batch_size_safety = num_datapoints
                 num_batches = 1
             else:
                 batch_size_safety = kwargs["batch_size_safety"]
-                num_batches = math.ceil(datasize / batch_size_safety)
+                num_batches = math.ceil(num_datapoints / batch_size_safety)
 
         else:
-            batch_size_safety = datasize
+            batch_size_safety = num_datapoints
             num_batches = 1
         return batcher(
-            msr_func, N=datasize, batch_size=batch_size_safety, num_batches=num_batches
+            msr_func, N=num_datapoints, batch_size=batch_size_safety, num_batches=num_batches
         )(*args, **msr_func_kwargs)
 
 
-def evaluate_statistic(model, statistic_name, theta, data_dict, datasize, **kwargs):
+def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
     """Evaluate a provided statistic for the whole sample provided
 
     :param model: SeldonianModel instance
@@ -138,24 +157,20 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, datasize, **kwar
     :rtype: float
     """
     branch = kwargs["branch"]
-    dataset = kwargs["dataset"]
-    regime = dataset.regime
-    msr_func_kwargs = {"regime": regime}
-    if regime == "supervised_learning":
-        args = [model, theta, data_dict["features"], data_dict["labels"]]
-        sub_regime = dataset.meta.sub_regime
-        msr_func_kwargs["sub_regime"] = sub_regime
-        if "class_index" in kwargs:
-            msr_func_kwargs["class_index"] = kwargs["class_index"]
-        if "cm_true_index" in kwargs:
-            msr_func_kwargs["l_i"] = kwargs["cm_true_index"]
-        if "cm_pred_index" in kwargs:
-            msr_func_kwargs["l_k"] = kwargs["cm_pred_index"]
-
-    elif regime == "reinforcement_learning":
-        episodes = data_dict["episodes"]
-        weighted_returns = data_dict["weighted_returns"]
-        args = [model, theta, episodes, weighted_returns]
+    regime = kwargs["regime"]
+    sub_regime = kwargs["dataset"].meta.sub_regime
+    
+    (
+        args,
+        msr_func_kwargs,
+        num_datapoints
+    ) = _setup_params_for_stat_funcs(
+        model=model,
+        theta=theta, 
+        data_dict=data_dict,
+        sub_regime=sub_regime,
+        **kwargs
+    )
 
     msr_func = measure_function_mapper[statistic_name]
 
@@ -165,20 +180,20 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, datasize, **kwar
     elif branch == "safety_test":
         if "batch_size_safety" in kwargs:
             if kwargs["batch_size_safety"] is None:
-                batch_size_safety = datasize
+                batch_size_safety = num_datapoints
                 num_batches = 1
             else:
                 batch_size_safety = kwargs["batch_size_safety"]
-                num_batches = math.ceil(datasize / batch_size_safety)
+                num_batches = math.ceil(num_datapoints / batch_size_safety)
 
         else:
-            batch_size_safety = datasize
+            batch_size_safety = num_datapoints
             num_batches = 1
 
         return np.mean(
             batcher(
                 msr_func,
-                N=datasize,
+                N=num_datapoints,
                 batch_size=batch_size_safety,
                 num_batches=num_batches,
             )(*args, **msr_func_kwargs)

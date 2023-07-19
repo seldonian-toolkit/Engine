@@ -272,7 +272,6 @@ class ParseTree(object):
                     "lower": float("-inf"),
                     "upper": float("inf"),
                     "data_dict": None,
-                    "datasize": 0,
                 }
 
         self.n_nodes += 1
@@ -521,9 +520,6 @@ class ParseTree(object):
             node_kwargs = {}
             node_kwargs["name"] = node_name
             node_kwargs["alt_reward_number"] = alt_reward_number
-            print("alt_reward_number:")
-            print(alt_reward_number)
-            print(type(alt_reward_number))
         else:
             # It's one of the PR_[i], FPR_[i], etc. functions
             node_class = MultiClassBaseNode
@@ -722,22 +718,22 @@ class ParseTree(object):
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
-                        datasize = self.base_node_dict[node.name]["datasize"]
                     else:
                         # Data not prepared already. Need to do that.
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
-                        data_dict, datasize = node.calculate_data_forbound(**kwargs)
+                        
+                        data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
-                        self.base_node_dict[node.name]["datasize"] = datasize
 
                     kwargs["data_dict"] = data_dict
-                    kwargs["datasize"] = datasize
 
                 bound_method = self.base_node_dict[node.name]["bound_method"]
+                
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
+                
                 bound_result = node.calculate_bounds(
                     bound_method=bound_method, **kwargs
                 )
@@ -801,17 +797,13 @@ class ParseTree(object):
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
-                        datasize = self.base_node_dict[node.name]["datasize"]
                     else:
-                        print("Calculating data for bound")
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
-                        data_dict, datasize = node.calculate_data_forbound(**kwargs)
+                        data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
-                        self.base_node_dict[node.name]["datasize"] = datasize
 
                     kwargs["data_dict"] = data_dict
-                    kwargs["datasize"] = datasize
 
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
@@ -1189,7 +1181,6 @@ class ParseTree(object):
             self.base_node_dict[node_name]["upper"] = float("inf")
             if reset_data:
                 self.base_node_dict[node_name]["data_dict"] = None
-                self.base_node_dict[node_name]["datasize"] = 0
 
         return
 

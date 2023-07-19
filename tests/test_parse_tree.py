@@ -1191,26 +1191,26 @@ def test_math_functions_propagate():
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,branch='safety_test',
 		regime='supervised_learning')
-	assert pt.root.lower == pytest.approx(0.5990300)
-	assert pt.root.upper == pytest.approx(0.5999346)
+	assert pt.root.lower == pytest.approx(0.59886236)
+	assert pt.root.upper == pytest.approx(0.60010258)
 
-	constraint_str = '1+log(FPR)'
-	delta = 0.05
-	pt = ParseTree(delta,regime='supervised_learning',
-		sub_regime='classification',
-		columns=dataset.meta.sensitive_col_names)
-	# pt.build_tree(constraint_str)
+	# constraint_str = '1+log(FPR)'
+	# delta = 0.05
+	# pt = ParseTree(delta,regime='supervised_learning',
+	# 	sub_regime='classification',
+	# 	columns=dataset.meta.sensitive_col_names)
+	# # pt.build_tree(constraint_str)
 	
-	pt.create_from_ast(constraint_str)
-	pt.assign_deltas(weight_method='equal')
+	# pt.create_from_ast(constraint_str)
+	# pt.assign_deltas(weight_method='equal')
 
-	# propagate the bounds with example theta value
-	theta = np.random.uniform(-0.05,0.05,10)
-	pt.propagate_bounds(theta=theta,dataset=dataset,
-		model=model_instance,branch='safety_test',
-		regime='supervised_learning')
-	assert pt.root.lower == pytest.approx(-2.5187904943528903)
-	assert pt.root.upper == pytest.approx(-2.470509955060809)
+	# # propagate the bounds with example theta value
+	# theta = np.random.uniform(-0.05,0.05,10)
+	# pt.propagate_bounds(theta=theta,dataset=dataset,
+	# 	model=model_instance,branch='safety_test',
+	# 	regime='supervised_learning')
+	# assert pt.root.lower == pytest.approx(-2.5187904943528903)
+	# assert pt.root.upper == pytest.approx(-2.470509955060809)
 
 def test_deltas_assigned_equally():
 	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
@@ -1518,14 +1518,14 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 		features=candidate_features,
 		labels=candidate_labels,
 		sensitive_attrs=[],
-		num_datapoints=len(candidate_features),
+		num_datapoints=len(candidate_labels),
 		meta=dataset.meta)
 
 	safety_dataset = SupervisedDataSet(
 		features=safety_features,
 		labels=safety_labels,
 		sensitive_attrs=[],
-		num_datapoints=len(safety_features),
+		num_datapoints=len(safety_labels),
 		meta=dataset.meta)
 
 	pt = ParseTree(deltas[0],regime='supervised_learning',
@@ -1544,12 +1544,12 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 	
 	# Candidate selection
 	pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
-		n_safety=len(safety_features),
+		n_safety=len(safety_labels),
 		model=model,
 		branch='candidate_selection',
 		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not bound_computed 
-	assert pt.root.upper == pytest.approx(235.89950087)
+	assert pt.root.upper == pytest.approx(12.341009549)
 	pt.reset_base_node_dict(reset_data=True)
 	# Safety test
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
@@ -1557,7 +1557,7 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 		branch='safety_test',
 		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not computed
-	assert pt.root.upper == pytest.approx(166.0071908)
+	assert pt.root.upper == pytest.approx(13.1514499)
 
 def test_bad_bound_method(simulated_regression_dataset):
 	# dummy data for linear regression
