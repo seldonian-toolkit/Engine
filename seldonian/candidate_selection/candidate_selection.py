@@ -290,12 +290,12 @@ class CandidateSelection(object):
             candidate_solution = res["candidate_solution"]
 
         elif self.optimization_technique == "barrier_function":
-            if self.regime == "reinforcement_learning":
-                raise NotImplementedError(
-                    "barrier_function optimization_technique "
-                    "is not supported for reinforcement learning. "
-                    "Use gradient_descent instead."
-                )
+            # if self.regime == "reinforcement_learning":
+            #     raise NotImplementedError(
+            #         "barrier_function optimization_technique "
+            #         "is not supported for reinforcement learning. "
+            #         "Use gradient_descent instead."
+            #     )
             opts = {}
             if "maxiter" in kwargs:
                 opts["maxiter"] = kwargs["maxiter"]
@@ -320,9 +320,15 @@ class CandidateSelection(object):
                 if "seed" in kwargs:
                     opts["seed"] = kwargs["seed"]
 
-                es = cma.CMAEvolutionStrategy(self.initial_solution, 0.2, opts)
+                if "sigma0" in kwargs:
+                    sigma0 = kwargs["sigma0"]
+                else:
+                    sigma0 = 0.2
+
+                es = cma.CMAEvolutionStrategy(self.initial_solution, sigma0, opts)
 
                 es.optimize(self.objective_with_barrier)
+                es.disp()
                 candidate_solution = es.result.xbest
                 self.optimization_result = es.result
             else:
@@ -362,15 +368,10 @@ class CandidateSelection(object):
                 self.model, theta, self.features, self.labels
             )
 
-        # elif self.regime == 'reinforcement_learning':
-        # 	data_dict = {'episodes':self.candidate_dataset.episodes}
-        # 	# Want to maximize the importance weight so minimize negative importance weight
-        # 	result = -1.0*self.primary_objective(self.model,theta,
-        # 		data_dict)
+        elif self.regime == 'reinforcement_learning':
+        	result = -1.0*self.primary_objective(self.model,theta,self.candidate_dataset.episodes)
 
-        # Optionally adding regularization term so that large thetas
-        # make this less negative
-        # and therefore worse
+        # Optionally adding regularization term 
         if hasattr(self, "reg_coef"):
             reg_term = self.reg_coef * np.linalg.norm(theta)
             result += reg_term

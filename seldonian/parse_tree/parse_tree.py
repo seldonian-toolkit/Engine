@@ -479,7 +479,8 @@ class ParseTree(object):
             "TPR_",
             "FNR_",
             "J_pi_new_",
-            "J_pi_new_PDIS_"
+            "J_pi_new_PDIS_",
+            "J_pi_new_fake_"
         ]:
             raise NotImplementedError(
                 "Error parsing your expression."
@@ -504,7 +505,7 @@ class ParseTree(object):
             node_kwargs["name"] = node_name
             node_kwargs["cm_true_index"] = row_index
             node_kwargs["cm_pred_index"] = col_index
-        elif ast_node.value.id in ["J_pi_new_","J_pi_new_PDIS_"]:
+        elif ast_node.value.id in ["J_pi_new_","J_pi_new_PDIS_","J_pi_new_fake_"]:
             # alternate reward function
             node_class = RLAltRewardBaseNode
             try:
@@ -521,9 +522,6 @@ class ParseTree(object):
             node_kwargs = {}
             node_kwargs["name"] = node_name
             node_kwargs["alt_reward_number"] = alt_reward_number
-            print("alt_reward_number:")
-            print(alt_reward_number)
-            print(type(alt_reward_number))
         else:
             # It's one of the PR_[i], FPR_[i], etc. functions
             node_class = MultiClassBaseNode
@@ -803,7 +801,6 @@ class ParseTree(object):
                         data_dict = self.base_node_dict[node.name]["data_dict"]
                         datasize = self.base_node_dict[node.name]["datasize"]
                     else:
-                        print("Calculating data for bound")
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
                         data_dict, datasize = node.calculate_data_forbound(**kwargs)

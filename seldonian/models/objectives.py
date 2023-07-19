@@ -1144,7 +1144,6 @@ def IS_estimate(model, theta, episodes, weighted_returns=None, **kwargs):
 
     return IS_estimate
 
-
 def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     """Calculate the unweighted importance sampling estimate
     on each episodes in the dataframe
@@ -1225,6 +1224,79 @@ def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
 
     return np.array(PDIS_vector)
 
+def Bounding_box_primary_return_estimate(model, theta, episodes, weighted_returns=None, **kwargs):
+    """Get the expected return of the PRIMARY reward 
+    for behavior episodes whose actions (cr,cf)
+    fall within the theta bounding box. 
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :return: A vector of IS estimates calculated for each episode
+    :rtype: numpy ndarray(float)
+    """
+
+    crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
+
+    returns_inside_theta_box = []
+    for ii, ep in enumerate(episodes):
+        cr_b,cf_b = ep.actions[0] # behavior policy action
+        primary_return = ep.rewards[0] # one reward per episode, so reward=return
+        if (crmin <= cr_b <= crmax) and (cfmin <= cf_b <= cfmax):
+            returns_inside_theta_box.append(primary_return)
+    return np.mean(returns_inside_theta_box)
+
+def Bounding_box_alternate_return_estimate(model, theta, episodes, weighted_returns=None, **kwargs):
+    """Get the expected return of the alternate reward 
+    for behavior episodes whose actions (cr,cf)
+    fall within the theta bounding box 
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :return: A vector of IS estimates calculated for each episode
+    :rtype: numpy ndarray(float)
+    """
+    # Rescale theta to be inside the bounding box if outside
+
+    crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
+
+    returns_inside_theta_box = []
+    for ii, ep in enumerate(episodes):
+        cr_b,cf_b = ep.actions[0] # behavior policy action
+        secondary_return = ep.alt_rewards[0][0] # one alt reward function and one reward per episode
+        if (crmin <= cr_b <= crmax) and (cfmin <= cf_b <= cfmax):
+            returns_inside_theta_box.append(secondary_return)
+
+    return np.mean(returns_inside_theta_box)
+
+def vector_Bounding_box_alternate_return_estimate(model, theta, episodes, weighted_returns, **kwargs):
+    """Get the ALTERNATE reward returns for episodes
+     whose actions fall within the theta bounding box.
+     This function is used for constraints, unlike Bounding_box_estimate()
+     which is used for primary objective functions.
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :return: A vector of IS estimates calculated for each episode
+    :rtype: numpy ndarray(float)
+    """
+    crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
+
+    returns_inside_theta_box = []
+    for ii, ep in enumerate(episodes):
+        cr,cf = ep.actions[0] # behavior policy action
+        secondary_return = ep.alt_rewards[0][0]
+        # theta is crmin, crmax, cfmin, cfmax
+        if (crmin <= cr <= crmax) and (cfmin <= cf <= cfmax):
+            returns_inside_theta_box.append(secondary_return)
+
+    return np.array(returns_inside_theta_box)
+
 """ Measure function mappers """
 measure_function_vector_mapper = {
     "Mean_Squared_Error": vector_Squared_Error,
@@ -1238,6 +1310,7 @@ measure_function_vector_mapper = {
     "ACC": vector_Accuracy,
     "J_pi_new": vector_IS_estimate,
     'J_pi_new_PDIS':vector_PDIS_estimate,
+    'J_pi_new_fake':vector_Bounding_box_alternate_return_estimate,
 }
 
 measure_function_mapper = {
@@ -1252,4 +1325,5 @@ measure_function_mapper = {
     "ACC": Accuracy,
     "J_pi_new": IS_estimate,
     'J_pi_new_PDIS':PDIS_estimate,
+    'J_pi_new_fake':Bounding_box_alternate_return_estimate,
 }

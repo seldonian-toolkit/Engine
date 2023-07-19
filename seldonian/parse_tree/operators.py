@@ -100,6 +100,7 @@ measure_functions_dict = {
         	[
     		"J_pi_new",
             "J_pi_new_PDIS",
+            "J_pi_new_fake",
             ]
         },
 }
