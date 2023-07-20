@@ -3,7 +3,7 @@ from functools import reduce, partial
 import pandas as pd
 import autograd.numpy as np
 
-from seldonian.models.objectives import sample_from_statistic, evaluate_statistic
+from seldonian.models import zhat_funcs 
 from seldonian.utils.stats_utils import *
 
 
@@ -130,7 +130,7 @@ class BaseNode(Node):
         the expected value of the base variable,
         not the bound.
         """
-        value = evaluate_statistic(statistic_name=self.measure_function_name, **kwargs)
+        value = zhat_funcs.evaluate_statistic(statistic_name=self.measure_function_name, **kwargs)
         return value
 
     def mask_data(self, dataset, conditional_columns):
@@ -233,6 +233,9 @@ class BaseNode(Node):
                 masked_episodes = episodes
 
             # Precalculate expected return from behavioral policy
+            # using the reward specified by the alt_reward_number
+            # These are only ever used in the zhat functions, so 
+            # they pertain to the constraint, not the primary objective
             if "alt_reward_number" in kwargs:
                 # use the alternate reward specified in the constraint string
                 # when calculating the return
@@ -351,7 +354,7 @@ class BaseNode(Node):
         :type data_dict: dict
         """
 
-        return sample_from_statistic(
+        return zhat_funcs.sample_from_statistic(
             model=model,
             statistic_name=self.measure_function_name,
             theta=theta,
@@ -897,7 +900,7 @@ class CVaRSQeBaseNode(BaseNode):
         # Get squashed squared errors
         X = data_dict["features"]
         y = data_dict["labels"]
-        squared_errors = objectives.vector_Squared_Error(model, theta, X, y)
+        squared_errors = zhat_funcs.vector_Squared_Error(model, theta, X, y)
         # sort
         Z = np.array(sorted(squared_errors))
         # Now calculate cvar
@@ -952,7 +955,7 @@ class CVaRSQeBaseNode(BaseNode):
         min_squared_error = 0
         max_squared_error = max(pow(y_hat_max - y_min, 2), pow(y_max - y_hat_min, 2))
 
-        squared_errors = objectives.vector_Squared_Error(model, theta, X, y)
+        squared_errors = zhat_funcs.vector_Squared_Error(model, theta, X, y)
 
         a = min_squared_error
         b = max_squared_error
