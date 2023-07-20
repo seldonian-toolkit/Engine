@@ -4,6 +4,7 @@ import autograd.numpy as np
 
 from seldonian.spec import (SupervisedSpec)
 from seldonian.models import objectives
+from seldonian.models import zhat_funcs
 from seldonian.models.models import *
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 
@@ -40,23 +41,23 @@ def test_binary_classification_measure_functions():
 	ACC = objectives.Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	assert ACC == pytest.approx(0.5598653825)
 	# Vector statistics 
-	vector_PR = objectives.vector_Positive_Rate(model,theta,X,Y)
+	vector_PR = zhat_funcs.vector_Positive_Rate(model,theta,X,Y)
 	assert np.allclose(vector_PR,y_pred)
-	vector_NR = objectives.vector_Negative_Rate(model,theta,X,Y)
+	vector_NR = zhat_funcs.vector_Negative_Rate(model,theta,X,Y)
 	assert np.allclose(vector_NR,1.0-y_pred)
-	vector_FPR = objectives.vector_False_Positive_Rate(model,theta,X,Y)
+	vector_FPR = zhat_funcs.vector_False_Positive_Rate(model,theta,X,Y)
 	# True label=0 was in first two datapoints. prob[1:3] = [0.5,0.5621765]
 	arcomp_FPR = y_pred[0:2]
 	assert np.allclose(vector_FPR,arcomp_FPR)
-	vector_FNR = objectives.vector_False_Negative_Rate(model,theta,X,Y)
+	vector_FNR = zhat_funcs.vector_False_Negative_Rate(model,theta,X,Y)
 	# True label=1 was in last two datapoints: want 1.0-prob[2:]
 	arcomp_FNR = 1.0-y_pred[2:]
 	assert np.allclose(vector_FNR,arcomp_FNR)
-	vector_TPR = objectives.vector_True_Positive_Rate(model,theta,X,Y)
+	vector_TPR = zhat_funcs.vector_True_Positive_Rate(model,theta,X,Y)
 	assert np.allclose(vector_TPR,1.0-arcomp_FNR)
-	vector_TNR = objectives.vector_True_Negative_Rate(model,theta,X,Y)
+	vector_TNR = zhat_funcs.vector_True_Negative_Rate(model,theta,X,Y)
 	assert np.allclose(vector_TNR,1.0-arcomp_FPR)
-	vector_ACC = objectives.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
+	vector_ACC = zhat_funcs.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	arcomp_ACC = np.array([0.5, 0.4378235 , 0.62245933, 0.6791787 ])
 	assert np.allclose(vector_ACC,arcomp_ACC)
 
@@ -87,7 +88,7 @@ def test_multiclass_classification_measure_functions():
 	assert ACC == pytest.approx(0.36639504)
 
 	# Vector accuracy
-	vector_ACC = objectives.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
+	vector_ACC = zhat_funcs.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	arcomp_ACC = np.array([0.33333333,0.41922895,0.54654939,0.14024438,0.49951773,0.25949646])
 	assert np.allclose(vector_ACC,arcomp_ACC)
 
@@ -118,29 +119,29 @@ def test_multiclass_classification_measure_functions():
 		assert TNR == pytest.approx(1.0 - FPR)
 	
 		# Vector statistics 
-		vector_PR = objectives.vector_Positive_Rate(
+		vector_PR = zhat_funcs.vector_Positive_Rate(
 			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_PR,y_pred[:,class_index])
-		vector_NR = objectives.vector_Negative_Rate(
+		vector_NR = zhat_funcs.vector_Negative_Rate(
 			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_NR,1.0-y_pred[:,class_index])
-		vector_FPR = objectives.vector_False_Positive_Rate(
+		vector_FPR = zhat_funcs.vector_False_Positive_Rate(
 			model,theta,X,Y,
 			class_index=class_index)
 		arcomp_FPR = y_pred[:,class_index][neg_mask]
 		assert np.allclose(vector_FPR,arcomp_FPR)
-		vector_FNR = objectives.vector_False_Negative_Rate(
+		vector_FNR = zhat_funcs.vector_False_Negative_Rate(
 			model,theta,X,Y,
 			class_index=class_index)
 		arcomp_FNR = 1.0-y_pred[:,class_index][pos_mask]
 		assert np.allclose(vector_FNR,arcomp_FNR)
-		vector_TPR = objectives.vector_True_Positive_Rate(
+		vector_TPR = zhat_funcs.vector_True_Positive_Rate(
 			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_TPR,1.0-arcomp_FNR)
-		vector_TNR = objectives.vector_True_Negative_Rate(
+		vector_TNR = zhat_funcs.vector_True_Negative_Rate(
 			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_TNR,1.0-arcomp_FPR)
