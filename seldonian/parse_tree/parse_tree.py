@@ -272,7 +272,6 @@ class ParseTree(object):
                     "lower": float("-inf"),
                     "upper": float("inf"),
                     "data_dict": None,
-                    "datasize": 0,
                 }
 
         self.n_nodes += 1
@@ -509,10 +508,15 @@ class ParseTree(object):
             # alternate reward function
             node_class = RLAltRewardBaseNode
             try:
-                # 3.8 syntax
+                # Python 3.8 syntax ("ast" is part of the standard library)
                 alt_reward_number = ast_node.slice.value.value
             except AttributeError:
-                alt_reward_number = ast_node.slice.value
+                try:
+                    # Python 3.9 and some 3.10 syntaxes
+                    alt_reward_number = ast_node.slice.value
+                except AttributeError:
+                    # Later Python 3.10 syntax
+                    alt_reward_number = ast_node.slice.id
             # Validate that alt_reward_number is an integer
             if type(alt_reward_number) != int:
                 raise RuntimeError(
@@ -720,22 +724,22 @@ class ParseTree(object):
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
-                        datasize = self.base_node_dict[node.name]["datasize"]
                     else:
                         # Data not prepared already. Need to do that.
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
-                        data_dict, datasize = node.calculate_data_forbound(**kwargs)
+                        
+                        data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
-                        self.base_node_dict[node.name]["datasize"] = datasize
 
                     kwargs["data_dict"] = data_dict
-                    kwargs["datasize"] = datasize
 
                 bound_method = self.base_node_dict[node.name]["bound_method"]
+                
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
+                
                 bound_result = node.calculate_bounds(
                     bound_method=bound_method, **kwargs
                 )
@@ -799,16 +803,13 @@ class ParseTree(object):
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
-                        datasize = self.base_node_dict[node.name]["datasize"]
                     else:
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
-                        data_dict, datasize = node.calculate_data_forbound(**kwargs)
+                        data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
-                        self.base_node_dict[node.name]["datasize"] = datasize
 
                     kwargs["data_dict"] = data_dict
-                    kwargs["datasize"] = datasize
 
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
@@ -1186,7 +1187,6 @@ class ParseTree(object):
             self.base_node_dict[node_name]["upper"] = float("inf")
             if reset_data:
                 self.base_node_dict[node_name]["data_dict"] = None
-                self.base_node_dict[node_name]["datasize"] = 0
 
         return
 
