@@ -507,10 +507,15 @@ class ParseTree(object):
             # alternate reward function
             node_class = RLAltRewardBaseNode
             try:
-                # 3.8 syntax
+                # Python 3.8 syntax ("ast" is part of the standard library)
                 alt_reward_number = ast_node.slice.value.value
             except AttributeError:
-                alt_reward_number = ast_node.slice.value
+                try:
+                    # Python 3.9 and some 3.10 syntaxes
+                    alt_reward_number = ast_node.slice.value
+                except AttributeError:
+                    # Later Python 3.10 syntax
+                    alt_reward_number = ast_node.slice.id
             # Validate that alt_reward_number is an integer
             if type(alt_reward_number) != int:
                 raise RuntimeError(
