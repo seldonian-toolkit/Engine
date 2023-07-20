@@ -17,21 +17,21 @@ class SimglucoseScienceAgent(Agent):
         self.policy = ScienceSigmoidPolicy(bb_crmin, bb_crmax, bb_cfmin, bb_cfmax)
 
     def choose_action(self, obs):
-        """Return a CR,CF tuple by sampling from uniform random distributions
+        """Return a CR,CF by sampling from uniform random distributions
+        whose bounds are determined by the crmin,crmax,cfmin,cfmax which
+        are determined from sigmoiding the theta values (policy weights).
 
         :param obs: The current observation of the agent,
                 type depends on environment
         :return: array of actions
         """
-
-        return (
-            np.random.uniform(
-                self.policy.FA.weights[0],
-                self.policy.FA.weights[1]),
-            np.random.uniform(
-                self.policy.FA.weights[2],
-                self.policy.FA.weights[3])
-        ) 
+        theta = self.policy.get_params()
+        # print(f"in choose_action()")
+        # print(f"theta={theta}")
+        cr1,cr2,cf1,cf2 = self.policy.theta2crcf(theta)
+        cr = np.random.uniform(cr1,cr2)
+        cf = np.random.uniform(cf1,cf2)
+        return cr,cf
 
     def get_prob_this_action(self,observation, action):
         return 0 # this is a continuous action space so all individual actions have 0 probability

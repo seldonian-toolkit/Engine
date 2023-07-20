@@ -2090,11 +2090,11 @@ def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	# # Run seldonian algorithm
 	with pytest.raises(NotImplementedError) as excinfo:
 		SA = SeldonianAlgorithm(spec)
-		passed_safety,solution = SA.run()
+		passed_safety,solution = SA.run(debug=True)
 	error_str = (
-				"barrier_function optimization_technique "
+				"Optimizer: Powell "
 				"is not supported for reinforcement learning. "
-				"Use gradient_descent instead.")
+				"Try optimizer='CMA-ES' instead.")
 
 	assert error_str in str(excinfo.value)
 

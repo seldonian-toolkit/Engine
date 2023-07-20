@@ -290,17 +290,18 @@ class CandidateSelection(object):
             candidate_solution = res["candidate_solution"]
 
         elif self.optimization_technique == "barrier_function":
-            # if self.regime == "reinforcement_learning":
-            #     raise NotImplementedError(
-            #         "barrier_function optimization_technique "
-            #         "is not supported for reinforcement learning. "
-            #         "Use gradient_descent instead."
-            #     )
+            
             opts = {}
             if "maxiter" in kwargs:
                 opts["maxiter"] = kwargs["maxiter"]
 
             if self.optimizer in ["Powell", "CG", "Nelder-Mead", "BFGS"]:
+                if self.regime == "reinforcement_learning":
+                    raise NotImplementedError(
+                        f"Optimizer: {self.optimizer} "
+                        "is not supported for reinforcement learning. "
+                        "Try optimizer='CMA-ES' instead."
+                    )
                 from scipy.optimize import minimize
 
                 res = minimize(
@@ -330,6 +331,8 @@ class CandidateSelection(object):
                 es.optimize(self.objective_with_barrier)
                 es.disp()
                 candidate_solution = es.result.xbest
+                if (candidate_solution is None) or (not all(np.isfinite(candidate_solution))):
+                    candidate_solution = "NSF"
                 self.optimization_result = es.result
             else:
                 raise NotImplementedError(

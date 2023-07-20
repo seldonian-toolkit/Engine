@@ -16,8 +16,8 @@ class ScienceSigmoidPolicy(Policy):
         self.bb_cfmax = bb_cfmax
 
         self.FA = Function_Approximator() # needed to get and set self.FA.weights 
-        # Initialize weights to the large physician approved bounding box
-        self.FA.weights = np.array([0.0,0.0,0.0,0.0]) # each can range -inf to +inf
+        # Initialize weights
+        self.FA.weights = np.array([-5.0,5.0,-5.0,5.0]) # each can range -inf to +inf
 
     def set_new_params(self, new_params):
         """Set the parameters of the agent
@@ -36,8 +36,6 @@ class ScienceSigmoidPolicy(Policy):
     def theta2crcf(self, theta):
         """Take theta and return crmin,crmax,cfmin,cfmax
         """
-        
-        
         cr_size = self.bb_crmax - self.bb_crmin
         cf_size = self.bb_cfmax - self.bb_cfmin
         cr1 = self._sigmoid(theta[0]) * cr_size + self.bb_crmin
@@ -47,7 +45,6 @@ class ScienceSigmoidPolicy(Policy):
         cf1 = self._sigmoid(theta[2]) * cf_size + self.bb_cfmin
         cf2 = self._sigmoid(theta[3]) * cf_size + self.bb_cfmin
         cf1,cf2 = min(cf1,cf2),max(cf1,cf2)
-
         return cr1,cr2,cf1,cf2
     
     def _sigmoid(self, X, steepness=1.0):
