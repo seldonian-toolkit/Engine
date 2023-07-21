@@ -27,7 +27,7 @@ if __name__ == '__main__':
         filename=data_pth,
         metadata_filename=metadata_pth,
         file_type='csv')
-    sensitive_col_names = dataset.meta_information['sensitive_col_names']
+    sensitive_col_names = dataset.meta.sensitive_col_names
 
     # Use logistic regression model
     model = LogisticRegressionModel()
@@ -36,7 +36,10 @@ if __name__ == '__main__':
     primary_objective = objectives.binary_logistic_loss
     
     # Define behavioral constraints
-    constraint_strs = ['min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M])) >= 0.9'] 
+    epsilon = 0.9
+    constraint_name = "disparate_impact"
+    if constraint_name == "disparate_impact":
+        constraint_strs = [f'min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M])) >= {epsilon}'] 
     deltas = [0.05]
     
     # For each constraint (in this case only one), make a parse tree
@@ -70,6 +73,6 @@ if __name__ == '__main__':
         }
     )
 
-    spec_save_name = os.path.join(save_dir,'loans_disparate_impact_0.1_spec.pkl')
+    spec_save_name = os.path.join(save_dir,f'loans_{constraint_name}_{epsilon}_spec.pkl')
     save_pickle(spec_save_name,spec)
     print(f"Saved Spec object to: {spec_save_name}")

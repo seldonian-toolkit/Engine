@@ -3,7 +3,7 @@ from functools import reduce, partial
 import pandas as pd
 import autograd.numpy as np
 
-from seldonian.models.objectives import sample_from_statistic, evaluate_statistic
+from seldonian.models import zhat_funcs 
 from seldonian.utils.stats_utils import *
 
 
@@ -130,8 +130,7 @@ class BaseNode(Node):
         the expected value of the base variable,
         not the bound.
         """
-
-        value = evaluate_statistic(statistic_name=self.measure_function_name, **kwargs)
+        value = zhat_funcs.evaluate_statistic(statistic_name=self.measure_function_name, **kwargs)
         return value
 
     def mask_data(self, dataset, conditional_columns):
@@ -171,22 +170,19 @@ class BaseNode(Node):
                 try:
                     masked_features = np.array(masked_features)
                     masked_labels = np.array(masked_labels)
-                    n_masked = len(masked_features)
                 except Exception as e:
                     # masked_features and masked_labels stay as lists
-                    n_masked = len(masked_features[0])
+                    pass
             else:
                 # numpy array
                 masked_features = dataset.features[joint_mask]
                 masked_labels = dataset.labels[joint_mask]
-                n_masked = len(masked_features)
 
-            return masked_features, masked_labels, n_masked
+            return masked_features, masked_labels
 
         elif dataset.regime == "reinforcement_learning":
             masked_episodes = np.asarray(dataset.episodes)[joint_mask]
-            n_masked = len(masked_episodes)
-            return masked_episodes, n_masked
+            return masked_episodes
 
     def calculate_data_forbound(self, **kwargs):
         """
@@ -211,41 +207,35 @@ class BaseNode(Node):
             labels = dataset.labels
 
             if self.conditional_columns:
-                masked_features, masked_labels, n_masked = self.mask_data(
+                masked_features, masked_labels = self.mask_data(
                     dataset, self.conditional_columns
                 )
             else:
-                (masked_features, masked_labels, n_masked) = (
+                (masked_features, masked_labels) = (
                     features,
-                    labels,
-                    dataset.num_datapoints,
+                    labels
                 )
 
-            if branch == "candidate_selection":
-                frac_masked = n_masked / dataset.num_datapoints
-                datasize = int(round(frac_masked * n_safety))
-            else:
-                datasize = n_masked
-            data_dict = {"features": masked_features, "labels": masked_labels}
+            data_dict = {
+                "features": masked_features,
+                "labels": masked_labels
+            }
 
         elif regime == "reinforcement_learning":
             gamma = model.env_kwargs["gamma"]
             episodes = dataset.episodes
 
             if self.conditional_columns:
-                masked_episodes, n_masked = self.mask_data(
+                masked_episodes = self.mask_data(
                     dataset, self.conditional_columns
                 )
             else:
-                (masked_episodes, n_masked) = episodes, dataset.num_datapoints
-
-            if branch == "candidate_selection":
-                frac_masked = n_masked / dataset.num_datapoints
-                datasize = int(round(frac_masked * n_safety))
-            else:
-                datasize = n_masked
+                masked_episodes = episodes
 
             # Precalculate expected return from behavioral policy
+            # using the reward specified by the alt_reward_number
+            # These are only ever used in the zhat functions, so 
+            # they pertain to the constraint, not the primary objective
             if "alt_reward_number" in kwargs:
                 # use the alternate reward specified in the constraint string
                 # when calculating the return
@@ -265,7 +255,7 @@ class BaseNode(Node):
                 "weighted_returns": masked_returns,
             }
 
-        return data_dict, datasize
+        return data_dict
 
     def calculate_bounds(self, **kwargs):
         """Calculate confidence bounds given a bound_method,
@@ -291,9 +281,25 @@ class BaseNode(Node):
                 estimator_samples = self.zhat(**kwargs)
 
                 branch = kwargs["branch"]
+                if branch == "safety_test":
+                    datasize = len(estimator_samples)
+                elif branch == "candidate_selection":
+                    candidate_dataset = kwargs["dataset"]
+                    n_candidate = candidate_dataset.num_datapoints
+                    n_safety = kwargs["n_safety"]
+                    # Want to predict the size of the safety dataset.
+                    # We do this using the fraction of candidate data we 
+                    # get from the estimator
+                    datasize = int(
+                        round(
+                            ( len(estimator_samples)/n_candidate ) * n_safety 
+                        )
+                    )
+
                 data_dict = kwargs["data_dict"]
                 bound_kwargs = kwargs
                 bound_kwargs["data"] = estimator_samples
+                bound_kwargs["datasize"] = datasize
                 bound_kwargs["delta"] = self.delta
 
                 # If lower and upper are both needed,
@@ -332,7 +338,7 @@ class BaseNode(Node):
         else:
             raise RuntimeError("bound_method not specified!")
 
-    def zhat(self, model, theta, data_dict, datasize, **kwargs):
+    def zhat(self, model, theta, data_dict, **kwargs):
         """
         Calculate an unbiased estimate of the
         base variable node.
@@ -348,12 +354,11 @@ class BaseNode(Node):
         :type data_dict: dict
         """
 
-        return sample_from_statistic(
+        return zhat_funcs.sample_from_statistic(
             model=model,
             statistic_name=self.measure_function_name,
             theta=theta,
             data_dict=data_dict,
-            datasize=datasize,
             **kwargs,
         )
 
@@ -762,14 +767,9 @@ class MEDCustomBaseNode(BaseNode):
         labels = np.expand_dims(dataset.labels, axis=1)
         sensitive_attrs = dataset.sensitive_attrs
 
-        data_dict, datasize = self.precalculate_data(features, labels, sensitive_attrs)
+        data_dict = self.precalculate_data(features, labels, sensitive_attrs)
 
-        if kwargs["branch"] == "candidate_selection":
-            n_safety = kwargs["n_safety"]
-            frac_masked = datasize / len(features)
-            datasize = int(round(frac_masked * n_safety))
-
-        return data_dict, datasize
+        return data_dict
 
     def precalculate_data(self, X, Y, S):
         """
@@ -817,7 +817,7 @@ class MEDCustomBaseNode(BaseNode):
             "Y_female": Y_female,
         }
         datasize = N_least
-        return data_dict, datasize
+        return data_dict
 
     def zhat(self, model, theta, data_dict, **kwargs):
         """
@@ -900,7 +900,7 @@ class CVaRSQeBaseNode(BaseNode):
         # Get squashed squared errors
         X = data_dict["features"]
         y = data_dict["labels"]
-        squared_errors = objectives.vector_Squared_Error(model, theta, X, y)
+        squared_errors = zhat_funcs.vector_Squared_Error(model, theta, X, y)
         # sort
         Z = np.array(sorted(squared_errors))
         # Now calculate cvar
@@ -955,7 +955,7 @@ class CVaRSQeBaseNode(BaseNode):
         min_squared_error = 0
         max_squared_error = max(pow(y_hat_max - y_min, 2), pow(y_max - y_hat_min, 2))
 
-        squared_errors = objectives.vector_Squared_Error(model, theta, X, y)
+        squared_errors = zhat_funcs.vector_Squared_Error(model, theta, X, y)
 
         a = min_squared_error
         b = max_squared_error
