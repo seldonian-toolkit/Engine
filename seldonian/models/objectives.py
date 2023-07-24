@@ -5,7 +5,7 @@ import math
 
 from seldonian.utils.stats_utils import (weighted_sum_gamma,
     custom_cumprod, stability_const)
-
+from seldonian.models.models import BinaryLogisticRegressionModel
 
 """ Regression """
 
@@ -147,7 +147,9 @@ def binary_logistic_loss(model, theta, X, Y, **kwargs):
 
 
 def gradient_binary_logistic_loss(model, theta, X, Y, **kwargs):
-    """Gradient of binary logistic loss w.r.t. theta
+    """Gradient of binary logistic loss w.r.t. theta.
+    This is only valid for binary logistic regression models!
+    Also, the number of parameters must be the same as the number of model weights.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -455,9 +457,52 @@ def True_Positive_Rate(model, theta, X, Y, **kwargs):
         return _True_Positive_Rate_binary(model, theta, X, Y)
 
 
+def Error_Rate(model, theta, X, Y, **kwargs):
+    """
+    Calculate error rate for the whole sample
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param X: The features
+    :type X: numpy ndarray
+
+    :return: False positive rate for whole sample
+    :rtype: float between 0 and 1
+    """
+    if kwargs["sub_regime"] == "multiclass_classification":
+        return _Error_Rate_multiclass(model, theta, X, Y, **kwargs)
+    else:
+        return _Error_Rate_binary(model, theta, X, Y, **kwargs)
+
+def _Error_Rate_binary(model, theta, X, Y, **kwargs):
+    """Calculate error rate
+    over all data points for binary classification
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param X: The features
+    :type X: numpy ndarray
+    :param Y: The labels
+    :type Y: numpy ndarray
+
+    :return: error rate between 0 and 1.
+    :rtype: float
+    """
+    n = len(X)
+    Y_pred_probs = model.predict(theta, X)
+    # v = np.where(Y == 0, Y_pred_probs, 1.0 - Y_pred_probs)
+    # res1 = np.sum(v) / n
+    res = np.sum(Y*(1-Y_pred_probs) + (1-Y)*Y_pred_probs) / n
+    # dJdtheta_0 = 1/n*np.sum(1-2*Y*Y_pred_probs)
+    return res
+
+
+
 def Accuracy(model, theta, X, Y, **kwargs):
     """
-    Calculate true negative rate
+    Calculate accuracy
     for the whole sample.
 
     The is the sum of the probability of each

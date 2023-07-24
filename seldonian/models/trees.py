@@ -7,7 +7,7 @@ import math
 import scipy.stats
 
 from .models import ClassificationModel
-
+from autograd.extend import primitive, defvjp
 
 class DTNode():
     def __init__(self,unique_id):
@@ -19,13 +19,13 @@ class DTNode():
 
 
 class DTLeafNode(DTNode):
-    def __init__(self,label,unique_id):
-        """ Leaf nodes just have a single label"""
+    def __init__(self,prob_pos,unique_id):
+        """ Leaf nodes have the probability of predicting the positive class"""
         super().__init__(unique_id)
-        self.label = label
+        self.prob_pos = prob_pos
     
     def __repr__(self):
-        return f"Leaf node label={self.label}"
+        return f"Leaf node prob_pos={self.prob_pos}"
         
 
 class DTInternalNode(DTNode):
@@ -48,26 +48,48 @@ class SeldoDecisionTreeClassifier(ClassificationModel):
             of a feature with float dtype
         """
         super().__init__()
+        self.has_intercept = False
         self.all_feature_names = all_feature_names
         self.num_quantiles_split = num_quantiles_split
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
+        self.all_node_ids = [] # ids in the tree
+        self.leaf_node_ids = [] # just leaf node ids in the tree
+        self.leaf_node_dict = {} # keys are unique ids, vals are the objects
+        self.params_updated = False
+
+    def assign_node_id(self):
+        if len(self.all_node_ids) == 0:
+            node_id = 0
+        else:
+            node_id = self.all_node_ids[-1] + 1
+        self.all_node_ids.append(node_id)
+        return node_id
+
+    def leaf_node_assigner(self,node_id,prob_pos):
+        self.leaf_node_ids.append(node_id)
+        leaf_node = DTLeafNode(prob_pos,node_id)
+        self.leaf_node_dict[node_id] = leaf_node
+        return leaf_node
+
 
     def fit(self,features,labels,feature_names,candidate_dataset,parse_trees,n_safety,depth=0):
         """ 
         """
+        node_id = self.assign_node_id()
 
         # If all examples in the data have the same label, return a leaf node with that label
         if np.all(labels == labels[0]):
-            # print("making leaf node")
-            return DTLeafNode(labels[0],np.random.randint(0,2e10))
+            prob_pos = 1.0 if labels[0] ==1 else 0.0
+            return self.leaf_node_assigner(node_id,prob_pos)
 
         # If there are no more features to split on or we've reached max depth,
         # return a leaf node with the most common label
         if features.size == 0 or depth == self.max_depth:
-            # print("making leaf node")
-            most_common_label = scipy.stats.mode(labels)[0][0]
-            return DTLeafNode(most_common_label,np.random.randint(0,2e10))
+            c = Counter(labels)
+            n_0,n_1 = c[0],c[1]
+            prob_pos = n_1/(n_0+n_1)
+            return self.leaf_node_assigner(node_id,prob_pos)
 
         # Find the feature and value that give the highest information gain
         best_feature_index, best_value = self.find_best_split(
@@ -80,8 +102,10 @@ class SeldoDecisionTreeClassifier(ClassificationModel):
         
         if not best_feature_index:
             # Was not able to find a split that resulted in at least min_samples_split samples
-            most_common_label = scipy.stats.mode(labels)[0][0]
-            return DTLeafNode(most_common_label,np.random.randint(0,2e10))
+            c = Counter(labels)
+            n_0,n_1 = c[0],c[1]
+            prob_pos = n_1/(n_0+n_1)
+            return self.leaf_node_assigner(node_id,prob_pos)
 
         # Remove the best feature from the list of features and names 
         best_feature_name = feature_names[best_feature_index]
@@ -91,7 +115,7 @@ class SeldoDecisionTreeClassifier(ClassificationModel):
         feature_names = np.delete(feature_names,best_feature_index) 
 
         # Create a decision tree node with the best feature and value
-        root = DTInternalNode(best_feature_name, best_value,np.random.randint(0,2e10))
+        root = DTInternalNode(best_feature_name, best_value,node_id)
 
         # Split the data into two subsets based on the best feature and value
         F_l_subset, L_l_subset, F_r_subset, L_r_subset = self.split_data(
@@ -131,14 +155,15 @@ class SeldoDecisionTreeClassifier(ClassificationModel):
                 # Now create a new proposed node with these children 
                 # to use for calculating the effective gain of this split
                 
-                label_left = sum(L_l_subset)/len(L_l_subset) # fraction of labels with value 1    
-                label_right = sum(L_r_subset)/len(L_r_subset) # fraction of labels with value 1
+                # label_left = sum(L_l_subset)/len(L_l_subset) # fraction of labels with value 1    
+                # label_right = sum(L_r_subset)/len(L_r_subset) # fraction of labels with value 1
                 # label_left = scipy.stats.mode(L_l_subset)[0][0]
                 # label_right = scipy.stats.mode(L_r_subset)[0][0]
 
-                node = self.make_proposed_tree(feature_name,value,label_left,label_right)
+                # node = self.make_proposed_tree(feature_name,value,label_left,label_right)
                 # Calculate the information gain of the split
-                e_gain = self.effective_gain(labels, L_l_subset, L_r_subset, candidate_dataset, parse_trees, n_safety, node)
+                # e_gain = self.effective_gain(labels, L_l_subset, L_r_subset, candidate_dataset, parse_trees, n_safety, node)
+                e_gain = self.information_gain(labels, L_l_subset, L_r_subset)
                 # print(f"Made new node for {feature_name},{value} with e_gain: {e_gain}")
                 # If the gain is greater than the current best gain, update the best feature and value
                 if e_gain > best_gain:
@@ -267,18 +292,26 @@ class SeldoDecisionTreeClassifier(ClassificationModel):
             print("node.right:")
             self.print_progenitor_line(node.right)
         return
+    
+    def get_leaf_node_probs(self):
+        
+        return np.array(
+            [self.leaf_node_dict[node_id].prob_pos for node_id in self.leaf_node_ids]
+        )
 
-    def make_proposed_tree(self,feature_name,value,label_left,label_right):
-        new_node = DTInternalNode(feature_name,value,np.random.randint(0,2e10))
-        new_node.left = DTLeafNode(label_left,np.random.randint(0,2e10))
-        new_node.right = DTLeafNode(label_right,np.random.randint(0,2e10))   
-
-        return new_node
+    def set_leaf_node_values(self,theta):
+        # theta has same length as self.leaf_node_ids
+        for ii in range(len(theta)):
+            leaf_node_id = self.leaf_node_ids[ii]
+            prob_pos_new = theta[ii] 
+            self.leaf_node_dict[leaf_node_id].prob_pos = prob_pos_new
+        return 
 
     def predict_single_row(self,node,row,feature_names):
         # check if we are at a leaf node
+
         if isinstance(node,DTLeafNode):
-            return node.label
+            return node.prob_pos
         f,v = node.feature_name,node.value
         f_index = feature_names.index(f)
         if row[f_index]<=v:
@@ -286,13 +319,119 @@ class SeldoDecisionTreeClassifier(ClassificationModel):
         else:
             return self.predict_single_row(node.right,row,feature_names)
 
-    def predict(self,root,X):
-        # check if we are at a leaf node
+    def forward_pass(self,X):
+        # Set the node probabilities to new values of theta
+        # clip theta 
         y_pred = []
         for row in X:
-            y_pred.append(self.predict_single_row(root,row,self.all_feature_names))
+            prob_pos = self.predict_single_row(
+                self.tree,
+                row,
+                self.all_feature_names)
+            y_pred.append(prob_pos)
         return np.array(y_pred)
 
+    def _predict(self,theta,X):
+        # Set the node probabilities to new values of theta
+        # clip theta 
+        self.set_leaf_node_values(theta)
+        y_pred = []
+        for row in X:
+            prob_pos = self.predict_single_row(
+                self.tree,
+                row,
+                self.all_feature_names)
+            y_pred.append(prob_pos)
+        return np.array(y_pred)
+
+    def backward_pass(self, ans, theta, X):
+        """Return the Jacobian d(forward_pass)_i/dtheta_{j+1},
+        where i run over datapoints and j run over model parameters,
+        """
+        # arr = (ans[:, np.newaxis] == theta).astype('int')
+        arr = (ans[:, np.newaxis] == theta)
+        return arr
+
+    def predict(self, theta, X, **kwargs):
+        """Do a forward pass through the sklearn model.
+        Must convert back to numpy array before returning
+
+        :param theta: model weights
+        :type theta: numpy ndarray
+
+        :param X: model features
+        :type X: numpy ndarray
+
+        :return pred_numpy: model predictions
+        :rtype pred_numpy: numpy ndarray same shape as labels
+        """
+        return primitive_predict(theta, X, self)
+
+@primitive
+def primitive_predict(theta, X, model, **kwargs):
+    """Do a forward pass through the sklearn model.
+    Must convert back to numpy array before returning
+
+    :param theta: model weights
+    :type theta: numpy ndarray
+    :param X: model features
+    :type X: numpy ndarray
+
+    :param model: An instance of a class inheriting from
+            SupervisedSkLearnBaseModel
+
+    :return pred_numpy: model predictions
+    :rtype pred_numpy: numpy ndarray same shape as labels
+    """
+    # First update model weights
+    if not model.params_updated:
+        model.set_leaf_node_values(theta, **kwargs)
+        model.params_updated = True
+    # Do the forward pass
+    pred = model.forward_pass(X, **kwargs)
+    # set the predictions attribute of the model
+    model.predictions = pred
+
+    # Predictions must be a numpy array
+
+    return pred
+
+
+def primitive_predict_vjp(ans, theta, X, model):
+    """Do a backward pass through the Sklearn model,
+    obtaining the Jacobian d pred / dtheta.
+    Must convert back to numpy array before returning
+
+    :param ans: The result from the forward pass
+    :type ans: numpy ndarray
+    :param theta: model weights
+    :type theta: numpy ndarray
+    :param X: model features
+    :type X: numpy ndarray
+
+    :param model: An instance of a class inheriting from
+            SupervisedSkLearnBaseModel
+
+    :return fn: A function representing the vector Jacobian operator
+    """
+
+    def fn(v):
+        # v is a vector of shape ans, the return value of the forward pass()
+        # This function returns a 1D array:
+        # [dF_i/dtheta[0],dF_i/dtheta[1],dF_i/dtheta[2],...],
+        # where i is the data row index
+        dpred_dtheta = model.backward_pass(ans, theta, X)
+        # print("dpred_dtheta:")
+        # print(dpred_dtheta)
+        # print(dpred_dtheta.shape)
+        model.params_updated = False  # resets for the next forward pass
+        return v.T @ dpred_dtheta
+        # return v * ans
+
+    return fn
+# Link the predict function with its gradient,
+# telling autograd not to look inside either of these functions
+defvjp(primitive_predict, primitive_predict_vjp)
 
 class SeldoRandomForestClassifier(ClassificationModel):
     def __init__(self,all_feature_names,num_estimators=10,num_quantiles_split=5,min_samples_split=2,max_depth=None,n_features_for_split=None):
