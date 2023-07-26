@@ -317,6 +317,23 @@ class CandidateSelection(object):
 
             elif self.optimizer == "CMA-ES":
                 import cma
+                from seldonian.utils.io_utils import cmaes_logger
+
+                if self.write_logfile:
+                    log_counter = 0
+                    logdir = os.path.join(os.getcwd(), "logs")
+                    os.makedirs(logdir, exist_ok=True)
+                    filename = os.path.join(
+                        logdir, f"cmaes_log{log_counter}.csv"
+                    )
+
+                    while os.path.exists(filename):
+                        filename = filename.replace(
+                            f"log{log_counter}", f"log{log_counter+1}"
+                        )
+                        log_counter += 1
+
+                logger = partial(cmaes_logger,filename=filename)
 
                 if "seed" in kwargs:
                     opts["seed"] = kwargs["seed"]
@@ -328,7 +345,7 @@ class CandidateSelection(object):
 
                 es = cma.CMAEvolutionStrategy(self.initial_solution, sigma0, opts)
 
-                es.optimize(self.objective_with_barrier)
+                es.optimize(self.objective_with_barrier,callback=logger)
                 es.disp()
                 candidate_solution = es.result.xbest
                 if (candidate_solution is None) or (not all(np.isfinite(candidate_solution))):
