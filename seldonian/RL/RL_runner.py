@@ -14,24 +14,6 @@ import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 
 
-def run_all_trials(hyperparameter_and_setting_dict):
-    """Run many trials, each of which consist
-    of the same number of episodes.
-
-    :param hyperparameter_and_setting_dict: Specifies the
-        environment, agent, number of episodes per trial,
-        and number of trials
-    :type hyperparameter_and_setting_dict: dict
-
-    :return: List((List of episodes, agent)_i) for i trials
-    """
-    num_trials = hyperparameter_and_setting_dict["num_trials"]
-    trials = []
-    for trial_num in range(num_trials):
-        trials.append(run_trial(hyperparameter_and_setting_dict)[0])
-    return trials
-
-
 def run_trial(
     hyperparameter_and_setting_dict, model_params=None, parallel=False, n_workers=8
 ):
@@ -49,7 +31,7 @@ def run_trial(
     episodes = []
     num_episodes = hyperparameter_and_setting_dict["num_episodes"]
     print(f"Have {num_episodes} episodes in trial")
-    agent = create_agent(hyperparameter_and_setting_dict)
+    agent = create_agent_fromdict(hyperparameter_and_setting_dict)
     if model_params is not None:
         # print("Setting new model params:")
         # print(model_params)
@@ -75,7 +57,7 @@ def run_trial(
     else:
         for episode_num in range(num_episodes):
             episodes.append(run_episode(agent, env))
-    return episodes, agent
+    return episodes
 
 
 def run_trial_given_agent_and_env(agent, env, num_episodes):
@@ -140,7 +122,7 @@ def run_episode_from_dict(hyperparameter_and_setting_dict, model_params=None):
     """
     env = hyperparameter_and_setting_dict["env"]
     env_desc = env.get_env_description()
-    agent = create_agent(hyperparameter_and_setting_dict)
+    agent = create_agent_fromdict(hyperparameter_and_setting_dict)
     if model_params is not None:
         # print("Setting new params")
         # set agent's weights to the trained model weights
