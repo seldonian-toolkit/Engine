@@ -170,7 +170,7 @@ def run_episode_from_dict(hyperparameter_and_setting_dict, model_params=None):
     return Episode(observations, actions, rewards, prob_actions)
 
 
-def create_agent(hyperparameter_and_setting_dict):
+def create_agent_fromdict(hyperparameter_and_setting_dict):
     """Create an agent from a dictionary specification
 
     :param hyperparameter_and_setting_dict: Specifies the
