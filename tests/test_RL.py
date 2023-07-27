@@ -251,7 +251,7 @@ def test_generate_gridworld_episodes():
     hyperparam_and_setting_dict["num_episodes"] = 10
     hyperparam_and_setting_dict["vis"] = False
 
-    episodes, agent = run_trial(hyperparam_and_setting_dict)
+    episodes = run_trial(hyperparam_and_setting_dict)
 
     assert len(episodes) == 10
     first_episode = episodes[0]
@@ -291,7 +291,7 @@ def test_generate_n_step_mountaincar_episodes():
     hyperparam_and_setting_dict["num_episodes"] = 10
     hyperparam_and_setting_dict["vis"] = False
 
-    episodes, agent = run_trial(hyperparam_and_setting_dict)
+    episodes = run_trial(hyperparam_and_setting_dict)
 
     assert len(episodes) == 10
     first_episode = episodes[0]
