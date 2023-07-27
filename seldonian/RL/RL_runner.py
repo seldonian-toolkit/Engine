@@ -49,7 +49,7 @@ def run_trial(
     episodes = []
     num_episodes = hyperparameter_and_setting_dict["num_episodes"]
     print(f"Have {num_episodes} episodes in trial")
-    agent = create_agent(hyperparameter_and_setting_dict)
+    agent = create_agent_fromdict(hyperparameter_and_setting_dict)
     if model_params is not None:
         # print("Setting new model params:")
         # print(model_params)
@@ -140,7 +140,7 @@ def run_episode_from_dict(hyperparameter_and_setting_dict, model_params=None):
     """
     env = hyperparameter_and_setting_dict["env"]
     env_desc = env.get_env_description()
-    agent = create_agent(hyperparameter_and_setting_dict)
+    agent = create_agent_fromdict(hyperparameter_and_setting_dict)
     if model_params is not None:
         # print("Setting new params")
         # set agent's weights to the trained model weights
@@ -170,7 +170,7 @@ def run_episode_from_dict(hyperparameter_and_setting_dict, model_params=None):
     return Episode(observations, actions, rewards, prob_actions)
 
 
-def create_agent(hyperparameter_and_setting_dict):
+def create_agent_fromdict(hyperparameter_and_setting_dict):
     """Create an agent from a dictionary specification
 
     :param hyperparameter_and_setting_dict: Specifies the
