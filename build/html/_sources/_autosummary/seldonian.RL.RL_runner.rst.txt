@@ -15,7 +15,6 @@ seldonian.RL.RL\_runner
       :toctree:                                         
    
       create_agent_fromdict
-      run_all_trials
       run_episode
       run_episode_from_dict
       run_trial
