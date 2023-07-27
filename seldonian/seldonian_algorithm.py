@@ -115,10 +115,9 @@ class SeldonianAlgorithm:
                 sensitive_attrs=self.safety_sensitive_attrs,
                 meta=self.dataset.meta,
             )
-
-            print(f"Safety dataset has {self.n_safety} episodes")
-            print(f"Candidate dataset has {self.n_candidate} episodes")
-            print("Candidate sensitive_attrs:")
+            if self.spec.verbose:
+                print(f"Safety dataset has {self.n_safety} episodes")
+                print(f"Candidate dataset has {self.n_candidate} episodes")
 
         if self.spec.primary_objective is None:
             if self.regime == "reinforcement_learning":
@@ -229,7 +228,8 @@ class SeldonianAlgorithm:
                     self.initial_solution = np.zeros(n_features)
 
             else:
-                self.initial_solution = self.spec.initial_solution_fn(
+                print("using initial solution function")
+                self.initial_solution = self.spec.initial_solution_fn(self.model,
                     self.candidate_features, self.candidate_labels
                 )
         elif self.regime == "reinforcement_learning":
