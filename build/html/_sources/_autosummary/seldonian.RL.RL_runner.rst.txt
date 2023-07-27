@@ -14,7 +14,7 @@ seldonian.RL.RL\_runner
    .. autosummary::
       :toctree:                                         
    
-      create_agent
+      create_agent_fromdict
       run_all_trials
       run_episode
       run_episode_from_dict
