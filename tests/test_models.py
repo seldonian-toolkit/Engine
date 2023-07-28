@@ -5,6 +5,7 @@ import autograd.numpy as np
 from seldonian.spec import (SupervisedSpec)
 from seldonian.models import objectives
 from seldonian.models.models import *
+from seldonian.models.sklearn_dtree import SKTreeModel
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 
 def test_linear_regression_model():
@@ -79,3 +80,13 @@ def test_multiclass_logistic_regression_model():
 	 ]
 	assert np.allclose(theta_fitted,answer2)
 
+def test_sklearn_dtree():
+	model = SKTreeModel(max_depth=4)
+	assert model.has_intercept == False
+	X = np.random.uniform(-1,1,(100,4)) # i samples x j features
+	Y = np.random.randint(0,2,100) # length i, true labels
+	theta_init = model.fit(X,Y)
+	y_pred = model.predict(theta_init,X)
+	assert len(y_pred) == 100
+	prob_mask = np.logical_and(y_pred >= 0, y_pred <= 1)
+	assert all(prob_mask)
