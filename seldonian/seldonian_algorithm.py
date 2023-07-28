@@ -208,13 +208,24 @@ class SeldonianAlgorithm:
 
     def set_initial_solution(self, verbose=False):
         if self.regime == "supervised_learning":
-            if self.spec.optimization_technique == "tree":
-                self.initial_solution = None
-                return self.initial_solution
-            if self.spec.initial_solution_fn is None:
+            needs_init_sol = False
+            if self.spec.initial_solution_fn is not None: 
+                if verbose: print("Attempting to use initial solution function")
+                try: 
+                    self.initial_solution = self.spec.initial_solution_fn(
+                        self.model,
+                        self.candidate_features,
+                        self.candidate_labels
+                    )
+                except: 
+                    if verbose: print("initial_solution_fn() failed. Falling back to default initial solution") 
+                    needs_init_sol = True
+            else:
+                needs_init_sol = True
+            
+            if needs_init_sol:
                 if verbose:
                     print(
-                        "No initial_solution_fn provided. "
                         "Attempting to initialize with a zeros matrix "
                         " of the correct shape"
                     )
@@ -227,11 +238,7 @@ class SeldonianAlgorithm:
                 else:
                     self.initial_solution = np.zeros(n_features)
 
-            else:
-                print("using initial solution function")
-                self.initial_solution = self.spec.initial_solution_fn(self.model,
-                    self.candidate_features, self.candidate_labels
-                )
+                
         elif self.regime == "reinforcement_learning":
             if self.spec.initial_solution_fn is None:
                 if verbose:

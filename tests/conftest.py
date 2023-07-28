@@ -109,8 +109,8 @@ def simulated_regression_dataset_aslists():
 		X2 = X1**2
 		meta = SupervisedMetaData(
 	        sub_regime="regression", 
-	        all_col_names=["feature1","label"], 
-	        feature_col_names=["feature1"],
+	        all_col_names=["feature1","feature2","label"], 
+	        feature_col_names=["feature1","feature2"],
 	        label_col_names=["label"],
 	        sensitive_col_names=[]
 	        )
