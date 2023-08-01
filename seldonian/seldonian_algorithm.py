@@ -69,45 +69,31 @@ class SeldonianAlgorithm:
             self.sub_regime = self.spec.sub_regime
             self.model = self.spec.model
 
-            if ((self.spec.candidate_dataset is None) or (self.spec.safety_dataset is None)
-                    or (self.spec.datasplit_info is None)):
-                # Split into candidate and safety datasets if not done already in spec.
-                (
-                    self.candidate_features,
-                    self.safety_features,
-                    self.candidate_labels,
-                    self.safety_labels,
-                    self.candidate_sensitive_attrs,
-                    self.safety_sensitive_attrs,
-                    self.n_candidate,
-                    self.n_safety,
-                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
-                self.candidate_dataset = SupervisedDataSet(
-                    features=self.candidate_features,
-                    labels=self.candidate_labels,
-                    sensitive_attrs=self.candidate_sensitive_attrs,
-                    num_datapoints=self.n_candidate,
-                    meta_information=self.dataset.meta_information,
-                )
-                self.safety_dataset = SupervisedDataSet(
-                    features=self.safety_features,
-                    labels=self.safety_labels,
-                    sensitive_attrs=self.safety_sensitive_attrs,
-                    num_datapoints=self.n_safety,
-                    meta_information=self.dataset.meta_information,
-                )
-            else:
-                # Load datasplit and datasplit information from the spec.
-                self.candidate_dataset = self.spec.candidate_dataset
-                self.safety_dataset = self.spec.safety_dataset
-                self.candidate_features = self.spec.datasplit_info["candidate_features"]
-                self.safety_features = self.spec.datasplit_info["safety_features"]
-                self.candidate_labels = self.spec.datasplit_info["candidate_labels"]
-                self.safety_labels = self.spec.datasplit_info["safety_labels"]
-                self.candidate_sensitive_attrs = self.spec.datasplit_info["candidate_sensitive_attrs"]
-                self.safety_sensitive_attrs = self.spec.datasplit_info["safety_sensitive_attrs"]
-                self.n_candidate = self.spec.datasplit_info["n_candidate"]
-                self.n_safety = self.spec.datasplit_info["n_safety"]
+            # Split dataset into candidate and safety datasets.
+            (
+                self.candidate_features,
+                self.safety_features,
+                self.candidate_labels,
+                self.safety_labels,
+                self.candidate_sensitive_attrs,
+                self.safety_sensitive_attrs,
+                self.n_candidate,
+                self.n_safety,
+            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
+            self.candidate_dataset = SupervisedDataSet(
+                features=self.candidate_features,
+                labels=self.candidate_labels,
+                sensitive_attrs=self.candidate_sensitive_attrs,
+                num_datapoints=self.n_candidate,
+                meta_information=self.dataset.meta_information,
+            )
+            self.safety_dataset = SupervisedDataSet(
+                features=self.safety_features,
+                labels=self.safety_labels,
+                sensitive_attrs=self.safety_sensitive_attrs,
+                num_datapoints=self.n_safety,
+                meta_information=self.dataset.meta_information,
+            )
 
             # Warnings.
             if self.n_candidate < 2 or self.n_safety < 2:

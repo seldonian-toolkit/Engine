@@ -76,13 +76,17 @@ class Spec(object):
             "num_iters": 200,
             "gradient_library": "autograd",
             "hyper_search": None,
-            "verbose": True,
+            "verbose": False,
         },
         regularization_hyperparams={},
         batch_size_safety=None,
+        candidate_dataset=None,
+        safety_dataset=None,
         verbose=False,
     ):
         self.dataset = dataset
+        self.candidate_dataset = candidate_dataset
+        self.safety_dataset = safety_dataset
         self.model = model
         self.frac_data_in_safety = frac_data_in_safety
         self.primary_objective = primary_objective
@@ -166,10 +170,12 @@ class SupervisedSpec(Spec):
             "gradient_library": "autograd",
             "use_batches": False,
             "hyper_search": None,
-            "verbose": True,
+            "verbose": False,
         },
         regularization_hyperparams={},
         batch_size_safety=None,
+        candidate_dataset=None,
+        safety_dataset=None,
         verbose=False,
     ):
         super().__init__(
@@ -187,6 +193,8 @@ class SupervisedSpec(Spec):
             optimization_hyperparams=optimization_hyperparams,
             regularization_hyperparams=regularization_hyperparams,
             batch_size_safety=batch_size_safety,
+            candidate_dataset=candidate_dataset,
+            safety_dataset=safety_dataset,
             verbose=verbose,
         )
         self.sub_regime = sub_regime
@@ -273,10 +281,12 @@ class RLSpec(Spec):
             "use_batches": False,
             "gradient_library": "autograd",
             "hyper_search": None,
-            "verbose": True,
+            "verbose": False,
         },
         regularization_hyperparams={},
         batch_size_safety=None,
+        candidate_dataset=None,
+        safety_dataset=None,
         verbose=False,
     ):
         super().__init__(
@@ -294,9 +304,31 @@ class RLSpec(Spec):
             optimization_hyperparams=optimization_hyperparams,
             regularization_hyperparams=regularization_hyperparams,
             batch_size_safety=batch_size_safety,
+            candidate_dataset=candidate_dataset,
+            safety_dataset=safety_dataset,
             verbose=verbose,
         )
 
+class HyperparameterSelectionSpec(object):
+    """Base class for specification object for selecting Hyperparameters
+
+    :param n_bootstrap_trials: The number of bootstrap trials to use when estimating
+        Hyperparameters to use
+    :type n_bootstrap_trials: int
+    :param all_frac_data_in_safety: List of all values of fraction of data used in 
+        safety to select over 
+    :type frac_data_in_safety: List(float)
+    """
+
+    def __init__(
+        self,
+        n_bootstrap_trials,
+        all_frac_data_in_safety,
+        n_bootstrap_workers
+    ):
+        self.n_bootstrap_trials = n_bootstrap_trials
+        self.all_frac_data_in_safety = all_frac_data_in_safety
+        self.n_bootstrap_workers = n_bootstrap_workers
 
 def createSupervisedSpec(
     dataset,

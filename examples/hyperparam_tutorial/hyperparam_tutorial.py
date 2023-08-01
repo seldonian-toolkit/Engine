@@ -1,6 +1,7 @@
 import pickle
 import tqdm
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
+import random
 from seldonian.models.models import LinearRegressionModel
 from seldonian.spec import SupervisedSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
@@ -11,6 +12,7 @@ from seldonian.parse_tree.parse_tree import (
     make_parse_trees_from_constraints)
 
 if __name__ == "__main__":
+    results_dir = "test"
     np.random.seed(0)
     num_points = 1000
 
@@ -37,12 +39,19 @@ if __name__ == "__main__":
     )
 
     # 4. Do hyperparameter search.
-    all_frac_data_in_candidate_selection = [0.1, 0.3, 0.5, 0.7, 0.9]
-    HS = HyperparamSearch(spec, all_frac_data_in_candidate_selection)
-    frac_data_in_safety, candidate_dataset, safety_dataset = HS.find_best_hyperparams()
-    n_safety = len(safety_dataset.df)
+    all_frac_data_in_safety = [0.1, 0.3, 0.5, 0.7, 0.9]
+    HS = HyperparamSearch(spec, all_frac_data_in_safety, results_dir=results_dir)
+    # Test create_dataset.
+    candidate_dataset, safety_dataset = HS.create_dataset(
+            HS.dataset, all_frac_data_in_safety[0], results_dir)
+    frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
+            HS.find_best_hyperparams()
 
-    # 5. Run core to get Seldonian algorithm solution.
-    passed_safety, solution = HS.run_core(candidate_dataset, safety_dataset, n_safety, frac_data_in_safety)
-    print("Best frac_data_in_safety:", frac_data_in_safety)
-    print(passed_safety, solution)
+    # 5. Update spec to have new frac_data_in_safety.
+    spec.frac_data_in_safety = frac_data_in_safety
+    print("Best frac_data_in_safety:", frac_data_in_safety) # 0.7
+
+    # 6. Run core to get Seldonian algorithm solution.
+    SA = SeldonianAlgorithm(spec)
+    passed_safety, solution = SA.run()
+    print(passed_safety, solution) # True, [0.17256748 0.17382125]
