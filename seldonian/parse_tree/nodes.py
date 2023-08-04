@@ -962,10 +962,25 @@ class CVaRSQeBaseNode(BaseNode):
         # Need to sort squared errors to get Z1, ..., Zn
         sorted_squared_errors = sorted(squared_errors)
 
+        if branch == "safety_test":
+            datasize = len(sorted_squared_errors)
+        elif branch == "candidate_selection":
+            candidate_dataset = kwargs["dataset"]
+            n_candidate = candidate_dataset.num_datapoints
+            n_safety = kwargs["n_safety"]
+            # Want to predict the size of the safety dataset.
+            # We do this using the fraction of candidate data we 
+            # get from the estimator
+            datasize = int(
+                round(
+                    ( len(sorted_squared_errors)/n_candidate ) * n_safety 
+                )
+            )
+
         bound_kwargs = {
             "Z": sorted_squared_errors,
             "delta": self.delta,
-            "n_safety": kwargs["datasize"],
+            "datasize": datasize,
             "a": a,
             "b": b,
         }
@@ -997,7 +1012,7 @@ class CVaRSQeBaseNode(BaseNode):
             "will_lower_bound and will_upper_bound cannot both be False"
         )
 
-    def predict_HC_lowerbound(self, Z, delta, n_safety, a, **kwargs):
+    def predict_HC_lowerbound(self, Z, delta, datasize, a, **kwargs):
         """
         Calculate high confidence lower bound
         that we expect to pass the safety test.
@@ -1009,9 +1024,9 @@ class CVaRSQeBaseNode(BaseNode):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
-            The number of observations in the safety dataset
-        :type n_safety: int
+        :param datasize:
+            The (predicted) number of observations in the safety dataset
+        :type datasize: int
         :param a: The minimum possible value of the squared error
         :type a: float
         """
@@ -1019,7 +1034,7 @@ class CVaRSQeBaseNode(BaseNode):
         Znew = np.array([a] + Znew)
         n_candidate = len(Znew) - 1
 
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
             np.zeros(n_candidate),
             np.minimum(
@@ -1033,7 +1048,7 @@ class CVaRSQeBaseNode(BaseNode):
 
         return lower
 
-    def predict_HC_upperbound(self, Z, delta, n_safety, b, **kwargs):
+    def predict_HC_upperbound(self, Z, delta, datasize, b, **kwargs):
         """
         Calculate high confidence upper bound
         that we expect to pass the safety test.
@@ -1045,9 +1060,9 @@ class CVaRSQeBaseNode(BaseNode):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
-            The number of observations in the safety dataset
-        :type n_safety: int
+        :param datasize:
+            The (predicted) number of observations in the safety dataset
+        :type datasize: int
         :param b: The maximum possible value of the squared error
         :type b: float
         """
@@ -1058,7 +1073,7 @@ class CVaRSQeBaseNode(BaseNode):
         n_candidate = len(Znew) - 1
 
         # sqrt term is independent of loop index
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
             np.zeros(n_candidate),
             (1 + np.arange(n_candidate)) / n_candidate
@@ -1069,20 +1084,20 @@ class CVaRSQeBaseNode(BaseNode):
 
         return upper
 
-    def compute_HC_lowerbound(self, Z, delta, n_safety, a, **kwargs):
+    def compute_HC_lowerbound(self, Z, delta, datasize, a, **kwargs):
         """
         Calculate high confidence lower bound
         Used in safety test.
 
         :param Z:
             Vector containing sorted squared errors
-        :type Z: numpy ndarray of length n_safety
+        :type Z: numpy ndarray of length datasize
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
+        :param datasize:
             The number of observations in the safety dataset
-        :type n_safety: int
+        :type datasize: int
         :param a: The minimum possible value of the squared error
         :type a: float
         """
@@ -1090,10 +1105,10 @@ class CVaRSQeBaseNode(BaseNode):
         Znew = np.array([a] + Znew)
         n_candidate = len(Znew) - 1
 
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
-            np.zeros(n_safety),
-            np.minimum(np.ones(n_safety), np.arange(n_safety) / n_safety + sqrt_term)
+            np.zeros(datasize),
+            np.minimum(np.ones(datasize), np.arange(datasize) / datasize + sqrt_term)
             - (1 - self.alpha),
         )
 
@@ -1101,20 +1116,20 @@ class CVaRSQeBaseNode(BaseNode):
 
         return lower
 
-    def compute_HC_upperbound(self, Z, delta, n_safety, b, **kwargs):
+    def compute_HC_upperbound(self, Z, delta, datasize, b, **kwargs):
         """
         Calculate high confidence upper bound
         Used in safety test
 
         :param Z:
             Vector containing sorted squared errors
-        :type Z: numpy ndarray of length n_safety
+        :type Z: numpy ndarray of length datasize
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
+        :param datasize:
             The number of observations in the safety dataset
-        :type n_safety: int
+        :type datasize: int
         :param b: The maximum possible value of the squared error
         :type b: float
         """
@@ -1122,10 +1137,10 @@ class CVaRSQeBaseNode(BaseNode):
         Znew = Z.copy()
         Znew.append(b)
         # sqrt term is independent of loop index
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
-            np.zeros(n_safety),
-            (1 + np.arange(n_safety)) / n_safety - sqrt_term - (1 - self.alpha),
+            np.zeros(datasize),
+            (1 + np.arange(datasize)) / datasize - sqrt_term - (1 - self.alpha),
         )
         upper = Znew[-1] - 1 / self.alpha * sum(np.diff(Znew) * max_term)
 
