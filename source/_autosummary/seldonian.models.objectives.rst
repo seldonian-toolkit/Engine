@@ -14,7 +14,7 @@ seldonian.models.objectives
    .. autosummary::
       :toctree:                                         
    
-      Accuracy
+      Error_Rate
       False_Negative_Rate
       False_Positive_Rate
       IS_estimate

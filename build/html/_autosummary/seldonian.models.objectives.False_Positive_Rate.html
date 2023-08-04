@@ -36,16 +36,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.models.objectives.False_Positive_Rate">
 <span class="sig-name descname"><span class="pre">False_Positive_Rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.objectives.False_Positive_Rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate probabilistic average false positive rate
-over the whole sample. The is the average probability of
-predicting the positive class when the true label was
-the negative class.</p>
+<dd><p>Calculate probabilistic mean false positive rate
+over the whole sample. This has slightly different meanings
+depending on binary vs. multi-class setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – SeldonianModel instance</p></li>
 <li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
 <li><p><strong>X</strong> (<em>numpy ndarray</em>) – The features</p></li>
+<li><p><strong>Y</strong> (<em>numpy ndarray</em>) – The labels</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -88,7 +88,7 @@ the negative class.</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.models.html">seldonian.models</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.models.models.html">seldonian.models.models</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.objectives.html">seldonian.models.objectives</a><ul class="current">
-<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Accuracy.html">seldonian.models.objectives.Accuracy</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.Error_Rate.html">seldonian.models.objectives.Error_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.objectives.False_Negative_Rate.html">seldonian.models.objectives.False_Negative_Rate</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.objectives.False_Positive_Rate</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.models.objectives.False_Positive_Rate"><code class="docutils literal notranslate"><span class="pre">False_Positive_Rate()</span></code></a></li>
@@ -171,7 +171,7 @@ the negative class.</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

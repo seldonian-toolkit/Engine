@@ -36,9 +36,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.models.zhat_funcs.batcher">
 <span class="sig-name descname"><span class="pre">batcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_batches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.zhat_funcs.batcher" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calls function num_batches times,
-batching up the inputs to the objective function
-or measure function</p>
+<dd><p>Calls function func num_batches times,
+batching up the inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -49,8 +48,7 @@ or measure function</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The value from calling function on
-the batched up data</p>
+<dd class="field-even"><p>A wrapper function that does the actual function calls</p>
 </dd>
 </dl>
 </dd></dl>
@@ -97,6 +95,7 @@ the batched up data</p>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.zhat_funcs.sample_from_statistic.html">seldonian.models.zhat_funcs.sample_from_statistic</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.zhat_funcs.vector_Accuracy.html">seldonian.models.zhat_funcs.vector_Accuracy</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.zhat_funcs.vector_Error.html">seldonian.models.zhat_funcs.vector_Error</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.zhat_funcs.vector_Error_Rate.html">seldonian.models.zhat_funcs.vector_Error_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.zhat_funcs.vector_False_Negative_Rate.html">seldonian.models.zhat_funcs.vector_False_Negative_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.zhat_funcs.vector_False_Positive_Rate.html">seldonian.models.zhat_funcs.vector_False_Positive_Rate</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.models.zhat_funcs.vector_IS_estimate.html">seldonian.models.zhat_funcs.vector_IS_estimate</a></li>
@@ -167,7 +166,7 @@ the batched up data</p>
       &copy;2022, University of Massachusetts.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

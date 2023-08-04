@@ -19,6 +19,7 @@ seldonian.models.zhat\_funcs
       sample_from_statistic
       vector_Accuracy
       vector_Error
+      vector_Error_Rate
       vector_False_Negative_Rate
       vector_False_Positive_Rate
       vector_IS_estimate
