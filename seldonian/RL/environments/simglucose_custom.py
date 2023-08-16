@@ -7,7 +7,7 @@ import gym
 from gym.envs.registration import register
 from simglucose.controller.bolus_only_controller import BolusController
 
-class SimglucoseScienceEnv(Environment):
+class SimglucoseCustomEnv(Environment):
     def __init__(self,
         bb_crmin,
         bb_crmax,
@@ -34,8 +34,8 @@ class SimglucoseScienceEnv(Environment):
         self.bb_cfmin = bb_cfmin
         self.bb_cfmax = bb_cfmax
 
-        self.id = "simglucose-adult3-v0"
-        self.patient_name = "adult#003"
+        self.id = "simglucose-adult8-v0"
+        self.patient_name = "adult#008"
         self.target_bg = 108 # mg/dL
         self.num_states = 1
 
@@ -46,10 +46,10 @@ class SimglucoseScienceEnv(Environment):
         self.terminal_state = False
         self.time = 0
         self.max_time = 480 # a day at 3 minutes per timestep
-        self.low_cutoff_BG = 70
+        self.low_cutoff_BG = 36
         self.high_cutoff_BG = 350
-        self.min_primary_reward = min(-1/1623*(self.low_cutoff_BG-self.target_bg)**2,-1/3246*(self.high_cutoff_BG-self.target_bg)**2)
-        self.min_secondary_reward = -1/1623*(self.low_cutoff_BG-self.target_bg)**2
+        self.min_primary_reward = -1.5e-8*np.abs(self.low_cutoff_BG-self.target_bg)**5
+        self.min_secondary_reward = self.min_primary_reward
         # vis is a flag for visual debugging during obs transitions
         self.vis = False
 
@@ -68,7 +68,7 @@ class SimglucoseScienceEnv(Environment):
         self.deregister()
         register(
             id=self.id,
-            entry_point="simglucose.envs:ScienceT1DSimEnv",
+            entry_point="simglucose.envs:CustomT1DSimEnv",
             kwargs={"patient_name": self.patient_name},
         )
 

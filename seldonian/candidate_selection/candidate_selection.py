@@ -88,6 +88,9 @@ class CandidateSelection(object):
         if "reg_coef" in kwargs:
             self.reg_coef = kwargs["reg_coef"]
 
+        if "reg_func" in kwargs:
+            self.reg_func = kwargs["reg_func"]
+
     def calculate_batches(self, batch_index, batch_size):
         """Create a batch dataset to be used in gradient descent.
         Does not return anything, instead sets self.batch_dataset.
@@ -283,9 +286,11 @@ class CandidateSelection(object):
                         f"log{log_counter}", f"log{log_counter+1}"
                     )
                     log_counter += 1
+
                 with open(filename, "wb") as outfile:
                     pickle.dump(res, outfile)
-                    print(f"Wrote {filename} with candidate selection log info")
+                    if kwargs["verbose"]:
+                        print(f"Wrote {filename} with candidate selection log info")
 
             candidate_solution = res["candidate_solution"]
 
@@ -346,7 +351,10 @@ class CandidateSelection(object):
                 es = cma.CMAEvolutionStrategy(self.initial_solution, sigma0, opts)
 
                 es.optimize(self.objective_with_barrier,callback=logger)
-                es.disp()
+                if kwargs["verbose"]:
+                    es.disp()
+                if self.write_logfile and kwargs["verbose"]:
+                    print(f"Wrote {filename} with candidate selection log info")
                 candidate_solution = es.result.xbest
                 if (candidate_solution is None) or (not all(np.isfinite(candidate_solution))):
                     candidate_solution = "NSF"
@@ -392,6 +400,10 @@ class CandidateSelection(object):
         	result = -1.0*self.primary_objective(self.model,theta,self.candidate_dataset.episodes)
 
         # Optionally adding regularization term 
+        if hasattr(self, "reg_func"):
+            reg_res = self.reg_func(theta)
+            result += reg_res
+
         if hasattr(self, "reg_coef"):
             reg_term = self.reg_coef * np.linalg.norm(theta)
             result += reg_term

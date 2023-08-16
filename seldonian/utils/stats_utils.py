@@ -1,6 +1,7 @@
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
 from scipy.stats import t
 
+stability_const = 1e-15
 
 def stddev(v):
     """

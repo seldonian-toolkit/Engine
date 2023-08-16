@@ -1,18 +1,20 @@
-from itertools import product
-
 from seldonian.RL.environments.Environment import *
 from seldonian.RL.Env_Description.Env_Description import *
 
 import gym
 from gym.envs.registration import register
-from simglucose.controller.bolus_only_controller import BolusController
 
-class SimglucoseScienceEnv(Environment):
-    def __init__(self,
-        bb_crmin,
-        bb_crmax,
-        bb_cfmin,
-        bb_cfmax):
+MAX_TIMESTEPS = 480 # 480 minutes is a day at 3 minutes per timestep
+################################
+# Running a single simglucose episode #
+################################
+
+TARGET = 160
+MIN_INSULIN = 0
+MAX_INSULIN = 30
+
+class SimglucoseBasalOnlyEnv(Environment):
+    def __init__(self):
         """
 
         :ivar num_states: The number of distinct grid cells
@@ -29,15 +31,11 @@ class SimglucoseScienceEnv(Environment):
         :ivar gamma: The discount factor in calculating the expected return
         :vartype gamma: float
         """
-        self.bb_crmin = bb_crmin
-        self.bb_crmax = bb_crmax
-        self.bb_cfmin = bb_cfmin
-        self.bb_cfmax = bb_cfmax
+        self.id = "simglucose-adolescent2-v0"
+        self.patient_name = "adolescent#002"
 
-        self.id = "simglucose-adult3-v0"
-        self.patient_name = "adult#003"
-        self.target_bg = 108 # mg/dL
         self.num_states = 1
+        self.num_actions = 20
 
         self.env_description = self.create_env_description()
         self.deregister_and_register()
@@ -46,14 +44,10 @@ class SimglucoseScienceEnv(Environment):
         self.terminal_state = False
         self.time = 0
         self.max_time = 480 # a day at 3 minutes per timestep
-        self.low_cutoff_BG = 70
-        self.high_cutoff_BG = 350
-        self.min_primary_reward = min(-1/1623*(self.low_cutoff_BG-self.target_bg)**2,-1/3246*(self.high_cutoff_BG-self.target_bg)**2)
-        self.min_secondary_reward = -1/1623*(self.low_cutoff_BG-self.target_bg)**2
         # vis is a flag for visual debugging during obs transitions
         self.vis = False
 
-    def create_env_description(self):
+    def create_env_description(self,):
         """Creates the environment description object.
 
         :param num_states: The number of states
@@ -61,14 +55,14 @@ class SimglucoseScienceEnv(Environment):
         :rtype: :py:class:`.Env_Description`
         """
         observation_space = Discrete_Space(0, self.num_states - 1)
-        action_space = Continuous_Space(bounds=np.array([[self.bb_crmin,self.bb_crmax],[self.bb_cfmin,self.bb_cfmax]]))
+        action_space = Discrete_Space(0, self.num_actions - 1)
         return Env_Description(observation_space, action_space)
     
     def deregister_and_register(self):
         self.deregister()
         register(
             id=self.id,
-            entry_point="simglucose.envs:ScienceT1DSimEnv",
+            entry_point="simglucose.envs:T1DSimEnv",
             kwargs={"patient_name": self.patient_name},
         )
 
@@ -91,27 +85,40 @@ class SimglucoseScienceEnv(Environment):
         :param action: The P value of the P controller
         :return: reward for reaching the next obs
         """
-        observation, primary_reward, alt_reward, done, info = self.gym_env.reset()
+        observation = self.gym_env.reset()
+        done = False
         t = 0
-        primary_rewards = self.min_primary_reward*np.ones(self.max_time)
-        alt_rewards = self.min_secondary_reward*np.ones(self.max_time)
-        # primary_return = primary_reward
-        # alt_return = alt_reward
-        cr, cf = action
-        controller = BolusController(cr=cr, cf=cf, target=self.target_bg)
-        while not done:
-            env_action = controller.policy(observation, primary_reward, done, patient_name=self.patient_name, meal=info['meal'])
-            observation, primary_reward, alt_reward, done, info = self.gym_env.step(env_action)
-            primary_rewards[t] = primary_reward
-            alt_rewards[t] = alt_reward
-            t += 1
-            if t == self.max_time:
-                break
-        primary_return = np.mean(primary_rewards)
-        alt_return = np.mean(alt_rewards)
-        self.terminal_state = True
+        total_reward = 0
 
-        return (primary_return,alt_return)
+        while not done:
+            f_t = self.get_features(observation)
+            env_action = self.get_insulin(f_t, action)
+            observation, reward, done, info = self.gym_env.step(
+                env_action
+            )
+            t += 1
+            total_reward += reward
+            if t == MAX_TIMESTEPS:
+                break
+        self.terminal_state = True
+        # print("Simglucose trial finished after {} timesteps with total reward {}".format(t, total_reward))
+        return total_reward
+
+    def get_features(self,observation):
+        # Features = (Blood Glucose)
+        features = [observation[0]]
+        return features
+
+    def get_insulin(self,f_t, P):
+        # This is a simple P controller based on Blogg Glucose (BG)
+        bg = f_t[0]
+        
+        diff = bg - TARGET
+
+        insulin = P * diff
+    
+        # Clip insulin between allowed amount
+        return max(MIN_INSULIN, min(MAX_INSULIN, insulin))
 
     def get_observation(self):
         """Get the current obs"""
@@ -124,6 +131,7 @@ class SimglucoseScienceEnv(Environment):
         :param action: A possible action at the current obs
         """
         
+
     def is_in_goal_state(self):
         """Check whether current obs is goal obs
 
