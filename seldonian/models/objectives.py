@@ -6,7 +6,6 @@ import math
 from seldonian.utils.stats_utils import (weighted_sum_gamma,
     custom_cumprod, stability_const)
 from seldonian.models.models import BaseLogisticRegressionModel
-
 """ Regression """
 
 def Mean_Squared_Error(model, theta, X, Y, **kwargs):
@@ -148,8 +147,9 @@ def binary_logistic_loss(model, theta, X, Y, **kwargs):
 
 
 def gradient_binary_logistic_loss(model, theta, X, Y, **kwargs):
-    """Analytical gradient of binary logistic loss w.r.t. theta. 
-    This is only appropriate for logistic regression models.
+    """Gradient of binary logistic loss w.r.t. theta.
+    This is only valid for binary logistic regression models!
+    Also, the number of parameters must be the same as the number of model weights.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -629,7 +629,7 @@ def _True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
 
 def Error_Rate(model, theta, X, Y, **kwargs):
     """
-    Calculate mean error rate for the whole sample
+    Calculate error rate for the whole sample
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -637,7 +637,7 @@ def Error_Rate(model, theta, X, Y, **kwargs):
     :param X: The features
     :type X: numpy ndarray
 
-    :return: Mean error rate 
+    :return: False positive rate for whole sample
     :rtype: float between 0 and 1
     """
     if kwargs["sub_regime"] == "multiclass_classification":
@@ -647,7 +647,7 @@ def Error_Rate(model, theta, X, Y, **kwargs):
 
 
 def _Error_Rate_binary(model, theta, X, Y, **kwargs):
-    """Calculate mean error rate
+    """Calculate error rate
     over all data points for binary classification
 
     :param model: SeldonianModel instance
@@ -658,8 +658,8 @@ def _Error_Rate_binary(model, theta, X, Y, **kwargs):
     :param Y: The labels
     :type Y: numpy ndarray
 
-    :return: mean error rate 
-    :rtype: float between 0 and 1
+    :return: error rate between 0 and 1.
+    :rtype: float
     """
     n = len(X)
     Y_pred_probs = model.predict(theta, X)
@@ -758,6 +758,7 @@ def IS_estimate(model, theta, episodes, **kwargs):
     IS_estimate /= len(episodes)
 
     return IS_estimate
+
 
 def PDIS_estimate(model, theta, episodes, **kwargs)->float:
     """Calculate per decision importance sampling estimate
