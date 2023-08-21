@@ -5,7 +5,7 @@ import autograd.numpy as np
 from seldonian.spec import (SupervisedSpec)
 from seldonian.models import objectives
 from seldonian.models.models import *
-from seldonian.models.sklearn_dtree import SKTreeModel
+from seldonian.models.trees.sktree_model import SKTreeModel
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 
 def test_linear_regression_model():
