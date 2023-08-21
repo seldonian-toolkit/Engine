@@ -368,135 +368,135 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 
 	assert np.allclose(solution,array_to_compare)
 
-# def test_cvar_custom_base_node():
-# 	""" Test that the gpa regression example runs 
-# 	using the custom base node that calculates 
-# 	CVaR alpha of the squared error. Make
-# 	sure safety test passes and solution is correct.
+def test_cvar_custom_base_node():
+	""" Test that the gpa regression example runs 
+	using the custom base node that calculates 
+	CVaR alpha of the squared error. Make
+	sure safety test passes and solution is correct.
 
-# 	Check that the actual value of the constraint (not the bound)
-# 	is also correctly calculated.
-# 	"""
-# 	from seldonian.models.models import BoundedLinearRegressionModel
-# 	rseed=0
-# 	np.random.seed(rseed) 
-# 	constraint_strs = ['CVaRSQE <= 50.0']
-# 	deltas = [0.1]
+	Check that the actual value of the constraint (not the bound)
+	is also correctly calculated.
+	"""
+	from seldonian.models.models import BoundedLinearRegressionModel
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['CVaRSQE <= 50.0']
+	deltas = [0.1]
 
-# 	numPoints = 2500
-# 	dataset = make_synthetic_regression_dataset(
-# 		numPoints,
-# 		loc_X=0.0,
-# 		loc_Y=0.0,
-# 		sigma_X=1.0,
-# 		sigma_Y=0.2,
-# 		clipped=True)
+	numPoints = 2500
+	dataset = make_synthetic_regression_dataset(
+		numPoints,
+		loc_X=0.0,
+		loc_Y=0.0,
+		sigma_X=1.0,
+		sigma_Y=0.2,
+		clipped=True)
 
-# 	parse_trees = make_parse_trees_from_constraints(
-# 		constraint_strs,
-# 		deltas)
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas)
 
-# 	model = BoundedLinearRegressionModel()
+	model = BoundedLinearRegressionModel()
 
-# 	# Create spec object
-# 	spec = SupervisedSpec(
-# 		dataset=dataset,
-# 		model=model,
-# 		sub_regime='regression',
-# 		primary_objective=objectives.Mean_Squared_Error,
-# 		use_builtin_primary_gradient_fn=False,
-# 		custom_primary_gradient_fn=objectives.gradient_Bounded_Squared_Error,
-# 		parse_trees=parse_trees,
-# 		optimization_technique='gradient_descent',
-# 		optimizer='adam',
-# 		optimization_hyperparams={
-# 			'lambda_init'   : np.array([0.5]),
-# 			'alpha_theta'   : 0.01,
-# 			'alpha_lamb'    : 0.01,
-# 			'beta_velocity' : 0.9,
-# 			'beta_rmsprop'  : 0.95,
-# 			'num_iters'     : 5,
-# 			'use_batches'   : False,
-# 			'gradient_library': "autograd",
-# 			'hyper_search'  : None,
-# 			'verbose'       : True,
-# 		}
-# 	)
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		sub_regime='regression',
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=False,
+		custom_primary_gradient_fn=objectives.gradient_Bounded_Squared_Error,
+		parse_trees=parse_trees,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 5,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
 
-# 	# Run seldonian algorithm
-# 	SA = SeldonianAlgorithm(spec)
-# 	passed_safety,solution = SA.run(debug=True)
-# 	assert passed_safety == True
-# 	solution_to_compare = np.array([-0.07257342,0.07182381])
-# 	assert np.allclose(solution,solution_to_compare)
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run(debug=True)
+	assert passed_safety == True
+	solution_to_compare = np.array([-0.07257342,0.07182381])
+	assert np.allclose(solution,solution_to_compare)
 
-# 	# Make sure we can evaluate constraint as well
-# 	pt = parse_trees[0]
-# 	pt.evaluate_constraint(theta=solution,dataset=dataset,
-# 		model=model,regime='supervised_learning',
-# 		branch='safety_test')
-# 	assert pt.root.value == pytest.approx(-47.163772762)
+	# Make sure we can evaluate constraint as well
+	pt = parse_trees[0]
+	pt.evaluate_constraint(theta=solution,dataset=dataset,
+		model=model,regime='supervised_learning',
+		branch='safety_test')
+	assert pt.root.value == pytest.approx(-47.163772762)
 
-# def test_cvar_lower_bound():
-# 	""" The normal constraint only uses 
-# 	the CVAR upper bound because we want CVAR < some value. 
-# 	Test that the lower bound also works
+def test_cvar_lower_bound():
+	""" The normal constraint only uses 
+	the CVAR upper bound because we want CVAR < some value. 
+	Test that the lower bound also works
 
-# 	Check that the actual value of the constraint (not the bound)
-# 	is also correctly calculated.
-# 	"""
-# 	from seldonian.models.models import BoundedLinearRegressionModel
-# 	rseed=0
-# 	np.random.seed(rseed) 
-# 	constraint_strs = ['CVaRSQE >= 5.0']
-# 	deltas = [0.1]
+	Check that the actual value of the constraint (not the bound)
+	is also correctly calculated.
+	"""
+	from seldonian.models.models import BoundedLinearRegressionModel
+	rseed=0
+	np.random.seed(rseed) 
+	constraint_strs = ['CVaRSQE >= 5.0']
+	deltas = [0.1]
 
-# 	numPoints = 1000
-# 	dataset = make_synthetic_regression_dataset(
-# 		numPoints,
-# 		loc_X=0.0,
-# 		loc_Y=0.0,
-# 		sigma_X=1.0,
-# 		sigma_Y=0.2,
-# 		clipped=True)
+	numPoints = 1000
+	dataset = make_synthetic_regression_dataset(
+		numPoints,
+		loc_X=0.0,
+		loc_Y=0.0,
+		sigma_X=1.0,
+		sigma_Y=0.2,
+		clipped=True)
 
-# 	parse_trees = make_parse_trees_from_constraints(
-# 		constraint_strs,
-# 		deltas)
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas)
 
-# 	model = BoundedLinearRegressionModel()
+	model = BoundedLinearRegressionModel()
 
-# 	# Create spec object
-# 	spec = SupervisedSpec(
-# 		dataset=dataset,
-# 		model=model,
-# 		sub_regime='regression',
-# 		primary_objective=objectives.Mean_Squared_Error,
-# 		use_builtin_primary_gradient_fn=False,
-# 		custom_primary_gradient_fn=objectives.gradient_Bounded_Squared_Error,
-# 		parse_trees=parse_trees,
-# 		optimization_technique='gradient_descent',
-# 		optimizer='adam',
-# 		optimization_hyperparams={
-# 			'lambda_init'   : np.array([0.5]),
-# 			'alpha_theta'   : 0.01,
-# 			'alpha_lamb'    : 0.01,
-# 			'beta_velocity' : 0.9,
-# 			'beta_rmsprop'  : 0.95,
-# 			'num_iters'     : 10,
-# 			'use_batches'   : False,
-# 			'gradient_library': "autograd",
-# 			'hyper_search'  : None,
-# 			'verbose'       : True,
-# 		}
-# 	)
+	# Create spec object
+	spec = SupervisedSpec(
+		dataset=dataset,
+		model=model,
+		sub_regime='regression',
+		primary_objective=objectives.Mean_Squared_Error,
+		use_builtin_primary_gradient_fn=False,
+		custom_primary_gradient_fn=objectives.gradient_Bounded_Squared_Error,
+		parse_trees=parse_trees,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : np.array([0.5]),
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 10,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		}
+	)
 
-# 	# Run seldonian algorithm
-# 	SA = SeldonianAlgorithm(spec)
-# 	passed_safety,solution = SA.run()
-# 	assert passed_safety == True
-# 	solution_to_compare = np.array([-0.15426298, -0.15460036])
-# 	assert np.allclose(solution,solution_to_compare)
+	# Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	solution_to_compare = np.array([-0.15426298, -0.15460036])
+	assert np.allclose(solution,solution_to_compare)
 
 def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 	""" Test that the gpa regression example runs 
@@ -1913,6 +1913,79 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 	SA.set_initial_solution()
 	assert np.allclose(SA.initial_solution,np.zeros((10,3)))
 	
+def test_gpa_decision_tree(gpa_classification_dataset):
+	""" Test that the decision tree model works 
+	with the gpa classification example with disparate impact
+	
+	Make sure safety test passes and solution is correct.
+	"""
+	from seldonian.models.trees.sktree_model import SKTreeModel, probs2theta
+	rseed=0
+	np.random.seed(rseed)
+	frac_data_in_safety=0.6
+	model = SKTreeModel(max_depth=4)
+
+	fairness_constraint_dict = {
+		'disparate_impact':'0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))',
+		}
+
+	solution_dict = {
+	'disparate_impact':np.array(
+		[-0.91629073, -0.3438721,  -1.09239933, -0.66233601, -0.52598787,  0.39204209,
+ -0.03608235,  0.89994159, -0.0151407,   1.02850272,  0.1308396,   1.26640574,
+  0.45630478,  1.17799732, -0.87546874,  2.004718  ]),
+	}
+	def initial_solution_fn(m,x,y):
+		probs = m.fit(x,y)
+		return probs2theta(probs)
+
+
+	for constraint in fairness_constraint_dict:
+		constraint_str = fairness_constraint_dict[constraint]
+		constraint_strs = [constraint_str]
+		deltas = [0.05]
+
+		(dataset,_,
+			primary_objective,parse_trees) = gpa_classification_dataset(
+			constraint_strs=constraint_strs,
+			deltas=deltas)
+		
+		# Create spec object
+		spec = SupervisedSpec(
+			dataset=dataset,
+			model=model,
+			parse_trees=parse_trees,
+			sub_regime='classification',
+			frac_data_in_safety=frac_data_in_safety,
+			primary_objective=primary_objective,
+			use_builtin_primary_gradient_fn=False,
+			initial_solution_fn=initial_solution_fn,
+			optimization_technique='gradient_descent',
+			optimizer='adam',
+			optimization_hyperparams={
+				'lambda_init'   : np.array([0.5]),
+				'alpha_theta'   : 0.005,
+				'alpha_lamb'    : 0.005,
+				'beta_velocity' : 0.9,
+				'beta_rmsprop'  : 0.95,
+				'num_iters'     : 10,
+				'use_batches'   : False,
+				'gradient_library': "autograd",
+				'hyper_search'  : None,
+				'verbose'       : True,
+			}
+		)
+
+		# Run seldonian algorithm
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
+		assert passed_safety == True
+
+		solution_to_compare = solution_dict[constraint]
+
+		assert np.allclose(solution,solution_to_compare)
+
+
 """ RL based tests """
 
 def test_RL_builtin_or_custom_gradient_not_supported(

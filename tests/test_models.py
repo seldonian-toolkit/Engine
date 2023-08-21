@@ -81,7 +81,7 @@ def test_multiclass_logistic_regression_model():
 	assert np.allclose(theta_fitted,answer2)
 
 def test_sklearn_dtree():
-	model = SKTreeModel(max_depth=4)
+	model = SKTreeModel(max_depth=4,criterion="entropy")
 	assert model.has_intercept == False
 	X = np.random.uniform(-1,1,(100,4)) # i samples x j features
 	Y = np.random.randint(0,2,100) # length i, true labels

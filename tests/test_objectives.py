@@ -38,8 +38,8 @@ def test_binary_classification_measure_functions():
 	assert TPR == pytest.approx(1.0-FNR)
 	TNR = objectives.True_Negative_Rate(model,theta,X,Y)
 	assert TNR == pytest.approx(1.0-FPR)
-	ACC = objectives.Accuracy(model,theta,X,Y,sub_regime=sub_regime)
-	assert ACC == pytest.approx(0.5598653825)
+	ERR = objectives.Error_Rate(model,theta,X,Y,sub_regime=sub_regime)
+	assert ERR == pytest.approx(1.0-0.5598653825)
 	# Vector statistics 
 	vector_PR = zhat_funcs.vector_Positive_Rate(model,theta,X,Y)
 	assert np.allclose(vector_PR,y_pred)
@@ -60,6 +60,9 @@ def test_binary_classification_measure_functions():
 	vector_ACC = zhat_funcs.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	arcomp_ACC = np.array([0.5, 0.4378235 , 0.62245933, 0.6791787 ])
 	assert np.allclose(vector_ACC,arcomp_ACC)
+	vector_ERR = zhat_funcs.vector_Error_Rate(model,theta,X,Y,sub_regime=sub_regime)
+	arcomp_ERR = 1.0 - np.array([0.5, 0.4378235 , 0.62245933, 0.6791787 ])
+	assert np.allclose(vector_ERR,arcomp_ERR)
 
 def test_multiclass_classification_measure_functions():
 	# i = 4 datapoints
@@ -84,14 +87,19 @@ def test_multiclass_classification_measure_functions():
 	y_pred = model.predict(theta,X) # (i,k)
 
 	# Accuracy
-	ACC = objectives.Accuracy(model,theta,X,Y,sub_regime=sub_regime)
-	assert ACC == pytest.approx(0.36639504)
+	ERR = objectives.Error_Rate(model,theta,X,Y,sub_regime=sub_regime)
+	assert ERR == pytest.approx(1.0-0.36639504)
 
-	# Vector accuracy
+	# Vector accuracy and error rate
 	vector_ACC = zhat_funcs.vector_Accuracy(model,theta,X,Y,sub_regime=sub_regime)
 	arcomp_ACC = np.array([0.33333333,0.41922895,0.54654939,0.14024438,0.49951773,0.25949646])
 	assert np.allclose(vector_ACC,arcomp_ACC)
 
+	# Vector accuracy
+	vector_ERR = zhat_funcs.vector_Error_Rate(model,theta,X,Y,sub_regime=sub_regime)
+	arcomp_ERR = 1.0 - np.array([0.33333333,0.41922895,0.54654939,0.14024438,0.49951773,0.25949646])
+	assert np.allclose(vector_ERR,arcomp_ERR)
+	CM_array = np.zeros((3,3))
 	for class_index in [0,1,2]:
 		# Will reuse these masks
 		pos_mask = Y == class_index
@@ -117,7 +125,14 @@ def test_multiclass_classification_measure_functions():
 		TNR = objectives.True_Negative_Rate(model,theta,X,Y,
 			class_index=class_index)
 		assert TNR == pytest.approx(1.0 - FPR)
-	
+		
+		for l_k in [0,1,2]:
+			res = objectives.confusion_matrix(model,theta,X,Y,l_i=class_index,l_k=l_k)
+			CM_array[class_index][l_k] = res
+			# The diagonals are the true positive for this class
+			if l_k == class_index:
+				assert res == TPR
+
 		# Vector statistics 
 		vector_PR = zhat_funcs.vector_Positive_Rate(
 			model,theta,X,Y,
@@ -145,3 +160,10 @@ def test_multiclass_classification_measure_functions():
 			model,theta,X,Y,
 			class_index=class_index)
 		assert np.allclose(vector_TNR,1.0-arcomp_FPR)
+	# Checks on filled out confusion matrix
+	CM_ans = np.array([
+		[0.37628114, 0.32991458, 0.29380427,],
+		[0.17658777, 0.34339689, 0.48001534,],
+		[0.07328825, 0.54720466, 0.3795071 ]
+	])
+	assert np.allclose(CM_array,CM_ans)
