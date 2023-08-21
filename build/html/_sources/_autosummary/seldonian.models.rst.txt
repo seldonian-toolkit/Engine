@@ -37,5 +37,6 @@ seldonian.models
    seldonian.models.sklearn_model
    seldonian.models.tensorflow_cnn
    seldonian.models.tensorflow_model
+   seldonian.models.trees
    seldonian.models.zhat_funcs
 
