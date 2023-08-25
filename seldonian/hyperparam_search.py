@@ -415,7 +415,8 @@ class HyperparamSearch:
             n_bootstrap_trials,
             n_bootstrap_samples_candidate,
             n_bootstrap_samples_safety,
-            bootstrap_savedir
+            bootstrap_savedir,
+            use_bs_pools=False
     ):
         """Utility function for supervised learning to generate the
         resampled datasets to use in each bootstrap trial. Resamples (with replacement)
@@ -438,6 +439,9 @@ class HyperparamSearch:
         :type n_bootstrap_safety: int
         :param bootstrap_savedir: The root diretory to save all the bootstrapped datasets.
         :type bootstrap_savedir: str
+        :param use_bs_pools: Optional parameter indicating if should partition candidate
+            dataset into safety and candidate pools when bootstrapping
+        :type use_bs_pools:boolean 
         """
         created_trials = [] # Stores trial number of the datasets that were created.
 
@@ -445,31 +449,42 @@ class HyperparamSearch:
         if candidate_dataset.num_datapoints < 4:
             return created_trials 
 
-        save_subdir = os.path.join(bootstrap_savedir, 
+        dataset_save_subdir = os.path.join(bootstrap_savedir, 
                 f"future_safety_frac_{est_frac_data_in_safety:.2f}", "bootstrap_datasets")
-        os.makedirs(save_subdir, exist_ok=True) 
+        bs_result_subdir = os.path.join(bootstrap_savedir,
+                f"future_safety_frac_{est_frac_data_in_safety:.2f}", "bootstrap_results")
+        os.makedirs(dataset_save_subdir, exist_ok=True) 
 
         for bootstrap_trial_i in range(n_bootstrap_trials):
             # Where to save bootstrapped dataset.
-            bootstrap_datasets_savename = os.path.join(save_subdir, 
+            bootstrap_datasets_savename = os.path.join(dataset_save_subdir, 
                     f"bootstrap_datasets_trial_{bootstrap_trial_i}.pkl")
+            bs_result_savename = os.path.join(bs_result_subdir, 
+                    f"trial_{bootstrap_trial_i}_result.pkl")
 
-            # Only create datasets if not already existing.
-            if not os.path.exists(bootstrap_datasets_savename):
+            # Only create datasets if not already run trial, and dataset not already existing.
+            if not(os.path.exists(bs_result_savename) or \
+                    os.path.exists(bootstrap_datasets_savename)):
                 created_trials.append(bootstrap_trial_i)
                 bootstrap_datasets_dict = dict() # Will store all the datasets.
 
-                # Partition candidate_dataset into pools to bootstrap 
-                (bootstrap_pool_candidate, bootstrap_pool_safety) = self.create_dataset(
-                        candidate_dataset, est_frac_data_in_safety, shuffle=True)
-                # TODO: Check that the pool is not too too small.
-
                 # Bootstrap sample candidate selection and safety datasets.
-                bootstrap_datasets_dict["candidate"] = self.bootstrap_sample_dataset(
-                        bootstrap_pool_candidate, n_bootstrap_samples_candidate)
-                bootstrap_datasets_dict["safety"] = self.bootstrap_sample_dataset(
-                        bootstrap_pool_safety, n_bootstrap_samples_safety)
+                if use_bs_pools:
+                    # Partition candidate_dataset into pools to bootstrap 
+                    (bootstrap_pool_candidate, bootstrap_pool_safety) = self.create_dataset(
+                            candidate_dataset, est_frac_data_in_safety, shuffle=True)
 
+                    # Sample from pools.
+                    bootstrap_datasets_dict["candidate"] = self.bootstrap_sample_dataset(
+                            bootstrap_pool_candidate, n_bootstrap_samples_candidate)
+                    bootstrap_datasets_dict["safety"] = self.bootstrap_sample_dataset(
+                            bootstrap_pool_safety, n_bootstrap_samples_safety)
+
+                else: # Sample directly from candidate datset.
+                    bootstrap_datasets_dict["candidate"] = self.bootstrap_sample_dataset(
+                            candidate_dataset, n_bootstrap_samples_candidate)
+                    bootstrap_datasets_dict["safety"] = self.bootstrap_sample_dataset(
+                            candidate_dataset, n_bootstrap_samples_safety)
 
                 # Save datasets.
                 with open(bootstrap_datasets_savename, "wb") as outfile:
@@ -544,6 +559,9 @@ class HyperparamSearch:
         bootstrap_savedir = kwargs["bootstrap_savedir"]
 
         # Paths to load datasets and store results.
+        bs_datasets_savename = os.path.join(bootstrap_savedir,
+                f"future_safety_frac_{est_frac_data_in_safety:.2f}", "bootstrap_datasets",
+                f"bootstrap_datasets_trial_{bootstrap_trial_i}.pkl")
         bs_result_subdir = os.path.join(bootstrap_savedir,
                 f"future_safety_frac_{est_frac_data_in_safety:.2f}", "bootstrap_results")
         bs_result_savename = os.path.join(bs_result_subdir, 
@@ -580,7 +598,11 @@ class HyperparamSearch:
             pickle.dump(trial_result_dict, outfile)
             if self.spec.verbose:
                 print(f"Saved results for bootstrap trial {bootstrap_trial_i} for rho' "
-                        "{est_frac_data_in_safety:.2f}")
+                        f"{est_frac_data_in_safety:.2f}")
+
+        # Delete the pickled bootstrap datasets. Don't need anymore
+        if os.path.exists(bs_datasets_savename):
+            os.remove(bs_datasets_savename)
 
         return True
 
@@ -628,6 +650,7 @@ class HyperparamSearch:
         results_df.to_csv(results_csv_savename)
 
         # Compute the probability of passing.
+        # TODO: When is this nan? Should we change to nan mean?
         est_prob_pass = np.mean(bs_trials_pass)
         return est_prob_pass, results_df
 
@@ -690,7 +713,6 @@ class HyperparamSearch:
                 n_bootstrap_samples_candidate, n_bootstrap_samples_safety,
                 bootstrap_savedir)
         # TODO: Log created_trial_datasets
-        print(created_trial_datasets)
 
         # Create a partial function for run_bootstrap_trial.
         partial_kwargs = { 
@@ -791,7 +813,7 @@ class HyperparamSearch:
         :return: (frac_data_in_safety, candidate_dataset, safety_dataset). frac_data_in_safety
                 indicates the percentage of total data that is included in the safety dataset.
                 candidate_dataset and safety_dataset are dataset objects containing data from
-                self.dataset split according to frac_data_in_safety
+                elf.dataset split according to frac_data_in_safety
         :rtyle: Tuple
         """
         all_est_dict_list = [] # Store dicionaries for dataframe.
@@ -839,7 +861,6 @@ class HyperparamSearch:
             for est_frac_data_in_safety in self.all_frac_data_in_safety:
                 if est_frac_data_in_safety >= frac_data_in_safety:  # Est if more data in cs.
                     continue
-                print("rho:", frac_data_in_safety, "rho':", est_frac_data_in_safety)
 
                 prime_prob_pass, _, _, curr_ran_new_bs_trials = self.get_est_prob_pass(
                     est_frac_data_in_safety,
@@ -852,7 +873,6 @@ class HyperparamSearch:
                 )
                 ran_new_bs_trials = ran_new_bs_trials or curr_ran_new_bs_trials
                 all_est_prob_pass[est_frac_data_in_safety] = prime_prob_pass
-                print(all_est_prob_pass)
                 all_est_dict_list.append({
                     "frac_data_in_safety": frac_data_in_safety, 
                     "est_frac_data_in_safety": est_frac_data_in_safety,
@@ -860,7 +880,8 @@ class HyperparamSearch:
                 })
 
                 if (
-                    prime_prob_pass > curr_prob_pass 
+                    # TODO: Do we want this to be > or >=
+                    prime_prob_pass >= curr_prob_pass 
                 ):  # Found a future split that we predict is better.
                     prime_better = True
                     break
