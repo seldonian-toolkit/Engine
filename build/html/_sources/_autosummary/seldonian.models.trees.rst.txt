@@ -29,5 +29,6 @@ seldonian.models.trees
    :recursive:
 
 
+   seldonian.models.trees.skrandomforest_model
    seldonian.models.trees.sktree_model
 

@@ -13,7 +13,7 @@
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.models.trees.sktree_model.SKTreeModel" href="seldonian.models.trees.sktree_model.SKTreeModel.html" />
+    <link rel="next" title="seldonian.models.trees.sktree_model.SeldonianDecisionTree" href="seldonian.models.trees.sktree_model.SeldonianDecisionTree.html" />
     <link rel="prev" title="seldonian.models.trees.sktree_model.sigmoid" href="seldonian.models.trees.sktree_model.sigmoid.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -37,16 +37,14 @@
 <dt class="sig sig-object py" id="seldonian.models.trees.sktree_model.sklearn_predict_vjp">
 <span class="sig-name descname"><span class="pre">sklearn_predict_vjp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.trees.sktree_model.sklearn_predict_vjp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do a backward pass through the Sklearn model,
-obtaining the Jacobian d pred / dtheta.
-Must convert back to numpy array before returning</p>
+obtaining the Jacobian d pred / dtheta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ans</strong> (<em>numpy ndarray</em>) – The result from the forward pass</p></li>
 <li><p><strong>theta</strong> (<em>numpy ndarray</em>) – model weights</p></li>
 <li><p><strong>X</strong> (<em>numpy ndarray</em>) – model features</p></li>
-<li><p><strong>model</strong> – An instance of a class inheriting from
-SupervisedSkLearnBaseModel</p></li>
+<li><p><strong>model</strong> – An instance of the SeldonianDecisionTree model</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return fn<span class="colon">:</span></dt>
@@ -89,6 +87,7 @@ SupervisedSkLearnBaseModel</p></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.models.sklearn_lr.html">seldonian.models.sklearn_lr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.models.sklearn_model.html">seldonian.models.sklearn_model</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.trees.html">seldonian.models.trees</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.html">seldonian.models.trees.skrandomforest_model</a></li>
 <li class="toctree-l5 current"><a class="reference internal" href="seldonian.models.trees.sktree_model.html">seldonian.models.trees.sktree_model</a><ul class="current">
 <li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.sktree_model.probs2theta.html">seldonian.models.trees.sktree_model.probs2theta</a></li>
 <li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.sktree_model.sigmoid.html">seldonian.models.trees.sktree_model.sigmoid</a></li>
@@ -96,7 +95,7 @@ SupervisedSkLearnBaseModel</p></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.models.trees.sktree_model.sklearn_predict_vjp"><code class="docutils literal notranslate"><span class="pre">sklearn_predict_vjp()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.sktree_model.SKTreeModel.html">seldonian.models.trees.sktree_model.SKTreeModel</a></li>
+<li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.sktree_model.SeldonianDecisionTree.html">seldonian.models.trees.sktree_model.SeldonianDecisionTree</a></li>
 </ul>
 </li>
 </ul>
@@ -127,7 +126,7 @@ SupervisedSkLearnBaseModel</p></li>
   <li><a href="seldonian.models.trees.html">seldonian.models.trees</a><ul>
   <li><a href="seldonian.models.trees.sktree_model.html">seldonian.models.trees.sktree_model</a><ul>
       <li>Previous: <a href="seldonian.models.trees.sktree_model.sigmoid.html" title="previous chapter">seldonian.models.trees.sktree_model.sigmoid</a></li>
-      <li>Next: <a href="seldonian.models.trees.sktree_model.SKTreeModel.html" title="next chapter">seldonian.models.trees.sktree_model.SKTreeModel</a></li>
+      <li>Next: <a href="seldonian.models.trees.sktree_model.SeldonianDecisionTree.html" title="next chapter">seldonian.models.trees.sktree_model.SeldonianDecisionTree</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

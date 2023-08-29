@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>seldonian.models.trees.skrandomforest_model &#8212; Seldonian Engine pre-release documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=bc8d421b" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=6a9260ee"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="seldonian.models.trees.skrandomforest_model.probs2theta" href="seldonian.models.trees.skrandomforest_model.probs2theta.html" />
+    <link rel="prev" title="seldonian.models.trees" href="seldonian.models.trees.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-seldonian.models.trees.skrandomforest_model">
+<span id="seldonian-models-trees-skrandomforest-model"></span><h1>seldonian.models.trees.skrandomforest_model<a class="headerlink" href="#module-seldonian.models.trees.skrandomforest_model" title="Permalink to this heading">¶</a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.probs2theta.html#seldonian.models.trees.skrandomforest_model.probs2theta" title="seldonian.models.trees.skrandomforest_model.probs2theta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">probs2theta</span></code></a>(probs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.sigmoid.html#seldonian.models.trees.skrandomforest_model.sigmoid" title="seldonian.models.trees.skrandomforest_model.sigmoid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sigmoid</span></code></a>(theta)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.sklearn_predict_vjp.html#seldonian.models.trees.skrandomforest_model.sklearn_predict_vjp" title="seldonian.models.trees.skrandomforest_model.sklearn_predict_vjp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn_predict_vjp</span></code></a>(ans, theta, X, model)</p></td>
+<td><p>Do a backward pass through the Sklearn model, obtaining the Jacobian d pred / dtheta.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.SeldonianRandomForest.html#seldonian.models.trees.skrandomforest_model.SeldonianRandomForest" title="seldonian.models.trees.skrandomforest_model.SeldonianRandomForest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeldonianRandomForest</span></code></a>(**rf_kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Seldonian Engine</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.hyperparam_search.html">seldonian.hyperparam_search</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="seldonian.models.html">seldonian.models</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="seldonian.models.models.html">seldonian.models.models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.models.objectives.html">seldonian.models.objectives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.models.sklearn_lr.html">seldonian.models.sklearn_lr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.models.sklearn_model.html">seldonian.models.sklearn_model</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="seldonian.models.trees.html">seldonian.models.trees</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.models.trees.skrandomforest_model</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.probs2theta.html">seldonian.models.trees.skrandomforest_model.probs2theta</a></li>
+<li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.sigmoid.html">seldonian.models.trees.skrandomforest_model.sigmoid</a></li>
+<li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.sklearn_predict_vjp.html">seldonian.models.trees.skrandomforest_model.sklearn_predict_vjp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="seldonian.models.trees.skrandomforest_model.SeldonianRandomForest.html">seldonian.models.trees.skrandomforest_model.SeldonianRandomForest</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.models.trees.sktree_model.html">seldonian.models.trees.sktree_model</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.models.zhat_funcs.html">seldonian.models.zhat_funcs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+  <li><a href="seldonian.html">seldonian</a><ul>
+  <li><a href="seldonian.models.html">seldonian.models</a><ul>
+  <li><a href="seldonian.models.trees.html">seldonian.models.trees</a><ul>
+      <li>Previous: <a href="seldonian.models.trees.html" title="previous chapter">seldonian.models.trees</a></li>
+      <li>Next: <a href="seldonian.models.trees.skrandomforest_model.probs2theta.html" title="next chapter">seldonian.models.trees.skrandomforest_model.probs2theta</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, University of Massachusetts.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/_autosummary/seldonian.models.trees.skrandomforest_model.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

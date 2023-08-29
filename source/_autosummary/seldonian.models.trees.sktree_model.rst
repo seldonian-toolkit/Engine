@@ -28,7 +28,7 @@ seldonian.models.trees.sktree\_model
       :toctree:                                         
       :template: custom-class-template.rst              
    
-      SKTreeModel
+      SeldonianDecisionTree
    
    
 
