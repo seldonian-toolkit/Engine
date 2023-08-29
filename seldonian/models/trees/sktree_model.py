@@ -18,30 +18,29 @@ def sigmoid(theta):
 @primitive
 def sklearn_predict(theta, X, model, **kwargs):
     """Do a forward pass through the sklearn tree.
-    Must convert back to numpy array before returning
 
     :param theta: model weights
     :type theta: numpy ndarray
     :param X: model features
     :type X: numpy ndarray
 
-    :param model: An instance of a class inheriting from
-            SupervisedSkLearnBaseModel
+    :param model: An instance of the Seclass 
 
-    :return pred_numpy: model predictions
-    :rtype pred_numpy: numpy ndarray same shape as labels
+    :return: 
+        probs_pos_class: the vector of probabilities of predicting the positive class, 
+        leaf_nodes_hit: the ids of the leaf nodes that were
+            hit by each sample. These are needed for computing the Jacobian
     """
     # First convert weights to probs
     probs = sigmoid(theta)
-    # First update model weights
+    
+    # Update model weights
     if not model.params_updated:
         model.set_leaf_node_values(probs, **kwargs)
         model.params_updated = True
+    
     # Do the forward pass
     pred,leaf_nodes_hit = model.forward_pass(X, **kwargs)
-    # set the predictions attribute of the model
-
-    # Predictions must be a numpy array
 
     return pred, leaf_nodes_hit
 
@@ -49,7 +48,6 @@ def sklearn_predict(theta, X, model, **kwargs):
 def sklearn_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the Sklearn model,
     obtaining the Jacobian d pred / dtheta.
-    Must convert back to numpy array before returning
 
     :param ans: The result from the forward pass
     :type ans: numpy ndarray
@@ -57,38 +55,51 @@ def sklearn_predict_vjp(ans, theta, X, model):
     :type theta: numpy ndarray
     :param X: model features
     :type X: numpy ndarray
-
-    :param model: An instance of a class inheriting from
-            SupervisedSkLearnBaseModel
+    :param model: An instance of the SeldonianDecisionTree model
 
     :return fn: A function representing the vector Jacobian operator
     """
 
     def fn(v):
-        # v is a vector of shape ans, the return value of the forward pass()
+        # v is a vector of shape ans, the return value of the forward pass, F.
         # This function returns a 1D array:
         # [dF_i/dtheta[0],dF_i/dtheta[1],dF_i/dtheta[2],...],
         # where i is the data row index
-        dpred_dtheta = model.backward_pass(ans, theta, X)
-        # print(dpred_dtheta[1])
-        # print(dpred_dtheta[2])
-        # print(dpred_dtheta[3])
+        dpred_dtheta = model.get_jacobian(ans, theta, X)
         model.params_updated = False  # resets for the next forward pass
         return v[0].T @ dpred_dtheta
-        # return v * ans
-
     return fn
+
 # Link the predict function with its gradient,
 # telling autograd not to look inside either of these functions
 defvjp(sklearn_predict, sklearn_predict_vjp)
 
-class SKTreeModel(ClassificationModel):
+class SeldonianDecisionTree(ClassificationModel):
     def __init__(self,**dt_kwargs):
+        """ A Seldonian decision tree model that re-labels leaf node probabilities
+        from a vanilla decision tree built using SKLearn's DecisionTreeClassifier
+        object. 
+
+        :ivar classifier: The SKLearn classifier object
+        :ivar has_intercept: Whether the model has an intercept term 
+        :ivar params_updated: An internal flag used during the optimization
+        """
         self.classifier = DecisionTreeClassifier(**dt_kwargs)
         self.has_intercept = False
         self.params_updated = False
     
     def fit(self,features,labels,**kwargs):
+        """A wrapper around SKLearn's fit() method. Returns the leaf node probabilities
+        of SKLearn's built tree.
+
+        :param features: Features
+        :type features: numpy ndarray
+        :param labels: Labels
+        :type labels: 1D numpy array
+
+        :return: Leaf node probabilities (of predicting the positive class only),
+            ordered from left to right
+        """
         self.classifier.fit(features,labels)
         # Get a list of the leaf node ids
         # Node i is a leaf node if children_left[i] == -1 
@@ -98,6 +109,8 @@ class SKTreeModel(ClassificationModel):
         return self.get_leaf_node_probs()
 
     def get_leaf_node_probs(self,):
+        """ Retrieve the leaf node probabilities from the current tree from left to right
+        """
         probs = []
         leaf_counter = 0 
         node_id = 0
@@ -111,6 +124,12 @@ class SKTreeModel(ClassificationModel):
         return np.array(probs)
 
     def set_leaf_node_values(self,probs):
+        """ Update the leaf node probabilities 
+            (actually the numbers in each label)
+
+        :param probs: The vector of probabilities to set on the
+            leaf nodes from left to right
+        """
         leaf_counter = 0 
         node_id = 0
         while leaf_counter < self.classifier.tree_.n_leaves:
@@ -128,8 +147,7 @@ class SKTreeModel(ClassificationModel):
 
 
     def predict(self, theta, X, **kwargs):
-        """Do a forward pass through the sklearn model.
-        Must convert back to numpy array before returning
+        """Call the autograd primitive (a workaround since our forward pass involves an external library)
 
         :param theta: model weights (not probabilities)
         :type theta: numpy ndarray
@@ -137,21 +155,30 @@ class SKTreeModel(ClassificationModel):
         :param X: model features
         :type X: numpy ndarray
 
-        :return pred_numpy: model predictions
-        :rtype pred_numpy: numpy ndarray same shape as labels
+        :return pred: model predictions
+        :rtype pred: numpy ndarray same shape as labels
         """
         return sklearn_predict(theta, X, self)[0]
 
     def forward_pass(self,X):
+        """Do a forward pass through the sklearn model. 
         
+        :param X: model features
+        :type X: numpy ndarray
+
+        :return: 
+            probs_pos_class: the vector of probabilities, 
+            leaf_nodes_hit: the ids of the leaf nodes that were
+                hit by each sample. These are needed for computing the Jacobian
+        """
         probs_both_classes = self.classifier.predict_proba(X)
         probs_pos_class = probs_both_classes[:,1]
         # apply() provides the ids of the nodes hit by each sample in X
         leaf_nodes_hit = self.classifier.apply(X) 
         return probs_pos_class, leaf_nodes_hit
 
-    def backward_pass(self, ans, theta, X):
-        """Return the Jacobian d(forward_pass)_i/dtheta_{j+1},
+    def get_jacobian(self, ans, theta, X):
+        """Return the Jacobian d(forward_pass)_i/dtheta_j,
         where i run over datapoints and j run over model parameters.
 
         :param ans: The result of the forward pass function evaluated on theta and X

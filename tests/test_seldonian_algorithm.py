@@ -1919,11 +1919,11 @@ def test_gpa_decision_tree(gpa_classification_dataset):
 	
 	Make sure safety test passes and solution is correct.
 	"""
-	from seldonian.models.trees.sktree_model import SKTreeModel, probs2theta
+	from seldonian.models.trees.sktree_model import SeldonianDecisionTree, probs2theta
 	rseed=0
 	np.random.seed(rseed)
 	frac_data_in_safety=0.6
-	model = SKTreeModel(max_depth=4)
+	model = SeldonianDecisionTree(max_depth=4)
 
 	fairness_constraint_dict = {
 		'disparate_impact':'0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))',
@@ -1983,6 +1983,82 @@ def test_gpa_decision_tree(gpa_classification_dataset):
 
 		solution_to_compare = solution_dict[constraint]
 
+		assert np.allclose(solution,solution_to_compare)
+
+	
+def test_gpa_random_forest(gpa_classification_dataset):
+	""" Test that the decision tree model works 
+	with the gpa classification example with disparate impact
+	
+	Make sure safety test passes and solution is correct.
+	"""
+	from seldonian.models.trees.skrandomforest_model import SeldonianRandomForest, probs2theta
+	rseed=0
+	np.random.seed(rseed)
+	frac_data_in_safety=0.6
+	model = SeldonianRandomForest(max_depth=3,n_estimators=5)
+
+	fairness_constraint_dict = {
+		'disparate_impact':'0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))',
+		}
+
+	solution_dict = {
+	'disparate_impact':np.array(
+		 [-0.80923242, -0.24296163, -0.32121083,  0.58102988,  0.20254449,  1.43074612,
+  0.99403948,  2.49842037, -0.42527665, -0.85068235, -0.00595723,  0.82507472,
+ -0.0133283,   0.94150215,  0.7472144,   2.52572864, -0.42381425, -0.91412623,
+ -0.408637,    0.21814065, -0.15094095,  0.64132211,  0.75391354,  2.26610688,
+ -0.79259672, -0.19415601, -0.2897921,   0.7021469,  -0.22314355,  0.68145114,
+  0.94243012,  2.18287713, -0.22875438, -0.67453988, -0.31015493,  0.40171276,
+ -0.1057952,   0.35916793,  0.66489671,  1.88178562]),
+	}
+	def initial_solution_fn(m,x,y):
+		probs = m.fit(x,y)
+		return probs2theta(probs)
+
+
+	for constraint in fairness_constraint_dict:
+		constraint_str = fairness_constraint_dict[constraint]
+		constraint_strs = [constraint_str]
+		deltas = [0.05]
+
+		(dataset,_,
+			primary_objective,parse_trees) = gpa_classification_dataset(
+			constraint_strs=constraint_strs,
+			deltas=deltas)
+		
+		# Create spec object
+		spec = SupervisedSpec(
+			dataset=dataset,
+			model=model,
+			parse_trees=parse_trees,
+			sub_regime='classification',
+			frac_data_in_safety=frac_data_in_safety,
+			primary_objective=primary_objective,
+			use_builtin_primary_gradient_fn=False,
+			initial_solution_fn=initial_solution_fn,
+			optimization_technique='gradient_descent',
+			optimizer='adam',
+			optimization_hyperparams={
+				'lambda_init'   : np.array([0.5]),
+				'alpha_theta'   : 0.005,
+				'alpha_lamb'    : 0.005,
+				'beta_velocity' : 0.9,
+				'beta_rmsprop'  : 0.95,
+				'num_iters'     : 10,
+				'use_batches'   : False,
+				'gradient_library': "autograd",
+				'hyper_search'  : None,
+				'verbose'       : True,
+			}
+		)
+
+		# Run seldonian algorithm
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
+		assert passed_safety == True
+
+		solution_to_compare = solution_dict[constraint]
 		assert np.allclose(solution,solution_to_compare)
 
 
