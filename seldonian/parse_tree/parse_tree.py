@@ -478,7 +478,7 @@ class ParseTree(object):
             "TPR_",
             "FNR_",
             "J_pi_new_",
-            "J_pi_new_PDIS_"
+            "J_pi_new_PDIS_",
             "J_pi_new_WIS_"
         ]:
             raise NotImplementedError(
