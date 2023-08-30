@@ -745,7 +745,7 @@ def IS_estimate(model, theta, episodes, **kwargs):
         weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes
     ]
 
-    IS_estimate = 0
+    IS_est = 0
     for ii, ep in enumerate(episodes):
         pi_news = model.get_probs_from_observations_and_actions(
             theta, ep.observations, ep.actions, ep.action_probs
@@ -753,11 +753,11 @@ def IS_estimate(model, theta, episodes, **kwargs):
         pi_ratios = pi_news / ep.action_probs
         pi_ratio_prod = np.prod(pi_ratios)
 
-        IS_estimate += pi_ratio_prod * weighted_returns[ii]
+        IS_est += pi_ratio_prod * weighted_returns[ii]
 
-    IS_estimate /= len(episodes)
+    IS_est /= len(episodes)
 
-    return IS_estimate
+    return IS_est
 
 
 def PDIS_estimate(model, theta, episodes, **kwargs)->float:
@@ -789,4 +789,42 @@ def PDIS_estimate(model, theta, episodes, **kwargs)->float:
     PDIS_est /= len(episodes)
 
     return PDIS_est
+
+def WIS_estimate(model, theta, episodes, **kwargs):
+    """Calculate the weighted importance sampling estimate
+    on all episodes. This is: sum(i=0 to n) { rho_i/rhosum} * G_i,
+    where rhosum is sum(j=0 to n) {rho_j} and G_i is the discounted expected return.
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :return: The IS estimate calculated over all episodes
+    :rtype: float
+    """
+      
+    if "gamma" in model.env_kwargs:
+        gamma = model.env_kwargs["gamma"]
+    else:
+        gamma = 1.0
+    # Calculate the expected returns of the primary reward under the behavior policy 
+    weighted_returns = [
+        weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes
+    ]
+    # Calculate the denominator term, sum_j{rho_j}, where rho_j is the sum of all episode-wise importance weight products
+
+    weighted_returns = np.array([
+        weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes
+    ])
+    n = len(episodes)
+    rho_array = []
+    for ii, ep in enumerate(episodes):
+        # Get pi_new for each timestep in this ep
+        pi_news = model.get_probs_from_observations_and_actions(
+            theta, ep.observations, ep.actions, ep.action_probs
+        )
+        rho_array.append(np.prod(pi_news/ep.action_probs))
+    rho_array = np.array(rho_array)
+    WIS_est = np.sum(rho_array*weighted_returns)/np.sum(rho_array)
+    return WIS_est
 
