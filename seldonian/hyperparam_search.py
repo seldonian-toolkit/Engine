@@ -517,7 +517,12 @@ class HyperparamSearch:
         bootstrap_datasets_savename = os.path.join(bootstrap_savedir,
                 f"future_safety_frac_{frac_data_in_safety:.2f}", "bootstrap_datasets",
                 f"bootstrap_datasets_trial_{bootstrap_trial_i}.pkl")
-        bootstrap_datasets_dict = load_pickle(bootstrap_datasets_savename)
+        try:
+            bootstrap_datasets_dict = load_pickle(bootstrap_datasets_savename)
+        except Exception:
+            print(bootstrap_datasets_savename)
+            assert(False)
+
         bs_candidate_dataset = bootstrap_datasets_dict["candidate"]
         bs_safety_dataset = bootstrap_datasets_dict["safety"]
 
@@ -607,6 +612,33 @@ class HyperparamSearch:
         return True
 
 
+    def ttest_bound(
+            self,
+            bootstrap_trial_data,
+            delta=0.1
+    ):
+        """
+        Compute ttest bound on the probability of passing using the bootstrap data across
+            bootstrap trials.
+
+        :param bootstrap_trial_data: Array of size n_bootstrap_samples, containing the 
+            result of each bootstrap trial.
+        :type bootstrap_trial_data: np.array
+        :param delta: confidence level, i.e. 0.05
+        :type delta: float
+        """
+        # TODO: Write tests.
+        bs_data_mean = np.nanmean(bootstrap_trial_data) # estimated probability of passing
+        bs_data_stddev = np.nanstd(bootstrap_trial_data)
+
+        lower_bound = bs_data_mean - bs_data_stdev / np.sqrt(
+                self.n_bootstrap_samples)  * tinv(1.0 - delta, self.n_bootstrap_samples - 1)
+        upper_bound = bs_data_mean + bs_data_stdev / np.sqrt(
+                self.n_bootstrap_samples) * tinv(1.0 - delta, self.n_bootstrap_samples - 1)
+
+        return lower_bound, upper_bound
+
+
     def aggregate_est_prob_pass(
             self,
             est_frac_data_in_safety,
@@ -633,8 +665,12 @@ class HyperparamSearch:
         bs_trials_pass = []
         bs_trials_solution = []
         for result_trial_savename in os.listdir(bs_result_subdir):
-            result_trial_dict = load_pickle(
-                    os.path.join(bs_result_subdir, result_trial_savename))
+            try:
+                result_trial_dict = load_pickle(
+                        os.path.join(bs_result_subdir, result_trial_savename))
+            except Exception:
+                print(os.path.join(bs_result_subdir, result_trial_savename))
+                assert(False)
             bs_trials_index.append(result_trial_dict["bootstrap_trial_i"])
             bs_trials_pass.append(result_trial_dict["passed_safety"])
             bs_trials_solution.append(result_trial_dict["solution"])
@@ -652,7 +688,14 @@ class HyperparamSearch:
         # Compute the probability of passing.
         # TODO: When is this nan? Should we change to nan mean?
         est_prob_pass = np.mean(bs_trials_pass)
-        return est_prob_pass, results_df
+
+        # Compute ttest confidence interval on est_prob_pass.
+        # TODO: Update so delta is passed through.
+        ttest_lower_bound, ttest_upper_bound = self.ttest_bound(bs_trials_pass)
+
+        # TODO: Update where returned.
+        # TODO: Update tests to have these returns.
+        return est_prob_pass, ttest_lower_bound, ttest_upper_bound, results_df
 
 
     def get_bootstrap_dataset_size(
@@ -743,10 +786,12 @@ class HyperparamSearch:
         ran_new_bs_trials = any(bs_trials_ran)
 
         # Accumulate results from bootstrap trials get estimate.
-        est_prob_pass, results_df = self.aggregate_est_prob_pass(
-            est_frac_data_in_safety, bootstrap_savedir)
+        est_prob_pass, ttest_lower_bound, ttest_upper_bound, results_df = \
+                self.aggregate_est_prob_pass(est_frac_data_in_safety, bootstrap_savedir)
 
-        return est_prob_pass, results_df, elapsed_time, ran_new_bs_trials
+        # TODO: Update the test for including lower and upper bounds.
+        return (est_prob_pass, ttest_lower_bound, ttest_upper_bound, results_df, elapsed_time, 
+                ran_new_bs_trials)
 
 
     def get_all_greater_est_prob_pass(
@@ -780,7 +825,7 @@ class HyperparamSearch:
                     continue
                 print(" rho':", frac_data_in_safety_prime)
 
-                prime_prob_pass, _, _, ran_new_bs_trials = self.get_est_prob_pass(
+                prime_prob_pass, _, _, _, _, ran_new_bs_trials = self.get_est_prob_pass(
                     frac_data_in_safety_prime,
                     candidate_dataset,
                     candidate_dataset.num_datapoints,
@@ -816,6 +861,7 @@ class HyperparamSearch:
                 elf.dataset split according to frac_data_in_safety
         :rtyle: Tuple
         """
+        # TODO: Update test now that use CI.
         all_est_dict_list = [] # Store dicionaries for dataframe.
         ran_new_bs_trials = False 
 
@@ -839,21 +885,24 @@ class HyperparamSearch:
                 continue
 
             # Estimate probability of passing.
-            curr_prob_pass, _, _, curr_ran_new_bs_trials  = self.get_est_prob_pass(
-                frac_data_in_safety,
-                candidate_dataset,
-                candidate_dataset.num_datapoints,
-                safety_dataset.num_datapoints,
-                bootstrap_savedir,
-                n_bootstrap_trials,
-                n_workers
-            )  
+            curr_prob_pass, curr_lower_bound, curr_upper_bound, _, _, curr_ran_new_bs_trials \
+                    = self.get_est_prob_pass(
+                            frac_data_in_safety,
+                            candidate_dataset,
+                            candidate_dataset.num_datapoints,
+                            safety_dataset.num_datapoints,
+                            bootstrap_savedir,
+                            n_bootstrap_trials,
+                            n_workers
+                        )  
             ran_new_bs_trials = ran_new_bs_trials or curr_ran_new_bs_trials
             all_est_prob_pass[frac_data_in_safety] = curr_prob_pass
             all_est_dict_list.append({
                 "frac_data_in_safety": frac_data_in_safety, 
                 "est_frac_data_in_safety": frac_data_in_safety,
-                "est_prob_pass": curr_prob_pass
+                "est_prob_pass": curr_prob_pass,
+                "est_lower_bound": curr_lower_bound,
+                "est_upper_bound": curr_upper_bound,
             })
 
             # Estimate if any of the future splits of data lead to higher P(pass)
@@ -862,27 +911,39 @@ class HyperparamSearch:
                 if est_frac_data_in_safety >= frac_data_in_safety:  # Est if more data in cs.
                     continue
 
-                prime_prob_pass, _, _, curr_ran_new_bs_trials = self.get_est_prob_pass(
-                    est_frac_data_in_safety,
-                    candidate_dataset,
-                    candidate_dataset.num_datapoints,
-                    safety_dataset.num_datapoints,
-                    bootstrap_savedir,
-                    n_bootstrap_trials,
-                    n_workers
-                )
+                prime_prob_pass, prime_lower_bound, prime_upper_bound, _, _, curr_ran_new_bs_trials \
+                        = self.get_est_prob_pass(
+                                est_frac_data_in_safety,
+                                candidate_dataset,
+                                candidate_dataset.num_datapoints,
+                                safety_dataset.num_datapoints,
+                                bootstrap_savedir,
+                                n_bootstrap_trials,
+                                n_workers
+                            )
                 ran_new_bs_trials = ran_new_bs_trials or curr_ran_new_bs_trials
                 all_est_prob_pass[est_frac_data_in_safety] = prime_prob_pass
                 all_est_dict_list.append({
                     "frac_data_in_safety": frac_data_in_safety, 
                     "est_frac_data_in_safety": est_frac_data_in_safety,
                     "est_prob_pass": prime_prob_pass
+                    "est_lower_bound": prime_lower_bound,
+                    "est_upper_bound": prime_upper_bound,
                 })
 
+                """
                 if (
                     # TODO: Do we want this to be > or >=
                     prime_prob_pass >= curr_prob_pass 
                 ):  # Found a future split that we predict is better.
+                    prime_better = True
+                    break
+                """
+
+                # TODO: Double check this and make sure that this is how we want to use CI.
+                if (
+                        prime_lower_bound >= curr_lower_bound
+                ): # Found a future split that we predict is better.
                     prime_better = True
                     break
 
