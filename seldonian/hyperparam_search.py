@@ -19,6 +19,7 @@ from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
 from seldonian.utils.io_utils import load_pickle
+from seldonian.utils.stats_utils import tinv
 
 class HyperparamSearch:
     def __init__(
@@ -628,13 +629,14 @@ class HyperparamSearch:
         :type delta: float
         """
         # TODO: Write tests.
+        n_bootstrap_samples = len(bootstrap_trial_data)
         bs_data_mean = np.nanmean(bootstrap_trial_data) # estimated probability of passing
         bs_data_stddev = np.nanstd(bootstrap_trial_data)
 
-        lower_bound = bs_data_mean - bs_data_stdev / np.sqrt(
-                self.n_bootstrap_samples)  * tinv(1.0 - delta, self.n_bootstrap_samples - 1)
-        upper_bound = bs_data_mean + bs_data_stdev / np.sqrt(
-                self.n_bootstrap_samples) * tinv(1.0 - delta, self.n_bootstrap_samples - 1)
+        lower_bound = bs_data_mean - bs_data_stddev / np.sqrt(
+                n_bootstrap_samples)  * tinv(1.0 - delta, n_bootstrap_samples - 1)
+        upper_bound = bs_data_mean + bs_data_stddev / np.sqrt(
+                n_bootstrap_samples) * tinv(1.0 - delta, n_bootstrap_samples - 1)
 
         return lower_bound, upper_bound
 
@@ -926,7 +928,7 @@ class HyperparamSearch:
                 all_est_dict_list.append({
                     "frac_data_in_safety": frac_data_in_safety, 
                     "est_frac_data_in_safety": est_frac_data_in_safety,
-                    "est_prob_pass": prime_prob_pass
+                    "est_prob_pass": prime_prob_pass,
                     "est_lower_bound": prime_lower_bound,
                     "est_upper_bound": prime_upper_bound,
                 })
