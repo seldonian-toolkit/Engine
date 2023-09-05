@@ -792,6 +792,15 @@ def test_rl_alt_reward_string():
 	assert pt.root.left.name == 'J_pi_new_PDIS_[1]'
 	assert pt.root.left.alt_reward_number == 1
 
+	constraint_str = 'J_pi_new_WIS_[1] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'J_pi_new_WIS'
+	assert pt.root.left.name == 'J_pi_new_WIS_[1]'
+	assert pt.root.left.alt_reward_number == 1
+
 def test_rl_alt_reward_bad_string():
 	# Test that using non-numeric characters for the alt reward number raises an error
 	delta = 0.05
@@ -823,6 +832,24 @@ def test_rl_alt_reward_bad_string():
 	assert str(excinfo.value) == error_str
 
 	constraint_str = 'J_pi_new_PDIS_[5.9] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_WIS_[M] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_WIS_[5.9] - 0.5'
 
 	pt = ParseTree(delta,regime='reinforcement_learning',
 		sub_regime='all')

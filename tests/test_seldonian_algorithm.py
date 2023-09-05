@@ -1985,7 +1985,6 @@ def test_gpa_decision_tree(gpa_classification_dataset):
 
 		assert np.allclose(solution,solution_to_compare)
 
-	
 def test_gpa_random_forest(gpa_classification_dataset):
 	""" Test that the decision tree model works 
 	with the gpa classification example with disparate impact
@@ -2167,6 +2166,8 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	with a simple performance improvement constraint. Make
 	sure safety test passes and solution is correct.
 	"""
+
+	# IS estimate
 	# Load data and metadata
 	rseed=99
 	np.random.seed(rseed)
@@ -2218,10 +2219,63 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	assert g_vals[1][0] == pytest.approx(-9.67469087)
 
 	#Get primary objective
-	primary_val_cs = SA.evaluate_primary_objective(
-		theta=solution,branch='candidate_selection')
 	primary_val_st = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
 	assert primary_val_st == pytest.approx(0.42407173678433796)
+
+	# WIS estimate
+	# Load data and metadata
+	rseed=99
+	np.random.seed(rseed)
+	constraint_strs = ['-10.0 - J_pi_new_WIS']
+	deltas = [0.05]
+	
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[],
+		delta_weight_method='equal')
+	(dataset,policy,
+		env_kwargs,_) = RL_gridworld_dataset()
+
+	frac_data_in_safety = 0.6
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+	# Create spec object
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=False,
+		primary_objective=objectives.WIS_estimate,
+		parse_trees=parse_trees,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 5,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# # Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	g_vals = SA.cs_result['g_vals']
+	assert g_vals[1][0] == pytest.approx(-9.67416473)
+
+	#Get primary objective
+	primary_val_st = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
+	assert primary_val_st == pytest.approx(0.43915764584186856)
 
 def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	""" Test that trying to run RL example with 

@@ -908,6 +908,34 @@ def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     return np.array(PDIS_vector)
 
 
+def vector_WIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
+    """Calculate weighted importance sampling estimate
+    on each episodes in the dataframe
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :param weighted_returns: A pre-calculated list of weighted returns
+        from the reward that is present in the constraint
+
+    :return: A vector of WIS estimates calculated for each episode, 
+        such that the mean of this vector will be the WIS estimate.
+    :rtype: numpy ndarray(float)
+    """
+    gamma = model.env_kwargs["gamma"] if "gamma" in model.env_kwargs else 1.0
+    n = len(episodes)
+    rho_array = []
+    for ii, ep in enumerate(episodes):
+        # Get pi_new for each timestep in this ep
+        pi_news = model.get_probs_from_observations_and_actions(
+            theta, ep.observations, ep.actions, ep.action_probs
+        )
+        rho_array.append(np.prod(pi_news/ep.action_probs))
+    rho_array = np.array(rho_array)
+    WIS_vector = n*rho_array*weighted_returns/np.sum(rho_array)
+    return WIS_vector
+
 """ Measure function mapper that maps from string that appears in the constraint string to the appropriate function. """
 
 measure_function_vector_mapper = {
@@ -922,4 +950,5 @@ measure_function_vector_mapper = {
     "ACC": vector_Accuracy,
     "J_pi_new": vector_IS_estimate,
     'J_pi_new_PDIS':vector_PDIS_estimate,
+    'J_pi_new_WIS':vector_WIS_estimate,
 }
