@@ -29,6 +29,7 @@ seldonian.models.zhat\_funcs
       vector_Squared_Error
       vector_True_Negative_Rate
       vector_True_Positive_Rate
+      vector_WIS_estimate
       vector_confusion_matrix
    
    
