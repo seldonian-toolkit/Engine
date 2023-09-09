@@ -1,12 +1,7 @@
 """ Main module containing Seldonian machine learning models """
-
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
-from autograd.extend import primitive, defvjp
-from sklearn.linear_model import LinearRegression, LogisticRegression, SGDClassifier
-from functools import partial, lru_cache
 
-from seldonian.utils.stats_utils import softmax
-
+from sklearn.linear_model import LinearRegression, LogisticRegression
 
 class SeldonianModel(object):
     def __init__(self):

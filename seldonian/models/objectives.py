@@ -6,7 +6,6 @@ import math
 from seldonian.utils.stats_utils import (weighted_sum_gamma,
     custom_cumprod, stability_const)
 from seldonian.models.models import BaseLogisticRegressionModel
-
 """ Regression """
 
 def Mean_Squared_Error(model, theta, X, Y, **kwargs):
@@ -148,8 +147,9 @@ def binary_logistic_loss(model, theta, X, Y, **kwargs):
 
 
 def gradient_binary_logistic_loss(model, theta, X, Y, **kwargs):
-    """Analytical gradient of binary logistic loss w.r.t. theta. 
-    This is only appropriate for logistic regression models.
+    """Gradient of binary logistic loss w.r.t. theta.
+    This is only valid for binary logistic regression models!
+    Also, the number of parameters must be the same as the number of model weights.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -629,7 +629,7 @@ def _True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
 
 def Error_Rate(model, theta, X, Y, **kwargs):
     """
-    Calculate mean error rate for the whole sample
+    Calculate error rate for the whole sample
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -637,7 +637,7 @@ def Error_Rate(model, theta, X, Y, **kwargs):
     :param X: The features
     :type X: numpy ndarray
 
-    :return: Mean error rate 
+    :return: False positive rate for whole sample
     :rtype: float between 0 and 1
     """
     if kwargs["sub_regime"] == "multiclass_classification":
@@ -647,7 +647,7 @@ def Error_Rate(model, theta, X, Y, **kwargs):
 
 
 def _Error_Rate_binary(model, theta, X, Y, **kwargs):
-    """Calculate mean error rate
+    """Calculate error rate
     over all data points for binary classification
 
     :param model: SeldonianModel instance
@@ -658,8 +658,8 @@ def _Error_Rate_binary(model, theta, X, Y, **kwargs):
     :param Y: The labels
     :type Y: numpy ndarray
 
-    :return: mean error rate 
-    :rtype: float between 0 and 1
+    :return: error rate between 0 and 1.
+    :rtype: float
     """
     n = len(X)
     Y_pred_probs = model.predict(theta, X)
@@ -745,7 +745,7 @@ def IS_estimate(model, theta, episodes, **kwargs):
         weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes
     ]
 
-    IS_estimate = 0
+    IS_est = 0
     for ii, ep in enumerate(episodes):
         pi_news = model.get_probs_from_observations_and_actions(
             theta, ep.observations, ep.actions, ep.action_probs
@@ -753,33 +753,11 @@ def IS_estimate(model, theta, episodes, **kwargs):
         pi_ratios = pi_news / ep.action_probs
         pi_ratio_prod = np.prod(pi_ratios)
 
-        IS_estimate += pi_ratio_prod * weighted_returns[ii]
+        IS_est += pi_ratio_prod * weighted_returns[ii]
 
-    IS_estimate /= len(episodes)
+    IS_est /= len(episodes)
 
-    return IS_estimate
-
-def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
-    """Calculate the unweighted importance sampling estimate
-    on each episodes in the dataframe
-
-    :param model: SeldonianModel instance
-    :param theta: The parameter weights
-    :type theta: numpy ndarray
-    :param episodes: List of episodes
-    :return: A vector of IS estimates calculated for each episode
-    :rtype: numpy ndarray(float)
-    """
-
-    result = []
-    for ii, ep in enumerate(episodes):
-        pi_news = model.get_probs_from_observations_and_actions(
-            theta, ep.observations, ep.actions, ep.action_probs
-        )
-        pi_ratio_prod = np.prod(pi_news / ep.action_probs)
-        result.append(pi_ratio_prod * weighted_returns[ii])
-
-    return np.array(result)
+    return IS_est
 
 def PDIS_estimate(model, theta, episodes, **kwargs)->float:
     """Calculate per decision importance sampling estimate
@@ -811,35 +789,42 @@ def PDIS_estimate(model, theta, episodes, **kwargs)->float:
 
     return PDIS_est
 
-def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
-    """Calculate per decision importance sampling estimate
-    on each episodes in the dataframe
+def WIS_estimate(model, theta, episodes, **kwargs):
+    """Calculate the weighted importance sampling estimate
+    on all episodes. This is: sum(i=0 to n) { rho_i/rhosum} * G_i,
+    where rhosum is sum(j=0 to n) {rho_j} and G_i is the discounted expected primary return.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
     :type theta: numpy ndarray
     :param episodes: List of episodes
-    :return: A vector of PDIS estimates calculated for each episode
-    :rtype: numpy ndarray(float)
+    :return: The IS estimate calculated over all episodes
+    :rtype: float
     """
+      
+    if "gamma" in model.env_kwargs:
+        gamma = model.env_kwargs["gamma"]
+    else:
+        gamma = 1.0
+    # Calculate the expected returns of the primary reward under the behavior policy 
+    weighted_returns = np.array([
+        weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes
+    ])
+    # Calculate array of rho_j, which are the episode-wise importance weight products
 
-    gamma = model.env_kwargs["gamma"] if "gamma" in model.env_kwargs else 1.0
-    PDIS_vector = []
-    for ep in episodes:
-        discount = np.power(gamma, range(len(ep.rewards)))
+    n = len(episodes)
+    rho_array = []
+    for ii, ep in enumerate(episodes):
+        # Get pi_new for each timestep in this ep
         pi_news = model.get_probs_from_observations_and_actions(
             theta, ep.observations, ep.actions, ep.action_probs
         )
-        pi_ratios = pi_news / ep.action_probs
-        
-        # autograd doesn't support np.cumprod
-        pi_ratio_prods = custom_cumprod(pi_ratios)
+        rho_array.append(np.prod(pi_news/ep.action_probs))
+    rho_array = np.array(rho_array)
+    WIS_est = np.sum(rho_array*weighted_returns)/np.sum(rho_array)
+    return WIS_est
 
-        PDIS_vector.append( np.sum(pi_ratio_prods * discount * ep.rewards) )
-
-    return np.array(PDIS_vector)
-
-def Bounding_box_primary_return_estimate(model, theta, episodes, weighted_returns=None, **kwargs):
+def US_estimate(model, theta, episodes, **kwargs):
     """Get the expected return of the PRIMARY reward 
     for behavior episodes whose actions (cr,cf)
     fall within the theta bounding box. 
@@ -861,31 +846,4 @@ def Bounding_box_primary_return_estimate(model, theta, episodes, weighted_return
             returns_inside_theta_box.append(primary_return)
     f = np.mean(returns_inside_theta_box)
     return f
-
-def Bounding_box_alternate_return_estimate(model, theta, episodes, weighted_returns=None, **kwargs):
-    """Get the expected return of the alternate reward 
-    for behavior episodes whose actions (cr,cf)
-    fall within the theta bounding box 
-
-    :param model: SeldonianModel instance
-    :param theta: The parameter weights
-    :type theta: numpy ndarray
-    :param episodes: List of episodes
-    :return: A vector of IS estimates calculated for each episode
-    :rtype: numpy ndarray(float)
-    """
-    # Rescale theta to be inside the bounding box if outside
-
-    crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
-
-    returns_inside_theta_box = []
-    for ii, ep in enumerate(episodes):
-        cr_b,cf_b = ep.actions[0] # behavior policy action
-        secondary_return = ep.alt_rewards[0][0] # one alt reward function and one reward per episode
-        if (crmin <= cr_b <= crmax) and (cfmin <= cf_b <= cfmax):
-            returns_inside_theta_box.append(secondary_return)
-
-    return np.mean(returns_inside_theta_box)
-
-
 

@@ -908,18 +908,40 @@ def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     return np.array(PDIS_vector)
 
 
-def vector_Bounding_box_alternate_return_estimate(model, theta, episodes, weighted_returns, **kwargs):
-    """Get the ALTERNATE reward returns for episodes
-     whose actions fall within the theta bounding box.
-     This function is used for constraints, unlike Bounding_box_estimate()
-     which is used for primary objective functions.
+def vector_WIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
+    """Calculate weighted importance sampling estimate
+    on each episodes in the dataframe
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
     :type theta: numpy ndarray
     :param episodes: List of episodes
-    :return: A vector of IS estimates calculated for each episode
+    :param weighted_returns: A pre-calculated list of weighted returns
+        from the reward that is present in the constraint
+
+    :return: A vector of WIS estimates calculated for each episode, 
+        such that the mean of this vector will be the WIS estimate.
     :rtype: numpy ndarray(float)
+    """
+    gamma = model.env_kwargs["gamma"] if "gamma" in model.env_kwargs else 1.0
+    n = len(episodes)
+    rho_array = []
+    for ii, ep in enumerate(episodes):
+        # Get pi_new for each timestep in this ep
+        pi_news = model.get_probs_from_observations_and_actions(
+            theta, ep.observations, ep.actions, ep.action_probs
+        )
+        rho_array.append(np.prod(pi_news/ep.action_probs))
+    rho_array = np.array(rho_array)
+    WIS_vector = n*rho_array*weighted_returns/np.sum(rho_array)
+    return WIS_vector
+
+
+def vector_auxiliary_return_US_estimate(model, theta, episodes, weighted_returns, **kwargs):
+    """Get the auxiliary reward returns for episodes
+     whose actions fall within the theta bounding box.
+     This function is used for constraints, unlike Bounding_box_estimate()
+     which is used for primary objective functions.
     """
     crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
 
@@ -931,7 +953,6 @@ def vector_Bounding_box_alternate_return_estimate(model, theta, episodes, weight
         if (crmin <= cr <= crmax) and (cfmin <= cf <= cfmax):
             returns_inside_theta_box.append(secondary_return)
     n_inside_box = len(returns_inside_theta_box)
-    print(f"Have {n_inside_box} episodes inside box")
     return np.array(returns_inside_theta_box)
 
 
@@ -949,5 +970,6 @@ measure_function_vector_mapper = {
     "ACC": vector_Accuracy,
     "J_pi_new": vector_IS_estimate,
     'J_pi_new_PDIS':vector_PDIS_estimate,
-    'J_pi_new_fake':vector_Bounding_box_alternate_return_estimate,
+    'J_pi_new_WIS':vector_WIS_estimate,
+    'J_pi_new_US':vector_auxiliary_return_US_estimate,
 }

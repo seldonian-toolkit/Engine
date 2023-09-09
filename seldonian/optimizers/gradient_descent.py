@@ -43,6 +43,7 @@ def gradient_descent_adam(
     beta_velocity=0.9,
     beta_rmsprop=0.9,
     gradient_library="autograd",
+    clip_theta=None,
     verbose=False,
     debug=False,
     **kwargs,
@@ -241,7 +242,11 @@ def gradient_descent_adam(
                 alpha_theta * velocity_theta / (np.sqrt(s_theta) + rms_offset)
             )  # gradient descent
             lamb += alpha_lamb * gradient_lamb_vec  # element wise update
-
+            
+            # Clip theta if specified
+            if clip_theta:
+                th_min,th_max = clip_theta
+                theta = np.clip(theta,th_min,th_max)
             # If any values in lambda vector dip below 0, force them to be zero
             lamb[lamb < 0] = 0
 

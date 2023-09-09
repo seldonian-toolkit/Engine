@@ -42,7 +42,8 @@ def test_base_node_bound_methods_updated(gpa_regression_dataset):
 			}
 	}
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -52,7 +53,7 @@ def test_base_node_bound_methods_updated(gpa_regression_dataset):
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=False,
 		base_node_bound_method_dict=base_node_bound_method_dict,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='barrier_function',
 		optimizer='Powell',
 		optimization_hyperparams={
@@ -79,6 +80,8 @@ def test_not_enough_data(simulated_regression_dataset):
             constraint_strs,deltas,numPoints=numPoints)
 	frac_data_in_safety=0.6
 
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	# Will warn because of initial solution trying to fit with not enough data
 	spec = SupervisedSpec(
@@ -89,7 +92,7 @@ def test_not_enough_data(simulated_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=objectives.Mean_Squared_Error,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -149,7 +152,8 @@ def test_data_as_lists(simulated_regression_dataset_aslists):
         parse_trees) = simulated_regression_dataset_aslists(
             constraint_strs,deltas,numPoints=numPoints)
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -159,7 +163,7 @@ def test_data_as_lists(simulated_regression_dataset_aslists):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=objectives.Mean_Squared_Error,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -191,6 +195,9 @@ def test_data_as_lists(simulated_regression_dataset_aslists):
 		" to get the gradient.")
 	assert str(excinfo.value) == error_str
 
+	(dataset,model,primary_objective,
+        parse_trees) = simulated_regression_dataset_aslists(
+            constraint_strs,deltas,numPoints=numPoints)
 	# Create spec object using autodiff
 	spec2 = SupervisedSpec(
 		dataset=dataset,
@@ -200,7 +207,7 @@ def test_data_as_lists(simulated_regression_dataset_aslists):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=objectives.Mean_Squared_Error,
 		use_builtin_primary_gradient_fn=False,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -243,6 +250,8 @@ def test_bad_optimizer(gpa_regression_dataset):
 			deltas=deltas)
 
 	frac_data_in_safety=0.6
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 
 	bad_optimizer = 'bad-optimizer' 
 	for optimization_technique in ['barrier_function','gradient_descent']:
@@ -255,7 +264,7 @@ def test_bad_optimizer(gpa_regression_dataset):
 				frac_data_in_safety=frac_data_in_safety,
 				primary_objective=primary_objective,
 				use_builtin_primary_gradient_fn=False,
-				initial_solution_fn=model.fit,
+				initial_solution_fn=initial_solution_fn,
 				optimization_technique=optimization_technique,
 				optimizer=bad_optimizer,
 				optimization_hyperparams={
@@ -283,7 +292,7 @@ def test_bad_optimizer(gpa_regression_dataset):
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
 			use_builtin_primary_gradient_fn=False,
-			initial_solution_fn=model.fit,
+			initial_solution_fn=initial_solution_fn,
 			optimization_technique=bad_optimization_technique,
 			optimizer='adam',
 			optimization_hyperparams={
@@ -318,7 +327,8 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -328,7 +338,7 @@ def test_phil_custom_base_node(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -505,7 +515,8 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -515,7 +526,7 @@ def test_gpa_data_regression_multiple_constraints(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -559,7 +570,8 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -569,7 +581,7 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -636,7 +648,8 @@ def test_gpa_data_classification(gpa_classification_dataset):
 		[-0.14932756, -0.04743285,  0.15603878,  0.10953721,  0.08014052,  0.03997749,
   0.40484586,  0.3045744,  -0.1084586,  -0.05770913])
 	}
-	
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	for constraint in fairness_constraint_dict:
 		print(constraint)
 		constraint_str = fairness_constraint_dict[constraint]
@@ -647,7 +660,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 			primary_objective,parse_trees) = gpa_classification_dataset(
 			constraint_strs=constraint_strs,
 			deltas=deltas)
-
+		
 		# Create spec object
 		spec = SupervisedSpec(
 			dataset=dataset,
@@ -657,7 +670,7 @@ def test_gpa_data_classification(gpa_classification_dataset):
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
 			use_builtin_primary_gradient_fn=False,
-			initial_solution_fn=model.fit,
+			initial_solution_fn=initial_solution_fn,
 			optimization_technique='gradient_descent',
 			optimizer='adam',
 			optimization_hyperparams={
@@ -702,7 +715,8 @@ def test_classification_statistics(gpa_classification_dataset):
 		primary_objective,parse_trees) = gpa_classification_dataset(
 		constraint_strs=constraint_strs,
 		deltas=deltas)
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -712,7 +726,7 @@ def test_classification_statistics(gpa_classification_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -758,7 +772,8 @@ def test_NSF(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -768,7 +783,7 @@ def test_NSF(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -831,7 +846,8 @@ def test_cmaes(gpa_regression_dataset):
 		 3.08303718e-04,  1.01170148e-04,
 		 1.86987938e-03,  1.29098726e-03,
 		 -3.82405534e-04,  2.29938169e-04])
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# for optimizer in ['Powell','CG','Nelder-Mead','BFGS','CMA-ES']:
 	for optimizer in ['CMA-ES']:
 		spec = SupervisedSpec(
@@ -842,7 +858,7 @@ def test_cmaes(gpa_regression_dataset):
 			frac_data_in_safety=frac_data_in_safety,
 			primary_objective=primary_objective,
 			use_builtin_primary_gradient_fn=False,
-			initial_solution_fn=model.fit,
+			initial_solution_fn=initial_solution_fn,
 			optimization_technique='barrier_function',
 			optimizer=optimizer,
 			optimization_hyperparams={
@@ -871,7 +887,6 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 	sure safety test passes and solution is correct.
 	"""
 
-
 	rseed=0
 	np.random.seed(rseed) 
 	constraint_strs = ['Mean_Squared_Error - 2.0'] 
@@ -883,7 +898,8 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -894,7 +910,7 @@ def test_use_custom_primary_gradient(gpa_regression_dataset):
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=False,
 		custom_primary_gradient_fn=objectives.gradient_Mean_Squared_Error,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -943,7 +959,8 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -953,7 +970,7 @@ def test_get_candidate_selection_result(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1008,7 +1025,8 @@ def test_get_safety_test_result(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -1018,7 +1036,7 @@ def test_get_safety_test_result(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1069,7 +1087,7 @@ def test_nans_infs_gradient_descent(gpa_regression_dataset):
 
 	frac_data_in_safety=0.6
 	# first nans
-	initial_solution_fn_nan = lambda x,y: np.nan*np.ones(10)
+	initial_solution_fn_nan = lambda m, x,y: np.nan*np.ones(10)
 	# Create spec object
 	spec_nan = SupervisedSpec(
 		dataset=dataset,
@@ -1103,7 +1121,7 @@ def test_nans_infs_gradient_descent(gpa_regression_dataset):
 	assert solution_nan == 'NSF'
 
 	# now infs
-	initial_solution_fn_inf = lambda x,y: np.inf*np.ones(10)
+	initial_solution_fn_inf = lambda m, x,y: np.inf*np.ones(10)
 	# Create spec object
 	spec_inf = SupervisedSpec(
 		dataset=dataset,
@@ -1158,7 +1176,8 @@ def test_run_safety_test_only(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec = SupervisedSpec(
 		dataset=dataset,
@@ -1168,7 +1187,7 @@ def test_run_safety_test_only(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1212,7 +1231,8 @@ def test_reg_coef(gpa_regression_dataset):
 		deltas=deltas)
 
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# First gradient descent
 	# Create spec object
 	spec_gs = SupervisedSpec(
@@ -1223,7 +1243,7 @@ def test_reg_coef(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1254,7 +1274,8 @@ def test_reg_coef(gpa_regression_dataset):
 	assert passed_safety == True
 	assert np.allclose(test_solution_gs,solution)
 		
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	spec_bb = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -1263,7 +1284,7 @@ def test_reg_coef(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='barrier_function',
 		optimizer='Powell',
 		regularization_hyperparams={
@@ -1303,6 +1324,8 @@ def test_create_logfile(gpa_regression_dataset):
 
 	frac_data_in_safety=0.6
 
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# First gradient descent
 	# Create spec object
 	spec_gs = SupervisedSpec(
@@ -1313,7 +1336,7 @@ def test_create_logfile(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1352,6 +1375,8 @@ def test_bad_autodiff_method(gpa_classification_dataset):
 		deltas=deltas)
 	frac_data_in_safety = 0.6
 	# Create spec object
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -1360,7 +1385,7 @@ def test_bad_autodiff_method(gpa_classification_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1416,6 +1441,8 @@ def test_lambda_init(gpa_regression_dataset):
 			'hyper_search'  : None,
 			'verbose'       : True,
 		}
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	# Create spec object
 	spec1 = SupervisedSpec(
 		dataset=dataset,
@@ -1425,7 +1452,7 @@ def test_lambda_init(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams=hyperparams1
@@ -1447,6 +1474,7 @@ def test_lambda_init(gpa_regression_dataset):
 			'hyper_search'  : None,
 			'verbose'       : True,
 		}
+
 	# Create spec object
 	spec2 = SupervisedSpec(
 		dataset=dataset,
@@ -1456,7 +1484,7 @@ def test_lambda_init(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams=hyperparams2
@@ -1487,7 +1515,7 @@ def test_lambda_init(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams=hyperparams3
@@ -1525,7 +1553,7 @@ def test_lambda_init(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams=hyperparams4
@@ -1558,7 +1586,7 @@ def test_lambda_init(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams=hyperparams5
@@ -1598,7 +1626,7 @@ def test_lambda_init(gpa_regression_dataset):
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=primary_objective,
 		use_builtin_primary_gradient_fn=True,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams=hyperparams6
@@ -1631,7 +1659,8 @@ def test_no_primary_provided(gpa_regression_dataset,
 		constraint_strs=constraint_strs,
 		deltas=deltas)
 	frac_data_in_safety=0.6
-
+	def initial_solution_fn(m,x,y):
+		return m.fit(x,y)
 	spec = SupervisedSpec(
 		dataset=dataset,
 		model=model,
@@ -1640,7 +1669,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=None,
 		use_builtin_primary_gradient_fn=False,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1683,7 +1712,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 		frac_data_in_safety=frac_data_in_safety,
 		primary_objective=None,
 		use_builtin_primary_gradient_fn=False,
-		initial_solution_fn=model.fit,
+		initial_solution_fn=initial_solution_fn,
 		optimization_technique='gradient_descent',
 		optimizer='adam',
 		optimization_hyperparams={
@@ -1884,6 +1913,154 @@ def test_no_initial_solution_provided(gpa_regression_dataset,
 	SA.set_initial_solution()
 	assert np.allclose(SA.initial_solution,np.zeros((10,3)))
 	
+def test_gpa_decision_tree(gpa_classification_dataset):
+	""" Test that the decision tree model works 
+	with the gpa classification example with disparate impact
+	
+	Make sure safety test passes and solution is correct.
+	"""
+	from seldonian.models.trees.sktree_model import SeldonianDecisionTree, probs2theta
+	rseed=0
+	np.random.seed(rseed)
+	frac_data_in_safety=0.6
+	model = SeldonianDecisionTree(max_depth=4)
+
+	fairness_constraint_dict = {
+		'disparate_impact':'0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))',
+		}
+
+	solution_dict = {
+	'disparate_impact':np.array(
+		[-0.91629073, -0.3438721,  -1.09239933, -0.66233601, -0.52598787,  0.39204209,
+ -0.03608235,  0.89994159, -0.0151407,   1.02850272,  0.1308396,   1.26640574,
+  0.45630478,  1.17799732, -0.87546874,  2.004718  ]),
+	}
+	def initial_solution_fn(m,x,y):
+		probs = m.fit(x,y)
+		return probs2theta(probs)
+
+
+	for constraint in fairness_constraint_dict:
+		constraint_str = fairness_constraint_dict[constraint]
+		constraint_strs = [constraint_str]
+		deltas = [0.05]
+
+		(dataset,_,
+			primary_objective,parse_trees) = gpa_classification_dataset(
+			constraint_strs=constraint_strs,
+			deltas=deltas)
+		
+		# Create spec object
+		spec = SupervisedSpec(
+			dataset=dataset,
+			model=model,
+			parse_trees=parse_trees,
+			sub_regime='classification',
+			frac_data_in_safety=frac_data_in_safety,
+			primary_objective=primary_objective,
+			use_builtin_primary_gradient_fn=False,
+			initial_solution_fn=initial_solution_fn,
+			optimization_technique='gradient_descent',
+			optimizer='adam',
+			optimization_hyperparams={
+				'lambda_init'   : np.array([0.5]),
+				'alpha_theta'   : 0.005,
+				'alpha_lamb'    : 0.005,
+				'beta_velocity' : 0.9,
+				'beta_rmsprop'  : 0.95,
+				'num_iters'     : 10,
+				'use_batches'   : False,
+				'gradient_library': "autograd",
+				'hyper_search'  : None,
+				'verbose'       : True,
+			}
+		)
+
+		# Run seldonian algorithm
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
+		assert passed_safety == True
+
+		solution_to_compare = solution_dict[constraint]
+
+		assert np.allclose(solution,solution_to_compare)
+
+def test_gpa_random_forest(gpa_classification_dataset):
+	""" Test that the decision tree model works 
+	with the gpa classification example with disparate impact
+	
+	Make sure safety test passes and solution is correct.
+	"""
+	from seldonian.models.trees.skrandomforest_model import SeldonianRandomForest, probs2theta
+	rseed=0
+	np.random.seed(rseed)
+	frac_data_in_safety=0.6
+	model = SeldonianRandomForest(max_depth=3,n_estimators=5)
+
+	fairness_constraint_dict = {
+		'disparate_impact':'0.8 - min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M]))',
+		}
+
+	solution_dict = {
+	'disparate_impact':np.array(
+		 [-0.80923242, -0.24296163, -0.32121083,  0.58102988,  0.20254449,  1.43074612,
+  0.99403948,  2.49842037, -0.42527665, -0.85068235, -0.00595723,  0.82507472,
+ -0.0133283,   0.94150215,  0.7472144,   2.52572864, -0.42381425, -0.91412623,
+ -0.408637,    0.21814065, -0.15094095,  0.64132211,  0.75391354,  2.26610688,
+ -0.79259672, -0.19415601, -0.2897921,   0.7021469,  -0.22314355,  0.68145114,
+  0.94243012,  2.18287713, -0.22875438, -0.67453988, -0.31015493,  0.40171276,
+ -0.1057952,   0.35916793,  0.66489671,  1.88178562]),
+	}
+	def initial_solution_fn(m,x,y):
+		probs = m.fit(x,y)
+		return probs2theta(probs)
+
+
+	for constraint in fairness_constraint_dict:
+		constraint_str = fairness_constraint_dict[constraint]
+		constraint_strs = [constraint_str]
+		deltas = [0.05]
+
+		(dataset,_,
+			primary_objective,parse_trees) = gpa_classification_dataset(
+			constraint_strs=constraint_strs,
+			deltas=deltas)
+		
+		# Create spec object
+		spec = SupervisedSpec(
+			dataset=dataset,
+			model=model,
+			parse_trees=parse_trees,
+			sub_regime='classification',
+			frac_data_in_safety=frac_data_in_safety,
+			primary_objective=primary_objective,
+			use_builtin_primary_gradient_fn=False,
+			initial_solution_fn=initial_solution_fn,
+			optimization_technique='gradient_descent',
+			optimizer='adam',
+			optimization_hyperparams={
+				'lambda_init'   : np.array([0.5]),
+				'alpha_theta'   : 0.005,
+				'alpha_lamb'    : 0.005,
+				'beta_velocity' : 0.9,
+				'beta_rmsprop'  : 0.95,
+				'num_iters'     : 10,
+				'use_batches'   : False,
+				'gradient_library': "autograd",
+				'hyper_search'  : None,
+				'verbose'       : True,
+			}
+		)
+
+		# Run seldonian algorithm
+		SA = SeldonianAlgorithm(spec)
+		passed_safety,solution = SA.run()
+		assert passed_safety == True
+
+		solution_to_compare = solution_dict[constraint]
+		assert np.allclose(solution,solution_to_compare)
+
+
 """ RL based tests """
 
 def test_RL_builtin_or_custom_gradient_not_supported(
@@ -1989,6 +2166,8 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	with a simple performance improvement constraint. Make
 	sure safety test passes and solution is correct.
 	"""
+
+	# IS estimate
 	# Load data and metadata
 	rseed=99
 	np.random.seed(rseed)
@@ -2040,10 +2219,63 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	assert g_vals[1][0] == pytest.approx(-9.67469087)
 
 	#Get primary objective
-	primary_val_cs = SA.evaluate_primary_objective(
-		theta=solution,branch='candidate_selection')
 	primary_val_st = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
 	assert primary_val_st == pytest.approx(0.42407173678433796)
+
+	# WIS estimate
+	# Load data and metadata
+	rseed=99
+	np.random.seed(rseed)
+	constraint_strs = ['-10.0 - J_pi_new_WIS']
+	deltas = [0.05]
+	
+	parse_trees = make_parse_trees_from_constraints(
+		constraint_strs,
+		deltas,
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[],
+		delta_weight_method='equal')
+	(dataset,policy,
+		env_kwargs,_) = RL_gridworld_dataset()
+
+	frac_data_in_safety = 0.6
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+	# Create spec object
+	spec = RLSpec(
+		dataset=dataset,
+		model=model,
+		frac_data_in_safety=frac_data_in_safety,
+		use_builtin_primary_gradient_fn=False,
+		primary_objective=objectives.WIS_estimate,
+		parse_trees=parse_trees,
+		initial_solution_fn=None,
+		optimization_technique='gradient_descent',
+		optimizer='adam',
+		optimization_hyperparams={
+			'lambda_init'   : 0.5,
+			'alpha_theta'   : 0.01,
+			'alpha_lamb'    : 0.01,
+			'beta_velocity' : 0.9,
+			'beta_rmsprop'  : 0.95,
+			'num_iters'     : 5,
+			'use_batches'   : False,
+			'gradient_library': "autograd",
+			'hyper_search'  : None,
+			'verbose'       : True,
+		},
+	)
+
+	# # Run seldonian algorithm
+	SA = SeldonianAlgorithm(spec)
+	passed_safety,solution = SA.run()
+	assert passed_safety == True
+	g_vals = SA.cs_result['g_vals']
+	assert g_vals[1][0] == pytest.approx(-9.67416473)
+
+	#Get primary objective
+	primary_val_st = SA.evaluate_primary_objective(theta=solution,branch='safety_test')
+	assert primary_val_st == pytest.approx(0.43915764584186856)
 
 def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	""" Test that trying to run RL example with 

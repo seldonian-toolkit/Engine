@@ -167,6 +167,7 @@ class CandidateSelection(object):
         :return: Optimized model weights or 'NSF'
         :rtype: array or str
         """
+        
         if self.optimization_technique == "gradient_descent":
             if self.optimizer != "adam":
                 raise NotImplementedError(
@@ -174,7 +175,8 @@ class CandidateSelection(object):
                 )
 
             from seldonian.optimizers.gradient_descent import gradient_descent_adam
-
+            if "clip_theta" not in kwargs:
+                kwargs["clip_theta"] = None
             # Figure out number of batches
             if "use_batches" not in kwargs:
                 raise KeyError(
@@ -212,6 +214,7 @@ class CandidateSelection(object):
                 beta_rmsprop=kwargs["beta_rmsprop"],
                 theta_init=self.initial_solution,
                 lambda_init=kwargs["lambda_init"],
+                clip_theta=kwargs["clip_theta"],
                 verbose=kwargs["verbose"],
                 debug=kwargs["debug"],
             )
@@ -338,7 +341,9 @@ class CandidateSelection(object):
                         )
                         log_counter += 1
 
-                logger = partial(cmaes_logger,filename=filename)
+                    logger = partial(cmaes_logger,filename=filename)
+                else:
+                    logger = None
 
                 if "seed" in kwargs:
                     opts["seed"] = kwargs["seed"]
@@ -388,12 +393,11 @@ class CandidateSelection(object):
         :return: the value of the objective function
                 evaluated at theta
         """
-
         # Get the primary objective evaluated at the given theta
         # and the entire candidate dataset
         if self.regime == "supervised_learning":
             result = self.primary_objective(
-                self.model, theta, self.features, self.labels
+                self.model, theta, self.features, self.labels, sub_regime=self.candidate_dataset.meta.sub_regime
             )
 
         elif self.regime == 'reinforcement_learning':
@@ -442,14 +446,13 @@ class CandidateSelection(object):
                     # Put a barrier in the objective. Any solution
                     # that we think will fail the safety test
                     # will have a large cost associated with it
-                    if self.optimization_technique == "barrier_function":
-                        result = 100000.0
+
+                    result = 100000.0
                 # Add a shaping to the objective function that will
                 # push the search toward solutions that will pass
                 # the prediction of the safety test
 
                 result = result + upper_bound
-
         return result
 
     def evaluate_primary_objective(self, theta):
@@ -466,7 +469,7 @@ class CandidateSelection(object):
 
         if self.regime == "supervised_learning":
             result = self.primary_objective(
-                self.model, theta, self.batch_features, self.batch_labels
+                self.model, theta, self.batch_features, self.batch_labels, sub_regime=self.candidate_dataset.meta.sub_regime
             )
 
         elif self.regime == "reinforcement_learning":

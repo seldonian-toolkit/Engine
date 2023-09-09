@@ -115,10 +115,9 @@ class SeldonianAlgorithm:
                 sensitive_attrs=self.safety_sensitive_attrs,
                 meta=self.dataset.meta,
             )
-
-            print(f"Safety dataset has {self.n_safety} episodes")
-            print(f"Candidate dataset has {self.n_candidate} episodes")
-            print("Candidate sensitive_attrs:")
+            if self.spec.verbose:
+                print(f"Safety dataset has {self.n_safety} episodes")
+                print(f"Candidate dataset has {self.n_candidate} episodes")
 
         if self.spec.primary_objective is None:
             if self.regime == "reinforcement_learning":
@@ -209,10 +208,24 @@ class SeldonianAlgorithm:
 
     def set_initial_solution(self, verbose=False):
         if self.regime == "supervised_learning":
-            if self.spec.initial_solution_fn is None:
+            needs_init_sol = False
+            if self.spec.initial_solution_fn is not None: 
+                if verbose: print("Attempting to use initial solution function")
+                try: 
+                    self.initial_solution = self.spec.initial_solution_fn(
+                        self.model,
+                        self.candidate_features,
+                        self.candidate_labels
+                    )
+                except: 
+                    if verbose: print("initial_solution_fn() failed. Falling back to default initial solution") 
+                    needs_init_sol = True
+            else:
+                needs_init_sol = True
+            
+            if needs_init_sol:
                 if verbose:
                     print(
-                        "No initial_solution_fn provided. "
                         "Attempting to initialize with a zeros matrix "
                         " of the correct shape"
                     )
@@ -225,10 +238,7 @@ class SeldonianAlgorithm:
                 else:
                     self.initial_solution = np.zeros(n_features)
 
-            else:
-                self.initial_solution = self.spec.initial_solution_fn(
-                    self.candidate_features, self.candidate_labels
-                )
+                
         elif self.regime == "reinforcement_learning":
             if self.spec.initial_solution_fn is None:
                 if verbose:

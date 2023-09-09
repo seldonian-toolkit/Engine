@@ -479,7 +479,8 @@ class ParseTree(object):
             "FNR_",
             "J_pi_new_",
             "J_pi_new_PDIS_",
-            "J_pi_new_fake_"
+            "J_pi_new_US_",
+            "J_pi_new_WIS_"
         ]:
             raise NotImplementedError(
                 "Error parsing your expression."
@@ -504,7 +505,8 @@ class ParseTree(object):
             node_kwargs["name"] = node_name
             node_kwargs["cm_true_index"] = row_index
             node_kwargs["cm_pred_index"] = col_index
-        elif ast_node.value.id in ["J_pi_new_","J_pi_new_PDIS_","J_pi_new_fake_"]:
+        
+        elif ast_node.value.id in ["J_pi_new_","J_pi_new_PDIS_","J_pi_new_US_","J_pi_new_WIS_"]:
             # alternate reward function
             node_class = RLAltRewardBaseNode
             try:

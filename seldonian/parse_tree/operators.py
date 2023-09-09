@@ -65,12 +65,8 @@ during the construction of parse trees
 	arrays are boolean:
 	[need_A_lower, need_A_upper]
 """
-import autograd.numpy as np  # Thinly-wrapped version of Numpy
-import pandas as pd
 import ast
-
 from .nodes import *
-
 
 measure_functions_dict = {
     "supervised_learning": {
@@ -100,7 +96,8 @@ measure_functions_dict = {
         	[
     		"J_pi_new",
             "J_pi_new_PDIS",
-            "J_pi_new_fake",
+            "J_pi_new_WIS",
+            "J_pi_new_US"
             ]
         },
 }
@@ -172,3 +169,5 @@ bounds_required_dict = {
         "upper": [0, 1],
     },
 }
+
+
