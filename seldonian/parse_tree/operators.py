@@ -66,46 +66,6 @@ during the construction of parse trees
 	[need_A_lower, need_A_upper]
 """
 import ast
-from .nodes import *
-
-measure_functions_dict = {
-    "supervised_learning": {
-        "classification": [
-            "PR",
-            "NR",
-            "FPR",
-            "TPR",
-            "FNR",
-            "TNR",
-            "ACC",
-        ],
-        "multiclass_classification": [
-            "CM",
-            "PR",
-            "NR",
-            "FPR",
-            "TPR",
-            "FNR",
-            "TNR",
-            "ACC",
-        ],
-        "regression": ["Mean_Error", "Mean_Squared_Error"],
-    },
-    "reinforcement_learning": {
-        "all":
-        	[
-    		"J_pi_new",
-            "J_pi_new_PDIS",
-            "J_pi_new_WIS",
-            "J_pi_new_US"
-            ]
-        },
-}
-
-custom_base_node_dict = {
-    "MED_MF": MEDCustomBaseNode,
-    "CVaRSQE": CVaRSQeBaseNode,
-}
 
 op_mapper = {
     ast.Sub: "sub",

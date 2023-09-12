@@ -3,7 +3,7 @@ from functools import reduce, partial
 import pandas as pd
 import autograd.numpy as np
 
-from seldonian.models import zhat_funcs 
+from . import zhat_funcs 
 from seldonian.utils.stats_utils import *
 
 
@@ -1198,3 +1198,42 @@ class InternalNode(Node):
         """
         super().__init__(name, lower, upper, **kwargs)
         self.node_type = "internal_node"
+
+custom_base_node_dict = {
+    "MED_MF": MEDCustomBaseNode,
+    "CVaRSQE": CVaRSQeBaseNode,
+}
+
+measure_functions_dict = {
+    "supervised_learning": {
+        "classification": [
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "multiclass_classification": [
+            "CM",
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "regression": ["Mean_Error", "Mean_Squared_Error"],
+    },
+    "reinforcement_learning": {
+        "all":
+            [
+            "J_pi_new",
+            "J_pi_new_PDIS",
+            "J_pi_new_WIS",
+            "J_pi_new_US"
+            ]
+        },
+}
