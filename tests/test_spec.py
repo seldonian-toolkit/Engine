@@ -150,7 +150,7 @@ def test_createRLSpec(RL_gridworld_dataset,
 	"""
 	# Regression
 	
-	constraint_strs = ['J_pi_new >= -0.25']
+	constraint_strs = ['J_pi_new_IS >= -0.25']
 	deltas = [0.05]
 
 	save_dir = "tests/specfiles"

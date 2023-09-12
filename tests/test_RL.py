@@ -202,7 +202,7 @@ def test_createRLSpec_gridworld(RL_gridworld_dataset):
     """ Test creating RLSpec object
     for default gridworld inputs """
     from seldonian.spec import createRLSpec
-    constraint_strs = ['J_pi_new >= -0.25']
+    constraint_strs = ['J_pi_new_IS >= -0.25']
     deltas = [0.05]
 
     (dataset,policy,env_kwargs,
@@ -224,7 +224,7 @@ def test_createRLSpec_mountaincar(N_step_mountaincar_dataset):
     """ Test creating RLSpec object
     for default gridworld inputs """
     from seldonian.spec import createRLSpec
-    constraint_strs = ['J_pi_new >= -500']
+    constraint_strs = ['J_pi_new_IS >= -500']
     deltas = [0.05]
 
     (dataset,policy,env_kwargs,

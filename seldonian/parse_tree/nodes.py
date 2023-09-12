@@ -6,6 +6,46 @@ import autograd.numpy as np
 from . import zhat_funcs 
 from seldonian.utils.stats_utils import *
 
+"""
+
+.. data:: measure_functions_dict
+    :type: dict[regime][sub_regime]
+
+    Contains strings that, if appearing in 
+    a constraint string, will be recognized
+    by the engine as statistical functions with 
+    special meaning. Organized by regime and sub-regime. 
+    For reference the meaning of each measure function is listed here:
+        
+        Supervised classification: 
+
+        - 'PR': Positive rate
+        - 'NR': Negative rate
+        - 'FPR': False positive rate
+        - 'TPR': True positive rate
+        - 'FNR': False negative rate
+        - 'TNR': True negative rate
+        - 'ACC': Accuracy
+        - 'CM': Confusion matrix (only relevant for multi-class classification)
+        
+        Supervised regression:
+            
+        - 'Mean_Error': Mean error
+        - 'Mean_Squared_Error': Mean squared error
+        
+        Reinforcement learning:
+
+        - 'J_pi_new': The performance (expected return of weighted rewards) of the new policy
+
+.. data:: custom_base_node_dict
+    :type: dict
+
+    A dictionary mapping the name of a custom 
+    base node as it would appear in the 
+    constraint string to the class representing it 
+    in :py:mod:`.nodes`
+
+"""
 
 class Node(object):
     def __init__(self, name, lower, upper):
@@ -705,12 +745,12 @@ class RLAltRewardBaseNode(BaseNode):
         alternate reward. These are 1-indexed,
         so if one wants to reference the second
         alternate reward, the base node string would be:
-        "J_pi_new_[2]"
+        "J_pi_new_IS_[2]"
         Inherits all of the attributes/methods
         of basenode
 
         :param name:
-            The name of the node, e.g. "J_pi_new_[1]"
+            The name of the node, e.g. "J_pi_new_IS_[1]"
         :type name: str
         :param alt_reward_number:
             Which alternate reward to use when
@@ -1230,7 +1270,7 @@ measure_functions_dict = {
     "reinforcement_learning": {
         "all":
             [
-            "J_pi_new",
+            "J_pi_new_IS",
             "J_pi_new_PDIS",
             "J_pi_new_WIS",
             "J_pi_new_US"
@@ -1246,8 +1286,8 @@ subscriptable_measure_functions = [
             "TNR",
             "TPR",
             "FNR",
-            "J_pi_new",
+            "J_pi_new_IS",
             "J_pi_new_PDIS",
             "J_pi_new_US",
-            "J_pi_new_WIS"
+            "J_pi_new_WIS",
         ]

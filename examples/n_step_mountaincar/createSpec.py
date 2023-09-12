@@ -37,7 +37,7 @@ if __name__ == '__main__':
         env_description=env_description)
     env_kwargs={'gamma':1.0}
     save_dir = '.'
-    constraint_strs = ['J_pi_new >= -500']
+    constraint_strs = ['J_pi_new_IS >= -500']
     deltas=[0.05]
 
     createRLSpec(

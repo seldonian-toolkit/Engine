@@ -968,7 +968,7 @@ measure_function_vector_mapper = {
     "TPR": vector_True_Positive_Rate,
     "TNR": vector_True_Negative_Rate,
     "ACC": vector_Accuracy,
-    "J_pi_new": vector_IS_estimate,
+    "J_pi_new_IS": vector_IS_estimate,
     'J_pi_new_PDIS':vector_PDIS_estimate,
     'J_pi_new_WIS':vector_WIS_estimate,
     'J_pi_new_US':vector_auxiliary_return_US_estimate,
