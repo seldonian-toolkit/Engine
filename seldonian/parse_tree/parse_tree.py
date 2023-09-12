@@ -469,19 +469,7 @@ class ParseTree(object):
         return node_class(node_name), is_leaf
 
     def _parse_subscript(self, ast_node):
-        if ast_node.value.id not in [
-            "CM_",
-            "PR_",
-            "NR_",
-            "FPR_",
-            "TNR_",
-            "TPR_",
-            "FNR_",
-            "J_pi_new_",
-            "J_pi_new_PDIS_",
-            "J_pi_new_US_",
-            "J_pi_new_WIS_"
-        ]:
+        if ast_node.value.id.rstrip("_") not in subscriptable_measure_functions:
             raise NotImplementedError(
                 "Error parsing your expression."
                 " A subscript was used in a way we do not support: "
@@ -506,7 +494,7 @@ class ParseTree(object):
             node_kwargs["cm_true_index"] = row_index
             node_kwargs["cm_pred_index"] = col_index
         
-        elif ast_node.value.id in ["J_pi_new_","J_pi_new_PDIS_","J_pi_new_US_","J_pi_new_WIS_"]:
+        elif ast_node.value.id.rstrip("_") in measure_functions_dict["reinforcement_learning"]["all"]:
             # alternate reward function
             node_class = RLAltRewardBaseNode
             try:

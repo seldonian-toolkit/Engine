@@ -1237,3 +1237,17 @@ measure_functions_dict = {
             ]
         },
 }
+
+subscriptable_measure_functions = [
+            "CM",
+            "PR",
+            "NR",
+            "FPR",
+            "TNR",
+            "TPR",
+            "FNR",
+            "J_pi_new",
+            "J_pi_new_PDIS",
+            "J_pi_new_US",
+            "J_pi_new_WIS"
+        ]
