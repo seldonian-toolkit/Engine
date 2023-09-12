@@ -936,6 +936,26 @@ def vector_WIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     WIS_vector = n*rho_array*weighted_returns/np.sum(rho_array)
     return WIS_vector
 
+
+def vector_auxiliary_return_US_estimate(model, theta, episodes, weighted_returns, **kwargs):
+    """Get the auxiliary reward returns for episodes
+     whose actions fall within the theta bounding box.
+     This function is used for constraints, unlike Bounding_box_estimate()
+     which is used for primary objective functions.
+    """
+    crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
+
+    returns_inside_theta_box = []
+    for ii, ep in enumerate(episodes):
+        cr,cf = ep.actions[0] # behavior policy action
+        secondary_return = ep.alt_rewards[0][0]
+        # theta is crmin, crmax, cfmin, cfmax
+        if (crmin <= cr <= crmax) and (cfmin <= cf <= cfmax):
+            returns_inside_theta_box.append(secondary_return)
+    n_inside_box = len(returns_inside_theta_box)
+    return np.array(returns_inside_theta_box)
+
+
 """ Measure function mapper that maps from string that appears in the constraint string to the appropriate function. """
 
 measure_function_vector_mapper = {
@@ -948,7 +968,8 @@ measure_function_vector_mapper = {
     "TPR": vector_True_Positive_Rate,
     "TNR": vector_True_Negative_Rate,
     "ACC": vector_Accuracy,
-    "J_pi_new": vector_IS_estimate,
+    "J_pi_new_IS": vector_IS_estimate,
     'J_pi_new_PDIS':vector_PDIS_estimate,
     'J_pi_new_WIS':vector_WIS_estimate,
+    'J_pi_new_US':vector_auxiliary_return_US_estimate,
 }

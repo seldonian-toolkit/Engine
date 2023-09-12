@@ -292,6 +292,13 @@ class SeldonianAlgorithm:
             debug=debug,
         )
 
+        if debug:
+            if passed_safety:
+                print("Passed safety test with solution:")
+                print(solution)
+            else:
+                print("Failed safety test")
+
         return passed_safety, solution
 
     def run_candidate_selection(self, write_logfile=False, debug=False):
@@ -325,13 +332,9 @@ class SeldonianAlgorithm:
         st = self.safety_test()
         passed_safety = st.run(candidate_solution, batch_size_safety=batch_size_safety)
         if not passed_safety:
-            if debug:
-                print("Failed safety test")
             solution = "NSF"
         else:
             solution = candidate_solution
-            if debug:
-                print("Passed safety test!")
         self.st_has_been_run = True
         self.st_result = st.st_result
         return passed_safety, solution

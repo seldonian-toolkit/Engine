@@ -766,21 +766,21 @@ def test_multiclass_measure_functions():
 
 def test_rl_alt_reward_string():
 	delta = 0.05
-	constraint_str = 'J_pi_new_[1] - 0.5'
+	constraint_str = 'J_pi_new_IS_[1] - 0.5'
 
 	pt = ParseTree(delta,regime='reinforcement_learning',
 		sub_regime='all')
 	pt.create_from_ast(constraint_str)
-	assert pt.root.left.measure_function_name == 'J_pi_new'
-	assert pt.root.left.name == 'J_pi_new_[1]'
+	assert pt.root.left.measure_function_name == 'J_pi_new_IS'
+	assert pt.root.left.name == 'J_pi_new_IS_[1]'
 	assert pt.root.left.alt_reward_number == 1
 
-	constraint_str = '(J_pi_new_[2] | [A,B]) - 0.5'
+	constraint_str = '(J_pi_new_IS_[2] | [A,B]) - 0.5'
 	pt = ParseTree(delta,regime='reinforcement_learning',
 		sub_regime='all',columns=['A','B'])
 	pt.create_from_ast(constraint_str)
-	assert pt.root.left.measure_function_name == 'J_pi_new'
-	assert pt.root.left.name == 'J_pi_new_[2] | [A,B]'
+	assert pt.root.left.measure_function_name == 'J_pi_new_IS'
+	assert pt.root.left.name == 'J_pi_new_IS_[2] | [A,B]'
 	assert pt.root.left.alt_reward_number == 2
 
 	constraint_str = 'J_pi_new_PDIS_[1] - 0.5'
@@ -804,7 +804,7 @@ def test_rl_alt_reward_string():
 def test_rl_alt_reward_bad_string():
 	# Test that using non-numeric characters for the alt reward number raises an error
 	delta = 0.05
-	constraint_str = 'J_pi_new_[N] - 0.5'
+	constraint_str = 'J_pi_new_IS_[N] - 0.5'
 
 	pt = ParseTree(delta,regime='reinforcement_learning',
 		sub_regime='all')
@@ -813,7 +813,7 @@ def test_rl_alt_reward_bad_string():
 	error_str = "The alternate reward number you entered was not an integer."		
 	assert str(excinfo.value) == error_str
 
-	constraint_str = 'J_pi_new_[1.1] - 0.5'
+	constraint_str = 'J_pi_new_IS_[1.1] - 0.5'
 
 	pt = ParseTree(delta,regime='reinforcement_learning',
 		sub_regime='all')
@@ -878,7 +878,7 @@ def test_rl_alt_reward_precalc_return():
 	env_kwargs={'gamma':0.9}
 	model = RL_model(policy=policy,env_kwargs=env_kwargs)
 
-	IS_constraint_strs = ['J_pi_new_[1] >= -0.25']
+	IS_constraint_strs = ['J_pi_new_IS_[1] >= -0.25']
 	IS_deltas=[0.05]
 
 	IS_pt = ParseTree(delta=IS_deltas[0],
@@ -903,7 +903,7 @@ def test_rl_alt_reward_precalc_return():
 		branch='safety_test')
 	assert IS_pt.root.value == pytest.approx(3.5460865367462726)
 
-	weighted_returns_alt_reward = IS_pt.base_node_dict["J_pi_new_[1]"]['data_dict']['weighted_returns']
+	weighted_returns_alt_reward = IS_pt.base_node_dict["J_pi_new_IS_[1]"]['data_dict']['weighted_returns']
 	assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
 
 	PDIS_constraint_strs = ['J_pi_new_PDIS_[1] >= -0.25']
@@ -1792,7 +1792,7 @@ def test_evaluate_constraint(
 	assert pt.root.value == pytest.approx(-5.656718)
 
 	### RL
-	constraint_str = 'J_pi_new >= -0.25'
+	constraint_str = 'J_pi_new_IS >= -0.25'
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 	parse_trees = make_parse_trees_from_constraints(
@@ -1918,7 +1918,7 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	env_kwargs={'gamma':0.9}
 	RLmodel = RL_model(policy=policy,env_kwargs=env_kwargs)
 
-	RL_constraint_strs = ['(J_pi_new | [M]) >= -0.25']
+	RL_constraint_strs = ['(J_pi_new_IS | [M]) >= -0.25']
 	RL_deltas=[0.05]
 
 	RL_pt = ParseTree(RL_deltas[0],
@@ -1938,7 +1938,7 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	assert RL_pt.root.lower == pytest.approx(-0.00556309)
 	assert RL_pt.root.upper == pytest.approx(0.333239520)
 
-	assert len(RL_pt.base_node_dict["J_pi_new | [M]"]['data_dict']['episodes']) == 52
+	assert len(RL_pt.base_node_dict["J_pi_new_IS | [M]"]['data_dict']['episodes']) == 52
 
 def test_build_tree():
 	""" Test the convenience function that builds the tree,

@@ -20,7 +20,7 @@ def main():
 		env_description=env_description)
 	env_kwargs={'gamma':0.9}
 	save_dir = '.'
-	constraint_strs = ['J_pi_new >= -0.25']
+	constraint_strs = ['J_pi_new_IS >= -0.25']
 	deltas=[0.05]
 
 	spec = createRLSpec(

@@ -3,9 +3,49 @@ from functools import reduce, partial
 import pandas as pd
 import autograd.numpy as np
 
-from seldonian.models import zhat_funcs 
+from . import zhat_funcs 
 from seldonian.utils.stats_utils import *
 
+"""
+
+.. data:: measure_functions_dict
+    :type: dict[regime][sub_regime]
+
+    Contains strings that, if appearing in 
+    a constraint string, will be recognized
+    by the engine as statistical functions with 
+    special meaning. Organized by regime and sub-regime. 
+    For reference the meaning of each measure function is listed here:
+        
+        Supervised classification: 
+
+        - 'PR': Positive rate
+        - 'NR': Negative rate
+        - 'FPR': False positive rate
+        - 'TPR': True positive rate
+        - 'FNR': False negative rate
+        - 'TNR': True negative rate
+        - 'ACC': Accuracy
+        - 'CM': Confusion matrix (only relevant for multi-class classification)
+        
+        Supervised regression:
+            
+        - 'Mean_Error': Mean error
+        - 'Mean_Squared_Error': Mean squared error
+        
+        Reinforcement learning:
+
+        - 'J_pi_new': The performance (expected return of weighted rewards) of the new policy
+
+.. data:: custom_base_node_dict
+    :type: dict
+
+    A dictionary mapping the name of a custom 
+    base node as it would appear in the 
+    constraint string to the class representing it 
+    in :py:mod:`.nodes`
+
+"""
 
 class Node(object):
     def __init__(self, name, lower, upper):
@@ -279,6 +319,14 @@ class BaseNode(Node):
                 # getting confidence intervals from bootstrap
                 # and RL cases
                 estimator_samples = self.zhat(**kwargs)
+                
+                if len(estimator_samples) < 5:
+                    bounds_dict = {}
+                    if self.will_lower_bound:
+                        bounds_dict['lower'] = -np.inf
+                    if self.will_upper_bound:
+                        bounds_dict['upper'] = np.inf
+                    return bounds_dict
 
                 branch = kwargs["branch"]
                 if branch == "safety_test":
@@ -697,12 +745,12 @@ class RLAltRewardBaseNode(BaseNode):
         alternate reward. These are 1-indexed,
         so if one wants to reference the second
         alternate reward, the base node string would be:
-        "J_pi_new_[2]"
+        "J_pi_new_IS_[2]"
         Inherits all of the attributes/methods
         of basenode
 
         :param name:
-            The name of the node, e.g. "J_pi_new_[1]"
+            The name of the node, e.g. "J_pi_new_IS_[1]"
         :type name: str
         :param alt_reward_number:
             Which alternate reward to use when
@@ -1190,3 +1238,56 @@ class InternalNode(Node):
         """
         super().__init__(name, lower, upper, **kwargs)
         self.node_type = "internal_node"
+
+custom_base_node_dict = {
+    "MED_MF": MEDCustomBaseNode,
+    "CVaRSQE": CVaRSQeBaseNode,
+}
+
+measure_functions_dict = {
+    "supervised_learning": {
+        "classification": [
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "multiclass_classification": [
+            "CM",
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "regression": ["Mean_Error", "Mean_Squared_Error"],
+    },
+    "reinforcement_learning": {
+        "all":
+            [
+            "J_pi_new_IS",
+            "J_pi_new_PDIS",
+            "J_pi_new_WIS",
+            "J_pi_new_US"
+            ]
+        },
+}
+
+subscriptable_measure_functions = [
+            "CM",
+            "PR",
+            "NR",
+            "FPR",
+            "TNR",
+            "TPR",
+            "FNR",
+            "J_pi_new_IS",
+            "J_pi_new_PDIS",
+            "J_pi_new_US",
+            "J_pi_new_WIS",
+        ]

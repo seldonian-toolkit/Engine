@@ -759,7 +759,6 @@ def IS_estimate(model, theta, episodes, **kwargs):
 
     return IS_est
 
-
 def PDIS_estimate(model, theta, episodes, **kwargs)->float:
     """Calculate per decision importance sampling estimate
     on all episodes.
@@ -793,7 +792,7 @@ def PDIS_estimate(model, theta, episodes, **kwargs)->float:
 def WIS_estimate(model, theta, episodes, **kwargs):
     """Calculate the weighted importance sampling estimate
     on all episodes. This is: sum(i=0 to n) { rho_i/rhosum} * G_i,
-    where rhosum is sum(j=0 to n) {rho_j} and G_i is the discounted expected return.
+    where rhosum is sum(j=0 to n) {rho_j} and G_i is the discounted expected primary return.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -808,14 +807,11 @@ def WIS_estimate(model, theta, episodes, **kwargs):
     else:
         gamma = 1.0
     # Calculate the expected returns of the primary reward under the behavior policy 
-    weighted_returns = [
-        weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes
-    ]
-    # Calculate the denominator term, sum_j{rho_j}, where rho_j is the sum of all episode-wise importance weight products
-
     weighted_returns = np.array([
         weighted_sum_gamma(ep.rewards, gamma=gamma) for ep in episodes
     ])
+    # Calculate array of rho_j, which are the episode-wise importance weight products
+
     n = len(episodes)
     rho_array = []
     for ii, ep in enumerate(episodes):
@@ -827,4 +823,27 @@ def WIS_estimate(model, theta, episodes, **kwargs):
     rho_array = np.array(rho_array)
     WIS_est = np.sum(rho_array*weighted_returns)/np.sum(rho_array)
     return WIS_est
+
+def US_estimate(model, theta, episodes, **kwargs):
+    """Get the expected return of the PRIMARY reward 
+    for behavior episodes whose actions (cr,cf)
+    fall within the theta bounding box. 
+
+    :param model: SeldonianModel instance
+    :param theta: The parameter weights
+    :type theta: numpy ndarray
+    :param episodes: List of episodes
+    :return: A vector of IS estimates calculated for each episode
+    :rtype: numpy ndarray(float)
+    """
+
+    crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
+    returns_inside_theta_box = []
+    for ii, ep in enumerate(episodes):
+        cr_b,cf_b = ep.actions[0] # behavior policy action
+        primary_return = ep.rewards[0] # one reward per episode, so reward=return
+        if (crmin <= cr_b <= crmax) and (cfmin <= cf_b <= cfmax):
+            returns_inside_theta_box.append(primary_return)
+    f = np.mean(returns_inside_theta_box)
+    return f
 

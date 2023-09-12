@@ -1,43 +1,6 @@
 """ Module containing global variables used 
 during the construction of parse trees 
 
-.. data:: measure_functions_dict
-	:type: dict[regime][sub_regime]
-
-	Contains strings that, if appearing in 
-	a constraint string, will be recognized
-	by the engine as statistical functions with 
-	special meaning. Organized by regime and sub-regime. 
-	For reference the meaning of each measure function is listed here:
-		
-		Supervised classification: 
-
-		- 'PR': Positive rate
-		- 'NR': Negative rate
-		- 'FPR': False positive rate
-		- 'TPR': True positive rate
-		- 'FNR': False negative rate
-		- 'TNR': True negative rate
-		- 'ACC': Accuracy
-        - 'CM': Confusion matrix (only relevant for multi-class classification)
-		
-		Supervised regression:
-			
-		- 'Mean_Error': Mean error
-		- 'Mean_Squared_Error': Mean squared error
-		
-		Reinforcement learning:
-
-		- 'J_pi_new': The performance (expected return of weighted rewards) of the new policy
-
-.. data:: custom_base_node_dict
-	:type: dict
-
-	A dictionary mapping the name of a custom 
-	base node as it would appear in the 
-	constraint string to the class representing it 
-	in :py:mod:`.nodes`
-
 .. data:: op_mapper
 	:type: dict
 
@@ -65,50 +28,7 @@ during the construction of parse trees
 	arrays are boolean:
 	[need_A_lower, need_A_upper]
 """
-import autograd.numpy as np  # Thinly-wrapped version of Numpy
-import pandas as pd
 import ast
-
-from .nodes import *
-
-
-measure_functions_dict = {
-    "supervised_learning": {
-        "classification": [
-            "PR",
-            "NR",
-            "FPR",
-            "TPR",
-            "FNR",
-            "TNR",
-            "ACC",
-        ],
-        "multiclass_classification": [
-            "CM",
-            "PR",
-            "NR",
-            "FPR",
-            "TPR",
-            "FNR",
-            "TNR",
-            "ACC",
-        ],
-        "regression": ["Mean_Error", "Mean_Squared_Error"],
-    },
-    "reinforcement_learning": {
-        "all":
-        	[
-    		"J_pi_new",
-            "J_pi_new_PDIS",
-            "J_pi_new_WIS",
-            ]
-        },
-}
-
-custom_base_node_dict = {
-    "MED_MF": MEDCustomBaseNode,
-    "CVaRSQE": CVaRSQeBaseNode,
-}
 
 op_mapper = {
     ast.Sub: "sub",
@@ -172,3 +92,5 @@ bounds_required_dict = {
         "upper": [0, 1],
     },
 }
+
+

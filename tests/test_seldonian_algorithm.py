@@ -1736,7 +1736,7 @@ def test_no_primary_provided(gpa_regression_dataset,
 	assert spec.primary_objective.__name__ == "binary_logistic_loss"
 
 	# RL 
-	constraint_strs = ['-0.25 - J_pi_new']
+	constraint_strs = ['-0.25 - J_pi_new_IS']
 	deltas = [0.05]
 	
 	parse_trees = make_parse_trees_from_constraints(
@@ -2071,7 +2071,7 @@ def test_RL_builtin_or_custom_gradient_not_supported(
 	"""
 	rseed=99
 	np.random.seed(rseed)
-	constraint_strs = ['-0.25 - J_pi_new']
+	constraint_strs = ['-0.25 - J_pi_new_IS']
 	deltas = [0.05]
 	
 	parse_trees = make_parse_trees_from_constraints(
@@ -2171,7 +2171,7 @@ def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):
 	# Load data and metadata
 	rseed=99
 	np.random.seed(rseed)
-	constraint_strs = ['-10.0 - J_pi_new']
+	constraint_strs = ['-10.0 - J_pi_new_IS']
 	deltas = [0.05]
 	
 	parse_trees = make_parse_trees_from_constraints(
@@ -2285,7 +2285,7 @@ def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	# Load data and metadata
 	rseed=99
 	np.random.seed(rseed)
-	constraint_strs = ['-0.25 - J_pi_new']
+	constraint_strs = ['-0.25 - J_pi_new_IS']
 	deltas = [0.05]
 	
 	parse_trees = make_parse_trees_from_constraints(
@@ -2322,11 +2322,11 @@ def test_RL_gridworld_black_box(RL_gridworld_dataset):
 	# # Run seldonian algorithm
 	with pytest.raises(NotImplementedError) as excinfo:
 		SA = SeldonianAlgorithm(spec)
-		passed_safety,solution = SA.run()
+		passed_safety,solution = SA.run(debug=True)
 	error_str = (
-				"barrier_function optimization_technique "
+				"Optimizer: Powell "
 				"is not supported for reinforcement learning. "
-				"Use gradient_descent instead.")
+				"Try optimizer='CMA-ES' instead.")
 
 	assert error_str in str(excinfo.value)
 
@@ -2337,7 +2337,7 @@ def test_RL_gridworld_alt_rewards(RL_gridworld_dataset_alt_rewards):
 	np.random.seed(rseed)
 
 	# Vanilla IS first
-	IS_constraint_strs = ['-0.25 - J_pi_new_[1]']
+	IS_constraint_strs = ['-0.25 - J_pi_new_IS_[1]']
 	deltas = [0.05]
 	
 	IS_parse_trees = make_parse_trees_from_constraints(

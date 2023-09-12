@@ -4,7 +4,7 @@ import autograd.numpy as np
 
 from seldonian.spec import (SupervisedSpec)
 from seldonian.models import objectives
-from seldonian.models import zhat_funcs
+from seldonian.parse_tree import zhat_funcs
 from seldonian.models.models import *
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 

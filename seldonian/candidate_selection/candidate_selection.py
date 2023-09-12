@@ -88,6 +88,9 @@ class CandidateSelection(object):
         if "reg_coef" in kwargs:
             self.reg_coef = kwargs["reg_coef"]
 
+        if "reg_func" in kwargs:
+            self.reg_func = kwargs["reg_func"]
+
     def calculate_batches(self, batch_index, batch_size):
         """Create a batch dataset to be used in gradient descent.
         Does not return anything, instead sets self.batch_dataset.
@@ -286,24 +289,27 @@ class CandidateSelection(object):
                         f"log{log_counter}", f"log{log_counter+1}"
                     )
                     log_counter += 1
+
                 with open(filename, "wb") as outfile:
                     pickle.dump(res, outfile)
-                    print(f"Wrote {filename} with candidate selection log info")
+                    if kwargs["verbose"]:
+                        print(f"Wrote {filename} with candidate selection log info")
 
             candidate_solution = res["candidate_solution"]
 
         elif self.optimization_technique == "barrier_function":
-            if self.regime == "reinforcement_learning":
-                raise NotImplementedError(
-                    "barrier_function optimization_technique "
-                    "is not supported for reinforcement learning. "
-                    "Use gradient_descent instead."
-                )
+            
             opts = {}
             if "maxiter" in kwargs:
                 opts["maxiter"] = kwargs["maxiter"]
 
             if self.optimizer in ["Powell", "CG", "Nelder-Mead", "BFGS"]:
+                if self.regime == "reinforcement_learning":
+                    raise NotImplementedError(
+                        f"Optimizer: {self.optimizer} "
+                        "is not supported for reinforcement learning. "
+                        "Try optimizer='CMA-ES' instead."
+                    )
                 from scipy.optimize import minimize
 
                 res = minimize(
@@ -319,14 +325,44 @@ class CandidateSelection(object):
 
             elif self.optimizer == "CMA-ES":
                 import cma
+                from seldonian.utils.io_utils import cmaes_logger
+
+                if self.write_logfile:
+                    log_counter = 0
+                    logdir = os.path.join(os.getcwd(), "logs")
+                    os.makedirs(logdir, exist_ok=True)
+                    filename = os.path.join(
+                        logdir, f"cmaes_log{log_counter}.csv"
+                    )
+
+                    while os.path.exists(filename):
+                        filename = filename.replace(
+                            f"log{log_counter}", f"log{log_counter+1}"
+                        )
+                        log_counter += 1
+
+                    logger = partial(cmaes_logger,filename=filename)
+                else:
+                    logger = None
 
                 if "seed" in kwargs:
                     opts["seed"] = kwargs["seed"]
 
-                es = cma.CMAEvolutionStrategy(self.initial_solution, 0.2, opts)
+                if "sigma0" in kwargs:
+                    sigma0 = kwargs["sigma0"]
+                else:
+                    sigma0 = 0.2
 
-                es.optimize(self.objective_with_barrier)
+                es = cma.CMAEvolutionStrategy(self.initial_solution, sigma0, opts)
+
+                es.optimize(self.objective_with_barrier,callback=logger)
+                if kwargs["verbose"]:
+                    es.disp()
+                if self.write_logfile and kwargs["verbose"]:
+                    print(f"Wrote {filename} with candidate selection log info")
                 candidate_solution = es.result.xbest
+                if (candidate_solution is None) or (not all(np.isfinite(candidate_solution))):
+                    candidate_solution = "NSF"
                 self.optimization_result = es.result
             else:
                 raise NotImplementedError(
@@ -364,15 +400,14 @@ class CandidateSelection(object):
                 self.model, theta, self.features, self.labels, sub_regime=self.candidate_dataset.meta.sub_regime
             )
 
-        # elif self.regime == 'reinforcement_learning':
-        # 	data_dict = {'episodes':self.candidate_dataset.episodes}
-        # 	# Want to maximize the importance weight so minimize negative importance weight
-        # 	result = -1.0*self.primary_objective(self.model,theta,
-        # 		data_dict)
+        elif self.regime == 'reinforcement_learning':
+        	result = -1.0*self.primary_objective(self.model,theta,self.candidate_dataset.episodes)
 
-        # Optionally adding regularization term so that large thetas
-        # make this less negative
-        # and therefore worse
+        # Optionally adding regularization term 
+        if hasattr(self, "reg_func"):
+            reg_res = self.reg_func(theta)
+            result += reg_res
+
         if hasattr(self, "reg_coef"):
             reg_term = self.reg_coef * np.linalg.norm(theta)
             result += reg_term

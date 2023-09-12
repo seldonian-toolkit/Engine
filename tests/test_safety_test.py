@@ -108,7 +108,7 @@ def test_evaluate_primary_objective_RL(
     rseed=99
     np.random.seed(rseed)
     regime='reinforcement_learning'
-    constraint_strs = ['-0.25 - J_pi_new']
+    constraint_strs = ['-0.25 - J_pi_new_IS']
     deltas = [0.05]
     
     parse_trees = make_parse_trees_from_constraints(
