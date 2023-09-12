@@ -6,6 +6,7 @@ import pandas as pd
 import os
 import copy
 import time
+import scipy
 import pickle
 import warnings
 import multiprocessing as mp
@@ -26,7 +27,8 @@ class HyperparamSearch:
             self, 
             spec, 
             all_frac_data_in_safety,
-            results_dir
+            results_dir,
+            confidence_interval_type=None
     ):
         """Object for finding the best hyperparameters to use to optimize for probability
         of returning a safe solution for Seldonian algorithms. 
@@ -42,9 +44,13 @@ class HyperparamSearch:
         :param all_frac_data_in_safety: Array containing the values of fraction of data in
                 the safety set that are being considered
         :type all_frac_data_in_safety: numpy.ndarray
+        :param confidence_interval_type: if not None, indicates the type of confidence 
+                interval to use to compare probability of passing estimates
+        :type confidence_interval_type: None or string
         """
         self.spec = spec
         self.results_dir = results_dir
+        self.confidence_interval_type = confidence_interval_type
 
         # Sort frac data in safety 
         self.all_frac_data_in_safety = all_frac_data_in_safety
@@ -616,6 +622,7 @@ class HyperparamSearch:
     def ttest_bound(
             self,
             bootstrap_trial_data,
+            n_bootstrap_trials,
             delta=0.1
     ):
         """
@@ -625,18 +632,44 @@ class HyperparamSearch:
         :param bootstrap_trial_data: Array of size n_bootstrap_samples, containing the 
             result of each bootstrap trial.
         :type bootstrap_trial_data: np.array
+        :param n_bootstrap_trials: number of trials to run to get bootstrap estimate
+        :type n_bootstrap_trials: int
         :param delta: confidence level, i.e. 0.05
         :type delta: float
         """
-        # TODO: Write tests.
-        n_bootstrap_samples = len(bootstrap_trial_data)
         bs_data_mean = np.nanmean(bootstrap_trial_data) # estimated probability of passing
         bs_data_stddev = np.nanstd(bootstrap_trial_data)
 
         lower_bound = bs_data_mean - bs_data_stddev / np.sqrt(
-                n_bootstrap_samples)  * tinv(1.0 - delta, n_bootstrap_samples - 1)
+                n_bootstrap_trials)  * tinv(1.0 - delta, n_bootstrap_trials - 1)
         upper_bound = bs_data_mean + bs_data_stddev / np.sqrt(
-                n_bootstrap_samples) * tinv(1.0 - delta, n_bootstrap_samples - 1)
+                n_bootstrap_trials) * tinv(1.0 - delta, n_bootstrap_trials - 1)
+
+        return lower_bound, upper_bound
+
+
+    def clopper_pearson_bound(
+            self,
+            pass_count, 
+            n_bootstrap_trials,
+            alpha=0.1, # Acceptable error
+    ):
+        # TODO: Write tests.
+        # Update this to work here.
+        """
+        Computes a 1-alpha clopper pearson bound on the probability of passing. 
+
+        :param pass_count: number of trials out of n_bootstrap_trials that passed
+        :type pass_count: int
+        :param n_bootstrap_trials: number of trials to run to get bootstrap estimate
+        :type n_bootstrap_trials: int
+        :param alpha: confidence parameter
+        :type alpha : float
+        """
+        lower_bound = scipy.stats.beta.ppf(alpha/2, pass_count, n_bootstrap_trials - 
+                pass_count + 1)
+        upper_bound = scipy.stats.beta.ppf(1 - alpha/2, pass_count+ 1, 
+                n_bootstrap_trials - pass_count)
 
         return lower_bound, upper_bound
 
@@ -644,6 +677,7 @@ class HyperparamSearch:
     def aggregate_est_prob_pass(
             self,
             est_frac_data_in_safety,
+            n_bootstrap_trials,
             bootstrap_savedir
     ):
         """Compute the estimated probability of passing using the first given
@@ -653,6 +687,8 @@ class HyperparamSearch:
         :param est_frac_data_in_safety: fraction of data in safety set that we want to 
                         estimate the probabiilty of returning a solution for
         :type est_frac_data_in_safety: float
+        :param n_bootstrap_trials: number of trials to run to get bootstrap estimate
+        :type n_bootstrap_trials: int
         :param bootstrap_savedir: root diretory to load results from bootstrap trial, and
             write aggregated result
         :type bootstrap_savedir: str
@@ -690,14 +726,21 @@ class HyperparamSearch:
         # Compute the probability of passing.
         # TODO: When is this nan? Should we change to nan mean?
         est_prob_pass = np.mean(bs_trials_pass)
+        num_trials_passed = np.sum(bs_trials_pass)
 
-        # Compute ttest confidence interval on est_prob_pass.
-        # TODO: Update so delta is passed through.
-        ttest_lower_bound, ttest_upper_bound = self.ttest_bound(bs_trials_pass)
+        # TODO: Update so delta is passed through to CIs.
+        if self.confidence_interval_type == "ttest":
+            lower_bound, upper_bound = self.ttest_bound(
+                    bs_trials_pass)
+        elif self.confidence_interval_type == "clopper-pearson":
+            lower_bound, upper_bound = self.clopper_pearson_bound(
+                    num_trials_passed, n_bootstrap_trials)
+        else:
+            lower_bound, upper_bound = None, None
 
         # TODO: Update where returned.
         # TODO: Update tests to have these returns.
-        return est_prob_pass, ttest_lower_bound, ttest_upper_bound, results_df
+        return est_prob_pass, lower_bound, upper_bound, results_df
 
 
     def get_bootstrap_dataset_size(
@@ -788,11 +831,12 @@ class HyperparamSearch:
         ran_new_bs_trials = any(bs_trials_ran)
 
         # Accumulate results from bootstrap trials get estimate.
-        est_prob_pass, ttest_lower_bound, ttest_upper_bound, results_df = \
-                self.aggregate_est_prob_pass(est_frac_data_in_safety, bootstrap_savedir)
+        est_prob_pass, lower_bound, upper_bound, results_df = \
+                self.aggregate_est_prob_pass(
+                        est_frac_data_in_safety, n_bootstrap_trials, bootstrap_savedir)
 
         # TODO: Update the test for including lower and upper bounds.
-        return (est_prob_pass, ttest_lower_bound, ttest_upper_bound, results_df, elapsed_time, 
+        return (est_prob_pass, lower_bound, upper_bound, results_df, elapsed_time, 
                 ran_new_bs_trials)
 
 
@@ -933,23 +977,21 @@ class HyperparamSearch:
                     "est_upper_bound": prime_upper_bound,
                 })
 
-                """
-                if (
-                    # TODO: Do we want this to be > or >=
-                    prime_prob_pass >= curr_prob_pass 
-                ):  # Found a future split that we predict is better.
-                    prime_better = True
-                    break
-                """
 
-                # TODO: Double check this and make sure that this is how we want to use CI.
-                if (
-                        prime_lower_bound >= curr_lower_bound
-                ): # Found a future split that we predict is better.
-                    prime_better = True
-                    break
+                # Check if ound a future split that we predict is better.
+                if self.confidence_interval_type is not None: # Compare lower bounds.
+                    # TODO: Double check this and make sure that this is how we want to use CI.
+                    if prime_lower_bound >= curr_lower_bound:
+                        prime_better = True
+                        break
+                else: # Use point estimate to compare.
+                    if prime_prob_pass >= curr_prob_pass:
+                        prime_better = True
+                        break
 
-            # We do not predict that moving more data into the candidate selection is better.
+            # TODO: Test this.
+            # We do not predict that moving more data into the candidate selection is better,
+            # so use current rho.
             if prime_better is False:
                 break
 
