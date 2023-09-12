@@ -30,5 +30,6 @@ seldonian.RL.Agents.Policies
 
 
    seldonian.RL.Agents.Policies.Policy
+   seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea
    seldonian.RL.Agents.Policies.Softmax
 

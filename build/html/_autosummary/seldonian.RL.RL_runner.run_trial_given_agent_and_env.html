@@ -38,6 +38,7 @@
 <span class="sig-name descname"><span class="pre">run_trial_given_agent_and_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.run_trial_given_agent_and_env" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for run_trial() where parameters
 are specified explicity rather than via a dictionary.</p>
+<p>Not parallelized here because often agent or env is not pickleable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -79,12 +80,12 @@ are specified explicity rather than via a dictionary.</p>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.Agents.html">seldonian.RL.Agents</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.Env_Description.html">seldonian.RL.Env_Description</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_generate_dataset_and_spec_file.html">seldonian.RL.RL_generate_dataset_and_spec_file</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.create_agent_fromdict.html">seldonian.RL.RL_runner.create_agent_fromdict</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_episode.html">seldonian.RL.RL_runner.run_episode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_episode_from_dict.html">seldonian.RL.RL_runner.run_episode_from_dict</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_episodes_par.html">seldonian.RL.RL_runner.run_episodes_par</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.RL_runner.run_trial.html">seldonian.RL.RL_runner.run_trial</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.RL.RL_runner.run_trial_given_agent_and_env</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.RL.RL_runner.run_trial_given_agent_and_env"><code class="docutils literal notranslate"><span class="pre">run_trial_given_agent_and_env()</span></code></a></li>
@@ -95,7 +96,6 @@ are specified explicity rather than via a dictionary.</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_simglucose_episodes.html">seldonian.RL.generate_simglucose_episodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>

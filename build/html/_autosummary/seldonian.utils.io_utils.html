@@ -13,7 +13,7 @@
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.utils.io_utils.dir_path" href="seldonian.utils.io_utils.dir_path.html" />
+    <link rel="next" title="seldonian.utils.io_utils.cmaes_logger" href="seldonian.utils.io_utils.cmaes_logger.html" />
     <link rel="prev" title="seldonian.utils.RL_utils.error" href="seldonian.utils.RL_utils.error.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -36,19 +36,22 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.utils.io_utils.dir_path.html#seldonian.utils.io_utils.dir_path" title="seldonian.utils.io_utils.dir_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dir_path</span></code></a>(path)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.utils.io_utils.cmaes_logger.html#seldonian.utils.io_utils.cmaes_logger" title="seldonian.utils.io_utils.cmaes_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cmaes_logger</span></code></a>(es, filename)</p></td>
+<td><p>A function that is used as a callback each time the CMA-ES evoluation strategy object, es, is evaluated, allowing us to log the xmean and f value at each iteration</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.utils.io_utils.dir_path.html#seldonian.utils.io_utils.dir_path" title="seldonian.utils.io_utils.dir_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dir_path</span></code></a>(path)</p></td>
 <td><p>A utility for checking whether a path is a directory</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.utils.io_utils.load_json.html#seldonian.utils.io_utils.load_json" title="seldonian.utils.io_utils.load_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_json</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.utils.io_utils.load_json.html#seldonian.utils.io_utils.load_json" title="seldonian.utils.io_utils.load_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_json</span></code></a>(filename)</p></td>
 <td><p>A wrapper for loading an object from a JSON file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.utils.io_utils.load_pickle.html#seldonian.utils.io_utils.load_pickle" title="seldonian.utils.io_utils.load_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_pickle</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.utils.io_utils.load_pickle.html#seldonian.utils.io_utils.load_pickle" title="seldonian.utils.io_utils.load_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_pickle</span></code></a>(filename)</p></td>
 <td><p>A wrapper for loading an object from a pickle file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.utils.io_utils.save_json.html#seldonian.utils.io_utils.save_json" title="seldonian.utils.io_utils.save_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_json</span></code></a>(filename, data[, indent, verbose])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.utils.io_utils.save_json.html#seldonian.utils.io_utils.save_json" title="seldonian.utils.io_utils.save_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_json</span></code></a>(filename, data[, indent, verbose])</p></td>
 <td><p>A wrapper for saving an object to a JSON file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.utils.io_utils.save_pickle.html#seldonian.utils.io_utils.save_pickle" title="seldonian.utils.io_utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(filename, data[, verbose])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.utils.io_utils.save_pickle.html#seldonian.utils.io_utils.save_pickle" title="seldonian.utils.io_utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(filename, data[, verbose])</p></td>
 <td><p>A wrapper for saving an object to a pickle file</p></td>
 </tr>
 </tbody>
@@ -90,6 +93,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.utils.RL_utils.html">seldonian.utils.RL_utils</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.utils.io_utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.cmaes_logger.html">seldonian.utils.io_utils.cmaes_logger</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.dir_path.html">seldonian.utils.io_utils.dir_path</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.load_json.html">seldonian.utils.io_utils.load_json</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.utils.io_utils.load_pickle.html">seldonian.utils.io_utils.load_pickle</a></li>
@@ -117,7 +121,7 @@
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.utils.html">seldonian.utils</a><ul>
       <li>Previous: <a href="seldonian.utils.RL_utils.error.html" title="previous chapter">seldonian.utils.RL_utils.error</a></li>
-      <li>Next: <a href="seldonian.utils.io_utils.dir_path.html" title="next chapter">seldonian.utils.io_utils.dir_path</a></li>
+      <li>Next: <a href="seldonian.utils.io_utils.cmaes_logger.html" title="next chapter">seldonian.utils.io_utils.cmaes_logger</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

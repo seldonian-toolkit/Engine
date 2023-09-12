@@ -37,4 +37,5 @@ seldonian.RL.Agents
    seldonian.RL.Agents.Policies
    seldonian.RL.Agents.keyboard_gridworld
    seldonian.RL.Agents.mountain_car_rough_solution
+   seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent
 

@@ -31,13 +31,10 @@ seldonian.RL
 
    seldonian.RL.Agents
    seldonian.RL.Env_Description
-   seldonian.RL.RL_generate_dataset_and_spec_file
    seldonian.RL.RL_model
    seldonian.RL.RL_runner
    seldonian.RL.environments
    seldonian.RL.generate_gridworld_episodes
    seldonian.RL.generate_mountaincar_episodes
-   seldonian.RL.generate_simglucose_episodes
    seldonian.RL.hyperparams_and_settings
-   seldonian.RL.profiling_seldonian_RL
 

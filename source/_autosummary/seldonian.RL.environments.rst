@@ -33,5 +33,5 @@ seldonian.RL.environments
    seldonian.RL.environments.gridworld
    seldonian.RL.environments.mountaincar
    seldonian.RL.environments.n_step_mountaincar
-   seldonian.RL.environments.simglucose_env
+   seldonian.RL.environments.simglucose_custom
 

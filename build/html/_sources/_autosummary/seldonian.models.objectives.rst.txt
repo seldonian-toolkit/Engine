@@ -25,6 +25,7 @@ seldonian.models.objectives
       Positive_Rate
       True_Negative_Rate
       True_Positive_Rate
+      US_estimate
       WIS_estimate
       binary_logistic_loss
       confusion_matrix

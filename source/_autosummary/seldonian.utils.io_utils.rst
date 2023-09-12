@@ -14,6 +14,7 @@ seldonian.utils.io\_utils
    .. autosummary::
       :toctree:                                         
    
+      cmaes_logger
       dir_path
       load_json
       load_pickle
