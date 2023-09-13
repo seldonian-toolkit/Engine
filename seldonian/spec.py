@@ -326,7 +326,7 @@ class HyperparameterSelectionSpec(object):
         all_frac_data_in_safety,
         n_bootstrap_workers,
         use_bs_pools,
-        confidence_interval_type=None,
+        confidence_interval_type=None
     ):
         self.n_bootstrap_trials = n_bootstrap_trials
         self.all_frac_data_in_safety = all_frac_data_in_safety

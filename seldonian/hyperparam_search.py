@@ -44,7 +44,6 @@ class HyperparamSearch:
                 set of parameters for doing hyparpameter selection
         :type spec: :py:class:`.HyperparameterSelectionSpec` object
         """
-        # TODO: Update tests now that just taking in hyperparam spec.
         # TODO: Update code to just us n_bootstrap_trials and n_bootstrap_workers from the spec.
         self.spec = spec
         self.hyperparam_spec = hyperparam_spec 
@@ -674,6 +673,7 @@ class HyperparamSearch:
             n_bootstrap_trials,
             bootstrap_savedir
     ):
+        # TODO: Update to compute according to n_bootstrap_trials
         """Compute the estimated probability of passing using the first given
             n_bootstrap_trials. If n_bootstrap_trials is not given, will compute without
             all the result files in bootstrap_savedir.
@@ -681,8 +681,6 @@ class HyperparamSearch:
         :param est_frac_data_in_safety: fraction of data in safety set that we want to 
                         estimate the probabiilty of returning a solution for
         :type est_frac_data_in_safety: float
-        :param n_bootstrap_trials: number of trials to run to get bootstrap estimate
-        :type n_bootstrap_trials: int
         :param bootstrap_savedir: root diretory to load results from bootstrap trial, and
             write aggregated result
         :type bootstrap_savedir: str
@@ -728,11 +726,10 @@ class HyperparamSearch:
                     bs_trials_pass)
         elif self.hyperparam_spec.confidence_interval_type == "clopper-pearson":
             lower_bound, upper_bound = self.clopper_pearson_bound(
-                    num_trials_passed, n_bootstrap_trials)
+                    num_trials_passed)
         else:
             lower_bound, upper_bound = None, None
 
-        # TODO: Update where returned.
         # TODO: Update tests to have these returns.
         return est_prob_pass, lower_bound, upper_bound, results_df
 
