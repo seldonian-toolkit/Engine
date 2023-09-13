@@ -26,9 +26,8 @@ class HyperparamSearch:
     def __init__(
             self, 
             spec, 
-            all_frac_data_in_safety,
+            hyperparam_spec,
             results_dir,
-            confidence_interval_type=None
     ):
         """Object for finding the best hyperparameters to use to optimize for probability
         of returning a safe solution for Seldonian algorithms. 
@@ -41,19 +40,18 @@ class HyperparamSearch:
         :param spec: The specification object with the complete
                 set of parameters for running the Seldonian algorithm
         :type spec: :py:class:`.Spec` object
-        :param all_frac_data_in_safety: Array containing the values of fraction of data in
-                the safety set that are being considered
-        :type all_frac_data_in_safety: numpy.ndarray
-        :param confidence_interval_type: if not None, indicates the type of confidence 
-                interval to use to compare probability of passing estimates
-        :type confidence_interval_type: None or string
+        :param hyperparam_spec: The specification object with the complete
+                set of parameters for doing hyparpameter selection
+        :type spec: :py:class:`.HyperparameterSelectionSpec` object
         """
+        # TODO: Update tests now that just taking in hyperparam spec.
+        # TODO: Update code to just us n_bootstrap_trials and n_bootstrap_workers from the spec.
         self.spec = spec
+        self.hyperparam_spec = hyperparam_spec 
         self.results_dir = results_dir
-        self.confidence_interval_type = confidence_interval_type
 
         # Sort frac data in safety 
-        self.all_frac_data_in_safety = all_frac_data_in_safety
+        self.all_frac_data_in_safety = self.hyperparam_spec.all_frac_data_in_safety
         self.all_frac_data_in_safety.sort(reverse=True) # Start with most data in safety.
 
         self.parse_trees = self.spec.parse_trees
@@ -423,7 +421,6 @@ class HyperparamSearch:
             n_bootstrap_samples_candidate,
             n_bootstrap_samples_safety,
             bootstrap_savedir,
-            use_bs_pools=False
     ):
         """Utility function for supervised learning to generate the
         resampled datasets to use in each bootstrap trial. Resamples (with replacement)
@@ -446,9 +443,6 @@ class HyperparamSearch:
         :type n_bootstrap_safety: int
         :param bootstrap_savedir: The root diretory to save all the bootstrapped datasets.
         :type bootstrap_savedir: str
-        :param use_bs_pools: Optional parameter indicating if should partition candidate
-            dataset into safety and candidate pools when bootstrapping
-        :type use_bs_pools:boolean 
         """
         created_trials = [] # Stores trial number of the datasets that were created.
 
@@ -476,7 +470,7 @@ class HyperparamSearch:
                 bootstrap_datasets_dict = dict() # Will store all the datasets.
 
                 # Bootstrap sample candidate selection and safety datasets.
-                if use_bs_pools:
+                if self.hyperparam_spec.use_bs_pools:
                     # Partition candidate_dataset into pools to bootstrap 
                     (bootstrap_pool_candidate, bootstrap_pool_safety) = self.create_dataset(
                             candidate_dataset, est_frac_data_in_safety, shuffle=True)
@@ -729,10 +723,10 @@ class HyperparamSearch:
         num_trials_passed = np.sum(bs_trials_pass)
 
         # TODO: Update so delta is passed through to CIs.
-        if self.confidence_interval_type == "ttest":
+        if self.hyperparam_spec.confidence_interval_type == "ttest":
             lower_bound, upper_bound = self.ttest_bound(
                     bs_trials_pass)
-        elif self.confidence_interval_type == "clopper-pearson":
+        elif self.hyperparam_spec.confidence_interval_type == "clopper-pearson":
             lower_bound, upper_bound = self.clopper_pearson_bound(
                     num_trials_passed, n_bootstrap_trials)
         else:
@@ -979,7 +973,7 @@ class HyperparamSearch:
 
 
                 # Check if ound a future split that we predict is better.
-                if self.confidence_interval_type is not None: # Compare lower bounds.
+                if self.hyperparam_spec.confidence_interval_type is not None: # Compare lower bounds.
                     # TODO: Double check this and make sure that this is how we want to use CI.
                     if prime_lower_bound >= curr_lower_bound:
                         prime_better = True

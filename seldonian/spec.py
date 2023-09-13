@@ -325,11 +325,13 @@ class HyperparameterSelectionSpec(object):
         n_bootstrap_trials,
         all_frac_data_in_safety,
         n_bootstrap_workers,
+        use_bs_pools,
         confidence_interval_type=None,
     ):
         self.n_bootstrap_trials = n_bootstrap_trials
         self.all_frac_data_in_safety = all_frac_data_in_safety
         self.n_bootstrap_workers = n_bootstrap_workers
+        self.use_bs_pools = use_bs_pools,
         self.confidence_interval_type = confidence_interval_type
 
 def createSupervisedSpec(
