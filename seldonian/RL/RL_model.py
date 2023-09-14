@@ -39,28 +39,6 @@ class RL_model(SeldonianModel):  # consist of agent, env
                 f"different number of observations ({observations}) and actions ({actions})"
             )
 
-        probs = list(map(self.policy.get_prob_this_action, observations, actions, action_probs))
-        # If the policy uses a cache, make sure to clear it
-        # This is necessary because cache is only correct
-        # for a given set of param weights
-        try:
-            self.policy._denom.cache_clear()
-            self.policy._arg.cache_clear()
-        except:
-            pass
-
+        probs = self.policy.get_probs_from_observations_and_actions(observations, actions, action_probs)
+        
         return np.array(probs)
-
-    def get_prob_this_action(self, observation, action, action_prob):
-        """Get action probability given a single observation, action
-        pair
-
-        :param observation: Observation on a single timestep
-        :param action: Action on a single timestep
-        :param action_prob: Action probability on a single timestep
-
-        :return: Probability of taking this action given observation
-        :rtype: float
-        """
-
-        return self.policy.get_prob_this_action(observation, action, action_prob)

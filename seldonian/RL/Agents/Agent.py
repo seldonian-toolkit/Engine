@@ -1,4 +1,4 @@
-class Agent:
+class Agent(object):
     def __init__(self):
         pass
         """ Base class for all RL agents. Override all methods
