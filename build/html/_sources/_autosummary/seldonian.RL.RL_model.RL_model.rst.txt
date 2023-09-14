@@ -20,8 +20,6 @@ seldonian.RL.RL\_model.RL\_model
    .. 
    ..    ~RL_model.__init__
    ..
-   ..    ~RL_model.get_prob_this_action
-   ..
    ..    ~RL_model.get_probs_from_observations_and_actions
    ..
    

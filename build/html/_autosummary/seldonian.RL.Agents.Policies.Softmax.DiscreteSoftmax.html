@@ -162,7 +162,7 @@ and number of trials</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action">
-<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_prob</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the probability of a selected action in a given obsertavtion</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -177,6 +177,28 @@ and number of trials</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_probs_from_observations_and_actions">
+<span class="sig-name descname"><span class="pre">get_probs_from_observations_and_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior_action_probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_probs_from_observations_and_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the action probabilities of a selected actions and observations under 
+the new policy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observations</strong> – array of observations of the environment</p></li>
+<li><p><strong>actions</strong> – array of selected actions</p></li>
+<li><p><strong>behavior_action_probs</strong> – The probability of the selected actions under the behavior policy</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>action probabilities of the observation,action pairs under the new policy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray(float)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -267,6 +289,7 @@ space is discrete or continous</p>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_e_to_the_something_terms"><code class="docutils literal notranslate"><span class="pre">DiscreteSoftmax.get_e_to_the_something_terms()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_params"><code class="docutils literal notranslate"><span class="pre">DiscreteSoftmax.get_params()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">DiscreteSoftmax.get_prob_this_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.get_probs_from_observations_and_actions"><code class="docutils literal notranslate"><span class="pre">DiscreteSoftmax.get_probs_from_observations_and_actions()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.make_state_action_FA"><code class="docutils literal notranslate"><span class="pre">DiscreteSoftmax.make_state_action_FA()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Softmax.DiscreteSoftmax.set_new_params"><code class="docutils literal notranslate"><span class="pre">DiscreteSoftmax.set_new_params()</span></code></a></li>
 </ul>

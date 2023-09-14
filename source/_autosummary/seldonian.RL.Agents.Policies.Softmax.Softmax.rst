@@ -40,6 +40,8 @@ seldonian.RL.Agents.Policies.Softmax.Softmax
    ..
    ..    ~Softmax.get_prob_this_action
    ..
+   ..    ~Softmax.get_probs_from_observations_and_actions
+   ..
    ..    ~Softmax.make_state_action_FA
    ..
    ..    ~Softmax.set_new_params
