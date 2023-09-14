@@ -4,7 +4,7 @@ from seldonian.RL.Agents.Bases.Fourier import *
 from seldonian.RL.Env_Description.Env_Description import *
 
 
-class Policy:
+class Policy(object):
     def __init__(self):
         """Base class for policies. Contains four methods which
         must be overridden in any policy implementation"""
