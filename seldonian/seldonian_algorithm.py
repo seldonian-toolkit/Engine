@@ -400,3 +400,33 @@ class SeldonianAlgorithm:
             )
             result = cs.evaluate_primary_objective(theta)
         return result
+
+    def get_importance_weights(self, branch, theta):
+        """Get the importance weights from the model weights, theta,
+        evaluated either on the candidate data or safety data. 
+
+        :param branch: 'candidate_selection' or 'safety_test'
+        :type branch: str
+        :param theta: model weights
+        :type theta: numpy.ndarray
+        :return: an array of importance weights (floats) the same length as the number of 
+            episodes in the data (depending on which branch was chosen) 
+        """
+
+
+        if type(theta) == str and theta == "NSF":
+            raise ValueError("Cannot get importance weights because theta='NSF'")
+
+        
+        if branch == "safety_test":
+            st = self.safety_test()
+            rho_is = st.get_importance_weights(
+                theta=theta)
+
+        elif branch == "candidate_selection":
+            cs = self.candidate_selection()
+            rho_is = cs.get_importance_weights(
+                theta=theta
+            )
+
+        return rho_is

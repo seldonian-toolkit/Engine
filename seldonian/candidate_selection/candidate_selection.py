@@ -521,3 +521,24 @@ class CandidateSelection(object):
             upper_bounds.append(pt.root.upper)
 
         return np.array(upper_bounds, dtype="float")
+
+    def get_importance_weights(self, theta):
+        """Get an array of importance weights evaluated on the candidate dataset
+        given model weights, theta. 
+
+        :param theta: model weights
+        :type theta: numpy.ndarray
+
+        :return: Array of upper bounds on the constraint
+        :rtype: array
+        """
+        assert self.regime == "reinforcement_learning"
+        rho_is = []
+
+        for ii, ep in enumerate(self.candidate_dataset.episodes):
+            pi_news = self.model.get_probs_from_observations_and_actions(
+                theta, ep.observations, ep.actions, ep.action_probs
+            )
+            rho_is.append(np.prod(pi_news / ep.action_probs))
+
+        return np.array(rho_is)
