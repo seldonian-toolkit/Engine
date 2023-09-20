@@ -123,6 +123,25 @@ returned from running candidate selection</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.get_importance_weights">
+<span class="sig-name descname"><span class="pre">get_importance_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">branch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_importance_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the importance weights from the model weights, theta,
+evaluated either on the candidate data or safety data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>branch</strong> (<em>str</em>) – ‘candidate_selection’ or ‘safety_test’</p></li>
+<li><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an array of importance weights (floats) the same length as the number of 
+episodes in the data (depending on which branch was chosen)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.get_st_upper_bounds">
 <span class="sig-name descname"><span class="pre">get_st_upper_bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_st_upper_bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the upper bounds on each constraint
@@ -233,6 +252,7 @@ model weights found during candidate selection or ‘NSF’.</p>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_selection()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_cs_result()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_importance_weights"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_importance_weights()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_st_upper_bounds"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_st_upper_bounds()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run_safety_test()</span></code></a></li>

@@ -40,7 +40,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparam_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>General policy class where actions are discrete</p>
+<dd><p>General policy class where actions are discrete. Converts 
+input actions into 0-indexed actions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -121,7 +122,15 @@ and number of trials</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_prob_this_action">
 <span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get probability of taking an action given an observation</p>
+<dd><p>Get probability of taking an action given an observation.
+Does not necessarily need to be overridden, but is often called from 
+self.get_probs_from_observations_and_actions()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_probs_from_observations_and_actions">
+<span class="sig-name descname"><span class="pre">get_probs_from_observations_and_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior_action_probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_probs_from_observations_and_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get probabilities for each observation and action in the input arrays</p>
 </dd></dl>
 
 <dl class="py method">
@@ -203,6 +212,7 @@ space is discrete or continous</p>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_action_values_given_state"><code class="docutils literal notranslate"><span class="pre">Discrete_Action_Policy.get_action_values_given_state()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_params"><code class="docutils literal notranslate"><span class="pre">Discrete_Action_Policy.get_params()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">Discrete_Action_Policy.get_prob_this_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.get_probs_from_observations_and_actions"><code class="docutils literal notranslate"><span class="pre">Discrete_Action_Policy.get_probs_from_observations_and_actions()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.make_state_action_FA"><code class="docutils literal notranslate"><span class="pre">Discrete_Action_Policy.make_state_action_FA()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Discrete_Action_Policy.set_new_params"><code class="docutils literal notranslate"><span class="pre">Discrete_Action_Policy.set_new_params()</span></code></a></li>
 </ul>

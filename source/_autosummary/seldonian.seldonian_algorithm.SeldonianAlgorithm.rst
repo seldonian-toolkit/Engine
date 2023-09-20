@@ -28,6 +28,8 @@ seldonian.seldonian\_algorithm.SeldonianAlgorithm
    ..
    ..    ~SeldonianAlgorithm.get_cs_result
    ..
+   ..    ~SeldonianAlgorithm.get_importance_weights
+   ..
    ..    ~SeldonianAlgorithm.get_st_upper_bounds
    ..
    ..    ~SeldonianAlgorithm.run

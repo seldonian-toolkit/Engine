@@ -26,6 +26,8 @@ seldonian.candidate\_selection.candidate\_selection.CandidateSelection
    ..
    ..    ~CandidateSelection.get_constraint_upper_bounds
    ..
+   ..    ~CandidateSelection.get_importance_weights
+   ..
    ..    ~CandidateSelection.objective_with_barrier
    ..
    ..    ~CandidateSelection.run

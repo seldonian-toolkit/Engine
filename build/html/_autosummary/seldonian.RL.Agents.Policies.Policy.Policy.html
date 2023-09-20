@@ -40,7 +40,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class for policies. Contains four methods which
+<dd><p>Base class for policies. Contains methods, some of which
 must be overridden in any policy implementation</p>
 </dd></dl>
 
@@ -70,7 +70,15 @@ must be overridden in any policy implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.get_prob_this_action">
 <span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get probability of taking an action given an observation</p>
+<dd><p>Get probability of taking an action given an observation.
+Does not necessarily need to be overridden, but is often called from 
+self.get_probs_from_observations_and_actions()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Policy.Policy.get_probs_from_observations_and_actions">
+<span class="sig-name descname"><span class="pre">get_probs_from_observations_and_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior_action_probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_probs_from_observations_and_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get probabilities for each observation and action in the input arrays</p>
 </dd></dl>
 
 <dl class="py method">
@@ -122,6 +130,7 @@ must be overridden in any policy implementation</p>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.choose_action"><code class="docutils literal notranslate"><span class="pre">Policy.choose_action()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_params"><code class="docutils literal notranslate"><span class="pre">Policy.get_params()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">Policy.get_prob_this_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.get_probs_from_observations_and_actions"><code class="docutils literal notranslate"><span class="pre">Policy.get_probs_from_observations_and_actions()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.Policy.Policy.set_new_params"><code class="docutils literal notranslate"><span class="pre">Policy.set_new_params()</span></code></a></li>
 </ul>
 </li>

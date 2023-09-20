@@ -73,7 +73,15 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.get_prob_this_action">
 <span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get probability of taking an action given an observation</p>
+<dd><p>Get probability of taking an action given an observation.
+Does not necessarily need to be overridden, but is often called from 
+self.get_probs_from_observations_and_actions()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.get_probs_from_observations_and_actions">
+<span class="sig-name descname"><span class="pre">get_probs_from_observations_and_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior_action_probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.get_probs_from_observations_and_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get probabilities for each observation and action in the input arrays</p>
 </dd></dl>
 
 <dl class="py method">
@@ -139,6 +147,7 @@ is added, it doesn’t exceed the original bounds.</p>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.choose_action"><code class="docutils literal notranslate"><span class="pre">SigmoidPolicyFixedArea.choose_action()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.get_params"><code class="docutils literal notranslate"><span class="pre">SigmoidPolicyFixedArea.get_params()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">SigmoidPolicyFixedArea.get_prob_this_action()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.get_probs_from_observations_and_actions"><code class="docutils literal notranslate"><span class="pre">SigmoidPolicyFixedArea.get_probs_from_observations_and_actions()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.set_new_params"><code class="docutils literal notranslate"><span class="pre">SigmoidPolicyFixedArea.set_new_params()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.theta2crcf"><code class="docutils literal notranslate"><span class="pre">SigmoidPolicyFixedArea.theta2crcf()</span></code></a></li>
 </ul>

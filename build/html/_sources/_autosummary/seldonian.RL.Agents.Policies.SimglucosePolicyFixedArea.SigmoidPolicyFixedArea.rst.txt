@@ -26,6 +26,8 @@ seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea
    ..
    ..    ~SigmoidPolicyFixedArea.get_prob_this_action
    ..
+   ..    ~SigmoidPolicyFixedArea.get_probs_from_observations_and_actions
+   ..
    ..    ~SigmoidPolicyFixedArea.set_new_params
    ..
    ..    ~SigmoidPolicyFixedArea.theta2crcf

@@ -22,6 +22,8 @@ seldonian.safety\_test.safety\_test.SafetyTest
    ..
    ..    ~SafetyTest.evaluate_primary_objective
    ..
+   ..    ~SafetyTest.get_importance_weights
+   ..
    ..    ~SafetyTest.run
    ..
    

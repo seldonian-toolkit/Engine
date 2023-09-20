@@ -26,6 +26,8 @@ seldonian.RL.Agents.Policies.Policy.Policy
    ..
    ..    ~Policy.get_prob_this_action
    ..
+   ..    ~Policy.get_probs_from_observations_and_actions
+   ..
    ..    ~Policy.set_new_params
    ..
    

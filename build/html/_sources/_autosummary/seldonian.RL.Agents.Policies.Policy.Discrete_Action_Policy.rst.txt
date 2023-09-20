@@ -34,6 +34,8 @@ seldonian.RL.Agents.Policies.Policy.Discrete\_Action\_Policy
    ..
    ..    ~Discrete_Action_Policy.get_prob_this_action
    ..
+   ..    ~Discrete_Action_Policy.get_probs_from_observations_and_actions
+   ..
    ..    ~Discrete_Action_Policy.make_state_action_FA
    ..
    ..    ~Discrete_Action_Policy.set_new_params
