@@ -6,7 +6,7 @@ from seldonian.RL.Env_Description.Env_Description import *
 
 class Policy(object):
     def __init__(self):
-        """Base class for policies. Contains four methods which
+        """Base class for policies. Contains methods, some of which
         must be overridden in any policy implementation"""
         pass
 
@@ -23,13 +23,19 @@ class Policy(object):
         raise NotImplementedError()
 
     def get_prob_this_action(self, obs, action):
-        """Get probability of taking an action given an observation"""
+        """Get probability of taking an action given an observation.
+        Does not necessarily need to be overridden, but is often called from 
+        self.get_probs_from_observations_and_actions()"""
         raise NotImplementedError()
 
+    def get_probs_from_observations_and_actions(self,observations,actions,behavior_action_probs):
+        """Get probabilities for each observation and action in the input arrays"""
+        raise NotImplementedError()
 
 class Discrete_Action_Policy(Policy):
     def __init__(self, hyperparam_and_setting_dict, env_description):
-        """General policy class where actions are discrete
+        """General policy class where actions are discrete. Converts 
+        input actions into 0-indexed actions.
 
         :param hyperparameter_and_setting_dict: Specifies the
             environment, agent, number of episodes per trial,
