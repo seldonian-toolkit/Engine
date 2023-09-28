@@ -22,6 +22,14 @@ from seldonian.models import objectives
 from seldonian.utils.io_utils import load_pickle
 from seldonian.utils.stats_utils import tinv
 
+class Hyperparameter(object):
+    def __init__(self,name,dtype,min_possible,max_possible,values):
+        self.name = name
+        self.dtype = dtype
+        self.min_possible = minval
+        self.max_possible = max_possible
+        self.values = values
+
 class HyperparamSearch:
     def __init__(
             self, 
@@ -76,7 +84,7 @@ class HyperparamSearch:
 
         self.dataset = self.spec.dataset
         self.regime = self.dataset.regime
-        self.column_names = self.dataset.meta_information
+        self.meta = self.dataset.meta
 
         self.model = self.spec.model
         if self.regime == "supervised_learning": self.sub_regime = self.spec.sub_regime
@@ -160,7 +168,7 @@ class HyperparamSearch:
                     labels=combined_labels,
                     sensitive_attrs=combined_sensitive_attrs,
                     num_datapoints=combined_num_datapoints,
-                    meta_information=candidate_dataset.meta_information)
+                    meta=candidate_dataset.meta)
 
 
         elif self.regime == "reinforcement_learning":
@@ -258,7 +266,7 @@ class HyperparamSearch:
             labels=resamp_labels,
             sensitive_attrs=resamp_sensitive_attrs,
             num_datapoints=dataset.num_datapoints,
-            meta_information=dataset.meta_information,
+            meta=dataset.meta,
         )
 
         return shuffled_dataset
@@ -314,7 +322,7 @@ class HyperparamSearch:
                 labels=candidate_labels,
                 sensitive_attrs=candidate_sensitive_attrs,
                 num_datapoints=n_candidate,
-                meta_information=dataset.meta_information,
+                meta=dataset.meta,
             )
 
             safety_dataset = SupervisedDataSet(
@@ -322,7 +330,7 @@ class HyperparamSearch:
                 labels=safety_labels,
                 sensitive_attrs=safety_sensitive_attrs,
                 num_datapoints=n_safety,
-                meta_information=dataset.meta_information,
+                meta=dataset.meta,
             )
 
             if candidate_dataset.num_datapoints < 2 or safety_dataset.num_datapoints < 2:
@@ -348,13 +356,13 @@ class HyperparamSearch:
             candidate_dataset = RLDataSet(
                 episodes=candidate_episodes,
                 sensitive_attrs=candidate_sensitive_attrs,
-                meta_information=self.column_names,
+                meta=self.meta,
             )
 
             safety_dataset = RLDataSet(
                 episodes=safety_episodes,
                 sensitive_attrs=safety_sensitive_attrs,
-                meta_information=self.column_names,
+                meta=self.meta,
             )
 
             print(f"Safety dataset has {safety_dataset.num_datapoints} episodes")
@@ -400,7 +408,7 @@ class HyperparamSearch:
                 labels=resamp_labels,
                 sensitive_attrs=resamp_sensitive_attrs,
                 num_datapoints=n_bootstrap_samples,
-                meta_information=dataset.meta_information,
+                meta=dataset.meta,
             )
 
             return bootstrap_dataset
