@@ -39,7 +39,6 @@ def plot_gradient_descent(
     :type show: bool
     """
     # Extract values from dictionary
-    theta_vals = solution["theta_vals"]
     lamb_vals = solution[
         "lamb_vals"
     ]  # i x j array where i is number of iterations, j is number of constraints

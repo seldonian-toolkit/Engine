@@ -50,7 +50,7 @@ class SeldonianAlgorithm:
 
         self.dataset = self.spec.dataset
         self.regime = self.dataset.regime
-        self.column_names = self.dataset.meta_information
+        self.column_names = self.dataset.meta.all_col_names
 
 
         if self.spec.primary_objective is None:
@@ -85,14 +85,14 @@ class SeldonianAlgorithm:
                 labels=self.candidate_labels,
                 sensitive_attrs=self.candidate_sensitive_attrs,
                 num_datapoints=self.n_candidate,
-                meta_information=self.dataset.meta_information,
+                meta=self.dataset.meta,
             )
             self.safety_dataset = SupervisedDataSet(
                 features=self.safety_features,
                 labels=self.safety_labels,
                 sensitive_attrs=self.safety_sensitive_attrs,
                 num_datapoints=self.n_safety,
-                meta_information=self.dataset.meta_information,
+                meta=self.dataset.meta,
             )
 
             # Warnings.
@@ -120,21 +120,20 @@ class SeldonianAlgorithm:
                     self.n_safety,
                 ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-                self.candidate_dataset = RLDataSet(
-                    episodes=self.candidate_episodes,
-                    sensitive_attrs=self.candidate_sensitive_attrs,
-                    meta_information=self.column_names,
-                )
+            self.candidate_dataset = RLDataSet(
+                episodes=self.candidate_episodes,
+                sensitive_attrs=self.candidate_sensitive_attrs,
+                meta=self.dataset.meta,
+            )
 
-                self.safety_dataset = RLDataSet(
-                    episodes=self.safety_episodes,
-                    sensitive_attrs=self.safety_sensitive_attrs,
-                    meta_information=self.column_names,
-                )
-
-            print(f"Safety dataset has {self.n_safety} episodes")
-            print(f"Candidate dataset has {self.n_candidate} episodes")
-            print("Candidate sensitive_attrs:")
+            self.safety_dataset = RLDataSet(
+                episodes=self.safety_episodes,
+                sensitive_attrs=self.safety_sensitive_attrs,
+                meta=self.dataset.meta,
+            )
+            if self.spec.verbose:
+                print(f"Safety dataset has {self.n_safety} episodes")
+                print(f"Candidate dataset has {self.n_candidate} episodes")
 
         else:
             # Load datasplit and datasplit information from the spec.
@@ -226,10 +225,24 @@ class SeldonianAlgorithm:
 
     def set_initial_solution(self, verbose=False):
         if self.regime == "supervised_learning":
-            if self.spec.initial_solution_fn is None:
+            needs_init_sol = False
+            if self.spec.initial_solution_fn is not None: 
+                if verbose: print("Attempting to use initial solution function")
+                try: 
+                    self.initial_solution = self.spec.initial_solution_fn(
+                        self.model,
+                        self.candidate_features,
+                        self.candidate_labels
+                    )
+                except: 
+                    if verbose: print("initial_solution_fn() failed. Falling back to default initial solution") 
+                    needs_init_sol = True
+            else:
+                needs_init_sol = True
+            
+            if needs_init_sol:
                 if verbose:
                     print(
-                        "No initial_solution_fn provided. "
                         "Attempting to initialize with a zeros matrix "
                         " of the correct shape"
                     )
@@ -242,10 +255,7 @@ class SeldonianAlgorithm:
                 else:
                     self.initial_solution = np.zeros(n_features)
 
-            else:
-                self.initial_solution = self.spec.initial_solution_fn(
-                    self.candidate_features, self.candidate_labels
-                )
+                
         elif self.regime == "reinforcement_learning":
             if self.spec.initial_solution_fn is None:
                 if verbose:
@@ -299,6 +309,13 @@ class SeldonianAlgorithm:
             debug=debug,
         )
 
+        if debug:
+            if passed_safety:
+                print("Passed safety test with solution:")
+                print(solution)
+            else:
+                print("Failed safety test")
+
         return passed_safety, solution
 
     def run_candidate_selection(self, write_logfile=False, debug=False):
@@ -332,13 +349,9 @@ class SeldonianAlgorithm:
         st = self.safety_test()
         passed_safety = st.run(candidate_solution, batch_size_safety=batch_size_safety)
         if not passed_safety:
-            if debug:
-                print("Failed safety test")
             solution = "NSF"
         else:
             solution = candidate_solution
-            if debug:
-                print("Passed safety test!")
         self.st_has_been_run = True
         self.st_result = st.st_result
         return passed_safety, solution
@@ -404,3 +417,33 @@ class SeldonianAlgorithm:
             )
             result = cs.evaluate_primary_objective(theta)
         return result
+
+    def get_importance_weights(self, branch, theta):
+        """Get the importance weights from the model weights, theta,
+        evaluated either on the candidate data or safety data. 
+
+        :param branch: 'candidate_selection' or 'safety_test'
+        :type branch: str
+        :param theta: model weights
+        :type theta: numpy.ndarray
+        :return: an array of importance weights (floats) the same length as the number of 
+            episodes in the data (depending on which branch was chosen) 
+        """
+
+
+        if type(theta) == str and theta == "NSF":
+            raise ValueError("Cannot get importance weights because theta='NSF'")
+
+        
+        if branch == "safety_test":
+            st = self.safety_test()
+            rho_is = st.get_importance_weights(
+                theta=theta)
+
+        elif branch == "candidate_selection":
+            cs = self.candidate_selection()
+            rho_is = cs.get_importance_weights(
+                theta=theta
+            )
+
+        return rho_is

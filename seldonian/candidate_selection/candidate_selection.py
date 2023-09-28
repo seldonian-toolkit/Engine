@@ -88,9 +88,23 @@ class CandidateSelection(object):
         if "reg_coef" in kwargs:
             self.reg_coef = kwargs["reg_coef"]
 
+        if "reg_func" in kwargs:
+            self.reg_func = kwargs["reg_func"]
+
     def calculate_batches(self, batch_index, batch_size):
+        """Create a batch dataset to be used in gradient descent.
+        Does not return anything, instead sets self.batch_dataset.
+
+        :param batch_index: The batch number (0-indexed)
+        :type batch_index: int
+        :param batch_size: The size of the batches 
+        :type batch_size: int
+        
+        :return: None
+        """
         batch_start = batch_index * batch_size
         batch_end = batch_start + batch_size
+
         num_datapoints = self.candidate_dataset.num_datapoints
         if self.regime == "supervised_learning":
             if batch_size < num_datapoints:
@@ -119,7 +133,7 @@ class CandidateSelection(object):
                 self.batch_labels,
                 self.batch_sensitive_attrs,
                 num_datapoints=batch_num_datapoints,
-                meta_information=self.candidate_dataset.meta_information,
+                meta=self.candidate_dataset.meta,
             )
 
         elif self.regime == "reinforcement_learning":
@@ -138,9 +152,14 @@ class CandidateSelection(object):
                 episodes=batch_episodes,
                 sensitive_attrs=self.batch_sensitive_attrs,
                 num_datapoints=batch_num_datapoints,
-                meta_information=self.candidate_dataset.meta_information,
+                meta=self.candidate_dataset.meta,
             )
-        return
+        # If this batch is smaller than the batch size and not the first batch
+        # then that means we shouldn't consider a candidate solution calculated from it 
+        if batch_index > 0 and (batch_num_datapoints < batch_size):
+            return True
+        else: 
+            return False
 
     def run(self, **kwargs):
         """Run candidate selection
@@ -148,6 +167,7 @@ class CandidateSelection(object):
         :return: Optimized model weights or 'NSF'
         :rtype: array or str
         """
+        
         if self.optimization_technique == "gradient_descent":
             if self.optimizer != "adam":
                 raise NotImplementedError(
@@ -155,7 +175,8 @@ class CandidateSelection(object):
                 )
 
             from seldonian.optimizers.gradient_descent import gradient_descent_adam
-
+            if "clip_theta" not in kwargs:
+                kwargs["clip_theta"] = None
             # Figure out number of batches
             if "use_batches" not in kwargs:
                 raise KeyError(
@@ -193,6 +214,7 @@ class CandidateSelection(object):
                 beta_rmsprop=kwargs["beta_rmsprop"],
                 theta_init=self.initial_solution,
                 lambda_init=kwargs["lambda_init"],
+                clip_theta=kwargs["clip_theta"],
                 verbose=kwargs["verbose"],
                 debug=kwargs["debug"],
             )
@@ -267,24 +289,27 @@ class CandidateSelection(object):
                         f"log{log_counter}", f"log{log_counter+1}"
                     )
                     log_counter += 1
+
                 with open(filename, "wb") as outfile:
                     pickle.dump(res, outfile)
-                    print(f"Wrote {filename} with candidate selection log info")
+                    if kwargs["verbose"]:
+                        print(f"Wrote {filename} with candidate selection log info")
 
             candidate_solution = res["candidate_solution"]
 
         elif self.optimization_technique == "barrier_function":
-            if self.regime == "reinforcement_learning":
-                raise NotImplementedError(
-                    "barrier_function optimization_technique "
-                    "is not supported for reinforcement learning. "
-                    "Use gradient_descent instead."
-                )
+            
             opts = {}
             if "maxiter" in kwargs:
                 opts["maxiter"] = kwargs["maxiter"]
 
             if self.optimizer in ["Powell", "CG", "Nelder-Mead", "BFGS"]:
+                if self.regime == "reinforcement_learning":
+                    raise NotImplementedError(
+                        f"Optimizer: {self.optimizer} "
+                        "is not supported for reinforcement learning. "
+                        "Try optimizer='CMA-ES' instead."
+                    )
                 from scipy.optimize import minimize
 
                 res = minimize(
@@ -300,14 +325,44 @@ class CandidateSelection(object):
 
             elif self.optimizer == "CMA-ES":
                 import cma
+                from seldonian.utils.io_utils import cmaes_logger
+
+                if self.write_logfile:
+                    log_counter = 0
+                    logdir = os.path.join(os.getcwd(), "logs")
+                    os.makedirs(logdir, exist_ok=True)
+                    filename = os.path.join(
+                        logdir, f"cmaes_log{log_counter}.csv"
+                    )
+
+                    while os.path.exists(filename):
+                        filename = filename.replace(
+                            f"log{log_counter}", f"log{log_counter+1}"
+                        )
+                        log_counter += 1
+
+                    logger = partial(cmaes_logger,filename=filename)
+                else:
+                    logger = None
 
                 if "seed" in kwargs:
                     opts["seed"] = kwargs["seed"]
 
-                es = cma.CMAEvolutionStrategy(self.initial_solution, 0.2, opts)
+                if "sigma0" in kwargs:
+                    sigma0 = kwargs["sigma0"]
+                else:
+                    sigma0 = 0.2
 
-                es.optimize(self.objective_with_barrier)
+                es = cma.CMAEvolutionStrategy(self.initial_solution, sigma0, opts)
+
+                es.optimize(self.objective_with_barrier,callback=logger)
+                if kwargs["verbose"]:
+                    es.disp()
+                if self.write_logfile and kwargs["verbose"]:
+                    print(f"Wrote {filename} with candidate selection log info")
                 candidate_solution = es.result.xbest
+                if (candidate_solution is None) or (not all(np.isfinite(candidate_solution))):
+                    candidate_solution = "NSF"
                 self.optimization_result = es.result
             else:
                 raise NotImplementedError(
@@ -338,23 +393,21 @@ class CandidateSelection(object):
         :return: the value of the objective function
                 evaluated at theta
         """
-
         # Get the primary objective evaluated at the given theta
         # and the entire candidate dataset
         if self.regime == "supervised_learning":
             result = self.primary_objective(
-                self.model, theta, self.features, self.labels
+                self.model, theta, self.features, self.labels, sub_regime=self.candidate_dataset.meta.sub_regime
             )
 
-        # elif self.regime == 'reinforcement_learning':
-        # 	data_dict = {'episodes':self.candidate_dataset.episodes}
-        # 	# Want to maximize the importance weight so minimize negative importance weight
-        # 	result = -1.0*self.primary_objective(self.model,theta,
-        # 		data_dict)
+        elif self.regime == 'reinforcement_learning':
+        	result = -1.0*self.primary_objective(self.model,theta,self.candidate_dataset.episodes)
 
-        # Optionally adding regularization term so that large thetas
-        # make this less negative
-        # and therefore worse
+        # Optionally adding regularization term 
+        if hasattr(self, "reg_func"):
+            reg_res = self.reg_func(theta)
+            result += reg_res
+
         if hasattr(self, "reg_coef"):
             reg_term = self.reg_coef * np.linalg.norm(theta)
             result += reg_term
@@ -393,14 +446,13 @@ class CandidateSelection(object):
                     # Put a barrier in the objective. Any solution
                     # that we think will fail the safety test
                     # will have a large cost associated with it
-                    if self.optimization_technique == "barrier_function":
-                        result = 100000.0
+
+                    result = 100000.0
                 # Add a shaping to the objective function that will
                 # push the search toward solutions that will pass
                 # the prediction of the safety test
 
                 result = result + upper_bound
-
         return result
 
     def evaluate_primary_objective(self, theta):
@@ -417,7 +469,7 @@ class CandidateSelection(object):
 
         if self.regime == "supervised_learning":
             result = self.primary_objective(
-                self.model, theta, self.batch_features, self.batch_labels
+                self.model, theta, self.batch_features, self.batch_labels, sub_regime=self.candidate_dataset.meta.sub_regime
             )
 
         elif self.regime == "reinforcement_learning":
@@ -469,3 +521,24 @@ class CandidateSelection(object):
             upper_bounds.append(pt.root.upper)
 
         return np.array(upper_bounds, dtype="float")
+
+    def get_importance_weights(self, theta):
+        """Get an array of importance weights evaluated on the candidate dataset
+        given model weights, theta. 
+
+        :param theta: model weights
+        :type theta: numpy.ndarray
+
+        :return: Array of upper bounds on the constraint
+        :rtype: array
+        """
+        assert self.regime == "reinforcement_learning"
+        rho_is = []
+
+        for ii, ep in enumerate(self.candidate_dataset.episodes):
+            pi_news = self.model.get_probs_from_observations_and_actions(
+                theta, ep.observations, ep.actions, ep.action_probs
+            )
+            rho_is.append(np.prod(pi_news / ep.action_probs))
+
+        return np.array(rho_is)

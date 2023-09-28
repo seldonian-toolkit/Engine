@@ -272,7 +272,6 @@ class ParseTree(object):
                     "lower": float("-inf"),
                     "upper": float("inf"),
                     "data_dict": None,
-                    "datasize": 0,
                 }
 
         self.n_nodes += 1
@@ -374,6 +373,10 @@ class ParseTree(object):
                             node_kwargs["cm_pred_index"] = left_node_kwargs[
                                 "cm_pred_index"
                             ]
+                        elif node_class.__name__ == "RLAltRewardBaseNode":
+                            node_kwargs["alt_reward_number"] = left_node_kwargs[
+                                "alt_reward_number"
+                            ]
                         else:
                             node_kwargs["class_index"] = left_node_kwargs["class_index"]
                     else:
@@ -466,15 +469,7 @@ class ParseTree(object):
         return node_class(node_name), is_leaf
 
     def _parse_subscript(self, ast_node):
-        if ast_node.value.id not in [
-            "CM_",
-            "PR_",
-            "NR_",
-            "FPR_",
-            "TNR_",
-            "TPR_",
-            "FNR_",
-        ]:
+        if ast_node.value.id.rstrip("_") not in subscriptable_measure_functions:
             raise NotImplementedError(
                 "Error parsing your expression."
                 " A subscript was used in a way we do not support: "
@@ -498,9 +493,31 @@ class ParseTree(object):
             node_kwargs["name"] = node_name
             node_kwargs["cm_true_index"] = row_index
             node_kwargs["cm_pred_index"] = col_index
-
+        
+        elif ast_node.value.id.rstrip("_") in measure_functions_dict["reinforcement_learning"]["all"]:
+            # alternate reward function
+            node_class = RLAltRewardBaseNode
+            try:
+                # Python 3.8 syntax ("ast" is part of the standard library)
+                alt_reward_number = ast_node.slice.value.value
+            except AttributeError:
+                try:
+                    # Python 3.9 and some 3.10 syntaxes
+                    alt_reward_number = ast_node.slice.value
+                except AttributeError:
+                    # Later Python 3.10 syntax
+                    alt_reward_number = ast_node.slice.id
+            # Validate that alt_reward_number is an integer
+            if type(alt_reward_number) != int:
+                raise RuntimeError(
+                    "The alternate reward number you entered was not an integer."
+                )
+            node_name = f"{ast_node.value.id}[{alt_reward_number}]"
+            node_kwargs = {}
+            node_kwargs["name"] = node_name
+            node_kwargs["alt_reward_number"] = alt_reward_number
         else:
-            # It's one of the PR_[i] functions
+            # It's one of the PR_[i], FPR_[i], etc. functions
             node_class = MultiClassBaseNode
             # ast API changed after Python 3.8 in how it handles slices
             try:
@@ -697,20 +714,22 @@ class ParseTree(object):
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
-                        datasize = self.base_node_dict[node.name]["datasize"]
                     else:
                         # Data not prepared already. Need to do that.
-                        data_dict, datasize = node.calculate_data_forbound(**kwargs)
+                        if isinstance(node, RLAltRewardBaseNode):
+                            kwargs["alt_reward_number"] = node.alt_reward_number
+                        
+                        data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
-                        self.base_node_dict[node.name]["datasize"] = datasize
 
                     kwargs["data_dict"] = data_dict
-                    kwargs["datasize"] = datasize
 
                 bound_method = self.base_node_dict[node.name]["bound_method"]
+                
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
+                
                 bound_result = node.calculate_bounds(
                     bound_method=bound_method, **kwargs
                 )
@@ -774,18 +793,18 @@ class ParseTree(object):
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
-                        datasize = self.base_node_dict[node.name]["datasize"]
                     else:
-                        data_dict, datasize = node.calculate_data_forbound(**kwargs)
+                        if isinstance(node, RLAltRewardBaseNode):
+                            kwargs["alt_reward_number"] = node.alt_reward_number
+                        data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
-                        self.base_node_dict[node.name]["datasize"] = datasize
 
                     kwargs["data_dict"] = data_dict
-                    kwargs["datasize"] = datasize
 
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
+                
                 value = node.calculate_value(**kwargs)
                 node.value = value
                 self.base_node_dict[node.name]["value_computed"] = True
@@ -1158,7 +1177,6 @@ class ParseTree(object):
             self.base_node_dict[node_name]["upper"] = float("inf")
             if reset_data:
                 self.base_node_dict[node_name]["data_dict"] = None
-                self.base_node_dict[node_name]["datasize"] = 0
 
         return
 

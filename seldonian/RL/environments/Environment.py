@@ -1,4 +1,4 @@
-class Environment:
+class Environment(object):
     """Base class for all RL environments"""
 
     def get_observation(self):

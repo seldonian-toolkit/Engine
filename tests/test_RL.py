@@ -8,7 +8,7 @@ from seldonian.RL.environments.gridworld import Gridworld
 from seldonian.RL.Agents.Parameterized_non_learning_softmax_agent import *
 from seldonian.RL.Agents.Discrete_Random_Agent import *
 from seldonian.RL.RL_runner import run_trial
-from seldonian.dataset import RLDataSet
+from seldonian.dataset import RLDataSet,RLMetaData
 import autograd.numpy as np
 
 def test_tables():
@@ -62,7 +62,7 @@ def test_Softmax():
     """test Softmax functions"""
     min_action = -1
     max_action = 1
-    observation_space = Discrete_Space(-1, 2)  # irrelevant for test
+    observation_space = Discrete_Space(-1, 2)  
     action_space = Discrete_Space(min_action, max_action)
     env_description = Env_Description(observation_space, action_space)
     hyperparam_and_setting_dict = {}
@@ -71,6 +71,43 @@ def test_Softmax():
     e_to_something_stable = np.array([0.1108031584, 0.0040867714, 1.0])
     assert np.allclose(sm.get_e_to_the_something_terms([1.1, -2.2, 3.3]), e_to_something_stable)
     assert np.allclose(sm.get_action_probs_from_action_values([1.1, -2.2, 3.3]), e_to_something_stable / sum(e_to_something_stable))
+    assert sm.get_prob_this_action(0,0) == 1/3
+    assert sm.get_prob_this_action(0,1) == 1/3
+    assert sm.get_prob_this_action(-1,0) == 1/3
+    assert sm.get_prob_this_action(1,-1) == 1/3
+
+def test_MixedSoftmax():
+    """test Mixed Softmax (for policy regularization)"""
+    min_action = -1
+    max_action = 1
+    observation_space = Discrete_Space(-1, 2)  # irrelevant for test
+    action_space = Discrete_Space(min_action, max_action)
+    env_description = Env_Description(observation_space, action_space)
+    hyperparam_and_setting_dict = {}
+
+    alpha1 = 1.0 # mixing hyperparam
+    sm1 = MixedSoftmax(hyperparam_and_setting_dict, env_description, alpha1)
+    e_to_something_stable = np.array([0.1108031584, 0.0040867714, 1.0])
+    assert np.allclose(sm1.get_e_to_the_something_terms([1.1, -2.2, 3.3]), e_to_something_stable)
+    assert np.allclose(sm1.get_action_probs_from_action_values([1.1, -2.2, 3.3]), e_to_something_stable / sum(e_to_something_stable))
+    assert sm1.get_prob_this_action(0,0,1/4) == 1/3
+    assert sm1.get_prob_this_action(0,0,1/2) == 1/3
+
+    alpha2 = 0.0 # mixing hyperparam
+    sm2 = MixedSoftmax(hyperparam_and_setting_dict, env_description, alpha2)
+    e_to_something_stable = np.array([0.1108031584, 0.0040867714, 1.0])
+    assert np.allclose(sm2.get_e_to_the_something_terms([1.1, -2.2, 3.3]), e_to_something_stable)
+    assert np.allclose(sm2.get_action_probs_from_action_values([1.1, -2.2, 3.3]), e_to_something_stable / sum(e_to_something_stable))
+    assert sm2.get_prob_this_action(0,0,1/4) == 1/4
+    assert sm2.get_prob_this_action(0,0,1/2) == 1/2
+
+    alpha3 = 0.5 # mixing hyperparam
+    sm3 = MixedSoftmax(hyperparam_and_setting_dict, env_description, alpha3)
+    e_to_something_stable = np.array([0.1108031584, 0.0040867714, 1.0])
+    assert np.allclose(sm3.get_e_to_the_something_terms([1.1, -2.2, 3.3]), e_to_something_stable)
+    assert np.allclose(sm3.get_action_probs_from_action_values([1.1, -2.2, 3.3]), e_to_something_stable / sum(e_to_something_stable))
+    assert sm3.get_prob_this_action(0,0,1/4) == 1/3*alpha3 + 1/4*(1-alpha3)
+    assert sm3.get_prob_this_action(0,0,1/2) == 1/3*alpha3 + 1/2*(1-alpha3)
 
 def test_Parameterized_non_learning_softmax_agent():
     """test Parameterized_non_learning_softmax_agent"""
@@ -165,7 +202,7 @@ def test_createRLSpec_gridworld(RL_gridworld_dataset):
     """ Test creating RLSpec object
     for default gridworld inputs """
     from seldonian.spec import createRLSpec
-    constraint_strs = ['J_pi_new >= -0.25']
+    constraint_strs = ['J_pi_new_IS >= -0.25']
     deltas = [0.05]
 
     (dataset,policy,env_kwargs,
@@ -187,7 +224,7 @@ def test_createRLSpec_mountaincar(N_step_mountaincar_dataset):
     """ Test creating RLSpec object
     for default gridworld inputs """
     from seldonian.spec import createRLSpec
-    constraint_strs = ['J_pi_new >= -500']
+    constraint_strs = ['J_pi_new_IS >= -500']
     deltas = [0.05]
 
     (dataset,policy,env_kwargs,
@@ -214,7 +251,7 @@ def test_generate_gridworld_episodes():
     hyperparam_and_setting_dict["num_episodes"] = 10
     hyperparam_and_setting_dict["vis"] = False
 
-    episodes, agent = run_trial(hyperparam_and_setting_dict)
+    episodes = run_trial(hyperparam_and_setting_dict)
 
     assert len(episodes) == 10
     first_episode = episodes[0]
@@ -235,7 +272,11 @@ def test_generate_gridworld_episodes():
     assert first_reward == 0
     assert all([pi == 0.25 for pi in pis])
 
-    dataset = RLDataSet(episodes=episodes)
+    meta = RLMetaData(
+        all_col_names=["episode_index", "O", "A", "R", "pi_b"],
+        sensitive_col_names=[]
+    )
+    dataset = RLDataSet(episodes=episodes,meta=meta)
     assert len(dataset.episodes) == 10
 
 def test_generate_n_step_mountaincar_episodes():
@@ -250,7 +291,7 @@ def test_generate_n_step_mountaincar_episodes():
     hyperparam_and_setting_dict["num_episodes"] = 10
     hyperparam_and_setting_dict["vis"] = False
 
-    episodes, agent = run_trial(hyperparam_and_setting_dict)
+    episodes = run_trial(hyperparam_and_setting_dict)
 
     assert len(episodes) == 10
     first_episode = episodes[0]
@@ -271,5 +312,9 @@ def test_generate_n_step_mountaincar_episodes():
     assert first_reward == -20.0
     assert all([pi == 1/3. for pi in pis])
 
-    dataset = RLDataSet(episodes=episodes)
+    meta = RLMetaData(
+        all_col_names=["episode_index", "O", "A", "R", "pi_b"],
+        sensitive_col_names=[]
+    )
+    dataset = RLDataSet(episodes=episodes,meta=meta)
     assert len(dataset.episodes) == 10

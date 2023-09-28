@@ -2,7 +2,7 @@ from seldonian.RL.Env_Description.Spaces import *
 from seldonian.utils.RL_utils import *
 
 
-class Env_Description:
+class Env_Description(object):
     def __init__(self, observation_space, action_space):
         """Describes an environment's observation and action space
         and provides convenience methods for accessing the

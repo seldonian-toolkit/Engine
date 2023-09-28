@@ -1,0 +1,4 @@
+{
+	"all_col_names":["episode_index","O","A","R","pi_b","R_alt_1","R_alt_2"],
+	"regime":"RL"
+}

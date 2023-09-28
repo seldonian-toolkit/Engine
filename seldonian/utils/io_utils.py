@@ -62,3 +62,17 @@ def save_json(filename, data, indent=2, verbose=False):
         data = json.dump(data, outfile)
     if verbose:
         print(f"Saved {filename}\n")
+
+
+def cmaes_logger(es,filename):
+    """ A function that is used as a callback each time the
+    CMA-ES evoluation strategy object, es, is evaluated,
+    allowing us to log the xmean and f value at each
+    iteration 
+
+    """
+    it_str = str(es.countiter)
+    xmean_str = ",".join(str(x) for x in es.mean)
+    f_str = str(es.best.f)
+    with open(filename, "a") as logger:
+        logger.write(f"{it_str},{xmean_str},{f_str}\n")

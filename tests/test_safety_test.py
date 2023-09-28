@@ -34,7 +34,7 @@ def test_run_safety_test_regression(
         labels=safety_labels,
         sensitive_attrs=[],
         num_datapoints=len(safety_features),
-        meta_information=dataset.meta_information)
+        meta=dataset.meta)
 
     # A candidate solution that we know should fail
     candidate_solution = np.array([20,4])
@@ -86,7 +86,7 @@ def test_evaluate_primary_objective_regression(
         labels=safety_labels,
         sensitive_attrs=[],
         num_datapoints=len(safety_features),
-        meta_information=dataset.meta_information)
+        meta=dataset.meta)
 
     # A candidate solution that we know is bad
     solution = np.array([20,4])
@@ -108,7 +108,7 @@ def test_evaluate_primary_objective_RL(
     rseed=99
     np.random.seed(rseed)
     regime='reinforcement_learning'
-    constraint_strs = ['-0.25 - J_pi_new']
+    constraint_strs = ['-0.25 - J_pi_new_IS']
     deltas = [0.05]
     
     parse_trees = make_parse_trees_from_constraints(
@@ -134,7 +134,7 @@ def test_evaluate_primary_objective_RL(
     safety_dataset = RLDataSet(
         episodes=safety_episodes,
         num_datapoints=len(safety_episodes),
-        meta_information=dataset.meta_information)
+        meta=dataset.meta)
 
     # A candidate solution that we know is bad
     solution = np.zeros((9,4))

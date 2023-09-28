@@ -2,7 +2,7 @@ from seldonian.utils.RL_utils import *
 from math import factorial, pi
 
 
-class Fourier:
+class Fourier(object):
     def __init__(self, hyperparam_and_setting_dict, env_desc):
         """Fourier basis used for linear value function
         approximation. See http://irl.cs.brown.edu/fb.php for
