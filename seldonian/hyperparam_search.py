@@ -22,13 +22,77 @@ from seldonian.models import objectives
 from seldonian.utils.io_utils import load_pickle
 from seldonian.utils.stats_utils import tinv
 
-class Hyperparameter(object):
-    def __init__(self,name,dtype,min_possible,max_possible,values):
-        self.name = name
-        self.dtype = dtype
-        self.min_possible = minval
-        self.max_possible = max_possible
-        self.values = values
+class HyperSchema(object):
+    def __init__(self,hyper_dict):
+        """ Container for all hyperparameters one wants to tune
+        and their possible values. Example:
+        
+        :param hyper_dict: Hyperparameter dictionary adhering to the following format:
+            keys: names of hyperparameters
+            values: dictionary with keys: ["values","hyper_type"], where
+                "values" is the list of parameter values to run and 
+                "hyper_type" is one of ["optimization","model","SA"], specifying 
+                the part of the algorithm in which the hyperparameter will be injected.
+            Example: 
+            hyper_dict = {
+                "alpha_theta": {
+                    "values":[0.001,0.005,0.05],
+                    "hyper_type":"optimization"
+                },
+                "num_iters": {
+                    "values":[500,1000],
+                    "hyper_type":"optimization"
+                },
+                "bound_inflation_factor": {
+                    "values":[1.0,2.0,3.0],
+                    "hyper_type":"SA"
+                },
+            }
+        """
+        self.hyper_dict = self._validate(hyper_dict)
+        self.allowed_optimization_hyperparams = [
+            "alpha_theta",
+            "alpha_lambda",
+            "beta_velocity",
+            "beta_rmsprop",
+            "batch_size",
+            "n_epochs",
+            "num_iters"
+        ]
+        self.allowed_SA_hyperparams = [
+            "bound_inflation_factor",
+            "frac_data_in_safety",
+            "delta_split_dict"
+        ]
+        
+    def _validate(self,hyper_dict):
+        """ Check that the hyperparameter dictionary is formatted properly
+        and contains valid hyperparameters. Model hyperparameters are specific 
+        to the model so we can't know what they might be ahead of time. The
+        error will be caught elsewhere when the model is instantiated 
+        if there is an invalid parameter name.
+        """
+        for hp in hyper_dict:
+            if not isinstance(hyper_dict[hp],dict):
+                raise RuntimeError(f"hyper_dict['{hp}'] is not a dictionary. ")
+            
+            for w in ["values","hyper_type"]:
+                if w not in hyper_dict[hp]:
+                    raise KeyError(f"hyper_dict['{hp}'] must have the key: '{w}'. ")
+            
+            if len(hyper_dict[hp]["values"]) < 1:
+                raise ValueError(f"hyper_dict['{hp}']['values'] must have at least one value")
+            
+            if hyper_dict[hp]["hyper_type"] not in ["optimization","model","SA"]:
+                raise ValueError(f"hyper_dict['{hp}']['hyper_type'] must be one of ['optimization','model','SA']")
+            
+            if hyper_dict[hp]["hyper_type"] == "optimization" and hp not in self.allowed_optimization_hyperparams:
+                raise ValueError(f"{hp} is not an allowed optimization hyperparameter")
+            
+            if hyper_dict[hp]["hyper_type"] == "SA" and hp not in self.allowed_SA_hyperparams:
+                raise ValueError(f"{hp} is not an allowed hyperparameter of the Seldonian algorithm")
+        return hyper_dict   
+
 
 class HyperparamSearch:
     def __init__(
