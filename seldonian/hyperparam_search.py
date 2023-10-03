@@ -49,7 +49,6 @@ class HyperSchema(object):
                 },
             }
         """
-        self.hyper_dict = self._validate(hyper_dict)
         self.allowed_optimization_hyperparams = [
             "alpha_theta",
             "alpha_lambda",
@@ -64,6 +63,8 @@ class HyperSchema(object):
             "frac_data_in_safety",
             "delta_split_dict"
         ]
+        self.hyper_dict = self._validate(hyper_dict)
+        
         
     def _validate(self,hyper_dict):
         """ Check that the hyperparameter dictionary is formatted properly
