@@ -723,7 +723,7 @@ class HyperparamSearch:
         # TODO: Update so delta is passed through to CIs.
         if self.hyperparam_spec.confidence_interval_type == "ttest":
             lower_bound, upper_bound = self.ttest_bound(
-                    bs_trials_pass)
+                    bs_trials_pass, n_bootstrap_trials)
         elif self.hyperparam_spec.confidence_interval_type == "clopper-pearson":
             lower_bound, upper_bound = self.clopper_pearson_bound(
                     num_trials_passed)
@@ -878,11 +878,11 @@ class HyperparamSearch:
         print("elapsed_time:", elapsed_time)
         return all_estimates, elapsed_time
 
-
     def find_best_hyperparams(
             self,
             n_bootstrap_trials=100,
-            n_workers=1
+            n_workers=1,
+            threshold = 0.01 # TODO: Come up with a better name than this.
     ):
         """Find the best hyperparameter values to use for the Seldonian algorithm.
         Note: currently only implemented for frac_data_in_safety.
@@ -944,6 +944,7 @@ class HyperparamSearch:
 
             # Estimate if any of the future splits of data lead to higher P(pass)
             prime_better = False
+            all_prime_below_threshold = False
             for est_frac_data_in_safety in self.all_frac_data_in_safety:
                 if est_frac_data_in_safety >= frac_data_in_safety:  # Est if more data in cs.
                     continue
@@ -968,11 +969,15 @@ class HyperparamSearch:
                     "est_upper_bound": prime_upper_bound,
                 })
 
+                # Check if estimate is below threshold.
+                all_prime_below_threshold = all_prime_below_threshold and (prime_prob_pass <= threshold)
+
+                # TODO: Change prime better to prime just as good or better
 
                 # Check if ound a future split that we predict is better.
-                if self.hyperparam_spec.confidence_interval_type is not None: # Compare lower bounds.
+                if self.hyperparam_spec.confidence_interval_type is not None: # Compare confidence intervals.
                     # TODO: Double check this and make sure that this is how we want to use CI.
-                    if prime_lower_bound >= curr_lower_bound:
+                    if prime_upper_bound >= curr_lower_bound:
                         prime_better = True
                         break
                 else: # Use point estimate to compare.
@@ -980,10 +985,9 @@ class HyperparamSearch:
                         prime_better = True
                         break
 
-            # TODO: Test this.
             # We do not predict that moving more data into the candidate selection is better,
             # so use current rho.
-            if prime_better is False:
+            if not prime_better and not all_prime_below_threshold:
                 break
 
         # Write out all the estimates to a dataframe.
