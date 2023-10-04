@@ -3,7 +3,7 @@ import tqdm
 import autograd.numpy as np   # Thinly-wrapped version of Numpy
 import random
 from seldonian.models.models import LinearRegressionModel
-from seldonian.spec import SupervisedSpec
+from seldonian.spec import SupervisedSpec,HyperparameterSelectionSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.hyperparam_search import HyperparamSearch
 from seldonian.utils.tutorial_utils import (
@@ -37,13 +37,22 @@ if __name__ == "__main__":
         parse_trees=parse_trees,
         sub_regime='regression',
     )
-
     # 4. Do hyperparameter search.
     all_frac_data_in_safety = [0.1, 0.3, 0.5, 0.7, 0.9]
-    HS = HyperparamSearch(spec, all_frac_data_in_safety, results_dir=results_dir)
+    hyperparam_spec = HyperparameterSelectionSpec(
+        n_bootstrap_trials=100,
+        all_frac_data_in_safety=all_frac_data_in_safety,
+        n_bootstrap_workers=6,
+        use_bs_pools=True,
+        confidence_interval_type=None
+    )
+    
+    HS = HyperparamSearch(spec=spec, hyperparam_spec=hyperparam_spec, results_dir=results_dir)
+    
     # Test create_dataset.
     candidate_dataset, safety_dataset = HS.create_dataset(
             HS.dataset, all_frac_data_in_safety[0], results_dir)
+    
     frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
             HS.find_best_hyperparams()
 

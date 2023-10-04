@@ -2,7 +2,7 @@ import autograd.numpy as np
 from seldonian.utils.RL_utils import *
 
 
-class Function_Approximator:
+class Function_Approximator(object):
     """Base class for a function approximator"""
 
     def set_new_params(self, new_params):

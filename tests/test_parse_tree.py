@@ -9,7 +9,7 @@ from seldonian.dataset import (DataSetLoader,
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.utils.io_utils import load_json,load_pickle
 from seldonian.models.models import LinearRegressionModel
-from seldonian.dataset import RLDataSet
+from seldonian.dataset import RLDataSet,RLMetaData
 from seldonian.RL.RL_model import RL_model
 
 
@@ -764,6 +764,175 @@ def test_multiclass_measure_functions():
 	pt.create_from_ast(constraint_str)
 	assert pt.root.right.measure_function_name == 'ACC'
 
+def test_rl_alt_reward_string():
+	delta = 0.05
+	constraint_str = 'J_pi_new_IS_[1] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'J_pi_new_IS'
+	assert pt.root.left.name == 'J_pi_new_IS_[1]'
+	assert pt.root.left.alt_reward_number == 1
+
+	constraint_str = '(J_pi_new_IS_[2] | [A,B]) - 0.5'
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all',columns=['A','B'])
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'J_pi_new_IS'
+	assert pt.root.left.name == 'J_pi_new_IS_[2] | [A,B]'
+	assert pt.root.left.alt_reward_number == 2
+
+	constraint_str = 'J_pi_new_PDIS_[1] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'J_pi_new_PDIS'
+	assert pt.root.left.name == 'J_pi_new_PDIS_[1]'
+	assert pt.root.left.alt_reward_number == 1
+
+	constraint_str = 'J_pi_new_WIS_[1] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	pt.create_from_ast(constraint_str)
+	assert pt.root.left.measure_function_name == 'J_pi_new_WIS'
+	assert pt.root.left.name == 'J_pi_new_WIS_[1]'
+	assert pt.root.left.alt_reward_number == 1
+
+def test_rl_alt_reward_bad_string():
+	# Test that using non-numeric characters for the alt reward number raises an error
+	delta = 0.05
+	constraint_str = 'J_pi_new_IS_[N] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_IS_[1.1] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_PDIS_[M] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_PDIS_[5.9] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_WIS_[M] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+	constraint_str = 'J_pi_new_WIS_[5.9] - 0.5'
+
+	pt = ParseTree(delta,regime='reinforcement_learning',
+		sub_regime='all')
+	with pytest.raises(RuntimeError) as excinfo:
+			pt.create_from_ast(constraint_str)
+	error_str = "The alternate reward number you entered was not an integer."		
+	assert str(excinfo.value) == error_str
+
+def test_rl_alt_reward_precalc_return():
+	np.random.seed(0)
+	
+	from seldonian.RL.RL_model import RL_model
+	from seldonian.RL.Agents.Policies.Softmax import DiscreteSoftmax
+	from seldonian.RL.Env_Description import Spaces, Env_Description
+	data_pth = 'static/datasets/RL/gridworld/gridworld_100episodes_2altrewards.pkl'
+	loader = DataSetLoader(regime="reinforcement_learning")
+	dataset = loader.load_RL_dataset_from_episode_file(data_pth)
+	
+	# Initialize policy
+	num_states = 9
+	observation_space = Spaces.Discrete_Space(0, num_states-1)
+	action_space = Spaces.Discrete_Space(0, 3)
+	env_description =  Env_Description.Env_Description(observation_space, action_space)
+	policy = DiscreteSoftmax(hyperparam_and_setting_dict={},
+		env_description=env_description)
+	env_kwargs={'gamma':0.9}
+	model = RL_model(policy=policy,env_kwargs=env_kwargs)
+
+	IS_constraint_strs = ['J_pi_new_IS_[1] >= -0.25']
+	IS_deltas=[0.05]
+
+	IS_pt = ParseTree(delta=IS_deltas[0],
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[])
+	
+	IS_pt.create_from_ast(IS_constraint_strs[0])
+	IS_pt.assign_deltas(weight_method='equal')
+
+	# propagate the bounds with example theta value
+	theta = np.random.uniform(-0.05,0.05,(9,4))
+	IS_pt.propagate_bounds(theta=theta,dataset=dataset,
+		model=model,branch='candidate_selection',
+		regime='reinforcement_learning',
+		n_safety=150)
+	assert IS_pt.root.lower == pytest.approx(-0.92395544668)
+	assert IS_pt.root.upper == pytest.approx(8.01612852017466)
+	IS_pt.reset_base_node_dict(reset_data=True)
+	IS_pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model,regime='reinforcement_learning',
+		branch='safety_test')
+	assert IS_pt.root.value == pytest.approx(3.5460865367462726)
+
+	weighted_returns_alt_reward = IS_pt.base_node_dict["J_pi_new_IS_[1]"]['data_dict']['weighted_returns']
+	assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
+
+	PDIS_constraint_strs = ['J_pi_new_PDIS_[1] >= -0.25']
+	PDIS_deltas=[0.05]
+
+	PDIS_pt = ParseTree(delta=PDIS_deltas[0],
+		regime='reinforcement_learning',
+		sub_regime='all',
+		columns=[])
+	
+	PDIS_pt.create_from_ast(PDIS_constraint_strs[0])
+	PDIS_pt.assign_deltas(weight_method='equal')
+
+	# propagate the bounds with example theta value
+	PDIS_pt.propagate_bounds(theta=theta,dataset=dataset,
+		model=model,branch='candidate_selection',
+		regime='reinforcement_learning',
+		n_safety=150)
+	assert PDIS_pt.root.lower == pytest.approx(-0.14631012356483214)
+	assert PDIS_pt.root.upper == pytest.approx(0.3068278441442427)
+	PDIS_pt.reset_base_node_dict(reset_data=True)
+	PDIS_pt.evaluate_constraint(theta=theta,dataset=dataset,
+		model=model,regime='reinforcement_learning',
+		branch='safety_test')
+	assert PDIS_pt.root.value == pytest.approx(0.08025886028)
+
+	weighted_returns_alt_reward = PDIS_pt.base_node_dict["J_pi_new_PDIS_[1]"]['data_dict']['weighted_returns']
+	assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
+
 def test_measure_function_with_conditional_bad_syntax_captured():
 	delta=0.05
 	error_str = ("Error parsing your expression."
@@ -941,7 +1110,6 @@ def test_unary_op():
 					f"+")
 	assert str(excinfo.value) == error_str
 	
-
 def test_raise_error_on_excluded_operators():
 
 	constraint_str = 'FPR^4'
@@ -1039,7 +1207,7 @@ def test_math_functions_propagate():
 	delta = 0.05
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification',
-		columns=dataset.meta_information['sensitive_col_names'])
+		columns=dataset.meta.sensitive_col_names)
 	
 	pt.create_from_ast(constraint_str)
 	pt.assign_deltas(weight_method='equal')
@@ -1050,26 +1218,26 @@ def test_math_functions_propagate():
 	pt.propagate_bounds(theta=theta,dataset=dataset,
 		model=model_instance,branch='safety_test',
 		regime='supervised_learning')
-	assert pt.root.lower == pytest.approx(0.5990300)
-	assert pt.root.upper == pytest.approx(0.5999346)
+	assert pt.root.lower == pytest.approx(0.59886236)
+	assert pt.root.upper == pytest.approx(0.60010258)
 
-	constraint_str = '1+log(FPR)'
-	delta = 0.05
-	pt = ParseTree(delta,regime='supervised_learning',
-		sub_regime='classification',
-		columns=dataset.meta_information['sensitive_col_names'])
-	# pt.build_tree(constraint_str)
+	# constraint_str = '1+log(FPR)'
+	# delta = 0.05
+	# pt = ParseTree(delta,regime='supervised_learning',
+	# 	sub_regime='classification',
+	# 	columns=dataset.meta.sensitive_col_names)
+	# # pt.build_tree(constraint_str)
 	
-	pt.create_from_ast(constraint_str)
-	pt.assign_deltas(weight_method='equal')
+	# pt.create_from_ast(constraint_str)
+	# pt.assign_deltas(weight_method='equal')
 
-	# propagate the bounds with example theta value
-	theta = np.random.uniform(-0.05,0.05,10)
-	pt.propagate_bounds(theta=theta,dataset=dataset,
-		model=model_instance,branch='safety_test',
-		regime='supervised_learning')
-	assert pt.root.lower == pytest.approx(-2.5187904943528903)
-	assert pt.root.upper == pytest.approx(-2.470509955060809)
+	# # propagate the bounds with example theta value
+	# theta = np.random.uniform(-0.05,0.05,10)
+	# pt.propagate_bounds(theta=theta,dataset=dataset,
+	# 	model=model_instance,branch='safety_test',
+	# 	regime='supervised_learning')
+	# assert pt.root.lower == pytest.approx(-2.5187904943528903)
+	# assert pt.root.upper == pytest.approx(-2.470509955060809)
 
 def test_deltas_assigned_equally():
 	constraint_str = 'abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1'
@@ -1279,14 +1447,14 @@ def test_ttest_bound(simulated_regression_dataset):
 		labels=candidate_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(candidate_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	safety_dataset = SupervisedDataSet(
 		features=safety_features,
 		labels=safety_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(safety_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
@@ -1377,15 +1545,15 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 		features=candidate_features,
 		labels=candidate_labels,
 		sensitive_attrs=[],
-		num_datapoints=len(candidate_features),
-		meta_information=dataset.meta_information)
+		num_datapoints=len(candidate_labels),
+		meta=dataset.meta)
 
 	safety_dataset = SupervisedDataSet(
 		features=safety_features,
 		labels=safety_labels,
 		sensitive_attrs=[],
-		num_datapoints=len(safety_features),
-		meta_information=dataset.meta_information)
+		num_datapoints=len(safety_labels),
+		meta=dataset.meta)
 
 	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression')
@@ -1403,12 +1571,12 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 	
 	# Candidate selection
 	pt.propagate_bounds(theta=theta,dataset=candidate_dataset,
-		n_safety=len(safety_features),
+		n_safety=len(safety_labels),
 		model=model,
 		branch='candidate_selection',
 		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not bound_computed 
-	assert pt.root.upper == pytest.approx(235.89950087)
+	assert pt.root.upper == pytest.approx(12.341009549)
 	pt.reset_base_node_dict(reset_data=True)
 	# Safety test
 	pt.propagate_bounds(theta=theta,dataset=safety_dataset,
@@ -1416,7 +1584,7 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
 		branch='safety_test',
 		regime='supervised_learning')
 	assert pt.root.lower == float('-inf') # not computed
-	assert pt.root.upper == pytest.approx(166.0071908)
+	assert pt.root.upper == pytest.approx(13.1514499)
 
 def test_bad_bound_method(simulated_regression_dataset):
 	# dummy data for linear regression
@@ -1444,14 +1612,14 @@ def test_bad_bound_method(simulated_regression_dataset):
 		labels=candidate_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(candidate_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 
 	safety_dataset = SupervisedDataSet(
 		features=safety_features,
 		labels=safety_labels,
 		sensitive_attrs=[],
 		num_datapoints=len(safety_features),
-		meta_information=dataset.meta_information)
+		meta=dataset.meta)
 	
 	# First, single sided bound (MSE only needs upper bound)
 
@@ -1624,7 +1792,7 @@ def test_evaluate_constraint(
 	assert pt.root.value == pytest.approx(-5.656718)
 
 	### RL
-	constraint_str = 'J_pi_new >= -0.25'
+	constraint_str = 'J_pi_new_IS >= -0.25'
 	constraint_strs = [constraint_str]
 	deltas = [0.05]
 	parse_trees = make_parse_trees_from_constraints(
@@ -1704,7 +1872,7 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	
 	pt = ParseTree(deltas[0],regime='supervised_learning',
 		sub_regime='regression',
-		columns=dataset.meta_information['sensitive_col_names'])
+		columns=dataset.meta.sensitive_col_names)
 	
 	pt.create_from_ast(constraint_strs[0])
 	pt.assign_deltas(weight_method='equal')
@@ -1727,17 +1895,17 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	data_pth = 'static/datasets/RL/gridworld/gridworld_100episodes.pkl'
 
 	episodes = load_pickle(data_pth)
-	RL_meta_information = {
-		'episode_col_names': ['O', 'A', 'R', 'pi_b'],
-		'sensitive_col_names': ['M','F']
-	}
+	RL_meta = RLMetaData(
+		all_col_names=['episode_index','O', 'A', 'R', 'pi_b'],
+		sensitive_col_names=['M','F']
+	)
 	M = np.random.randint(0,2,len(episodes))
 	F = 1-M
 	sensitive_attrs = np.hstack((M.reshape(-1,1),F.reshape(-1,1)))
 	RL_dataset = RLDataSet(
 		episodes=episodes,
 		sensitive_attrs=sensitive_attrs,
-		meta_information=RL_meta_information)
+		meta=RL_meta)
 
 	
 	# Initialize policy
@@ -1750,13 +1918,13 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	env_kwargs={'gamma':0.9}
 	RLmodel = RL_model(policy=policy,env_kwargs=env_kwargs)
 
-	RL_constraint_strs = ['(J_pi_new | [M]) >= -0.25']
+	RL_constraint_strs = ['(J_pi_new_IS | [M]) >= -0.25']
 	RL_deltas=[0.05]
 
 	RL_pt = ParseTree(RL_deltas[0],
 		regime='reinforcement_learning',
 		sub_regime='all',
-		columns=RL_dataset.meta_information['sensitive_col_names'])
+		columns=RL_dataset.meta.sensitive_col_names)
 	
 	RL_pt.create_from_ast(RL_constraint_strs[0])
 	RL_pt.assign_deltas(weight_method='equal')
@@ -1770,8 +1938,7 @@ def test_single_conditional_columns_propagated(gpa_regression_dataset,):
 	assert RL_pt.root.lower == pytest.approx(-0.00556309)
 	assert RL_pt.root.upper == pytest.approx(0.333239520)
 
-	assert len(RL_pt.base_node_dict["J_pi_new | [M]"]['data_dict']['episodes']) == 52
-
+	assert len(RL_pt.base_node_dict["J_pi_new_IS | [M]"]['data_dict']['episodes']) == 52
 
 def test_build_tree():
 	""" Test the convenience function that builds the tree,

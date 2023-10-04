@@ -1,7 +1,7 @@
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
 import pandas as pd
 
-from seldonian.dataset import SupervisedDataSet
+from seldonian.dataset import SupervisedDataSet,SupervisedMetaData
 from seldonian.parse_tree.parse_tree import ParseTree
 
 
@@ -115,11 +115,12 @@ def make_synthetic_regression_dataset(
         )
 
     # 2. Define the metadata
-    meta_information = {}
-    meta_information["feature_col_names"] = ["feature1"]
-    meta_information["label_col_names"] = ["label"]
-    meta_information["sensitive_col_names"] = []
-    meta_information["sub_regime"] = "regression"
+    meta = SupervisedMetaData(
+        sub_regime="regression",
+        all_col_names=["feature1","label"],
+        feature_col_names = ["feature1"],
+        label_col_names = ["label"]
+    )
 
     # 3. Make a dataset object
     features = np.expand_dims(X, axis=1)
@@ -130,7 +131,7 @@ def make_synthetic_regression_dataset(
         labels=labels,
         sensitive_attrs=[],
         num_datapoints=num_points,
-        meta_information=meta_information,
+        meta=meta,
     )
 
     return dataset

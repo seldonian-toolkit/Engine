@@ -1,7 +1,7 @@
 import autograd.numpy as np
 
 
-class Discrete_Space:
+class Discrete_Space(object):
     def __init__(self, min, max):
         """Discrete space used for observations or actions
 
@@ -18,7 +18,7 @@ class Discrete_Space:
         return self.max - self.min + 1
 
 
-class Continuous_Space:
+class Continuous_Space(object):
     def __init__(self, bounds):
         """Continuous space used for observations or actions
 

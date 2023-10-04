@@ -3,9 +3,49 @@ from functools import reduce, partial
 import pandas as pd
 import autograd.numpy as np
 
-from seldonian.models.objectives import sample_from_statistic, evaluate_statistic
+from . import zhat_funcs 
 from seldonian.utils.stats_utils import *
 
+"""
+
+.. data:: measure_functions_dict
+    :type: dict[regime][sub_regime]
+
+    Contains strings that, if appearing in 
+    a constraint string, will be recognized
+    by the engine as statistical functions with 
+    special meaning. Organized by regime and sub-regime. 
+    For reference the meaning of each measure function is listed here:
+        
+        Supervised classification: 
+
+        - 'PR': Positive rate
+        - 'NR': Negative rate
+        - 'FPR': False positive rate
+        - 'TPR': True positive rate
+        - 'FNR': False negative rate
+        - 'TNR': True negative rate
+        - 'ACC': Accuracy
+        - 'CM': Confusion matrix (only relevant for multi-class classification)
+        
+        Supervised regression:
+            
+        - 'Mean_Error': Mean error
+        - 'Mean_Squared_Error': Mean squared error
+        
+        Reinforcement learning:
+
+        - 'J_pi_new': The performance (expected return of weighted rewards) of the new policy
+
+.. data:: custom_base_node_dict
+    :type: dict
+
+    A dictionary mapping the name of a custom 
+    base node as it would appear in the 
+    constraint string to the class representing it 
+    in :py:mod:`.nodes`
+
+"""
 
 class Node(object):
     def __init__(self, name, lower, upper):
@@ -130,8 +170,7 @@ class BaseNode(Node):
         the expected value of the base variable,
         not the bound.
         """
-
-        value = evaluate_statistic(statistic_name=self.measure_function_name, **kwargs)
+        value = zhat_funcs.evaluate_statistic(statistic_name=self.measure_function_name, **kwargs)
         return value
 
     def mask_data(self, dataset, conditional_columns):
@@ -171,22 +210,19 @@ class BaseNode(Node):
                 try:
                     masked_features = np.array(masked_features)
                     masked_labels = np.array(masked_labels)
-                    n_masked = len(masked_features)
                 except Exception as e:
                     # masked_features and masked_labels stay as lists
-                    n_masked = len(masked_features[0])
+                    pass
             else:
                 # numpy array
                 masked_features = dataset.features[joint_mask]
                 masked_labels = dataset.labels[joint_mask]
-                n_masked = len(masked_features)
 
-            return masked_features, masked_labels, n_masked
+            return masked_features, masked_labels
 
         elif dataset.regime == "reinforcement_learning":
             masked_episodes = np.asarray(dataset.episodes)[joint_mask]
-            n_masked = len(masked_episodes)
-            return masked_episodes, n_masked
+            return masked_episodes
 
     def calculate_data_forbound(self, **kwargs):
         """
@@ -211,51 +247,55 @@ class BaseNode(Node):
             labels = dataset.labels
 
             if self.conditional_columns:
-                masked_features, masked_labels, n_masked = self.mask_data(
+                masked_features, masked_labels = self.mask_data(
                     dataset, self.conditional_columns
                 )
             else:
-                (masked_features, masked_labels, n_masked) = (
+                (masked_features, masked_labels) = (
                     features,
-                    labels,
-                    dataset.num_datapoints,
+                    labels
                 )
 
-            if branch == "candidate_selection":
-                frac_masked = n_masked / dataset.num_datapoints
-                datasize = int(round(frac_masked * n_safety))
-            else:
-                datasize = n_masked
-            data_dict = {"features": masked_features, "labels": masked_labels}
+            data_dict = {
+                "features": masked_features,
+                "labels": masked_labels
+            }
 
         elif regime == "reinforcement_learning":
             gamma = model.env_kwargs["gamma"]
             episodes = dataset.episodes
 
             if self.conditional_columns:
-                masked_episodes, n_masked = self.mask_data(
+                masked_episodes = self.mask_data(
                     dataset, self.conditional_columns
                 )
             else:
-                (masked_episodes, n_masked) = episodes, dataset.num_datapoints
-
-            if branch == "candidate_selection":
-                frac_masked = n_masked / dataset.num_datapoints
-                datasize = int(round(frac_masked * n_safety))
-            else:
-                datasize = n_masked
+                masked_episodes = episodes
 
             # Precalculate expected return from behavioral policy
-            masked_returns = [
-                weighted_sum_gamma(ep.rewards, gamma) for ep in masked_episodes
-            ]
+            # using the reward specified by the alt_reward_number
+            # These are only ever used in the zhat functions, so 
+            # they pertain to the constraint, not the primary objective
+            if "alt_reward_number" in kwargs:
+                # use the alternate reward specified in the constraint string
+                # when calculating the return
+                alt_reward_number = kwargs["alt_reward_number"]
+                alt_reward_index = alt_reward_number - 1
+                masked_returns = [
+                    weighted_sum_gamma(ep.alt_rewards[:, alt_reward_index], gamma)
+                    for ep in masked_episodes
+                ]
+            else:
+                masked_returns = [
+                    weighted_sum_gamma(ep.rewards, gamma) for ep in masked_episodes
+                ]
 
             data_dict = {
                 "episodes": masked_episodes,
                 "weighted_returns": masked_returns,
             }
 
-        return data_dict, datasize
+        return data_dict
 
     def calculate_bounds(self, **kwargs):
         """Calculate confidence bounds given a bound_method,
@@ -279,11 +319,35 @@ class BaseNode(Node):
                 # getting confidence intervals from bootstrap
                 # and RL cases
                 estimator_samples = self.zhat(**kwargs)
+                
+                if len(estimator_samples) < 5:
+                    bounds_dict = {}
+                    if self.will_lower_bound:
+                        bounds_dict['lower'] = -np.inf
+                    if self.will_upper_bound:
+                        bounds_dict['upper'] = np.inf
+                    return bounds_dict
 
                 branch = kwargs["branch"]
+                if branch == "safety_test":
+                    datasize = len(estimator_samples)
+                elif branch == "candidate_selection":
+                    candidate_dataset = kwargs["dataset"]
+                    n_candidate = candidate_dataset.num_datapoints
+                    n_safety = kwargs["n_safety"]
+                    # Want to predict the size of the safety dataset.
+                    # We do this using the fraction of candidate data we 
+                    # get from the estimator
+                    datasize = int(
+                        round(
+                            ( len(estimator_samples)/n_candidate ) * n_safety 
+                        )
+                    )
+
                 data_dict = kwargs["data_dict"]
                 bound_kwargs = kwargs
                 bound_kwargs["data"] = estimator_samples
+                bound_kwargs["datasize"] = datasize
                 bound_kwargs["delta"] = self.delta
 
                 # If lower and upper are both needed,
@@ -322,7 +386,7 @@ class BaseNode(Node):
         else:
             raise RuntimeError("bound_method not specified!")
 
-    def zhat(self, model, theta, data_dict, datasize, **kwargs):
+    def zhat(self, model, theta, data_dict, **kwargs):
         """
         Calculate an unbiased estimate of the
         base variable node.
@@ -338,12 +402,11 @@ class BaseNode(Node):
         :type data_dict: dict
         """
 
-        return sample_from_statistic(
+        return zhat_funcs.sample_from_statistic(
             model=model,
             statistic_name=self.measure_function_name,
             theta=theta,
             data_dict=data_dict,
-            datasize=datasize,
             **kwargs,
         )
 
@@ -663,6 +726,56 @@ class MultiClassBaseNode(BaseNode):
         self.class_index = class_index
 
 
+class RLAltRewardBaseNode(BaseNode):
+    def __init__(
+        self,
+        name,
+        alt_reward_number,
+        lower=float("-inf"),
+        upper=float("inf"),
+        conditional_columns=[],
+        **kwargs,
+    ):
+        """A base node for computing
+        the IS estimate using an alternate
+        reward function (i.e. one besides the primary reward).
+        There can be an arbitrary number of
+        alternate rewards, so the "alt_reward_number"
+        attribute allows one to reference the specific
+        alternate reward. These are 1-indexed,
+        so if one wants to reference the second
+        alternate reward, the base node string would be:
+        "J_pi_new_IS_[2]"
+        Inherits all of the attributes/methods
+        of basenode
+
+        :param name:
+            The name of the node, e.g. "J_pi_new_IS_[1]"
+        :type name: str
+        :param alt_reward_number:
+            Which alternate reward to use when
+            calculating the IS estimate. 1-indexed.
+        :param lower:
+            Lower confidence bound
+        :type lower: float
+        :param upper:
+            Upper confidence bound
+        :type upper: float
+        :param conditional_columns:
+            When calculating confidence bounds on a measure
+            function, condition on these columns being == 1
+        :type conditional_columns: List(str)
+        """
+        super().__init__(
+            name=name,
+            lower=lower,
+            upper=upper,
+            conditional_columns=conditional_columns,
+            **kwargs,
+        )
+        self.alt_reward_number = alt_reward_number
+
+
 class MEDCustomBaseNode(BaseNode):
     def __init__(self, name, lower=float("-inf"), upper=float("inf"), **kwargs):
         """
@@ -702,14 +815,9 @@ class MEDCustomBaseNode(BaseNode):
         labels = np.expand_dims(dataset.labels, axis=1)
         sensitive_attrs = dataset.sensitive_attrs
 
-        data_dict, datasize = self.precalculate_data(features, labels, sensitive_attrs)
+        data_dict = self.precalculate_data(features, labels, sensitive_attrs)
 
-        if kwargs["branch"] == "candidate_selection":
-            n_safety = kwargs["n_safety"]
-            frac_masked = datasize / len(features)
-            datasize = int(round(frac_masked * n_safety))
-
-        return data_dict, datasize
+        return data_dict
 
     def precalculate_data(self, X, Y, S):
         """
@@ -757,7 +865,7 @@ class MEDCustomBaseNode(BaseNode):
             "Y_female": Y_female,
         }
         datasize = N_least
-        return data_dict, datasize
+        return data_dict
 
     def zhat(self, model, theta, data_dict, **kwargs):
         """
@@ -840,7 +948,7 @@ class CVaRSQeBaseNode(BaseNode):
         # Get squashed squared errors
         X = data_dict["features"]
         y = data_dict["labels"]
-        squared_errors = objectives.vector_Squared_Error(model, theta, X, y)
+        squared_errors = zhat_funcs.vector_Squared_Error(model, theta, X, y)
         # sort
         Z = np.array(sorted(squared_errors))
         # Now calculate cvar
@@ -895,17 +1003,32 @@ class CVaRSQeBaseNode(BaseNode):
         min_squared_error = 0
         max_squared_error = max(pow(y_hat_max - y_min, 2), pow(y_max - y_hat_min, 2))
 
-        squared_errors = objectives.vector_Squared_Error(model, theta, X, y)
+        squared_errors = zhat_funcs.vector_Squared_Error(model, theta, X, y)
 
         a = min_squared_error
         b = max_squared_error
         # Need to sort squared errors to get Z1, ..., Zn
         sorted_squared_errors = sorted(squared_errors)
 
+        if branch == "safety_test":
+            datasize = len(sorted_squared_errors)
+        elif branch == "candidate_selection":
+            candidate_dataset = kwargs["dataset"]
+            n_candidate = candidate_dataset.num_datapoints
+            n_safety = kwargs["n_safety"]
+            # Want to predict the size of the safety dataset.
+            # We do this using the fraction of candidate data we 
+            # get from the estimator
+            datasize = int(
+                round(
+                    ( len(sorted_squared_errors)/n_candidate ) * n_safety 
+                )
+            )
+
         bound_kwargs = {
             "Z": sorted_squared_errors,
             "delta": self.delta,
-            "n_safety": kwargs["datasize"],
+            "datasize": datasize,
             "a": a,
             "b": b,
         }
@@ -937,7 +1060,7 @@ class CVaRSQeBaseNode(BaseNode):
             "will_lower_bound and will_upper_bound cannot both be False"
         )
 
-    def predict_HC_lowerbound(self, Z, delta, n_safety, a, **kwargs):
+    def predict_HC_lowerbound(self, Z, delta, datasize, a, **kwargs):
         """
         Calculate high confidence lower bound
         that we expect to pass the safety test.
@@ -949,9 +1072,9 @@ class CVaRSQeBaseNode(BaseNode):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
-            The number of observations in the safety dataset
-        :type n_safety: int
+        :param datasize:
+            The (predicted) number of observations in the safety dataset
+        :type datasize: int
         :param a: The minimum possible value of the squared error
         :type a: float
         """
@@ -959,7 +1082,7 @@ class CVaRSQeBaseNode(BaseNode):
         Znew = np.array([a] + Znew)
         n_candidate = len(Znew) - 1
 
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
             np.zeros(n_candidate),
             np.minimum(
@@ -973,7 +1096,7 @@ class CVaRSQeBaseNode(BaseNode):
 
         return lower
 
-    def predict_HC_upperbound(self, Z, delta, n_safety, b, **kwargs):
+    def predict_HC_upperbound(self, Z, delta, datasize, b, **kwargs):
         """
         Calculate high confidence upper bound
         that we expect to pass the safety test.
@@ -985,9 +1108,9 @@ class CVaRSQeBaseNode(BaseNode):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
-            The number of observations in the safety dataset
-        :type n_safety: int
+        :param datasize:
+            The (predicted) number of observations in the safety dataset
+        :type datasize: int
         :param b: The maximum possible value of the squared error
         :type b: float
         """
@@ -998,7 +1121,7 @@ class CVaRSQeBaseNode(BaseNode):
         n_candidate = len(Znew) - 1
 
         # sqrt term is independent of loop index
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
             np.zeros(n_candidate),
             (1 + np.arange(n_candidate)) / n_candidate
@@ -1009,20 +1132,20 @@ class CVaRSQeBaseNode(BaseNode):
 
         return upper
 
-    def compute_HC_lowerbound(self, Z, delta, n_safety, a, **kwargs):
+    def compute_HC_lowerbound(self, Z, delta, datasize, a, **kwargs):
         """
         Calculate high confidence lower bound
         Used in safety test.
 
         :param Z:
             Vector containing sorted squared errors
-        :type Z: numpy ndarray of length n_safety
+        :type Z: numpy ndarray of length datasize
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
+        :param datasize:
             The number of observations in the safety dataset
-        :type n_safety: int
+        :type datasize: int
         :param a: The minimum possible value of the squared error
         :type a: float
         """
@@ -1030,10 +1153,10 @@ class CVaRSQeBaseNode(BaseNode):
         Znew = np.array([a] + Znew)
         n_candidate = len(Znew) - 1
 
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
-            np.zeros(n_safety),
-            np.minimum(np.ones(n_safety), np.arange(n_safety) / n_safety + sqrt_term)
+            np.zeros(datasize),
+            np.minimum(np.ones(datasize), np.arange(datasize) / datasize + sqrt_term)
             - (1 - self.alpha),
         )
 
@@ -1041,20 +1164,20 @@ class CVaRSQeBaseNode(BaseNode):
 
         return lower
 
-    def compute_HC_upperbound(self, Z, delta, n_safety, b, **kwargs):
+    def compute_HC_upperbound(self, Z, delta, datasize, b, **kwargs):
         """
         Calculate high confidence upper bound
         Used in safety test
 
         :param Z:
             Vector containing sorted squared errors
-        :type Z: numpy ndarray of length n_safety
+        :type Z: numpy ndarray of length datasize
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
-        :param n_safety:
+        :param datasize:
             The number of observations in the safety dataset
-        :type n_safety: int
+        :type datasize: int
         :param b: The maximum possible value of the squared error
         :type b: float
         """
@@ -1062,10 +1185,10 @@ class CVaRSQeBaseNode(BaseNode):
         Znew = Z.copy()
         Znew.append(b)
         # sqrt term is independent of loop index
-        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * n_safety))
+        sqrt_term = np.sqrt((np.log(1 / delta)) / (2 * datasize))
         max_term = np.maximum(
-            np.zeros(n_safety),
-            (1 + np.arange(n_safety)) / n_safety - sqrt_term - (1 - self.alpha),
+            np.zeros(datasize),
+            (1 + np.arange(datasize)) / datasize - sqrt_term - (1 - self.alpha),
         )
         upper = Znew[-1] - 1 / self.alpha * sum(np.diff(Znew) * max_term)
 
@@ -1115,3 +1238,56 @@ class InternalNode(Node):
         """
         super().__init__(name, lower, upper, **kwargs)
         self.node_type = "internal_node"
+
+custom_base_node_dict = {
+    "MED_MF": MEDCustomBaseNode,
+    "CVaRSQE": CVaRSQeBaseNode,
+}
+
+measure_functions_dict = {
+    "supervised_learning": {
+        "classification": [
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "multiclass_classification": [
+            "CM",
+            "PR",
+            "NR",
+            "FPR",
+            "TPR",
+            "FNR",
+            "TNR",
+            "ACC",
+        ],
+        "regression": ["Mean_Error", "Mean_Squared_Error"],
+    },
+    "reinforcement_learning": {
+        "all":
+            [
+            "J_pi_new_IS",
+            "J_pi_new_PDIS",
+            "J_pi_new_WIS",
+            "J_pi_new_US"
+            ]
+        },
+}
+
+subscriptable_measure_functions = [
+            "CM",
+            "PR",
+            "NR",
+            "FPR",
+            "TNR",
+            "TPR",
+            "FNR",
+            "J_pi_new_IS",
+            "J_pi_new_PDIS",
+            "J_pi_new_US",
+            "J_pi_new_WIS",
+        ]

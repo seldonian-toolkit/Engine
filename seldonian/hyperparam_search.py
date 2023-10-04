@@ -22,6 +22,79 @@ from seldonian.models import objectives
 from seldonian.utils.io_utils import load_pickle
 from seldonian.utils.stats_utils import tinv
 
+class HyperSchema(object):
+    def __init__(self,hyper_dict):
+        """ Container for all hyperparameters one wants to tune
+        and their possible values. Example:
+        
+        :param hyper_dict: Hyperparameter dictionary adhering to the following format:
+            keys: names of hyperparameters
+            values: dictionary with keys: ["values","hyper_type"], where
+                "values" is the list of parameter values to run and 
+                "hyper_type" is one of ["optimization","model","SA"], specifying 
+                the part of the algorithm in which the hyperparameter will be injected.
+            Example: 
+            hyper_dict = {
+                "alpha_theta": {
+                    "values":[0.001,0.005,0.05],
+                    "hyper_type":"optimization"
+                },
+                "num_iters": {
+                    "values":[500,1000],
+                    "hyper_type":"optimization"
+                },
+                "bound_inflation_factor": {
+                    "values":[1.0,2.0,3.0],
+                    "hyper_type":"SA"
+                },
+            }
+        """
+        self.allowed_optimization_hyperparams = [
+            "alpha_theta",
+            "alpha_lambda",
+            "beta_velocity",
+            "beta_rmsprop",
+            "batch_size",
+            "n_epochs",
+            "num_iters"
+        ]
+        self.allowed_SA_hyperparams = [
+            "bound_inflation_factor",
+            "frac_data_in_safety",
+            "delta_split_dict"
+        ]
+        self.hyper_dict = self._validate(hyper_dict)
+        
+        
+    def _validate(self,hyper_dict):
+        """ Check that the hyperparameter dictionary is formatted properly
+        and contains valid hyperparameters. Model hyperparameters are specific 
+        to the model so we can't know what they might be ahead of time. The
+        error will be caught elsewhere when the model is instantiated 
+        if there is an invalid parameter name.
+        """
+        for hp in hyper_dict:
+            if not isinstance(hyper_dict[hp],dict):
+                raise RuntimeError(f"hyper_dict['{hp}'] is not a dictionary. ")
+            
+            for w in ["values","hyper_type"]:
+                if w not in hyper_dict[hp]:
+                    raise KeyError(f"hyper_dict['{hp}'] must have the key: '{w}'. ")
+            
+            if len(hyper_dict[hp]["values"]) < 1:
+                raise ValueError(f"hyper_dict['{hp}']['values'] must have at least one value")
+            
+            if hyper_dict[hp]["hyper_type"] not in ["optimization","model","SA"]:
+                raise ValueError(f"hyper_dict['{hp}']['hyper_type'] must be one of ['optimization','model','SA']")
+            
+            if hyper_dict[hp]["hyper_type"] == "optimization" and hp not in self.allowed_optimization_hyperparams:
+                raise ValueError(f"{hp} is not an allowed optimization hyperparameter")
+            
+            if hyper_dict[hp]["hyper_type"] == "SA" and hp not in self.allowed_SA_hyperparams:
+                raise ValueError(f"{hp} is not an allowed hyperparameter of the Seldonian algorithm")
+        return hyper_dict   
+
+
 class HyperparamSearch:
     def __init__(
             self, 
@@ -76,7 +149,7 @@ class HyperparamSearch:
 
         self.dataset = self.spec.dataset
         self.regime = self.dataset.regime
-        self.column_names = self.dataset.meta_information
+        self.meta = self.dataset.meta
 
         self.model = self.spec.model
         if self.regime == "supervised_learning": self.sub_regime = self.spec.sub_regime
@@ -160,7 +233,7 @@ class HyperparamSearch:
                     labels=combined_labels,
                     sensitive_attrs=combined_sensitive_attrs,
                     num_datapoints=combined_num_datapoints,
-                    meta_information=candidate_dataset.meta_information)
+                    meta=candidate_dataset.meta)
 
 
         elif self.regime == "reinforcement_learning":
@@ -258,7 +331,7 @@ class HyperparamSearch:
             labels=resamp_labels,
             sensitive_attrs=resamp_sensitive_attrs,
             num_datapoints=dataset.num_datapoints,
-            meta_information=dataset.meta_information,
+            meta=dataset.meta,
         )
 
         return shuffled_dataset
@@ -314,7 +387,7 @@ class HyperparamSearch:
                 labels=candidate_labels,
                 sensitive_attrs=candidate_sensitive_attrs,
                 num_datapoints=n_candidate,
-                meta_information=dataset.meta_information,
+                meta=dataset.meta,
             )
 
             safety_dataset = SupervisedDataSet(
@@ -322,7 +395,7 @@ class HyperparamSearch:
                 labels=safety_labels,
                 sensitive_attrs=safety_sensitive_attrs,
                 num_datapoints=n_safety,
-                meta_information=dataset.meta_information,
+                meta=dataset.meta,
             )
 
             if candidate_dataset.num_datapoints < 2 or safety_dataset.num_datapoints < 2:
@@ -348,13 +421,13 @@ class HyperparamSearch:
             candidate_dataset = RLDataSet(
                 episodes=candidate_episodes,
                 sensitive_attrs=candidate_sensitive_attrs,
-                meta_information=self.column_names,
+                meta=self.meta,
             )
 
             safety_dataset = RLDataSet(
                 episodes=safety_episodes,
                 sensitive_attrs=safety_sensitive_attrs,
-                meta_information=self.column_names,
+                meta=self.meta,
             )
 
             print(f"Safety dataset has {safety_dataset.num_datapoints} episodes")
@@ -400,7 +473,7 @@ class HyperparamSearch:
                 labels=resamp_labels,
                 sensitive_attrs=resamp_sensitive_attrs,
                 num_datapoints=n_bootstrap_samples,
-                meta_information=dataset.meta_information,
+                meta=dataset.meta,
             )
 
             return bootstrap_dataset
