@@ -109,9 +109,9 @@ class ParseTree(object):
 
         self.create_from_ast(s=constraint_str)
 
-        self.assign_deltas(weight_method=delta_weight_method)
-
         self.assign_bounds_needed()
+
+        self.assign_deltas(weight_method=delta_weight_method)
 
     def create_from_ast(self, s):
         """
@@ -271,6 +271,8 @@ class ParseTree(object):
                     "value_computed": False,
                     "lower": float("-inf"),
                     "upper": float("inf"),
+                    "delta_lower": None,
+                    "delta_upper": None,
                     "data_dict": None,
                 }
 
@@ -533,45 +535,6 @@ class ParseTree(object):
 
         return node_class, node_kwargs
 
-    def assign_deltas(self, weight_method="equal", **kwargs):
-        """
-        Assign the delta values to the base nodes in the tree.
-
-        :param weight_method: str, defaults to 'equal'
-                How you want to assign the deltas to the base nodes.
-                The default 'equal' splits up delta equally
-                among unique base nodes
-        :type weight_method: str
-        """
-        assert self.n_base_nodes > 0, (
-            "Number of base nodes must be > 0."
-            " Make sure to build the tree before assigning deltas."
-        )
-        self._assign_deltas_helper(self.root, weight_method, **kwargs)
-
-    def _assign_deltas_helper(self, node, weight_method, **kwargs):
-        """
-        Helper function to traverse the parse tree
-        and assign delta values to base nodes.
-
-        :param node: node in the parse tree
-        :type node: :py:class:`.Node` object
-        :param weight_method:
-                How you want to assign the deltas to the base nodes
-        :type weight_method: str
-        """
-
-        if not node:
-            return
-
-        if isinstance(node, BaseNode):  # captures all child classes of BaseNode as well
-            if weight_method == "equal":
-                node.delta = self.delta / len(self.base_node_dict)
-
-        self._assign_deltas_helper(node.left, weight_method)
-        self._assign_deltas_helper(node.right, weight_method)
-        return
-
     def assign_bounds_needed(self, **kwargs):
         """
         Breadth first search through the tree and
@@ -671,6 +634,53 @@ class ParseTree(object):
                     node.right, right_lower_needed, right_upper_needed
                 )
             return
+
+    def assign_deltas(self, weight_method="equal", **kwargs):
+        """
+        Assign the delta values to the base nodes in the tree.
+
+        :param weight_method: str, defaults to 'equal'
+                How you want to assign the deltas to the base nodes.
+                The default 'equal' splits up delta equally
+                among unique base nodes
+        :type weight_method: str
+        """
+        assert self.n_base_nodes > 0, (
+            "Number of base nodes must be > 0."
+            " Make sure to build the tree before assigning deltas."
+        )
+        self._assign_deltas_helper(self.root, weight_method, **kwargs)
+
+    def _assign_deltas_helper(self, node, weight_method, **kwargs):
+        """
+        Helper function to traverse the parse tree
+        and assign delta values to base nodes.
+
+        :param node: node in the parse tree
+        :type node: :py:class:`.Node` object
+        :param weight_method:
+                How you want to assign the deltas to the base nodes
+        :type weight_method: str
+        """
+
+        if not node:
+            return
+
+        if isinstance(node, BaseNode):  # captures all child classes of BaseNode as well
+            n_unique_base_nodes = len(self.base_node_dict)
+            if weight_method == "equal":
+                # node.delta = self.delta / len(self.base_node_dict)
+                if node.will_lower_bound and node.will_upper_bound:
+                    node.delta_lower = self.delta / (2*n_unique_base_nodes)
+                    node.delta_upper = self.delta / (2*n_unique_base_nodes)
+                elif node.will_lower_bound:
+                    node.delta_lower = self.delta / (n_unique_base_nodes)
+                elif node.will_upper_bound:
+                    node.delta_upper = self.delta / (n_unique_base_nodes)
+
+        self._assign_deltas_helper(node.left, weight_method)
+        self._assign_deltas_helper(node.right, weight_method)
+        return
 
     def propagate_bounds(self, **kwargs):
         """

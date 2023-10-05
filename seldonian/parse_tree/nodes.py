@@ -156,12 +156,13 @@ class BaseNode(Node):
         super().__init__(name, lower, upper, **kwargs)
         self.conditional_columns = conditional_columns
         self.node_type = "base_node"
-        self.delta = 0
+        self.delta_lower = 0
+        self.delta_upper = 0
         self.measure_function_name = ""
 
     def __repr__(self):
         """Overrides Node.__repr__()"""
-        return super().__repr__() + ", " + "\u03B4" + f"={self.delta:g}"
+        return super().__repr__() + ", " + "\u03B4" + f"=({self.delta_lower:g},{self.delta_upper:g})"
 
     def calculate_value(self, **kwargs):
         """
@@ -348,13 +349,14 @@ class BaseNode(Node):
                 bound_kwargs = kwargs
                 bound_kwargs["data"] = estimator_samples
                 bound_kwargs["datasize"] = datasize
-                bound_kwargs["delta"] = self.delta
 
                 # If lower and upper are both needed,
                 # can't necessarily call lower and upper
                 # bound functions separately. Sometimes the joint bound
                 # is different from the individual bounds combined
                 if self.will_lower_bound and self.will_upper_bound:
+                    bound_kwargs["delta_lower"] = self.delta_lower
+                    bound_kwargs["delta_upper"] = self.delta_upper
                     if branch == "candidate_selection":
                         lower, upper = self.predict_HC_upper_and_lowerbound(
                             **bound_kwargs
@@ -366,6 +368,7 @@ class BaseNode(Node):
                     return {"lower": lower, "upper": upper}
 
                 elif self.will_lower_bound:
+                    bound_kwargs["delta"] = self.delta_lower
                     if branch == "candidate_selection":
                         lower = self.predict_HC_lowerbound(**bound_kwargs)
                     elif branch == "safety_test":
@@ -373,6 +376,7 @@ class BaseNode(Node):
                     return {"lower": lower}
 
                 elif self.will_upper_bound:
+                    bound_kwargs["delta"] = self.delta_upper
                     if branch == "candidate_selection":
                         upper = self.predict_HC_upperbound(**bound_kwargs)
                     elif branch == "safety_test":
@@ -471,7 +475,7 @@ class BaseNode(Node):
 
         return lower
 
-    def predict_HC_upper_and_lowerbound(self, data, datasize, delta, **kwargs):
+    def predict_HC_upper_and_lowerbound(self, data, datasize, delta_lower, delta_upper, **kwargs):
         """
         Calculate high confidence lower and upper bounds
         that we expect to pass the safety test.
@@ -497,10 +501,10 @@ class BaseNode(Node):
             bound_method = kwargs["bound_method"]
             if bound_method == "ttest":
                 lower = self.predict_HC_lowerbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_lower, **kwargs
                 )
                 upper = self.predict_HC_upperbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_upper, **kwargs
                 )
 
             elif bound_method == "manual":
@@ -569,7 +573,7 @@ class BaseNode(Node):
 
         return upper
 
-    def compute_HC_upper_and_lowerbound(self, data, datasize, delta, **kwargs):
+    def compute_HC_upper_and_lowerbound(self, data, datasize, delta_lower, delta_upper, **kwargs):
         """
         Calculate high confidence lower and upper bounds
         Used in safety test.
@@ -594,10 +598,10 @@ class BaseNode(Node):
             bound_method = kwargs["bound_method"]
             if bound_method == "ttest":
                 lower = self.compute_HC_lowerbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_lower, **kwargs
                 )
                 upper = self.compute_HC_upperbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_upper, **kwargs
                 )
 
             elif bound_method == "manual":
@@ -1027,13 +1031,14 @@ class CVaRSQeBaseNode(BaseNode):
 
         bound_kwargs = {
             "Z": sorted_squared_errors,
-            "delta": self.delta,
             "datasize": datasize,
             "a": a,
             "b": b,
         }
 
         if self.will_lower_bound and self.will_upper_bound:
+            bound_kwargs["delta_lower"] = self.delta_lower
+            bound_kwargs["delta_upper"] = self.delta_upper
             if branch == "candidate_selection":
                 lower = self.predict_HC_lowerbound(**bound_kwargs)
                 upper = self.predict_HC_upperbound(**bound_kwargs)
@@ -1043,6 +1048,7 @@ class CVaRSQeBaseNode(BaseNode):
             return {"lower": lower, "upper": upper}
 
         elif self.will_lower_bound:
+            bound_kwargs["delta"] = self.delta_lower
             if branch == "candidate_selection":
                 lower = self.predict_HC_lowerbound(**bound_kwargs)
             elif branch == "safety_test":
@@ -1050,6 +1056,7 @@ class CVaRSQeBaseNode(BaseNode):
             return {"lower": lower}
 
         elif self.will_upper_bound:
+            bound_kwargs["delta"] = self.delta_upper
             if branch == "candidate_selection":
                 upper = self.predict_HC_upperbound(**bound_kwargs)
             elif branch == "safety_test":
