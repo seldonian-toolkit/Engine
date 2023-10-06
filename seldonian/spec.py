@@ -309,7 +309,7 @@ class RLSpec(Spec):
             verbose=verbose,
         )
 
-class ProposedHyperparameterSelectionSpec(object):
+class HyperparameterSelectionSpec(object):
     """Class for the specification object for selecting hyperparameters
 
     :param hyper_schema: A hyperparameter schema specifying which hyperparameters to tune
@@ -335,31 +335,6 @@ class ProposedHyperparameterSelectionSpec(object):
     ):
         self.hyper_schema = hyper_schema
         self.n_bootstrap_trials = n_bootstrap_trials
-        self.n_bootstrap_workers = n_bootstrap_workers
-        self.use_bs_pools = use_bs_pools,
-        self.confidence_interval_type = confidence_interval_type
-
-class HyperparameterSelectionSpec(object):
-    """Base class for specification object for selecting Hyperparameters
-
-    :param n_bootstrap_trials: The number of bootstrap trials to use when estimating
-        Hyperparameters to use
-    :type n_bootstrap_trials: int
-    :param all_frac_data_in_safety: List of all values of fraction of data used in 
-        safety to select over 
-    :type frac_data_in_safety: List(float)
-    """
-
-    def __init__(
-        self,
-        n_bootstrap_trials,
-        all_frac_data_in_safety,
-        n_bootstrap_workers,
-        use_bs_pools,
-        confidence_interval_type=None
-    ):
-        self.n_bootstrap_trials = n_bootstrap_trials
-        self.all_frac_data_in_safety = all_frac_data_in_safety
         self.n_bootstrap_workers = n_bootstrap_workers
         self.use_bs_pools = use_bs_pools,
         self.confidence_interval_type = confidence_interval_type
