@@ -34,22 +34,31 @@ def stump():
 		pt.root.right.upper = right_bounds[1]
 		pt.n_nodes = 3
 		pt.n_base_nodes = 2
+
 		pt.base_node_dict = {
 			'a':{
 				'bound_method':'manual',
 				'bound_computed':False,
-				'lower':float("-inf"),
-				'upper':float("inf"),
-				'data':None,
-				'datasize':0
+				'value_computed': False,
+				'lower':float('-inf'),
+				'upper':float('inf'),
+				'lower_needed': None,
+		        'upper_needed': None,
+		        'delta_lower': None,
+		        'delta_upper': None,
+		        'data_dict': None,
 				},
 			'b':{
 				'bound_method':'manual',
 				'bound_computed':False,
-				'lower':float("-inf"),
-				'upper':float("inf"),
-				'data':None,
-				'datasize':0
+				'value_computed': False,
+				'lower':float('-inf'),
+				'upper':float('inf'),
+				'lower_needed': None,
+		        'upper_needed': None,
+		        'delta_lower': None,
+		        'delta_upper': None,
+		        'data_dict': None,
 				},
 		}
 		return pt
@@ -73,10 +82,14 @@ def edge():
 			'a':{
 				'bound_method':'manual',
 				'bound_computed':False,
-				'lower':float("-inf"),
-				'upper':float("inf"),
-				'data':None,
-				'datasize':0
+				'value_computed': False,
+				'lower':float('-inf'),
+				'upper':float('inf'),
+				'lower_needed': None,
+		        'upper_needed': None,
+		        'delta_lower': None,
+		        'delta_upper': None,
+		        'data_dict': None,
 				},
 		}
 		return pt

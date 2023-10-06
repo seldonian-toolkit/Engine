@@ -351,21 +351,21 @@ def test_node_reprs(stump):
 	a,b=[[2.0,3.0],[4.0,5.0]]
 
 	pt = stump('add',a,b)
-	
+	pt.assign_bounds_needed()
 	pt.assign_deltas()
 	pt.propagate_bounds()
 	
 	# Before assigning which bounds are needed
-	root_bounds_str = f"[6, 8]"
+	root_bounds_str = f"[_, 8]"
 	assert pt.root.__repr__() == '\n'.join(
 		["[0]","add",u'\u03B5' + ' ' + root_bounds_str])
-	left_bounds_str = f"[2, 3]"
+	left_bounds_str = f"[_, 3]"
 	assert pt.root.left.__repr__() == '\n'.join(
-		["[1]","a",u'\u03B5' + ' ' + left_bounds_str + u', \u03B4=(0.0125,0.0125)'])
+		["[1]","a",u'\u03B5' + ' ' + left_bounds_str + u', \u03B4=(None,0.025)'])
 	
-	right_bounds_str = f"[4, 5]"
+	right_bounds_str = f"[_, 5]"
 	assert pt.root.right.__repr__() == '\n'.join(
-		["[2]","b",u'\u03B5' + ' ' + right_bounds_str + u', \u03B4=(0.0125,0.0125)'])
+		["[2]","b",u'\u03B5' + ' ' + right_bounds_str + u', \u03B4=(None,0.025)'])
 	# After assigning which bounds are needed 
 	pt = stump('add',a,b)
 	
@@ -379,11 +379,11 @@ def test_node_reprs(stump):
 		["[0]","add",u'\u03B5' + ' ' + root_bounds_str])
 	left_bounds_str = f"[_, 3]"
 	assert pt.root.left.__repr__() == '\n'.join(
-		["[1]","a",u'\u03B5' + ' ' + left_bounds_str + u', \u03B4=(0,0.025)'])
+		["[1]","a",u'\u03B5' + ' ' + left_bounds_str + u', \u03B4=(None,0.025)'])
 	
 	right_bounds_str = f"[_, 5]"
 	assert pt.root.right.__repr__() == '\n'.join(
-		["[2]","b",u'\u03B5' + ' ' + right_bounds_str + u', \u03B4=(0,0.025)'])
+		["[2]","b",u'\u03B5' + ' ' + right_bounds_str + u', \u03B4=(None,0.025)'])
 
 ########################
 ### Parse tree tests ###
@@ -1285,7 +1285,6 @@ def test_deltas_assigned_once_per_unique_basenode():
 	assert pt.root.right.right.right.delta_lower == delta/(2*n_unique_base_nodes)
 	assert pt.root.right.right.right.delta_upper == delta/(2*n_unique_base_nodes)
 	
-
 def test_deltas_assigned_correctly_not_all_bounds_needed():
 	""" Make sure that when not all bounds are needed,
 	the delta values that get assigned to each base node bound
@@ -1308,7 +1307,7 @@ def test_deltas_assigned_correctly_not_all_bounds_needed():
 	assert pt.root.will_upper_bound == True
 
 	# This means that the upper bound should get all of the delta and delta_lower should be 0
-	assert pt.root.delta_lower == 0
+	assert pt.root.delta_lower == None
 	assert pt.root.delta_upper == delta
 
 	constraint_str = '(Mean_Error | [M]) - 0.1'
@@ -1329,7 +1328,7 @@ def test_deltas_assigned_correctly_not_all_bounds_needed():
 	assert pt.root.left.will_upper_bound == True
 
 	# This means that the upper bound should get all of the delta and delta_lower should be 0
-	assert pt.root.left.delta_lower == 0
+	assert pt.root.left.delta_lower == None
 	assert pt.root.left.delta_upper == delta
 
 	constraint_str = '2.0 - Mean_Squared_Error'
@@ -1352,7 +1351,7 @@ def test_deltas_assigned_correctly_not_all_bounds_needed():
 
 	# This means that the upper bound should get all of the delta and delta_lower should be 0
 	assert pt.root.right.delta_lower == delta
-	assert pt.root.right.delta_upper == 0
+	assert pt.root.right.delta_upper == None
 
 	constraint_str = '(FPR * FNR) - 0.25'
 	pt = ParseTree(delta,regime='supervised_learning',
@@ -1382,24 +1381,196 @@ def test_deltas_assigned_correctly_not_all_bounds_needed():
 	assert pt.root.left.right.delta_lower == delta/4
 	assert pt.root.left.right.delta_upper == delta/4
 	
+def test_delta_vector_assignment():
+	# Test case #1: FPR needing only an upper bound with custom delta = pt.delta
+	tree_delta = 0.05
+	constraint_str = 'FPR'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='classification')
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	# Should find that only the upper bound on FPR is needed
+	# and upper bound gets assigned the correct delta
+	pt.assign_deltas(weight_method="manual",delta_vector=[0.05])
+	assert pt.root.delta_lower == None
+	assert pt.root.delta_upper == 0.05
+	assert pt.base_node_dict['FPR']['delta_lower'] == None
+	assert pt.base_node_dict['FPR']['delta_upper'] == 0.05
+
+	# Test case #2: FPR needing only an upper bound with custom delta != pt.delta
+	# In this case, custom delta should get renormalized to pt.delta
+	tree_delta = 0.05
+	constraint_str = 'FPR'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='classification')
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	# Only the upper bound on FPR is needed
+	pt.assign_deltas(weight_method="manual",delta_vector=[0.06])
+	assert pt.root.delta_lower == None
+	assert pt.root.delta_upper == 0.05
+	assert pt.base_node_dict['FPR']['delta_lower'] == None
+	assert pt.base_node_dict['FPR']['delta_upper'] == 0.05
+
+	# Test case #3: two base nodes each needing both bounds.
+	# Providing a delta vector with different values but correctly
+	# normalized
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	pt.assign_deltas(weight_method="manual",delta_vector=[0.01,0.02,0.03,0.04])
+	pt.root.left.left.left.delta_lower = 0.01
+	pt.root.left.left.left.delta_upper = 0.02
+	pt.root.left.left.right.delta_lower = 0.03
+	pt.root.left.left.right.delta_upper = 0.04
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == 0.01
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == 0.02
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == 0.03
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == 0.04
+
+	# Test case #4: two base nodes each needing both bounds.
+	# Providing a delta vector with different values and not correctly
+	# normalized
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	pt.assign_deltas(weight_method="manual",delta_vector=[10,20,30,40])
+	# Should get normalized to [0.00625, 0.05, 0.01875, 0.025]
+	pt.root.left.left.left.delta_lower = 0.01
+	pt.root.left.left.left.delta_upper = 0.02
+	pt.root.left.left.right.delta_lower = 0.03
+	pt.root.left.left.right.delta_upper = 0.04
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == 0.01
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == 0.02
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == 0.03
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == 0.04
+
+	# Test case #5: two base nodes each needing both bounds.
+	# Providing a delta vector as a numpy array is OK as long
+	# as it is 1D.
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	pt.assign_deltas(weight_method="manual",delta_vector=np.array([0.01,0.02,0.03,0.04]))
+	pt.root.left.left.left.delta_lower = 0.01
+	pt.root.left.left.left.delta_upper = 0.02
+	pt.root.left.left.right.delta_lower = 0.03
+	pt.root.left.left.right.delta_upper = 0.04
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == 0.01
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == 0.02
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == 0.03
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == 0.04
+
+	# Test case #6: Providing a delta vector of the wrong length raises a ValueError
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	with pytest.raises(ValueError) as excinfo:
+		pt.assign_deltas(weight_method="manual",delta_vector=[0.01,0.02,0.03])
+
+	error_str = "delta_vector has length: 3, but should be of length: 4"
+	assert str(excinfo.value) == error_str
+
+	# Test case #7: Providing a delta vector of the wrong data type
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	with pytest.raises(ValueError) as excinfo:
+		pt.assign_deltas(weight_method="manual",delta_vector=(0.01,0.02,0.03))
+
+	error_str = "delta_vector must be a list or 1D numpy array"
+	assert str(excinfo.value) == error_str
+
+	# Test case #8: Providing a delta vector as a numpy array of the wrong shape
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	with pytest.raises(ValueError) as excinfo:
+		pt.assign_deltas(weight_method="manual",delta_vector=np.array([[0.01],[0.02],[0.03]]))
+
+	error_str = "delta_vector must be a list or 1D numpy array"
+	assert str(excinfo.value) == error_str
+
+	# Test case #9: Providing a delta vector with a 0 raises a ValueError
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	with pytest.raises(ValueError) as excinfo:
+		pt.assign_deltas(weight_method="manual",delta_vector=[0,0.1,0.2,0.3])
+
+	error_str = "delta_vector must have all positive values"
+	assert str(excinfo.value) == error_str
+
+	# Test case #10: Providing a delta vector with a negative values raises a ValueError
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	with pytest.raises(ValueError) as excinfo:
+		pt.assign_deltas(weight_method="manual",delta_vector=[-0.01,0.1,0.2,0.3])
+
+	error_str = "delta_vector must have all positive values"
+	assert str(excinfo.value) == error_str
+
+	# Test case #11: Trying to assign deltas before assinging bounds raises a RuntimeError
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	with pytest.raises(RuntimeError) as excinfo:
+		pt.assign_deltas(weight_method="manual",delta_vector=[0.01,0.1,0.2,0.3])
+
+	error_str = (
+                "Need to run assign_bounds_needed() before "
+                "assigning deltas with a custom delta vector."
+            )
+	assert str(excinfo.value) == error_str
+
+
 def test_bounds_needed_assigned_correctly():
 	delta = 0.05 # use for all trees below
 
 	constraint_str = 'FPR'
 	pt = ParseTree(delta,regime='supervised_learning',
 		sub_regime='classification')
+	assert pt.n_nodes == 0
 	pt.create_from_ast(constraint_str)
 	# Before bounds assigned both should be True
 	assert pt.root.will_lower_bound == True
 	assert pt.root.will_upper_bound == True
+	assert pt.n_unique_bounds_tot is None
 	pt.assign_bounds_needed()
 	# But after, we should find that only upper is needed
 	assert pt.n_nodes == 1
 	assert pt.n_base_nodes == 1  
 	assert isinstance(pt.root,BaseNode)
-
 	assert pt.root.will_lower_bound == False
 	assert pt.root.will_upper_bound == True
+	assert pt.n_unique_bounds_tot == 1
 
 	constraint_str = '(Mean_Error | [M]) - 0.1'
 	pt = ParseTree(delta,regime='supervised_learning',
@@ -1409,6 +1580,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.name == 'Mean_Error | [M]'
 	assert pt.root.left.will_lower_bound == True
 	assert pt.root.left.will_upper_bound == True
+	assert pt.n_unique_bounds_tot is None
 	pt.assign_bounds_needed()
 	# But after, we should find that only upper is needed
 	assert pt.n_nodes == 3
@@ -1416,6 +1588,7 @@ def test_bounds_needed_assigned_correctly():
 	assert isinstance(pt.root.left,BaseNode)
 	assert pt.root.left.will_lower_bound == False
 	assert pt.root.left.will_upper_bound == True
+	assert pt.n_unique_bounds_tot == 1
 
 	constraint_str = '2.0 - Mean_Squared_Error'
 	pt = ParseTree(delta,regime='supervised_learning',
@@ -1425,6 +1598,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.right.name == 'Mean_Squared_Error'
 	assert pt.root.right.will_lower_bound == True
 	assert pt.root.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot is None
 	pt.assign_bounds_needed()
 	# But after, we should find that only lower is needed
 	assert pt.n_nodes == 3
@@ -1432,6 +1606,7 @@ def test_bounds_needed_assigned_correctly():
 	assert isinstance(pt.root.right,BaseNode)
 	assert pt.root.right.will_lower_bound == True
 	assert pt.root.right.will_upper_bound == False
+	assert pt.n_unique_bounds_tot == 1
 
 	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
 	pt = ParseTree(delta,regime='supervised_learning',
@@ -1444,6 +1619,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.left.right.name == 'Mean_Error | [F]'
 	assert pt.root.left.left.right.will_lower_bound == True
 	assert pt.root.left.left.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot is None
 	pt.assign_bounds_needed()
 	# # After, we should find that both base nodes need both still 
 	assert pt.n_nodes == 6
@@ -1452,6 +1628,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.left.left.will_upper_bound == True
 	assert pt.root.left.left.right.will_lower_bound == True
 	assert pt.root.left.left.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot == 4
 
 	constraint_str = '(FPR * FNR) - 0.25'
 	pt = ParseTree(delta,regime='supervised_learning',
@@ -1465,6 +1642,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.left.will_upper_bound == True
 	assert pt.root.left.right.will_lower_bound == True
 	assert pt.root.left.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot is None
 	pt.assign_bounds_needed()
 	# After, we should find that both base nodes need both still
 	assert pt.n_nodes == 5
@@ -1473,6 +1651,7 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.left.will_upper_bound == True
 	assert pt.root.left.right.will_lower_bound == True
 	assert pt.root.left.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot == 4
 
 	constraint_str = '(TPR - FPR) - 0.25'
 	pt = ParseTree(delta,regime='supervised_learning',
@@ -1486,14 +1665,16 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.left.will_upper_bound == True
 	assert pt.root.left.right.will_lower_bound == True
 	assert pt.root.left.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot is None
 	pt.assign_bounds_needed()
-	# After, we should find that both base nodes need both still
+	# After, we should find that TPR only needs upper and FPR only needs lower 
 	assert pt.n_nodes == 5
 	assert pt.n_base_nodes == 2  
 	assert pt.root.left.left.will_lower_bound == False
 	assert pt.root.left.left.will_upper_bound == True
 	assert pt.root.left.right.will_lower_bound == True
 	assert pt.root.left.right.will_upper_bound == False
+	assert pt.n_unique_bounds_tot == 2
 
 	constraint_str = '(FPR + FNR) - 0.25'
 	pt = ParseTree(delta,regime='supervised_learning',
@@ -1507,14 +1688,16 @@ def test_bounds_needed_assigned_correctly():
 	assert pt.root.left.left.will_upper_bound == True
 	assert pt.root.left.right.will_lower_bound == True
 	assert pt.root.left.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot is None
 	pt.assign_bounds_needed()
-	# After, we should find that both base nodes need both still
+	# After, we should find that both only need upper bound
 	assert pt.n_nodes == 5
 	assert pt.n_base_nodes == 2  
 	assert pt.root.left.left.will_lower_bound == False
 	assert pt.root.left.left.will_upper_bound == True
 	assert pt.root.left.right.will_lower_bound == False
 	assert pt.root.left.right.will_upper_bound == True
+	assert pt.n_unique_bounds_tot == 2
 
 def test_duplicate_base_nodes():
 	constraint_str = 'FPR + 4/FPR - 2.0'

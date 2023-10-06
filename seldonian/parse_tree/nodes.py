@@ -156,13 +156,13 @@ class BaseNode(Node):
         super().__init__(name, lower, upper, **kwargs)
         self.conditional_columns = conditional_columns
         self.node_type = "base_node"
-        self.delta_lower = 0
-        self.delta_upper = 0
+        self.delta_lower = None
+        self.delta_upper = None
         self.measure_function_name = ""
 
     def __repr__(self):
         """Overrides Node.__repr__()"""
-        return super().__repr__() + ", " + "\u03B4" + f"=({self.delta_lower:g},{self.delta_upper:g})"
+        return super().__repr__() + ", " + "\u03B4" + f"=({self.delta_lower},{self.delta_upper})"
 
     def calculate_value(self, **kwargs):
         """
