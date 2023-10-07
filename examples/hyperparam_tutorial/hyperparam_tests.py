@@ -13,7 +13,7 @@ from seldonian.models.models import LinearRegressionModel
 from seldonian.spec import SupervisedSpec
 from seldonian.spec import HyperparameterSelectionSpec
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
-from seldonian.hyperparam_search import HyperparamSearch
+from seldonian.hyperparam_search import HyperparamSearch, HyperSchema
 from seldonian.utils.tutorial_utils import (
     make_synthetic_regression_dataset)
 from seldonian.parse_tree.parse_tree import (
@@ -52,8 +52,17 @@ def create_test_SA_spec(num_points=1000, frac_data_in_safety=0.6, seed=0):
 
 def create_HS_spec(all_frac_data_in_safety, n_bootstrap_trials=100, n_bootstrap_workers=30,
         use_bs_pools=False):
+    hyper_schema = HyperSchema(
+            {
+                "frac_data_in_safety": {
+                    "values": all_frac_data_in_safety,
+                    "hyper_type": "SA"
+                    },
+                }
+            )
+
     HS_spec = HyperparameterSelectionSpec(
-            all_frac_data_in_safety=all_frac_data_in_safety,
+            hyper_schema=hyper_schema,
             n_bootstrap_trials=n_bootstrap_trials,
             n_bootstrap_workers=n_bootstrap_workers,
             use_bs_pools=use_bs_pools,
@@ -279,7 +288,7 @@ def test_candidate_safety_combine():
     assert(np.allclose(SA_spec.dataset.labels, combined_dataset.labels))
     assert(np.allclose(SA_spec.dataset.sensitive_attrs, combined_dataset.sensitive_attrs))
     assert(SA_spec.dataset.num_datapoints == combined_dataset.num_datapoints)
-    assert(SA_spec.dataset.meta_information == combined_dataset.meta_information)
+    assert(SA_spec.dataset.meta== combined_dataset.meta)
 
     print("test_candidate_safety_combine passed")
 
@@ -827,7 +836,6 @@ def test_get_all_greater_est_prob_pass():
 
 def test_find_best_hyperparams():
     # ====================== Test if not enough data ===================================
-    """
     results_dir = "test/test_find_best_hyperparams"
     if os.path.exists(results_dir): shutil.rmtree(results_dir)
 
@@ -845,12 +853,11 @@ def test_find_best_hyperparams():
     frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
             HS.find_best_hyperparams(n_bootstrap_trials, n_workers=n_workers)
     assert(frac_data_in_safety == min(all_frac_data_in_safety))
-    """
 
     # ============================= Regular test =======================================
     np.random.seed(0)
     results_dir = "test/test_find_best_hyperparams"
-    # if os.path.exists(results_dir): shutil.rmtree(results_dir)  # TODO: Uncomment.
+    if os.path.exists(results_dir): shutil.rmtree(results_dir)
 
     # Check that all the outputs are being written out.
     num_points_dataset = 2000 # Need quite large dataset to get bootstrap samplines.
