@@ -754,14 +754,14 @@ class ParseTree(object):
             raise ValueError(
                 f"delta_vector has length: {len(delta_vector)}, but should be of length: {self.n_unique_bounds_tot}"
             )
-        # Make sure no negative values
-        if any([x<=0 for x in delta_vector]):
+        # Softmax delta values to get them between 0 and 1,
+        # then normalize to total delta for the parse tree
+        denom = sum([np.exp(x) for x in delta_vector])
+        if not np.isfinite(denom):
             raise ValueError(
-                f"delta_vector must have all positive values"
+                f"softmaxing delta_vector={delta_vector} resulted in nan or inf."
             )
-        # Now normalize if necessary
-        if sum(delta_vector) != self.delta:
-            delta_vector = [x*self.delta/sum(delta_vector) for x in delta_vector]
+        delta_vector = [np.exp(y)*self.delta/denom for y in delta_vector] 
         return delta_vector
     
     def propagate_bounds(self, **kwargs):

@@ -1415,21 +1415,27 @@ def test_delta_vector_assignment():
 	# Test case #3: two base nodes each needing both bounds.
 	# Providing a delta vector with different values but correctly
 	# normalized
-	tree_delta = 0.1
+	tree_delta = 0.05
 	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
 	pt = ParseTree(tree_delta,regime='supervised_learning',
 		sub_regime='regression',columns=['M','F'])
 	pt.create_from_ast(constraint_str)
 	pt.assign_bounds_needed()
 	pt.assign_deltas(weight_method="manual",delta_vector=[0.01,0.02,0.03,0.04])
-	pt.root.left.left.left.delta_lower = 0.01
-	pt.root.left.left.left.delta_upper = 0.02
-	pt.root.left.left.right.delta_lower = 0.03
-	pt.root.left.left.right.delta_upper = 0.04
-	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == 0.01
-	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == 0.02
-	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == 0.03
-	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == 0.04
+	reweighted_deltas = [
+		0.012313129661287526,
+		0.012436878671712491,
+		0.01256187138036873,
+		0.012688120286631263
+	]
+	assert pt.root.left.left.left.delta_lower == reweighted_deltas[0]
+	assert pt.root.left.left.left.delta_upper == reweighted_deltas[1]
+	assert pt.root.left.left.right.delta_lower == reweighted_deltas[2]
+	assert pt.root.left.left.right.delta_upper == reweighted_deltas[3]
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == reweighted_deltas[0]
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == reweighted_deltas[1]
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == reweighted_deltas[2]
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == reweighted_deltas[3]
 
 	# Test case #4: two base nodes each needing both bounds.
 	# Providing a delta vector with different values and not correctly
@@ -1440,35 +1446,46 @@ def test_delta_vector_assignment():
 		sub_regime='regression',columns=['M','F'])
 	pt.create_from_ast(constraint_str)
 	pt.assign_bounds_needed()
-	pt.assign_deltas(weight_method="manual",delta_vector=[10,20,30,40])
-	# Should get normalized to [0.00625, 0.05, 0.01875, 0.025]
-	pt.root.left.left.left.delta_lower = 0.01
-	pt.root.left.left.left.delta_upper = 0.02
-	pt.root.left.left.right.delta_lower = 0.03
-	pt.root.left.left.right.delta_upper = 0.04
-	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == 0.01
-	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == 0.02
-	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == 0.03
-	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == 0.04
+	pt.assign_deltas(weight_method="manual",delta_vector=[-1,-0.2,0,2])
+	reweighted_deltas = [
+		0.0038418155970352825,
+		0.008550117850922747,
+		0.010443137525711545,
+		0.07716492902633044
+	]
+	assert pt.root.left.left.left.delta_lower == reweighted_deltas[0]
+	assert pt.root.left.left.left.delta_upper == reweighted_deltas[1]
+	assert pt.root.left.left.right.delta_lower == reweighted_deltas[2]
+	assert pt.root.left.left.right.delta_upper == reweighted_deltas[3]
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == reweighted_deltas[0]
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == reweighted_deltas[1]
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == reweighted_deltas[2]
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == reweighted_deltas[3]
 
 	# Test case #5: two base nodes each needing both bounds.
 	# Providing a delta vector as a numpy array is OK as long
 	# as it is 1D.
-	tree_delta = 0.1
+	tree_delta = 0.05
 	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
 	pt = ParseTree(tree_delta,regime='supervised_learning',
 		sub_regime='regression',columns=['M','F'])
 	pt.create_from_ast(constraint_str)
 	pt.assign_bounds_needed()
 	pt.assign_deltas(weight_method="manual",delta_vector=np.array([0.01,0.02,0.03,0.04]))
-	pt.root.left.left.left.delta_lower = 0.01
-	pt.root.left.left.left.delta_upper = 0.02
-	pt.root.left.left.right.delta_lower = 0.03
-	pt.root.left.left.right.delta_upper = 0.04
-	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == 0.01
-	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == 0.02
-	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == 0.03
-	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == 0.04
+	reweighted_deltas = [
+		0.012313129661287526,
+		0.012436878671712491,
+		0.01256187138036873,
+		0.012688120286631263
+	]
+	assert pt.root.left.left.left.delta_lower == reweighted_deltas[0]
+	assert pt.root.left.left.left.delta_upper == reweighted_deltas[1]
+	assert pt.root.left.left.right.delta_lower == reweighted_deltas[2]
+	assert pt.root.left.left.right.delta_upper == reweighted_deltas[3]
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_lower'] == reweighted_deltas[0]
+	assert pt.base_node_dict['Mean_Error | [M]']['delta_upper'] == reweighted_deltas[1]
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_lower'] == reweighted_deltas[2]
+	assert pt.base_node_dict['Mean_Error | [F]']['delta_upper'] == reweighted_deltas[3]
 
 	# Test case #6: Providing a delta vector of the wrong length raises a ValueError
 	tree_delta = 0.1
@@ -1509,33 +1526,7 @@ def test_delta_vector_assignment():
 	error_str = "delta_vector must be a list or 1D numpy array"
 	assert str(excinfo.value) == error_str
 
-	# Test case #9: Providing a delta vector with a 0 raises a ValueError
-	tree_delta = 0.1
-	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
-	pt = ParseTree(tree_delta,regime='supervised_learning',
-		sub_regime='regression',columns=['M','F'])
-	pt.create_from_ast(constraint_str)
-	pt.assign_bounds_needed()
-	with pytest.raises(ValueError) as excinfo:
-		pt.assign_deltas(weight_method="manual",delta_vector=[0,0.1,0.2,0.3])
-
-	error_str = "delta_vector must have all positive values"
-	assert str(excinfo.value) == error_str
-
-	# Test case #10: Providing a delta vector with a negative values raises a ValueError
-	tree_delta = 0.1
-	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
-	pt = ParseTree(tree_delta,regime='supervised_learning',
-		sub_regime='regression',columns=['M','F'])
-	pt.create_from_ast(constraint_str)
-	pt.assign_bounds_needed()
-	with pytest.raises(ValueError) as excinfo:
-		pt.assign_deltas(weight_method="manual",delta_vector=[-0.01,0.1,0.2,0.3])
-
-	error_str = "delta_vector must have all positive values"
-	assert str(excinfo.value) == error_str
-
-	# Test case #11: Trying to assign deltas before assinging bounds raises a RuntimeError
+	# Test case #8: Trying to assign deltas before assinging bounds raises a RuntimeError
 	tree_delta = 0.1
 	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
 	pt = ParseTree(tree_delta,regime='supervised_learning',
@@ -1550,6 +1541,19 @@ def test_delta_vector_assignment():
             )
 	assert str(excinfo.value) == error_str
 
+	# Test case #9: If softmaxing explodes due to e^(large), raise ValueError
+	tree_delta = 0.1
+	constraint_str = 'abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1'
+	pt = ParseTree(tree_delta,regime='supervised_learning',
+		sub_regime='regression',columns=['M','F'])
+	pt.create_from_ast(constraint_str)
+	pt.assign_bounds_needed()
+	delta_vector = [1000,0.1,0.2,0.3]
+	with pytest.raises(ValueError) as excinfo:
+		pt.assign_deltas(weight_method="manual",delta_vector=delta_vector)
+
+	error_str = f"softmaxing delta_vector={delta_vector} resulted in nan or inf."
+	assert str(excinfo.value) == error_str
 
 def test_bounds_needed_assigned_correctly():
 	delta = 0.05 # use for all trees below
