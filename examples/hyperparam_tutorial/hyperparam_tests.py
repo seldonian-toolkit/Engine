@@ -51,15 +51,28 @@ def create_test_SA_spec(num_points=1000, frac_data_in_safety=0.6, seed=0):
     return SA_spec
 
 def create_HS_spec(all_frac_data_in_safety, n_bootstrap_trials=100, n_bootstrap_workers=30,
-        use_bs_pools=False):
-    hyper_schema = HyperSchema(
-            {
-                "frac_data_in_safety": {
-                    "values": all_frac_data_in_safety,
-                    "hyper_type": "SA"
-                    },
-                }
-            )
+        use_bs_pools=False, hyper_schema=None):
+    if hyper_schema is None:
+        hyper_schema = HyperSchema(
+                {
+                    "frac_data_in_safety": {
+                        "values": all_frac_data_in_safety,
+                        "hyper_type": "SA"
+                        },
+                    "alpha_theta": {
+                        "values": [0.001, 0.005, 0.05],
+                        "hyper_type": "optimization"
+                        },
+                    "num_iters": {
+                        "values": [500,1000],
+                        "hyper_type": "optimization"
+                        },
+                    "bound_inflation_factor": {
+                        "values": [1.0, 2.0, 3.0],
+                        "hyper_type": "SA"
+                        }
+                    }
+                )
 
     HS_spec = HyperparameterSelectionSpec(
             hyper_schema=hyper_schema,
@@ -412,25 +425,27 @@ def test_generate_all_bootstrap_datasets():
     test_dir = "test/test_generate_all_bootstrap_datasets"
     if os.path.exists(test_dir): shutil.rmtree(test_dir)
 
+    n_bootstrap_trials = 10
+    n_bootstrap_candidate = 110
+    n_bootstrap_safety = 50
+
     num_points = 100 
     bs_all_frac_data_in_safety = [0.9, 0.77, 0.5, 0.2, 0.1]
     SA_spec = create_test_SA_spec(num_points)
-    HS_spec = create_HS_spec(bs_all_frac_data_in_safety)
+    HS_spec = create_HS_spec(bs_all_frac_data_in_safety, 
+            n_bootstrap_trials=n_bootstrap_trials)
     HS = HyperparamSearch(SA_spec, HS_spec, test_dir)
 
     curr_frac_data_in_safety = 0.4
     candidate_dataset, safety_dataset  = HS.create_dataset(
             HS.dataset, curr_frac_data_in_safety, shuffle=False)
 
-    n_bootstrap_trials = 10
-    n_bootstrap_candidate = 110
-    n_bootstrap_safety = 50
 
     all_created_trials = {}
     for frac_data_in_safety in bs_all_frac_data_in_safety:
         all_created_trials[frac_data_in_safety] = HS.generate_all_bootstrap_datasets(
-                candidate_dataset, frac_data_in_safety, n_bootstrap_trials,
-                n_bootstrap_candidate, n_bootstrap_safety, test_dir)
+                candidate_dataset, frac_data_in_safety, n_bootstrap_candidate, 
+                n_bootstrap_safety, test_dir)
 
     # Test all fractions of data are created.
     all_data_dir_expected = sorted(["future_safety_frac_0.90", "future_safety_frac_0.77",
@@ -452,12 +467,13 @@ def test_generate_all_bootstrap_datasets():
 
     # ======================= Adding additonal trials ===============================
     new_n_bootstrap_trials = 50
+    HS.hyperparam_spec.n_bootstrap_trials = new_n_bootstrap_trials
 
     all_created_trials = {}
     for frac_data_in_safety in bs_all_frac_data_in_safety:
         all_created_trials[frac_data_in_safety] = HS.generate_all_bootstrap_datasets(
-                candidate_dataset, frac_data_in_safety, new_n_bootstrap_trials, 
-                n_bootstrap_candidate, n_bootstrap_safety, test_dir)
+                candidate_dataset, frac_data_in_safety, n_bootstrap_candidate,
+                n_bootstrap_safety, test_dir)
 
     # Test that the correct number of each folder is created, now that we added trials.
     for frac_data_in_safety in bs_all_frac_data_in_safety:
@@ -478,6 +494,10 @@ def test_generate_all_bootstrap_datasets():
     test_dir = "test/test_generate_all_bootstrap_datasets"
     if os.path.exists(test_dir): shutil.rmtree(test_dir)
 
+    n_bootstrap_trials = 10
+    n_bootstrap_candidate = 110
+    n_bootstrap_safety = 50
+
     num_points = 3 
     bs_all_frac_data_in_safety = [0.9, 0.77, 0.5, 0.2, 0.1]
     SA_spec = create_test_SA_spec(num_points)
@@ -488,12 +508,9 @@ def test_generate_all_bootstrap_datasets():
     candidate_dataset, safety_dataset = HS.create_dataset(
             HS.dataset, curr_frac_data_in_safety, shuffle=False)
 
-    n_bootstrap_trials = 10
-    n_bootstrap_candidate = 110
-    n_bootstrap_safety = 50
     for frac_data_in_safety in bs_all_frac_data_in_safety:
         HS.generate_all_bootstrap_datasets(candidate_dataset, frac_data_in_safety,
-                n_bootstrap_trials, n_bootstrap_candidate, n_bootstrap_safety, test_dir)
+                n_bootstrap_candidate, n_bootstrap_safety, test_dir)
 
     # Check that data is not even created.
     assert(os.path.exists(test_dir) is False)
@@ -575,7 +592,8 @@ def test_run_bootstrap_trial():
     HS = HyperparamSearch(SA_spec, HS_spec, "test")
     HS_run = HS.run_bootstrap_trial(bootstrap_trial_i, 
             est_frac_data_in_safety=est_frac_data_in_safety,
-            bootstrap_savedir=bootstrap_savedir)
+            bootstrap_savedir=bootstrap_savedir,
+            hyperparam_setting=None)
     results_subdir = os.path.join(bootstrap_savedir,
             f"future_safety_frac_{est_frac_data_in_safety:.2f}", "bootstrap_results")
     results_savename = os.path.join(results_subdir, f"trial_{bootstrap_trial_i}_result.pkl")
@@ -589,7 +607,8 @@ def test_run_bootstrap_trial():
     # Check that will not re-run if trial already run, and correctly return False.
     HS_run = HS.run_bootstrap_trial(bootstrap_trial_i,
             est_frac_data_in_safety=est_frac_data_in_safety,
-            bootstrap_savedir=bootstrap_savedir)
+            bootstrap_savedir=bootstrap_savedir,
+            hyperparam_setting=None)
     assert(HS_run is False)
 
     print("test_run_bootstrap_trial passed")
@@ -598,7 +617,6 @@ def test_run_bootstrap_trial():
 def test_aggregate_est_prob_pass():
     # Create synthetic results.
     est_frac_data_in_safety = 0.4
-    n_bootstrap_trials = 50
     bootstrap_savedir = "test/test_aggregate_est_prob_pass"
     if os.path.exists(bootstrap_savedir): shutil.rmtree(bootstrap_savedir)
     os.makedirs(bootstrap_savedir, exist_ok=True)
@@ -606,13 +624,13 @@ def test_aggregate_est_prob_pass():
             bootstrap_savedir, est_frac_data_in_safety)
 
     SA_spec = create_test_SA_spec()
-    HS_spec = create_HS_spec([SA_spec.frac_data_in_safety], n_bootstrap_trials=n_bootstrap_trials)
+    HS_spec = create_HS_spec([SA_spec.frac_data_in_safety])
     HS = HyperparamSearch(SA_spec, HS_spec, "test")
 
     # Aggregate the results, when the indices are not all there because some imcomplete
     # trials.
     est_prob_pass, lower_bound, upper_bound, results_df = HS.aggregate_est_prob_pass(
-            est_frac_data_in_safety,  n_bootstrap_trials, bootstrap_savedir)
+            est_frac_data_in_safety, bootstrap_savedir)
     assert(np.allclose(est_prob_pass, np.mean(all_trial_pass)))
     assert(np.array_equal(results_df["passed_safety"].values, all_trial_pass))
     assert(np.array_equal(results_df["solution"].values, all_trial_solutions))
@@ -631,6 +649,7 @@ def test_get_est_prob_pass():
     if os.path.exists(bootstrap_savedir): shutil.rmtree(bootstrap_savedir)
 
     n_bootstrap_trials = 100
+    n_bootstrap_workers = 1
     true_frac_data_in_safety = 0.6
     num_points_dataset = 2000 # Need quite large dataset to get bootstrap samplines.
     SA_spec = create_test_SA_spec(
@@ -639,17 +658,19 @@ def test_get_est_prob_pass():
     est_frac_data_in_safety = SA_spec.frac_data_in_safety
 
     # Use HS to get split dataset.
-    HS_spec = create_HS_spec([SA_spec.frac_data_in_safety])
+    HS_spec = create_HS_spec([SA_spec.frac_data_in_safety], n_bootstrap_trials=n_bootstrap_trials,
+            n_bootstrap_workers=n_bootstrap_workers)
     HS = HyperparamSearch(SA_spec, HS_spec, bootstrap_savedir)
     candidate_dataset, safety_dataset = HS.create_dataset(
             SA_spec.dataset, SA_spec.frac_data_in_safety, shuffle=False)
-    n_candidate, n_safety = candidate_dataset.num_datapoints, safety_dataset.num_datapoints
+    n_bootstrap_samples_candidate, n_bootstrap_samples_safety = HS.get_bootstrap_dataset_size(
+            est_frac_data_in_safety)
 
     # Compute estimated probability of passing.
     (est_prob_pass, lower_bound, upper_bound, results_df, iter_time, ran_new_bs_trials) \
             = HS.get_est_prob_pass(
-                    est_frac_data_in_safety, candidate_dataset, n_candidate, n_safety,
-                    bootstrap_savedir, n_bootstrap_trials, n_workers=1)
+                    est_frac_data_in_safety, candidate_dataset, n_bootstrap_samples_candidate, 
+                    n_bootstrap_samples_safety, bootstrap_savedir)
     assert(0.95 <= est_prob_pass <= 1.0) # In reality is 1.
     assert(ran_new_bs_trials is True)
     assert(lower_bound is None)
@@ -659,14 +680,15 @@ def test_get_est_prob_pass():
     bootstrap_savedir_parallel = "test/test_get_est_prob_pass/parallel"
     if os.path.exists(bootstrap_savedir_parallel): shutil.rmtree(bootstrap_savedir_parallel)
 
-    n_workers = 20
+    HS.hyperparam_spec.n_bootstrap_workers = 20
     est_prob_pass_parallel, _, _, results_df_parallel, parallel_time, ran_new_bs_trials = HS.get_est_prob_pass(
-            est_frac_data_in_safety, candidate_dataset, n_candidate, n_safety,
-            bootstrap_savedir_parallel, n_bootstrap_trials, n_workers=n_workers)
+            est_frac_data_in_safety, candidate_dataset, n_bootstrap_samples_candidate, 
+            n_bootstrap_samples_safety, bootstrap_savedir_parallel)
 
     assert(ran_new_bs_trials)
     speedup = iter_time / parallel_time
-    print(f"    With {n_workers} workers, {speedup:.2f}x speedup for get_est_prob_pass!")
+    print(f"    With {HS.hyperparam_spec.n_bootstrap_workers} workers, "
+            "{speedup:.2f}x speedup for get_est_prob_pass!")
     assert(np.allclose(est_prob_pass, est_prob_pass_parallel))
 
 
@@ -675,8 +697,8 @@ def test_get_est_prob_pass():
     # First, check that if re-run with current amount of trials, that we correctly do not
     # run any additional trials.
     rerun_est_prob_pass, _, _, rerun_results_df, _, ran_new_bs_trials = HS.get_est_prob_pass(
-            est_frac_data_in_safety, candidate_dataset, n_candidate, n_safety,
-            bootstrap_savedir_parallel, n_bootstrap_trials, n_workers=n_workers)
+            est_frac_data_in_safety, candidate_dataset, n_bootstrap_samples_candidate, 
+            n_bootstrap_samples_safety, bootstrap_savedir_parallel)
 
     # Check that new trials are not actually run.
     assert(ran_new_bs_trials is False)
@@ -691,14 +713,14 @@ def test_get_est_prob_pass():
     # ====================== Re-run with additional trials =============================
 
     # Now let's run an additonal 20 trials on top.
-    new_n_bootstrap_trials = 120
+    HS.hyperparam_spec.n_bootstrap_trials = 120
     add_est_prob_pass, _, _, add_results_df, _, ran_new_bs_trials = HS.get_est_prob_pass(
-            est_frac_data_in_safety, candidate_dataset, n_candidate, n_safety,
-            bootstrap_savedir_parallel, new_n_bootstrap_trials, n_workers=n_workers)
+            est_frac_data_in_safety, candidate_dataset, n_bootstrap_samples_candidate, 
+            n_bootstrap_samples_safety, bootstrap_savedir_parallel)
 
     # Check that new trials were actually run.
     assert(ran_new_bs_trials)
-    assert(add_results_df.shape == (new_n_bootstrap_trials, 2))
+    assert(add_results_df.shape == (HS.hyperparam_spec.n_bootstrap_trials, 2))
 
     # Check that the initial trial information are untouched.
     assert(np.array_equal(add_results_df["passed_safety"][:n_bootstrap_trials], 
@@ -725,8 +747,7 @@ def test_get_all_greater_est_prob_pass():
 
     # Use HS to get split dataset.
     HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
-    all_estimates, elapsed_time = HS.get_all_greater_est_prob_pass(
-            n_bootstrap_trials, n_workers=n_workers)
+    all_estimates, elapsed_time = HS.get_all_greater_est_prob_pass()
     print("elapsed time:", elapsed_time)
 
     print(all_estimates)
@@ -826,17 +847,16 @@ def test_get_all_greater_est_prob_pass():
             n_bootstrap_workers=n_workers)
 
     HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
-    all_estimates, _ = HS.get_all_greater_est_prob_pass(
-            n_bootstrap_trials, n_workers=n_workers)
+    all_estimates, _ = HS.get_all_greater_est_prob_pass()
     for frac_data_in_safety in all_frac_data_in_safety:
         assert(all_estimates[frac_data_in_safety] == {}) # Nothing was estimated.
 
     print("test_get_all_greater_est_prob_pass passed")
 
 
-def test_find_best_hyperparams():
+def test_find_best_frac_data_in_safety():
     # ====================== Test if not enough data ===================================
-    results_dir = "test/test_find_best_hyperparams"
+    results_dir = "test/test_find_best_frac_data_in_safety"
     if os.path.exists(results_dir): shutil.rmtree(results_dir)
 
     # With this little data, should not even try to compute bootstrap estimates.
@@ -851,27 +871,27 @@ def test_find_best_hyperparams():
     # Check that, passess through all the bootstrapping and selects to put most data in cs.
     HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
     frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
-            HS.find_best_hyperparams(n_bootstrap_trials, n_workers=n_workers)
+            HS.find_best_frac_data_in_safety()
     assert(frac_data_in_safety == min(all_frac_data_in_safety))
 
     # ============================= Regular test =======================================
     np.random.seed(0)
-    results_dir = "test/test_find_best_hyperparams"
+    results_dir = "test/test_find_best_frac_data_in_safety"
     if os.path.exists(results_dir): shutil.rmtree(results_dir)
 
     # Check that all the outputs are being written out.
     num_points_dataset = 2000 # Need quite large dataset to get bootstrap samplines.
     all_frac_data_in_safety = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    SA_spec = create_test_SA_spec(num_points=num_points_dataset)
-    HS_spec = create_HS_spec(all_frac_data_in_safety)
-
-    # Use HS to get split dataset.
     n_bootstrap_trials = 300
     n_workers = 60
+    SA_spec = create_test_SA_spec(num_points=num_points_dataset)
+    HS_spec = create_HS_spec(all_frac_data_in_safety, n_bootstrap_trials=n_bootstrap_trials,
+            n_bootstrap_workers=n_workers)
+
+    # Use HS to get split dataset.
     HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
     frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
-            HS.find_best_hyperparams(
-                    n_bootstrap_trials, n_workers=n_workers)
+            HS.find_best_frac_data_in_safety()
     assert(frac_data_in_safety == 0.6)
 
     # Check that the correct folders for the bootstrap trials created with respect to fact
@@ -960,19 +980,17 @@ def test_find_best_hyperparams():
 
     # ====================== Run again, without new trials ================================
     new_frac_data_in_safety, new_candidate_dataset, new_safety_dataset, ran_new_bs_trials = \
-            HS.find_best_hyperparams(
-                    n_bootstrap_trials, n_workers=n_workers)
+            HS.find_best_frac_data_in_safety()
     assert(ran_new_bs_trials is False)
     assert(new_frac_data_in_safety == frac_data_in_safety)
 
     # ========================== Adding new trials ====================================
-    new_n_bootstrap_trials = 350
+    HS.hyperparam_spec.n_bootstrap_trials = 350
     frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
-            HS.find_best_hyperparams(
-                    new_n_bootstrap_trials, n_workers=n_workers)
+            HS.find_best_frac_data_in_safety()
     assert(ran_new_bs_trials)
 
-    print("test_find_best_hyperparams passed")
+    print("test_find_best_frac_data_in_safety passed")
 
 
 def test_size_integration_test():
@@ -994,8 +1012,212 @@ def test_size_integration_test():
     # Use HS to get split dataset.
     HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
     frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
-            HS.find_best_hyperparams(
-                    n_bootstrap_trials, n_workers=n_workers)
+            HS.find_best_frac_data_in_safety()
+
+
+def test_get_hyperparameter_iterator():
+    results_dir = "test/get_hyperparameter_iterator_test"
+    if os.path.exists(results_dir): shutil.rmtree(results_dir) 
+
+
+    num_points_dataset = 1000 
+    all_frac_data_in_safety = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    SA_spec = create_test_SA_spec(num_points=num_points_dataset)
+
+    hyper_schema = HyperSchema(
+            {
+                "frac_data_in_safety": {
+                    "values": all_frac_data_in_safety,
+                    "hyper_type": "SA"
+                    },
+                "alpha_theta": {
+                    "values": [0.001, 0.005, 0.05],
+                    "hyper_type": "optimization"
+                    },
+                "num_iters": {
+                    "values": [500,1000],
+                    "hyper_type": "optimization"
+                    },
+                "bound_inflation_factor": {
+                    "values": [1.0, 2.0, 3.0],
+                    "hyper_type": "SA"
+                    }
+                }
+            )
+    HS_spec = create_HS_spec(all_frac_data_in_safety, hyper_schema=hyper_schema)
+    HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
+
+    hyper_iterator_list = sorted(list(HS.get_hyperparameter_iterator()))
+    expected_iterator_size = 3 * 2 * 3
+    expected_hyper_iterator_list = sorted([
+            (("alpha_theta", "optimization", 0.001), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 1.0)),
+            (("alpha_theta", "optimization", 0.001), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 2.0)),
+            (("alpha_theta", "optimization", 0.001), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 3.0)),
+            (("alpha_theta", "optimization", 0.001), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 1.0)),
+            (("alpha_theta", "optimization", 0.001), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 2.0)),
+            (("alpha_theta", "optimization", 0.001), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 3.0)),
+            (("alpha_theta", "optimization", 0.005), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 1.0)),
+            (("alpha_theta", "optimization", 0.005), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 2.0)),
+            (("alpha_theta", "optimization", 0.005), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 3.0)),
+            (("alpha_theta", "optimization", 0.005), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 1.0)),
+            (("alpha_theta", "optimization", 0.005), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 2.0)),
+            (("alpha_theta", "optimization", 0.005), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 3.0)),
+            (("alpha_theta", "optimization", 0.05), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 1.0)),
+            (("alpha_theta", "optimization", 0.05), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 2.0)),
+            (("alpha_theta", "optimization", 0.05), ("num_iters", "optimization", 500),
+                ("bound_inflation_factor", "SA", 3.0)),
+            (("alpha_theta", "optimization", 0.05), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 1.0)),
+            (("alpha_theta", "optimization", 0.05), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 2.0)),
+            (("alpha_theta", "optimization", 0.05), ("num_iters", "optimization", 1000),
+                ("bound_inflation_factor", "SA", 3.0))])
+
+    assert(len(hyper_iterator_list) == expected_iterator_size)
+    assert(hyper_iterator_list == expected_hyper_iterator_list)
+
+    print("test_get_hyperparameter_iterator passed")
+
+
+def test_create_hyperparam_bootstrap_savedir():
+    results_dir = "test/create_hyperparam_bootstrap_savedir_test"
+    if os.path.exists(results_dir): shutil.rmtree(results_dir) 
+
+    num_points_dataset = 1000 
+    all_frac_data_in_safety = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    SA_spec = create_test_SA_spec(num_points=num_points_dataset)
+
+    hyper_schema = HyperSchema(
+            {
+                "frac_data_in_safety": {
+                    "values": all_frac_data_in_safety,
+                    "hyper_type": "SA"
+                    },
+                "alpha_theta": {
+                    "values": [0.001, 0.005, 0.05],
+                    "hyper_type": "optimization"
+                    },
+                "num_iters": {
+                    "values": [500,1000],
+                    "hyper_type": "optimization"
+                    },
+                "bound_inflation_factor": {
+                    "values": [1.0, 2.0, 3.0],
+                    "hyper_type": "SA"
+                    }
+                }
+            )
+    HS_spec = create_HS_spec(all_frac_data_in_safety, hyper_schema=hyper_schema)
+    HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
+    hyperparam_setting = (
+            ("alpha_theta", "optimization", 0.005), 
+            ("num_iters", "optimization", 1000),
+            ("bound_inflation_factor", "SA", 2.0)
+            )
+    bootstrap_savedir = HS.create_hyperparam_bootstrap_savedir(hyperparam_setting)
+    expected_bootstrap_savedir = "bootstrap__alpha_theta_5.00e-03__num_iters_1.00e+03__bound_inflation_factor_2.00e+00"
+    assert(bootstrap_savedir == expected_bootstrap_savedir)
+
+    print("test_create_hyperparam_bootstrap_savedir passed")
+
+
+def test_set_spec_with_hyperparam_setting():
+    results_dir = "test/test_set_spec_with_hyperparam_setting"
+    if os.path.exists(results_dir): shutil.rmtree(results_dir) 
+
+    num_points_dataset = 1000 
+    all_frac_data_in_safety = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    SA_spec = create_test_SA_spec(num_points=num_points_dataset)
+    hyper_schema = HyperSchema(
+            {
+                "frac_data_in_safety": {
+                    "values": all_frac_data_in_safety,
+                    "hyper_type": "SA"
+                    },
+                "alpha_theta": {
+                    "values": [0.001, 0.005, 0.05],
+                    "hyper_type": "optimization"
+                    },
+                "num_iters": {
+                    "values": [500,1000],
+                    "hyper_type": "optimization"
+                    },
+                "bound_inflation_factor": {
+                    "values": [1.0, 2.0, 3.0],
+                    "hyper_type": "SA"
+                    }
+                }
+            )
+    HS_spec = create_HS_spec(all_frac_data_in_safety, hyper_schema=hyper_schema)
+    HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
+
+    # Check optimization hyperparameter setting.
+    hyperparam_setting = (
+            ("alpha_theta", "optimization", 0.0005), 
+            ("num_iters", "optimization", 2000),
+            )
+    HS.set_spec_with_hyperparam_setting(SA_spec, hyperparam_setting)
+    assert(SA_spec.optimization_hyperparams["alpha_theta"] == 0.0005)
+    assert(SA_spec.optimization_hyperparams["num_iters"] ==  2000)
+    
+    # TODO: Write tests for other kinds of hyperparameter setting.
+    print("test_set_spec_with_hyperparam_setting passed")
+
+
+def test_find_best_hyperparameters():
+    # TODO: Update this once we optimize more more hyperparameters.
+    results_dir = "test/test_find_best_hyperparameters"
+    if os.path.exists(results_dir): shutil.rmtree(results_dir) 
+
+    num_points_dataset = 1000 
+    all_frac_data_in_safety = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    SA_spec = create_test_SA_spec(num_points=num_points_dataset)
+    hyper_schema = HyperSchema(
+            {
+                "frac_data_in_safety": {
+                    "values": all_frac_data_in_safety,
+                    "hyper_type": "SA"
+                    },
+                "alpha_theta": {
+                    "values": [0.001, 0.005, 0.05],
+                    "hyper_type": "optimization"
+                    },
+                "num_iters": {
+                    "values": [500,1000],
+                    "hyper_type": "optimization"
+                    },
+                }
+            )
+    HS_spec = create_HS_spec(all_frac_data_in_safety, hyper_schema=hyper_schema)
+    HS = HyperparamSearch(SA_spec, HS_spec, results_dir)
+
+
+    best_hyperparam_setting, best_hyperparam_spec = HS.find_best_hyperparameters(
+            SA_spec.frac_data_in_safety)
+    expected_best_hyperparam_setting = (
+            ('alpha_theta', 'optimization', 0.05),
+            ('num_iters', 'optimization', 500)
+    )
+    assert(expected_best_hyperparam_setting == best_hyperparam_setting)
+    assert(best_hyperparam_spec.optimization_hyperparams["alpha_theta"] == 0.05)
+    assert(best_hyperparam_spec.optimization_hyperparams["num_iters"] == 500)
+
+    print("test_find_best_hyperparameters passed")
+
 
 
 if __name__ == "__main__":
@@ -1013,8 +1235,12 @@ if __name__ == "__main__":
     test_aggregate_est_prob_pass()
     test_get_est_prob_pass()
     test_get_all_greater_est_prob_pass() 
-    test_find_best_hyperparams()
+    test_find_best_frac_data_in_safety()
     test_size_integration_test()
+    test_get_hyperparameter_iterator()
+    test_create_hyperparam_bootstrap_savedir()
+    test_set_spec_with_hyperparam_setting()
+    test_find_best_hyperparameters()
 
     print("all tests passed")
 

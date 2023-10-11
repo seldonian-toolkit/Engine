@@ -54,7 +54,7 @@ if __name__ == "__main__":
             HS.dataset, all_frac_data_in_safety[0], results_dir)
     
     frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials = \
-            HS.find_best_hyperparams()
+            HS.find_best_frac_data_in_safety()
 
     # 5. Update spec to have new frac_data_in_safety.
     spec.frac_data_in_safety = frac_data_in_safety
