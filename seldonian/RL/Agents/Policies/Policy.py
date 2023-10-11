@@ -86,7 +86,7 @@ class Discrete_Action_Policy(Policy):
             return self.construct_basis_and_linear_FA(
                 env_description, hyperparam_and_setting_dict
             )
-        else:
+        else: # pragma: no cover
             error(
                 f"unhandled state type {type(env_description.observation_space)} and action type {type(env_description.action_space)} for make_state_action_FA()"
             )
@@ -108,7 +108,7 @@ class Discrete_Action_Policy(Policy):
         basis_type = hyperparam_and_setting_dict["basis"]
         if basis_type == "Fourier":
             basis = Fourier(hyperparam_and_setting_dict, env_description)
-        else:
+        else: # pragma: no cover
             error("unknown basis type ", basis_type)
         return Linear_state_action_value_FA(basis, env_description)
 

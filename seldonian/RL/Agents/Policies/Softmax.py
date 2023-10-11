@@ -44,11 +44,9 @@ class Softmax(Discrete_Action_Policy):
                 return self.from_0_indexed_action_to_environment_action(
                     action_num_zero_indexed
                 )
-
-        print(stop_value)
-        print(roulette_wheel_start)
-        print(action_probs)
-        error("reached the end of SoftMax.choose_action(), this should never happen")
+        
+        print(stop_value,roulette_wheel_start,action_probs) # pragma: no cover
+        error("reached the end of SoftMax.choose_action(), this should never happen") # pragma: no cover
 
     def get_action_probs_from_action_values(self, action_values):
         """Get action probabilities given a list of action values (param weights)"""
