@@ -36,7 +36,11 @@ def run_trial_given_agent_and_env(agent, env, num_episodes):
 
 
 def run_trial(
-    hyperparameter_and_setting_dict, model_params=None, parallel=False, n_workers=8, verbose=False,
+    hyperparameter_and_setting_dict,
+    model_params=None,
+    parallel=False,
+    n_workers=8,
+    verbose=False,
 ):
     """Run a single trial consists of an arbitrary number of episodes.
 
@@ -53,7 +57,7 @@ def run_trial(
     num_episodes = hyperparameter_and_setting_dict["num_episodes"]
     if verbose:
         print(f"Have {num_episodes} episodes in trial")
-    
+
     if parallel:
         if "create_env_func" in hyperparameter_and_setting_dict:
             create_env_func = hyperparameter_and_setting_dict["create_env_func"]
@@ -77,9 +81,9 @@ def run_trial(
 
         chunk_size = num_episodes // n_workers
         chunk_sizes = []
-        for i in range(0,num_episodes,chunk_size):
-            if (i+chunk_size) > num_episodes:
-                chunk_sizes.append(num_episodes-i)
+        for i in range(0, num_episodes, chunk_size):
+            if (i + chunk_size) > num_episodes:
+                chunk_sizes.append(num_episodes - i)
             else:
                 chunk_sizes.append(chunk_size)
 
@@ -91,16 +95,16 @@ def run_trial(
         ) as ex:
             results = tqdm(
                 ex.map(
-                    run_episodes_par, 
-                    create_agent_func_list, 
-                    create_env_func_list, 
-                    chunk_sizes
+                    run_episodes_par,
+                    create_agent_func_list,
+                    create_env_func_list,
+                    chunk_sizes,
                 ),
-                total=len(chunk_sizes)
+                total=len(chunk_sizes),
             )
             for ep_list in results:
                 episodes.extend(ep_list)
-        
+
     else:
         if "create_env_func" in hyperparameter_and_setting_dict:
             create_env_func = hyperparameter_and_setting_dict["create_env_func"]
@@ -118,12 +122,11 @@ def run_trial(
                 agent = hyperparameter_and_setting_dict["agent"]
 
         for _ in range(num_episodes):
-            episodes.append(run_episode(agent,env))
+            episodes.append(run_episode(agent, env))
     return episodes
 
-def run_episodes_par(
-    create_agent_func, create_env_func, num_episodes_this_proc
-):
+
+def run_episodes_par(create_agent_func, create_env_func, num_episodes_this_proc):
     """Run a bunch of episodes. Function that is run in parallel.
 
     :param hyperparameter_and_setting_dict: Specifies the
@@ -143,6 +146,7 @@ def run_episodes_par(
         print(f"Episode {i+1}/{num_episodes_this_proc}")
         episodes_this_proc.append(run_episode(agent, env))
     return episodes_this_proc
+
 
 def run_episode(agent, env):
     """Run a single episode

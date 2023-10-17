@@ -5,6 +5,7 @@ from seldonian.RL.Env_Description.Env_Description import *
 class Gridworld(Environment):
     def __init__(self, size=3):
         """Square gridworld RL environment of arbitrary size.
+        Actions: 0,1,2,3 -> up,right,down,left
 
         :param size: The number of grid cells on a side
         :ivar num_states: The number of distinct grid cells

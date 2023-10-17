@@ -1,7 +1,7 @@
 from seldonian.RL.Agents.Agent import *
 
 
-class Keyboard_gridworld(Agent):
+class Keyboard_gridworld(Agent):  # pragma: no cover
     def __init__(self, env_description):
         """An agent used for debugging the gridworld
         environment. Not intended for public use."""

@@ -2,7 +2,8 @@ from seldonian.RL.Agents.Agent import *
 import autograd.numpy as np
 
 
-class Mountain_car_rough_solution(Agent):
+class Mountain_car_rough_solution(Agent):  # pragma: no cover
+    # pragma: no cover
     def choose_action(self, observation):
         if observation[1] < 0:
             return -1

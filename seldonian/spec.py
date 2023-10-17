@@ -302,7 +302,7 @@ def createSimpleSupervisedSpec(
     dataset,
     constraint_strs,
     deltas,
-    sub_regime='regression',
+    sub_regime="regression",
     sensitive_col_names=[],
     frac_data_in_safety=0.6,
     save=True,
@@ -311,7 +311,7 @@ def createSimpleSupervisedSpec(
 ):
     """Convenience function for creating SupervisedSpec object
     without a metadata file.
-    
+
     Saves spec.pkl file in save_dir
 
     :param dataset: The dataset object containing data and metadata

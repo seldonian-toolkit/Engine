@@ -120,7 +120,7 @@ class SafetyTest(object):
 
     def get_importance_weights(self, theta):
         """Get an array of importance weights evaluated on the candidate dataset
-        given model weights, theta. 
+        given model weights, theta.
 
         :param theta: model weights
         :type theta: numpy.ndarray

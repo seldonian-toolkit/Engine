@@ -3,7 +3,7 @@ from functools import reduce, partial
 import pandas as pd
 import autograd.numpy as np
 
-from . import zhat_funcs 
+from . import zhat_funcs
 from seldonian.utils.stats_utils import *
 
 """
@@ -46,6 +46,7 @@ from seldonian.utils.stats_utils import *
     in :py:mod:`.nodes`
 
 """
+
 
 class Node(object):
     def __init__(self, name, lower, upper):
@@ -156,12 +157,18 @@ class BaseNode(Node):
         super().__init__(name, lower, upper, **kwargs)
         self.conditional_columns = conditional_columns
         self.node_type = "base_node"
-        self.delta = 0
+        self.delta_lower = None
+        self.delta_upper = None
         self.measure_function_name = ""
 
     def __repr__(self):
         """Overrides Node.__repr__()"""
-        return super().__repr__() + ", " + "\u03B4" + f"={self.delta:g}"
+        return (
+            super().__repr__()
+            + ", "
+            + "\u03B4"
+            + f"=({self.delta_lower},{self.delta_upper})"
+        )
 
     def calculate_value(self, **kwargs):
         """
@@ -170,7 +177,9 @@ class BaseNode(Node):
         the expected value of the base variable,
         not the bound.
         """
-        value = zhat_funcs.evaluate_statistic(statistic_name=self.measure_function_name, **kwargs)
+        value = zhat_funcs.evaluate_statistic(
+            statistic_name=self.measure_function_name, **kwargs
+        )
         return value
 
     def mask_data(self, dataset, conditional_columns):
@@ -251,30 +260,22 @@ class BaseNode(Node):
                     dataset, self.conditional_columns
                 )
             else:
-                (masked_features, masked_labels) = (
-                    features,
-                    labels
-                )
+                (masked_features, masked_labels) = (features, labels)
 
-            data_dict = {
-                "features": masked_features,
-                "labels": masked_labels
-            }
+            data_dict = {"features": masked_features, "labels": masked_labels}
 
         elif regime == "reinforcement_learning":
             gamma = model.env_kwargs["gamma"]
             episodes = dataset.episodes
 
             if self.conditional_columns:
-                masked_episodes = self.mask_data(
-                    dataset, self.conditional_columns
-                )
+                masked_episodes = self.mask_data(dataset, self.conditional_columns)
             else:
                 masked_episodes = episodes
 
             # Precalculate expected return from behavioral policy
             # using the reward specified by the alt_reward_number
-            # These are only ever used in the zhat functions, so 
+            # These are only ever used in the zhat functions, so
             # they pertain to the constraint, not the primary objective
             if "alt_reward_number" in kwargs:
                 # use the alternate reward specified in the constraint string
@@ -319,13 +320,13 @@ class BaseNode(Node):
                 # getting confidence intervals from bootstrap
                 # and RL cases
                 estimator_samples = self.zhat(**kwargs)
-                
+
                 if len(estimator_samples) < 5:
                     bounds_dict = {}
                     if self.will_lower_bound:
-                        bounds_dict['lower'] = -np.inf
+                        bounds_dict["lower"] = -np.inf
                     if self.will_upper_bound:
-                        bounds_dict['upper'] = np.inf
+                        bounds_dict["upper"] = np.inf
                     return bounds_dict
 
                 branch = kwargs["branch"]
@@ -336,25 +337,24 @@ class BaseNode(Node):
                     n_candidate = candidate_dataset.num_datapoints
                     n_safety = kwargs["n_safety"]
                     # Want to predict the size of the safety dataset.
-                    # We do this using the fraction of candidate data we 
+                    # We do this using the fraction of candidate data we
                     # get from the estimator
                     datasize = int(
-                        round(
-                            ( len(estimator_samples)/n_candidate ) * n_safety 
-                        )
+                        round((len(estimator_samples) / n_candidate) * n_safety)
                     )
 
                 data_dict = kwargs["data_dict"]
                 bound_kwargs = kwargs
                 bound_kwargs["data"] = estimator_samples
                 bound_kwargs["datasize"] = datasize
-                bound_kwargs["delta"] = self.delta
 
                 # If lower and upper are both needed,
                 # can't necessarily call lower and upper
                 # bound functions separately. Sometimes the joint bound
                 # is different from the individual bounds combined
                 if self.will_lower_bound and self.will_upper_bound:
+                    bound_kwargs["delta_lower"] = self.delta_lower
+                    bound_kwargs["delta_upper"] = self.delta_upper
                     if branch == "candidate_selection":
                         lower, upper = self.predict_HC_upper_and_lowerbound(
                             **bound_kwargs
@@ -366,6 +366,7 @@ class BaseNode(Node):
                     return {"lower": lower, "upper": upper}
 
                 elif self.will_lower_bound:
+                    bound_kwargs["delta"] = self.delta_lower
                     if branch == "candidate_selection":
                         lower = self.predict_HC_lowerbound(**bound_kwargs)
                     elif branch == "safety_test":
@@ -373,6 +374,7 @@ class BaseNode(Node):
                     return {"lower": lower}
 
                 elif self.will_upper_bound:
+                    bound_kwargs["delta"] = self.delta_upper
                     if branch == "candidate_selection":
                         upper = self.predict_HC_upperbound(**bound_kwargs)
                     elif branch == "safety_test":
@@ -471,7 +473,9 @@ class BaseNode(Node):
 
         return lower
 
-    def predict_HC_upper_and_lowerbound(self, data, datasize, delta, **kwargs):
+    def predict_HC_upper_and_lowerbound(
+        self, data, datasize, delta_lower, delta_upper, **kwargs
+    ):
         """
         Calculate high confidence lower and upper bounds
         that we expect to pass the safety test.
@@ -497,10 +501,10 @@ class BaseNode(Node):
             bound_method = kwargs["bound_method"]
             if bound_method == "ttest":
                 lower = self.predict_HC_lowerbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_lower, **kwargs
                 )
                 upper = self.predict_HC_upperbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_upper, **kwargs
                 )
 
             elif bound_method == "manual":
@@ -569,7 +573,9 @@ class BaseNode(Node):
 
         return upper
 
-    def compute_HC_upper_and_lowerbound(self, data, datasize, delta, **kwargs):
+    def compute_HC_upper_and_lowerbound(
+        self, data, datasize, delta_lower, delta_upper, **kwargs
+    ):
         """
         Calculate high confidence lower and upper bounds
         Used in safety test.
@@ -594,10 +600,10 @@ class BaseNode(Node):
             bound_method = kwargs["bound_method"]
             if bound_method == "ttest":
                 lower = self.compute_HC_lowerbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_lower, **kwargs
                 )
                 upper = self.compute_HC_upperbound(
-                    data=data, datasize=datasize, delta=delta / 2, **kwargs
+                    data=data, datasize=datasize, delta=delta_upper, **kwargs
                 )
 
             elif bound_method == "manual":
@@ -726,7 +732,75 @@ class MultiClassBaseNode(BaseNode):
         self.class_index = class_index
 
 
-class RLAltRewardBaseNode(BaseNode):
+class NewPolicyPerformanceBaseNode(BaseNode):
+    def __init__(
+        self,
+        name,
+        lower=float("-inf"),
+        upper=float("inf"),
+        conditional_columns=[],
+        **kwargs,
+    ):
+        """A base node for computing
+        the expected return (performance) of a "new" policy parameterization,
+        i.e., one proposed during candidate selection.
+        Overrides the calculate_value() method to include an
+        "on_policy" boolean flag that (if True)
+        calculate the expected return via episodes
+        generated by the new policy parameterization.
+        The default is to use the off-policy estimate
+        referenced by self.measure_function_name from the
+        behavior policy episodes.
+
+        :param name:
+            The name of the node, e.g. "J_pi_new_IS_[1]"
+        :type name: str
+        :param lower:
+            Lower confidence bound
+        :type lower: float
+        :param upper:
+            Upper confidence bound
+        :type upper: float
+        :param conditional_columns:
+            When calculating confidence bounds on a measure
+            function, condition on these columns being == 1
+        :type conditional_columns: List(str)
+        """
+        super().__init__(
+            name=name,
+            lower=lower,
+            upper=upper,
+            conditional_columns=conditional_columns,
+            **kwargs,
+        )
+
+    def calculate_value(self, on_policy=False, **kwargs):
+        """
+        Calculate the value of the node
+        given model weights, etc. This is
+        the expected value of the base variable,
+        not the bound.
+
+        :param on_policy: If True, uses episodes generated by the new policy parameterization
+            to calculate the return. If False, estimates the return using an off-policy estimate.
+        :type on_policy: Boolean
+        """
+        if on_policy:
+            episodes_new = kwargs["dataset"].episodes
+            model = kwargs["model"]
+            gamma = model.env_kwargs["gamma"]
+            returns_new = np.array(
+                [weighted_sum_gamma(ep.rewards, gamma) for ep in episodes_new]
+            )
+            value = np.mean(returns_new)
+        else:
+            value = zhat_funcs.evaluate_statistic(
+                statistic_name=self.measure_function_name, **kwargs
+            )
+        return value
+
+
+class RLAltRewardBaseNode(NewPolicyPerformanceBaseNode):
     def __init__(
         self,
         name,
@@ -738,7 +812,7 @@ class RLAltRewardBaseNode(BaseNode):
     ):
         """A base node for computing
         the IS estimate using an alternate
-        reward function (i.e. one besides the primary reward).
+        reward (i.e. one besides the primary reward).
         There can be an arbitrary number of
         alternate rewards, so the "alt_reward_number"
         attribute allows one to reference the specific
@@ -774,6 +848,34 @@ class RLAltRewardBaseNode(BaseNode):
             **kwargs,
         )
         self.alt_reward_number = alt_reward_number
+
+    def calculate_value(self, on_policy=False, **kwargs):
+        """
+        Calculate the value of the node
+        given model weights, etc. This is
+        the expected value of the base variable,
+        not the bound.
+
+        :param on_policy: If True, uses episodes generated by the new policy parameterization
+            to calculate the return. If False, estimates the return using an off-policy estimate.
+        :type on_policy: Boolean
+        """
+
+        if on_policy:
+            episodes_new = kwargs["episodes_for_eval"]
+            model = kwargs["model"]
+            gamma = model.env_kwargs["gamma"]
+            alt_reward_index = self.alt_reward_number - 1
+            returns_new = [
+                weighted_sum_gamma(ep.alt_rewards[:, alt_reward_index], gamma)
+                for ep in episodes_new
+            ]
+            value = np.mean(returns_new)
+        else:
+            value = zhat_funcs.evaluate_statistic(
+                statistic_name=self.measure_function_name, **kwargs
+            )
+        return value
 
 
 class MEDCustomBaseNode(BaseNode):
@@ -1017,23 +1119,20 @@ class CVaRSQeBaseNode(BaseNode):
             n_candidate = candidate_dataset.num_datapoints
             n_safety = kwargs["n_safety"]
             # Want to predict the size of the safety dataset.
-            # We do this using the fraction of candidate data we 
+            # We do this using the fraction of candidate data we
             # get from the estimator
-            datasize = int(
-                round(
-                    ( len(sorted_squared_errors)/n_candidate ) * n_safety 
-                )
-            )
+            datasize = int(round((len(sorted_squared_errors) / n_candidate) * n_safety))
 
         bound_kwargs = {
             "Z": sorted_squared_errors,
-            "delta": self.delta,
             "datasize": datasize,
             "a": a,
             "b": b,
         }
 
         if self.will_lower_bound and self.will_upper_bound:
+            bound_kwargs["delta_lower"] = self.delta_lower
+            bound_kwargs["delta_upper"] = self.delta_upper
             if branch == "candidate_selection":
                 lower = self.predict_HC_lowerbound(**bound_kwargs)
                 upper = self.predict_HC_upperbound(**bound_kwargs)
@@ -1043,6 +1142,7 @@ class CVaRSQeBaseNode(BaseNode):
             return {"lower": lower, "upper": upper}
 
         elif self.will_lower_bound:
+            bound_kwargs["delta"] = self.delta_lower
             if branch == "candidate_selection":
                 lower = self.predict_HC_lowerbound(**bound_kwargs)
             elif branch == "safety_test":
@@ -1050,6 +1150,7 @@ class CVaRSQeBaseNode(BaseNode):
             return {"lower": lower}
 
         elif self.will_upper_bound:
+            bound_kwargs["delta"] = self.delta_upper
             if branch == "candidate_selection":
                 upper = self.predict_HC_upperbound(**bound_kwargs)
             elif branch == "safety_test":
@@ -1239,6 +1340,7 @@ class InternalNode(Node):
         super().__init__(name, lower, upper, **kwargs)
         self.node_type = "internal_node"
 
+
 custom_base_node_dict = {
     "MED_MF": MEDCustomBaseNode,
     "CVaRSQE": CVaRSQeBaseNode,
@@ -1268,26 +1370,20 @@ measure_functions_dict = {
         "regression": ["Mean_Error", "Mean_Squared_Error"],
     },
     "reinforcement_learning": {
-        "all":
-            [
-            "J_pi_new_IS",
-            "J_pi_new_PDIS",
-            "J_pi_new_WIS",
-            "J_pi_new_US"
-            ]
-        },
+        "all": ["J_pi_new_IS", "J_pi_new_PDIS", "J_pi_new_WIS", "J_pi_new_US"]
+    },
 }
 
 subscriptable_measure_functions = [
-            "CM",
-            "PR",
-            "NR",
-            "FPR",
-            "TNR",
-            "TPR",
-            "FNR",
-            "J_pi_new_IS",
-            "J_pi_new_PDIS",
-            "J_pi_new_US",
-            "J_pi_new_WIS",
-        ]
+    "CM",
+    "PR",
+    "NR",
+    "FPR",
+    "TNR",
+    "TPR",
+    "FNR",
+    "J_pi_new_IS",
+    "J_pi_new_PDIS",
+    "J_pi_new_US",
+    "J_pi_new_WIS",
+]

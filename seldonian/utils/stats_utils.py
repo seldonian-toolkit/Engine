@@ -3,6 +3,7 @@ from scipy.stats import t
 
 stability_const = 1e-15
 
+
 def stddev(v):
     """
     Sample standard deviation of the vector v,
@@ -55,6 +56,7 @@ def weighted_sum_gamma(arr, gamma=0.9):
 def softmax(x):
     return np.exp(x) / sum(np.exp(x))
 
+
 def custom_cumprod(x):
     """Custom implementation of np.cumprod that works with autograd
     Source: https://github.com/HIPS/autograd/issues/257
@@ -68,12 +70,12 @@ def custom_cumprod(x):
     cumprods = []
     for i in range(x.size):
         current_num = x[i]
-        
+
         if i == 0:
             cumprods.append(current_num)
         else:
-            prev_num = cumprods[i-1]
-            next_num = prev_num*current_num
+            prev_num = cumprods[i - 1]
+            next_num = prev_num * current_num
             cumprods.append(next_num)
 
     return np.array(cumprods)

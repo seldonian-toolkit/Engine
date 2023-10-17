@@ -21,7 +21,7 @@ class Fourier(object):
         if self.order <= 0:
             error("order must be positive")
 
-        if self.num_observation_dims <= 0:
+        if self.num_observation_dims <= 0:  # pragma: no cover
             error("num_observation_dims must be positive")
 
         self.max_coupled_vars = hyperparam_and_setting_dict["max_coupled_vars"]
