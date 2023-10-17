@@ -68,8 +68,8 @@ class DataSetLoader:
 
         required_col_names = ["episode_index", "O", "A", "R", "pi_b"]
         # Load metadata
-        meta = load_RL_metadata(metadata_filename,required_col_names)
-       
+        meta = load_RL_metadata(metadata_filename, required_col_names)
+
         df = pd.read_csv(filename, header=None)
         df.columns = meta.all_col_names
         episodes = []
@@ -85,12 +85,13 @@ class DataSetLoader:
                     "You specified in 'all_col_names' more than the minimum "
                     f"required number of columns: {n_min_required_cols} "
                     "and the extra column names do not follow the 'R_alt_1','R_alt_2', ... pattern. "
-                    "Update the names of these columns, which represent the optional alternate rewards.")
+                    "Update the names of these columns, which represent the optional alternate rewards."
+                )
         for episode_index in df.episode_index.unique():
             df_ep = df.loc[df.episode_index == episode_index]
             if has_alt_rewards:
-                alt_reward_names = [f"R_alt_{ii}" for ii in range(1,n_alt_rewards+1)]
-                alt_rewards = df.loc[:,alt_reward_names].values
+                alt_reward_names = [f"R_alt_{ii}" for ii in range(1, n_alt_rewards + 1)]
+                alt_rewards = df.loc[:, alt_reward_names].values
             else:
                 alt_rewards = []
 
@@ -99,7 +100,7 @@ class DataSetLoader:
                 actions=df_ep.A.values,
                 rewards=df_ep.R.values,
                 action_probs=df_ep.pi_b.values,
-                alt_rewards=alt_rewards
+                alt_rewards=alt_rewards,
             )
             episodes.append(episode)
         if meta.sensitive_col_names != []:
@@ -117,8 +118,8 @@ class DataSetLoader:
         """
         required_col_names = ["episode_index", "O", "A", "R", "pi_b"]
         episodes = load_pickle(filename)
-        meta = load_RL_metadata(metadata_filename,required_col_names)
-        return RLDataSet(episodes=episodes,meta=meta)
+        meta = load_RL_metadata(metadata_filename, required_col_names)
+        return RLDataSet(episodes=episodes, meta=meta)
 
 
 class DataSet(object):
@@ -139,9 +140,7 @@ class DataSet(object):
 
 
 class SupervisedDataSet(DataSet):
-    def __init__(
-        self, features, labels, sensitive_attrs, num_datapoints, meta
-    ):
+    def __init__(self, features, labels, sensitive_attrs, num_datapoints, meta):
         super().__init__(
             num_datapoints=num_datapoints,
             meta=meta,
@@ -210,7 +209,9 @@ class Episode(object):
         self.rewards = np.array(rewards)
         self.action_probs = np.array(action_probs)
         self.alt_rewards = np.array(alt_rewards)
-        self.n_alt_rewards = 0 if self.alt_rewards.size == 0 else self.alt_rewards.shape[1]
+        self.n_alt_rewards = (
+            0 if self.alt_rewards.size == 0 else self.alt_rewards.shape[1]
+        )
 
     def __str__(self):
         s = (
@@ -222,28 +223,29 @@ class Episode(object):
         )
         if self.n_alt_rewards > 0:
             for ii in range(self.n_alt_rewards):
-                alt_reward = self.alt_rewards[:,ii]
+                alt_reward = self.alt_rewards[:, ii]
                 s += (
-                        f"\n{len(alt_reward)} of alt reward {ii+1} of {self.n_alt_rewards}, "
-                        f"type of first in array is {type(alt_reward[0])}: {alt_reward}"
-                     )
+                    f"\n{len(alt_reward)} of alt reward {ii+1} of {self.n_alt_rewards}, "
+                    f"type of first in array is {type(alt_reward[0])}: {alt_reward}"
+                )
         return s
 
     def __repr__(self):
         n_timesteps = len(self.observations)
         tup_str = "(obs,action,primary_reward,pi_b)_i"
         if self.n_alt_rewards > 0:
-            alt_rewards_str = ",".join([f"alt_reward_{ii}" for ii in range(1,self.n_alt_rewards+1)])
-            tup_str = tup_str.replace(")_i","," + alt_rewards_str + ")_i")
+            alt_rewards_str = ",".join(
+                [f"alt_reward_{ii}" for ii in range(1, self.n_alt_rewards + 1)]
+            )
+            tup_str = tup_str.replace(")_i", "," + alt_rewards_str + ")_i")
         repr_s = f"Episode with {n_timesteps} timesteps: {tup_str}"
-        
+
         return repr_s
 
 
 class MetaData(object):
     def __init__(self, regime, sub_regime, all_col_names, sensitive_col_names=None):
-        """Base class for holding dataset metadata
-        """
+        """Base class for holding dataset metadata"""
         self.regime = regime
         self.sub_regime = sub_regime
         self.all_col_names = all_col_names
@@ -253,32 +255,29 @@ class MetaData(object):
 class SupervisedMetaData(MetaData):
     def __init__(
         self,
-        sub_regime, 
-        all_col_names, 
+        sub_regime,
+        all_col_names,
         feature_col_names,
         label_col_names,
-        sensitive_col_names=[]):
-        """Class for holding supervised learning dataset metadata
-        """
-        super().__init__("supervised_learning",sub_regime,all_col_names,sensitive_col_names)
+        sensitive_col_names=[],
+    ):
+        """Class for holding supervised learning dataset metadata"""
+        super().__init__(
+            "supervised_learning", sub_regime, all_col_names, sensitive_col_names
+        )
         self.feature_col_names = feature_col_names
         self.label_col_names = label_col_names
 
 
 class RLMetaData(MetaData):
-    def __init__(
-        self,
-        all_col_names, 
-        sensitive_col_names=[]):
-        """Class for holding supervised learning dataset metadata
-        """
+    def __init__(self, all_col_names, sensitive_col_names=[]):
+        """Class for holding supervised learning dataset metadata"""
         super().__init__(
             regime="reinforcement_learning",
             sub_regime="all",
             all_col_names=all_col_names,
-            sensitive_col_names=sensitive_col_names
+            sensitive_col_names=sensitive_col_names,
         )
-
 
 
 def load_supervised_metadata(filename):
@@ -297,7 +296,7 @@ def load_supervised_metadata(filename):
         "multiclass_classification",
     ]
     all_col_names = metadata_dict["all_col_names"]
-    
+
     label_col_names = metadata_dict["label_col_names"]
 
     if "sensitive_col_names" not in metadata_dict:
@@ -315,16 +314,16 @@ def load_supervised_metadata(filename):
     else:
         feature_col_names = metadata_dict["feature_col_names"]
 
-    
     return SupervisedMetaData(
-        sub_regime, 
-        all_col_names, 
+        sub_regime,
+        all_col_names,
         feature_col_names,
         label_col_names,
-        sensitive_col_names, 
+        sensitive_col_names,
     )
 
-def load_RL_metadata(metadata_filename,required_col_names):
+
+def load_RL_metadata(metadata_filename, required_col_names):
     if metadata_filename:
         metadata_dict = load_json(metadata_filename)
         all_col_names = metadata_dict["all_col_names"]
@@ -332,17 +331,18 @@ def load_RL_metadata(metadata_filename,required_col_names):
             raise RuntimeError(
                 "You are missing some or all of the following required columns "
                 "in the 'all_col_names' key of your metadata file:"
-                f"{required_col_names}")
+                f"{required_col_names}"
+            )
         if "sensitive_col_names" in metadata_dict:
             sensitive_col_names = metadata_dict["sensitive_col_names"]
         else:
             sensitive_col_names = []
-    
+
     else:
         all_col_names = required_col_names
         sensitive_col_names = []
 
     meta = RLMetaData(
-        all_col_names=all_col_names,
-        sensitive_col_names=sensitive_col_names)
+        all_col_names=all_col_names, sensitive_col_names=sensitive_col_names
+    )
     return meta

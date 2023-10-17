@@ -209,20 +209,22 @@ class SeldonianAlgorithm:
     def set_initial_solution(self, verbose=False):
         if self.regime == "supervised_learning":
             needs_init_sol = False
-            if self.spec.initial_solution_fn is not None: 
-                if verbose: print("Attempting to use initial solution function")
-                try: 
+            if self.spec.initial_solution_fn is not None:
+                if verbose:
+                    print("Attempting to use initial solution function")
+                try:
                     self.initial_solution = self.spec.initial_solution_fn(
-                        self.model,
-                        self.candidate_features,
-                        self.candidate_labels
+                        self.model, self.candidate_features, self.candidate_labels
                     )
-                except: 
-                    if verbose: print("initial_solution_fn() failed. Falling back to default initial solution") 
+                except:
+                    if verbose:
+                        print(
+                            "initial_solution_fn() failed. Falling back to default initial solution"
+                        )
                     needs_init_sol = True
             else:
                 needs_init_sol = True
-            
+
             if needs_init_sol:
                 if verbose:
                     print(
@@ -238,7 +240,6 @@ class SeldonianAlgorithm:
                 else:
                     self.initial_solution = np.zeros(n_features)
 
-                
         elif self.regime == "reinforcement_learning":
             if self.spec.initial_solution_fn is None:
                 if verbose:
@@ -403,30 +404,25 @@ class SeldonianAlgorithm:
 
     def get_importance_weights(self, branch, theta):
         """Get the importance weights from the model weights, theta,
-        evaluated either on the candidate data or safety data. 
+        evaluated either on the candidate data or safety data.
 
         :param branch: 'candidate_selection' or 'safety_test'
         :type branch: str
         :param theta: model weights
         :type theta: numpy.ndarray
-        :return: an array of importance weights (floats) the same length as the number of 
-            episodes in the data (depending on which branch was chosen) 
+        :return: an array of importance weights (floats) the same length as the number of
+            episodes in the data (depending on which branch was chosen)
         """
-
 
         if type(theta) == str and theta == "NSF":
             raise ValueError("Cannot get importance weights because theta='NSF'")
 
-        
         if branch == "safety_test":
             st = self.safety_test()
-            rho_is = st.get_importance_weights(
-                theta=theta)
+            rho_is = st.get_importance_weights(theta=theta)
 
         elif branch == "candidate_selection":
             cs = self.candidate_selection()
-            rho_is = cs.get_importance_weights(
-                theta=theta
-            )
+            rho_is = cs.get_importance_weights(theta=theta)
 
         return rho_is

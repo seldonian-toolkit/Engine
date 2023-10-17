@@ -63,9 +63,9 @@ class ParseTree(object):
                 Helpful for handling case where we have
                 duplicate base nodes
         :vartype base_node_dict: dict
-        :ivar n_unique_bounds_tot: 
+        :ivar n_unique_bounds_tot:
             The total number of unique confidence bounds
-            that need to be computed over all unique base nodes. 
+            that need to be computed over all unique base nodes.
             This is set by assign_bounds_needed()
         :vartype n_unique_bounds_tot: int
         :ivar node_fontsize:
@@ -457,7 +457,10 @@ class ParseTree(object):
                     )
                 else:
                     # a measure function in our list
-                    node_class = BaseNode
+                    if ast_node.id.startswith("J_pi_new_"):
+                        node_class = NewPolicyPerformanceBaseNode
+                    else:
+                        node_class = BaseNode
                     node_name = ast_node.id
 
                 is_leaf = True
@@ -503,8 +506,11 @@ class ParseTree(object):
             node_kwargs["name"] = node_name
             node_kwargs["cm_true_index"] = row_index
             node_kwargs["cm_pred_index"] = col_index
-        
-        elif ast_node.value.id.rstrip("_") in measure_functions_dict["reinforcement_learning"]["all"]:
+
+        elif (
+            ast_node.value.id.rstrip("_")
+            in measure_functions_dict["reinforcement_learning"]["all"]
+        ):
             # alternate reward function
             node_class = RLAltRewardBaseNode
             try:
@@ -553,7 +559,7 @@ class ParseTree(object):
         bounds because at the end all we care about
         is the upper bound of the root node.
         """
-        self.n_unique_bounds_tot = 0 # keeps track of the number of confidence bounds 
+        self.n_unique_bounds_tot = 0  # keeps track of the number of confidence bounds
         # (from unique base nodes) that will be needed in the tree.
         assert self.n_nodes > 0, "Number of nodes must be > 0"
         # initialize needed bounds for root
@@ -583,16 +589,18 @@ class ParseTree(object):
         node.will_lower_bound = lower_needed
         node.will_upper_bound = upper_needed
 
-        # If we get to a base node then update the base_node_dict 
-        # if this is the first time encoutering this base node, 
+        # If we get to a base node then update the base_node_dict
+        # if this is the first time encoutering this base node,
         # then increment the bound counter
         if isinstance(node, BaseNode):
             if self.base_node_dict[node.name]["lower_needed"] is None:
                 self.base_node_dict[node.name]["lower_needed"] = lower_needed
-                if lower_needed: self.n_unique_bounds_tot += 1
+                if lower_needed:
+                    self.n_unique_bounds_tot += 1
             if self.base_node_dict[node.name]["upper_needed"] is None:
                 self.base_node_dict[node.name]["upper_needed"] = upper_needed
-                if upper_needed: self.n_unique_bounds_tot += 1
+                if upper_needed:
+                    self.n_unique_bounds_tot += 1
 
         if isinstance(node, BaseNode) or isinstance(node, ConstantNode):
             # we're at a leaf node so return
@@ -667,7 +675,7 @@ class ParseTree(object):
                 specifying the weights as an array.
         :type weight_method: str
         """
-        assert weight_method in ["equal","manual"]
+        assert weight_method in ["equal", "manual"]
         assert self.n_base_nodes > 0, (
             "Number of base nodes must be > 0."
             " Make sure to build the tree before assigning deltas."
@@ -693,11 +701,12 @@ class ParseTree(object):
         if not node:
             return
 
-        # If we get to a base node then update the base_node_dict 
-        # if this is the first time encoutering this base node. 
-        if isinstance(node, BaseNode): # captures all child classes of BaseNode as well
+        # If we get to a base node then update the base_node_dict
+        # if this is the first time encoutering this base node.
+        if isinstance(node, BaseNode):  # captures all child classes of BaseNode as well
             if (self.base_node_dict[node.name]["delta_lower"] is not None) or (
-                self.base_node_dict[node.name]["delta_upper"] is not None):
+                self.base_node_dict[node.name]["delta_upper"] is not None
+            ):
                 # This is a reused base node
                 node.delta_lower = self.base_node_dict[node.name]["delta_lower"]
                 node.delta_upper = self.base_node_dict[node.name]["delta_upper"]
@@ -706,8 +715,8 @@ class ParseTree(object):
                 if weight_method == "equal":
                     n_unique_base_nodes = len(self.base_node_dict)
                     if node.will_lower_bound and node.will_upper_bound:
-                        node.delta_lower = self.delta / (2*n_unique_base_nodes)
-                        node.delta_upper = self.delta / (2*n_unique_base_nodes)
+                        node.delta_lower = self.delta / (2 * n_unique_base_nodes)
+                        node.delta_upper = self.delta / (2 * n_unique_base_nodes)
                     elif node.will_lower_bound:
                         node.delta_lower = self.delta / (n_unique_base_nodes)
                     elif node.will_upper_bound:
@@ -717,14 +726,14 @@ class ParseTree(object):
                     delta_vector = kwargs["delta_vector"]
                     if node.will_lower_bound and node.will_upper_bound:
                         node.delta_lower = delta_vector[self._base_node_index]
-                        node.delta_upper = delta_vector[self._base_node_index+1]
-                        self._base_node_index+=2
+                        node.delta_upper = delta_vector[self._base_node_index + 1]
+                        self._base_node_index += 2
                     elif node.will_lower_bound:
                         node.delta_lower = delta_vector[self._base_node_index]
-                        self._base_node_index+=1
+                        self._base_node_index += 1
                     elif node.will_upper_bound:
                         node.delta_upper = delta_vector[self._base_node_index]
-                        self._base_node_index+=1
+                        self._base_node_index += 1
                 self.base_node_dict[node.name]["delta_lower"] = node.delta_lower
                 self.base_node_dict[node.name]["delta_upper"] = node.delta_upper
 
@@ -732,7 +741,7 @@ class ParseTree(object):
         self._assign_deltas_helper(node.right, weight_method, **kwargs)
         return
 
-    def _validate_delta_vector(self,delta_vector):
+    def _validate_delta_vector(self, delta_vector):
         """
         Checks to make sure supplied delta vector is the correct length.
         Also if it does not sum to self.delta normalize it so it does.
@@ -743,13 +752,10 @@ class ParseTree(object):
                 "assigning deltas with a custom delta vector."
             )
         if not (
-            isinstance(delta_vector,list) or (
-                isinstance(delta_vector,np.ndarray) and delta_vector.ndim==1
-            )
-        ): 
-            raise ValueError(
-                "delta_vector must be a list or 1D numpy array"
-            )
+            isinstance(delta_vector, list)
+            or (isinstance(delta_vector, np.ndarray) and delta_vector.ndim == 1)
+        ):
+            raise ValueError("delta_vector must be a list or 1D numpy array")
         if len(delta_vector) != self.n_unique_bounds_tot:
             raise ValueError(
                 f"delta_vector has length: {len(delta_vector)}, but should be of length: {self.n_unique_bounds_tot}"
@@ -761,9 +767,9 @@ class ParseTree(object):
             raise ValueError(
                 f"softmaxing delta_vector={delta_vector} resulted in nan or inf."
             )
-        delta_vector = [np.exp(y)*self.delta/denom for y in delta_vector] 
+        delta_vector = [np.exp(y) * self.delta / denom for y in delta_vector]
         return delta_vector
-    
+
     def propagate_bounds(self, **kwargs):
         """
         Postorder traverse (left, right, root)
@@ -810,18 +816,18 @@ class ParseTree(object):
                         # Data not prepared already. Need to do that.
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
-                        
+
                         data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
 
                     kwargs["data_dict"] = data_dict
 
                 bound_method = self.base_node_dict[node.name]["bound_method"]
-                
+
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
-                
+
                 bound_result = node.calculate_bounds(
                     bound_method=bound_method, **kwargs
                 )
@@ -896,7 +902,7 @@ class ParseTree(object):
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
-                
+
                 value = node.calculate_value(**kwargs)
                 node.value = value
                 self.base_node_dict[node.name]["value_computed"] = True
@@ -1237,7 +1243,7 @@ class ParseTree(object):
 
         return (lower, upper)
 
-    def _log(self,a):
+    def _log(self, a):
         """
         Take log of a confidence interval
 

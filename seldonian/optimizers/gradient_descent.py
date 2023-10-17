@@ -171,7 +171,11 @@ def gradient_descent_adam(
                 print()
 
             # Check if this is best feasible value so far
-            if (not is_small_batch) and all([g <= 0 for g in g_vec]) and primary_val < best_primary:
+            if (
+                (not is_small_batch)
+                and all([g <= 0 for g in g_vec])
+                and primary_val < best_primary
+            ):
                 found_feasible_solution = True
                 best_index = gd_index
                 best_primary = primary_val
@@ -242,11 +246,11 @@ def gradient_descent_adam(
                 alpha_theta * velocity_theta / (np.sqrt(s_theta) + rms_offset)
             )  # gradient descent
             lamb += alpha_lamb * gradient_lamb_vec  # element wise update
-            
+
             # Clip theta if specified
             if clip_theta:
-                th_min,th_max = clip_theta
-                theta = np.clip(theta,th_min,th_max)
+                th_min, th_max = clip_theta
+                theta = np.clip(theta, th_min, th_max)
             # If any values in lambda vector dip below 0, force them to be zero
             lamb[lamb < 0] = 0
 

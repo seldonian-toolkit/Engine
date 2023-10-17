@@ -20,7 +20,11 @@ class RL_model(SeldonianModel):  # consist of agent, env
             self.env_kwargs["gamma"] = 1.0
 
     def get_probs_from_observations_and_actions(
-        self, new_params, observations, actions, action_probs,
+        self,
+        new_params,
+        observations,
+        actions,
+        action_probs,
     ):
         """Get action probablities given a list of observations and actions
         taken given those observations
@@ -39,6 +43,8 @@ class RL_model(SeldonianModel):  # consist of agent, env
                 f"different number of observations ({observations}) and actions ({actions})"
             )
 
-        probs = self.policy.get_probs_from_observations_and_actions(observations, actions, action_probs)
-        
+        probs = self.policy.get_probs_from_observations_and_actions(
+            observations, actions, action_probs
+        )
+
         return np.array(probs)

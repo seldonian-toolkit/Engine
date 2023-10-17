@@ -7,12 +7,9 @@ import gym
 from gym.envs.registration import register
 from simglucose.controller.bolus_only_controller import BolusController
 
+
 class SimglucoseCustomEnv(Environment):
-    def __init__(self,
-        bb_crmin,
-        bb_crmax,
-        bb_cfmin,
-        bb_cfmax):
+    def __init__(self, bb_crmin, bb_crmax, bb_cfmin, bb_cfmax):
         """
 
         :ivar num_states: The number of distinct grid cells
@@ -36,19 +33,21 @@ class SimglucoseCustomEnv(Environment):
 
         self.id = "simglucose-adult8-v0"
         self.patient_name = "adult#008"
-        self.target_bg = 108 # mg/dL
+        self.target_bg = 108  # mg/dL
         self.num_states = 1
 
         self.env_description = self.create_env_description()
         self.deregister_and_register()
         self.gym_env = gym.make(self.id)
-        self.state = 0 # initial state and the only state
+        self.state = 0  # initial state and the only state
         self.terminal_state = False
         self.time = 0
-        self.max_time = 480 # a day at 3 minutes per timestep
+        self.max_time = 480  # a day at 3 minutes per timestep
         self.low_cutoff_BG = 36
         self.high_cutoff_BG = 350
-        self.min_primary_reward = -1.5e-8*np.abs(self.low_cutoff_BG-self.target_bg)**5
+        self.min_primary_reward = (
+            -1.5e-8 * np.abs(self.low_cutoff_BG - self.target_bg) ** 5
+        )
         self.min_secondary_reward = self.min_primary_reward
         # vis is a flag for visual debugging during obs transitions
         self.vis = False
@@ -61,9 +60,13 @@ class SimglucoseCustomEnv(Environment):
         :rtype: :py:class:`.Env_Description`
         """
         observation_space = Discrete_Space(0, self.num_states - 1)
-        action_space = Continuous_Space(bounds=np.array([[self.bb_crmin,self.bb_crmax],[self.bb_cfmin,self.bb_cfmax]]))
+        action_space = Continuous_Space(
+            bounds=np.array(
+                [[self.bb_crmin, self.bb_crmax], [self.bb_cfmin, self.bb_cfmax]]
+            )
+        )
         return Env_Description(observation_space, action_space)
-    
+
     def deregister_and_register(self):
         self.deregister()
         register(
@@ -85,7 +88,7 @@ class SimglucoseCustomEnv(Environment):
         self.terminal_state = False
 
     def transition(self, action):
-        """A single transition for this P controller 
+        """A single transition for this P controller
         is an entire trial of the simglucose simulator
 
         :param action: The P value of the P controller
@@ -93,15 +96,23 @@ class SimglucoseCustomEnv(Environment):
         """
         observation, primary_reward, alt_reward, done, info = self.gym_env.reset()
         t = 0
-        primary_rewards = self.min_primary_reward*np.ones(self.max_time)
-        alt_rewards = self.min_secondary_reward*np.ones(self.max_time)
+        primary_rewards = self.min_primary_reward * np.ones(self.max_time)
+        alt_rewards = self.min_secondary_reward * np.ones(self.max_time)
         # primary_return = primary_reward
         # alt_return = alt_reward
         cr, cf = action
         controller = BolusController(cr=cr, cf=cf, target=self.target_bg)
         while not done:
-            env_action = controller.policy(observation, primary_reward, done, patient_name=self.patient_name, meal=info['meal'])
-            observation, primary_reward, alt_reward, done, info = self.gym_env.step(env_action)
+            env_action = controller.policy(
+                observation,
+                primary_reward,
+                done,
+                patient_name=self.patient_name,
+                meal=info["meal"],
+            )
+            observation, primary_reward, alt_reward, done, info = self.gym_env.step(
+                env_action
+            )
             primary_rewards[t] = primary_reward
             alt_rewards[t] = alt_reward
             t += 1
@@ -111,7 +122,7 @@ class SimglucoseCustomEnv(Environment):
         alt_return = np.mean(alt_rewards)
         self.terminal_state = True
 
-        return (primary_return,alt_return)
+        return (primary_return, alt_return)
 
     def get_observation(self):
         """Get the current obs"""
@@ -123,7 +134,7 @@ class SimglucoseCustomEnv(Environment):
 
         :param action: A possible action at the current obs
         """
-        
+
     def is_in_goal_state(self):
         """Check whether current obs is goal obs
 
