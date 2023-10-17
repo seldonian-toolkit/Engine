@@ -70,7 +70,7 @@ object.</p>
 <dt class="sig sig-object py" id="seldonian.models.trees.skrandomforest_model.SeldonianRandomForest.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.trees.skrandomforest_model.SeldonianRandomForest.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper around SKLearn’s fit() method. Returns the leaf node probabilities
-of SKLearn’s built trees in the forest. Assigns leaf node ids in a list of lists, where each sublist 
+of SKLearn’s built trees in the forest. Assigns leaf node ids in a list of lists, where each sublist
 contains the ids for a single tree, ordered from left to right.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -80,7 +80,7 @@ contains the ids for a single tree, ordered from left to right.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Flattend array of leaf node probabilites (of predicting the positive class) 
+<dd class="field-even"><p>Flattend array of leaf node probabilites (of predicting the positive class)
 for all trees.</p>
 </dd>
 </dl>
@@ -103,8 +103,8 @@ sample in X.</p>
 <span class="sig-name descname"><span class="pre">get_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.trees.skrandomforest_model.SeldonianRandomForest.get_jacobian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Jacobian d(forward_pass)_i/dtheta_{j+1},
 where i run over datapoints and j run over model parameters.
-Here, a forward pass is 1/n * sum_k { forward_k(theta,X) }, 
-where forward_k is the forward pass of a single decision tree. 
+Here, a forward pass is 1/n * sum_k { forward_k(theta,X) },
+where forward_k is the forward pass of a single decision tree.
 We can compute Jacobians for each tree separately and then horizontally stack them
 and add a 1/n out front.</p>
 <dl class="field-list simple">
@@ -128,7 +128,7 @@ and add a 1/n out front.</p>
 from left to right.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Flattend array of leaf node probabilites (of predicting the positive class) 
+<dd class="field-odd"><p>Flattend array of leaf node probabilites (of predicting the positive class)
 for all trees.</p>
 </dd>
 </dl>
@@ -157,8 +157,8 @@ for all trees.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.models.trees.skrandomforest_model.SeldonianRandomForest.set_leaf_node_values">
 <span class="sig-name descname"><span class="pre">set_leaf_node_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.trees.skrandomforest_model.SeldonianRandomForest.set_leaf_node_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update the leaf node values, i.e., the number of 
-samples get categorized as 0 or 1, using the new 
+<dd><p>Update the leaf node values, i.e., the number of
+samples get categorized as 0 or 1, using the new
 probabilities, probs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

@@ -26,6 +26,7 @@ seldonian.parse\_tree.nodes
       InternalNode
       MEDCustomBaseNode
       MultiClassBaseNode
+      NewPolicyPerformanceBaseNode
       Node
       RLAltRewardBaseNode
    

@@ -127,7 +127,7 @@ evaluated at each observation in dataset</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.ConfusionMatrixBaseNode.compute_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.ConfusionMatrixBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_upper</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.ConfusionMatrixBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 Used in safety test.</p>
 <p>Depending on the bound_method,
@@ -206,7 +206,7 @@ evaluated at each observation in dataset</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.ConfusionMatrixBaseNode.predict_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.ConfusionMatrixBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_upper</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.ConfusionMatrixBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 that we expect to pass the safety test.
 Used in candidate selection.</p>
@@ -320,6 +320,7 @@ such as features and labels</p></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.InternalNode.html">seldonian.parse_tree.nodes.InternalNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.MEDCustomBaseNode.html">seldonian.parse_tree.nodes.MEDCustomBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.MultiClassBaseNode.html">seldonian.parse_tree.nodes.MultiClassBaseNode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.NewPolicyPerformanceBaseNode.html">seldonian.parse_tree.nodes.NewPolicyPerformanceBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.Node.html">seldonian.parse_tree.nodes.Node</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.RLAltRewardBaseNode.html">seldonian.parse_tree.nodes.RLAltRewardBaseNode</a></li>
 </ul>

@@ -36,13 +36,13 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.RLAltRewardBaseNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RLAltRewardBaseNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_reward_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="seldonian.parse_tree.nodes.BaseNode.html#seldonian.parse_tree.nodes.BaseNode" title="seldonian.parse_tree.nodes.BaseNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseNode</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="seldonian.parse_tree.nodes.NewPolicyPerformanceBaseNode.html#seldonian.parse_tree.nodes.NewPolicyPerformanceBaseNode" title="seldonian.parse_tree.nodes.NewPolicyPerformanceBaseNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewPolicyPerformanceBaseNode</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.RLAltRewardBaseNode.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_reward_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>A base node for computing
 the IS estimate using an alternate
-reward function (i.e. one besides the primary reward).
+reward (i.e. one besides the primary reward).
 There can be an arbitrary number of
 alternate rewards, so the “alt_reward_number”
 attribute allows one to reference the specific
@@ -94,11 +94,17 @@ for confidence bound calculation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.RLAltRewardBaseNode.calculate_value">
-<span class="sig-name descname"><span class="pre">calculate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode.calculate_value" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode.calculate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the value of the node
 given model weights, etc. This is
 the expected value of the base variable,
 not the bound.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>on_policy</strong> (<em>Boolean</em>) – If True, uses episodes generated by the new policy parameterization
+to calculate the return. If False, estimates the return using an off-policy estimate.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -120,7 +126,7 @@ evaluated at each observation in dataset</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.RLAltRewardBaseNode.compute_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_upper</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 Used in safety test.</p>
 <p>Depending on the bound_method,
@@ -199,7 +205,7 @@ evaluated at each observation in dataset</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.RLAltRewardBaseNode.predict_HC_upper_and_lowerbound">
-<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_upper</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 that we expect to pass the safety test.
 Used in candidate selection.</p>
@@ -295,6 +301,7 @@ such as features and labels</p></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.InternalNode.html">seldonian.parse_tree.nodes.InternalNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.MEDCustomBaseNode.html">seldonian.parse_tree.nodes.MEDCustomBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.MultiClassBaseNode.html">seldonian.parse_tree.nodes.MultiClassBaseNode</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.NewPolicyPerformanceBaseNode.html">seldonian.parse_tree.nodes.NewPolicyPerformanceBaseNode</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.nodes.Node.html">seldonian.parse_tree.nodes.Node</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.nodes.RLAltRewardBaseNode</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.parse_tree.nodes.RLAltRewardBaseNode"><code class="docutils literal notranslate"><span class="pre">RLAltRewardBaseNode</span></code></a><ul>

@@ -61,7 +61,7 @@ are appropriate.</p></li>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>root</strong> (<em>nodes.Node object</em>) – Root node which contains the whole tree
 via left and right child attributes.
-Gets assigned when tree is built</p></li>
+Gets assigned when tree is built by create_from_ast()</p></li>
 <li><p><strong>constraint_str</strong> (<em>str</em>) – The string expression for the behavioral
 constraint</p></li>
 <li><p><strong>n_nodes</strong> (<em>int</em>) – Total number of nodes in the parse tree</p></li>
@@ -76,6 +76,9 @@ the bounds have been calculated
 for a given base node already.
 Helpful for handling case where we have
 duplicate base nodes</p></li>
+<li><p><strong>n_unique_bounds_tot</strong> (<em>int</em>) – The total number of unique confidence bounds
+that need to be computed over all unique base nodes.
+This is set by assign_bounds_needed()</p></li>
 <li><p><strong>node_fontsize</strong> (<em>int</em>) – Fontsize used for graphviz visualizations</p></li>
 <li><p><strong>available_measure_functions</strong> (<em>int</em>) – A list of measure functions for the
 given regime and sub-regime, e.g. “Mean_Error”
@@ -360,9 +363,16 @@ and postitive infinity if in upper bound</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._validate_delta_vector">
+<span class="sig-name descname"><span class="pre">_validate_delta_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._validate_delta_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to make sure supplied delta vector is the correct length.
+Also if it does not sum to self.delta normalize it so it does.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed">
 <span class="sig-name descname"><span class="pre">assign_bounds_needed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Breadth first search through the tree and
+<dd><p>DFS through the tree and
 decide which bounds are required to compute
 on each child node. Eventually we get to base nodes.
 There are cases where it is not always
@@ -380,7 +390,8 @@ is the upper bound of the root node.</p>
 <dd class="field-odd"><p><strong>weight_method</strong> (<em>str</em>) – str, defaults to ‘equal’
 How you want to assign the deltas to the base nodes.
 The default ‘equal’ splits up delta equally
-among unique base nodes</p>
+among unique base nodes. ‘manual’ allows
+specifying the weights as an array.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -550,6 +561,7 @@ than one needs to reset the bounds.</p>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._propagator_helper"><code class="docutils literal notranslate"><span class="pre">ParseTree._propagator_helper()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._protect_nan"><code class="docutils literal notranslate"><span class="pre">ParseTree._protect_nan()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._sub"><code class="docutils literal notranslate"><span class="pre">ParseTree._sub()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._validate_delta_vector"><code class="docutils literal notranslate"><span class="pre">ParseTree._validate_delta_vector()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed"><code class="docutils literal notranslate"><span class="pre">ParseTree.assign_bounds_needed()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_deltas"><code class="docutils literal notranslate"><span class="pre">ParseTree.assign_deltas()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree.build_tree"><code class="docutils literal notranslate"><span class="pre">ParseTree.build_tree()</span></code></a></li>
