@@ -703,8 +703,7 @@ class HyperparamSearch:
         # datasets are created here.
         # TODO: Update this so that it is actually passed in
         spec_for_bootstrap_trial = self.create_bootstrap_trial_spec(bootstrap_trial_i,
-                est_frac_data_in_safety, bootstrap_savedir)
-
+                est_frac_data_in_safety, bootstrap_savedir, hyperparam_setting)
         # Run Seldonian Algorithm on the bootstrapped data. Load the datasets here.
         SA = SeldonianAlgorithm(spec_for_bootstrap_trial)
         try:
