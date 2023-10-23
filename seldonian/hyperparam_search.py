@@ -127,11 +127,6 @@ class HyperparamSearch:
         self.hyperparam_spec = hyperparam_spec 
         self.results_dir = results_dir
 
-        # Sort frac data in safety 
-        self.all_frac_data_in_safety = \
-                self.hyperparam_spec.hyper_schema.hyper_dict["frac_data_in_safety"]["values"]
-        self.all_frac_data_in_safety.sort(reverse=True) # Start with most data in safety.
-
         self.parse_trees = self.spec.parse_trees
         # user can pass a dictionary that specifies
         # the bounding method for each base node
