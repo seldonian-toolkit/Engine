@@ -145,7 +145,7 @@ class BaseLogisticRegressionModel(ClassificationModel):
         self.model_class = LogisticRegression
         self.has_intercept = True
 
-    def fit(self, X, Y):
+    def fit(self, m, X, Y):
         """Train the model using features and labels.
         Let:
                 i = number of datapoints

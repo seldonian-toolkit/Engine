@@ -14,7 +14,7 @@ from seldonian.parse_tree.parse_tree import (
     make_parse_trees_from_constraints)
 
 if __name__ == "__main__":
-    results_dir = "results"
+    results_dir = "results_cmaes"
     os.makedirs(results_dir,exist_ok=True)
     np.random.seed(0)
     num_points = 1000
@@ -42,29 +42,29 @@ if __name__ == "__main__":
         sub_regime='regression',
         frac_data_in_safety=frac_data_in_safety,
     )
-    # 4. Do hyperparameter search.
-    all_frac_data_in_safety = [0.1, 0.3, 0.5, 0.7, 0.9]
+    spec.verbose=True
+    # 4. Do hyperparameter search using CMA-ES
 
     hyper_schema = HyperSchema(
-                {
-                    "frac_data_in_safety": {
-                        "values": all_frac_data_in_safety,
-                        "hyper_type": "SA",
-                        "default": 0.6,
-                        },
-                    "alpha_theta": {
-                        "values": [0.001, 0.005, 0.05],
-                        "hyper_type": "optimization",
-                        "default": 0.05,
-                        },
-                    "num_iters": {
-                        "values": [500,1000],
-                        "hyper_type": "optimization",
-                        "default": 500,
-                        }
-                    }
-                )
-    n_bootstrap_trials = 5
+        tuning_method="CMA-ES",
+        hyper_dict={
+            "alpha_theta": {
+                "initial_value": 0.005,
+                "hyper_type": "optimization",
+                "dtype": "float",
+                "min_val": 0.0001,
+                "max_val": 0.1
+                },
+            "num_iters": {
+                "initial_value": 100,
+                "hyper_type": "optimization",
+                "dtype": "int",
+                "min_val": 10,
+                "max_val": 10000,
+                }
+            }
+    )
+    n_bootstrap_trials = 10
     n_bootstrap_workers = 1
     use_bs_pools=True
     HS_spec = HyperparameterSelectionSpec(
@@ -80,6 +80,7 @@ if __name__ == "__main__":
 
     # For a given frac data in safety find best combo of other hyperparams
     best_hyperparam_setting, best_hyperparam_spec = HS.find_best_hyperparameters(
-            spec.frac_data_in_safety)
+            frac_data_in_safety=frac_data_in_safety,
+            tuning_method="CMA-ES")
     print(best_hyperparam_setting)
     # expected_best_hyperparam_settuion) # True, [0.17256748 0.17382125]
