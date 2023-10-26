@@ -2,8 +2,11 @@
 
 import autograd.numpy as np
 import pandas as pd
+import cma
+from scipy.optimize import minimize
 
 import os
+import glob
 import copy
 import time
 import scipy
@@ -21,8 +24,9 @@ from seldonian.dataset import SupervisedDataSet, RLDataSet
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
-from seldonian.utils.io_utils import load_pickle,save_pickle
+from seldonian.utils.io_utils import load_pickle,save_pickle,cmaes_logger
 from seldonian.utils.stats_utils import tinv
+
 
 class HyperSchema(object):
     def __init__(self,hyper_dict):
@@ -97,42 +101,43 @@ class HyperSchema(object):
         to the model so we can't know what they might be ahead of time. Errors 
         regarding model hyperparameters will be caught elsewhere.
         """
-        for hp in hyper_dict:
-            if not isinstance(hyper_dict[hp],dict):
-                raise RuntimeError(f"hyper_dict['{hp}'] is not a dictionary. ")
+        for hyper_name,hyper_info in hyper_dict.items():
+            if not isinstance(hyper_info,dict):
+                raise RuntimeError(f"hyper_dict['{hyper_name}'] is not a dictionary. ")
             
             # Check if grid search parameter
-            if "tuning_method" not in hyper_dict[hp]:
-                raise KeyError(f"hyper_dict['{hp}'] must have the key: 'tuning_method'. ")
+            if "tuning_method" not in hyper_info:
+                raise KeyError(f"hyper_dict['{hyper_name}'] must have the key: 'tuning_method'. ")
 
-            if hyper_dict[hp]["tuning_method"] not in self.allowable_tuning_methods:
-                raise ValueError(f"hyper_dict['{hp}']['tuning_method'] must be one of: {self.allowable_tuning_methods}. ")
+            if hyper_info["tuning_method"] not in self.allowable_tuning_methods:
+                raise ValueError(f"hyper_dict['{hyper_name}']['tuning_method'] must be one of: {self.allowable_tuning_methods}. ")
 
-            if hyper_dict[hp]["tuning_method"] == "grid_search":
+            if hyper_info["tuning_method"] == "grid_search":
                 required_keys = ["values","hyper_type","tuning_method"]
-            elif hyper_dict[hp]["tuning_method"] == "CMA-ES":
+            elif hyper_info["tuning_method"] == "CMA-ES":
                 required_keys = ["initial_value","min_val","max_val","hyper_type",
                 "search_distribution","tuning_method"]
             
             for w in required_keys:
-                if w not in hyper_dict[hp]:
-                    raise KeyError(f"hyper_dict['{hp}'] must have the key: '{w}'. ")
+                if w not in hyper_info:
+                    tuning_method = hyper_info['tuning_method']
+                    raise KeyError(f"hyper_dict['{hyper_name}'] must have the key: '{w}' when tuning method is: {tuning_method}.")
             
-            if self.tuning_method == "grid_search":
-                if len(hyper_dict[hp]["values"]) < 1:
-                    raise ValueError(f"hyper_dict['{hp}']['values'] must have at least one value")
-            elif self.tuning_method == "CMA-ES":
-                if not isinstance(hyper_dict[hp]["initial_value"],(int, float)):
-                    raise ValueError(f"hyper_dict['{hp}']['initial_value'] must be a real number")
+            if hyper_info["tuning_method"] == "grid_search":
+                if len(hyper_info["values"]) < 1:
+                    raise ValueError(f"hyper_dict['{hyper_name}']['values'] must have at least one value")
+            elif hyper_info["tuning_method"] == "CMA-ES":
+                if not isinstance(hyper_info["initial_value"],(int, float)):
+                    raise ValueError(f"hyper_dict['{hyper_name}']['initial_value'] must be a real number")
 
-            if hyper_dict[hp]["hyper_type"] not in self.allowable_hyper_types:
-                raise ValueError(f"hyper_dict['{hp}']['hyper_type'] must be one of {self.allowable_hyper_types}")
+            if hyper_info["hyper_type"] not in self.allowable_hyper_types:
+                raise ValueError(f"hyper_dict['{hyper_name}']['hyper_type'] must be one of {self.allowable_hyper_types}")
             
-            if hyper_dict[hp]["hyper_type"] == "optimization" and hp not in self.allowed_optimization_hyperparams:
-                raise ValueError(f"{hp} is not an allowed optimization hyperparameter")
+            if hyper_info["hyper_type"] == "optimization" and hyper_name not in self.allowed_optimization_hyperparams:
+                raise ValueError(f"{hyper_name} is not an allowed optimization hyperparameter")
             
-            if hyper_dict[hp]["hyper_type"] == "SA" and hp not in self.allowed_SA_hyperparams:
-                raise ValueError(f"{hp} is not an allowed hyperparameter of the Seldonian algorithm")
+            if hyper_info["hyper_type"] == "SA" and hyper_name not in self.allowed_SA_hyperparams:
+                raise ValueError(f"{hyper_name} is not an allowed hyperparameter of the Seldonian algorithm")
         return hyper_dict   
 
 
@@ -617,7 +622,6 @@ class HyperparamSearch:
         """
         if hyperparam_setting is not None:
             for (hyper_name, hyper_type, hyper_value) in hyperparam_setting:
-                print(hyper_name, hyper_type, hyper_value)
                 if hyper_type == "optimization":
                     spec.optimization_hyperparams[hyper_name] = hyper_value
                 elif hyper_type == "model":
@@ -813,21 +817,18 @@ class HyperparamSearch:
         :type bootstrap_savedir: str
         """
         # TODO: Update this to allow aggregating first n, for given n.
-        bs_frac_subdir = os.path.join(bootstrap_savedir,
-                f"frac_data_in_safety_{est_frac_data_in_safety:.2f}")
-        bs_result_subdir = os.path.join(bs_frac_subdir, "bootstrap_results")
+        # bs_frac_subdir = os.path.join(bootstrap_savedir,
+        #         f"frac_data_in_safety_{est_frac_data_in_safety:.2f}")
+        # bs_result_subdir = os.path.join(bs_frac_subdir, "bootstrap_results")
 
         # Load the result for each trial.
         bs_trials_index = []
         bs_trials_pass = []
         bs_trials_solution = []
-        for result_trial_savename in os.listdir(bs_result_subdir):
-            try:
-                result_trial_dict = load_pickle(
-                        os.path.join(bs_result_subdir, result_trial_savename))
-            except Exception:
-                print(os.path.join(bs_result_subdir, result_trial_savename))
-                assert(False)
+        result_trial_filenames = glob.glob(bootstrap_savedir + "/trial_*_result.pkl")
+        assert len(result_trial_filenames) > 0
+        for result_trial_savename in result_trial_filenames:
+            result_trial_dict = load_pickle(result_trial_savename)
             bs_trials_index.append(result_trial_dict["bootstrap_trial_i"])
             bs_trials_pass.append(result_trial_dict["passed_safety"])
             bs_trials_solution.append(result_trial_dict["solution"])
@@ -839,7 +840,7 @@ class HyperparamSearch:
         })
         results_df.index = bs_trials_index
         results_df.sort_index(inplace=True)
-        results_csv_savename = os.path.join(bs_frac_subdir, "all_bs_trials_results.csv")
+        results_csv_savename = os.path.join(bootstrap_savedir, "all_bs_trials_results.csv")
         results_df.to_csv(results_csv_savename)
 
         # Compute the probability of passing.
@@ -997,11 +998,11 @@ class HyperparamSearch:
         return all_estimates, elapsed_time
 
 
-    def get_hyperparameter_iterator(
+    def get_gridsearchable_hyperparameter_iterator(
             self
     ):
         """
-        Create iterator for every combination of hyperparameter values that we want to
+        Create iterator for every combination of grid-searchable hyperparameter values that we want to
             optimize for.
 
         Note that we do not consider frac_data_in_safety a hyperparameter we optimize
@@ -1009,11 +1010,12 @@ class HyperparamSearch:
         """
         all_hyper_iterables = []
 
-        for (hyper_name, hyper_info) in self.hyperparam_spec.hyper_schema.hyper_dict.items():
+        for (hyper_name, hyper_info) in self.hyper_dict.items():
             if hyper_name == "frac_data_in_safety": 
                 continue
-            hyper_values, hyper_type = hyper_info["values"], hyper_info["hyper_type"]
-            all_hyper_iterables.append([(hyper_name, hyper_type, value) for value in hyper_values])
+            if hyper_info["tuning_method"] == "grid_search":
+                hyper_values, hyper_type = hyper_info["values"], hyper_info["hyper_type"]
+                all_hyper_iterables.append([(hyper_name, hyper_type, value) for value in hyper_values])
 
         return itertools.product(*all_hyper_iterables)
 
@@ -1032,13 +1034,12 @@ class HyperparamSearch:
     def find_best_hyperparameters(
             self,
             frac_data_in_safety,
-            tuning_method='grid_search',
             **kwargs
     ):
         """
-        Does hyperparameter tuning for all hyperparameters in HyperSchema.hyper_dict
-        EXCEPT frac_data_in_safety. One provides a specific frac_data_in_safety at which
-        to optimize all other hyperparameters. 
+        Does hyperparameter tuning for all hyperparameters in HyperSchema.hyper_dict.
+        Figures out which ones are to be grid-searched and which are to be optimized with 
+        CMA-ES, constructs the grid, then runs the tuning. 
 
         """
 
@@ -1060,84 +1061,172 @@ class HyperparamSearch:
                 candidate_dataset, frac_data_in_safety, n_bootstrap_samples_candidate, 
                 n_bootstrap_samples_safety, bootstrap_savedir)
         
-        
         # Dictionary mapping hyperparameter setting to the estimated probability.
         all_est_prob_pass = {}
 
-        if tuning_method == "grid_search":
-            for hyperparam_setting in self.get_hyperparameter_iterator():
-                
-                # Estimate probability of passing.
-                curr_prob_pass, _, _, _, _, curr_ran_new_bs_trials = self.get_est_prob_pass(
-                        frac_data_in_safety,
-                        candidate_dataset,
-                        n_bootstrap_samples_candidate,
-                        n_bootstrap_samples_safety,
-                        bootstrap_savedir,
-                        hyperparam_setting
-                )
-                all_est_prob_pass[hyperparam_setting] = curr_prob_pass
+        # Figure out if there are grid searchable hps
+        do_grid_search = False
+        grid_search_hps = [name for name,hyper_info in self.hyper_dict.items() if hyper_info['tuning_method']=="grid_search"]
+        if len(grid_search_hps) > 0:
+            do_grid_search=True
+
+        # Figure out if there are CMA-ES searchable hps
+        do_cmaes = False
+        do_powell = False
+        cmaes_hps = [name for name,hyper_info in self.hyper_dict.items() if hyper_info['tuning_method']=="CMA-ES"]
+        if len(cmaes_hps) == 1:
+            # CMA-ES won't work with 1 param, so use powell
+            do_powell = True
+        if len(cmaes_hps) > 1:
+            do_cmaes = True
+        if do_grid_search:
+            print(f"doing grid search over: {grid_search_hps}")
+            for hyperparam_setting in self.get_gridsearchable_hyperparameter_iterator():
+
+                print("hyperparam_setting:")
+                print(hyperparam_setting)
+                if do_cmaes:
+                    print("Running CMA-ES...")
+                    # Run CMA-ES where the parameters are the CMA-ES tunable hyperparameters,
+                    # keep the grid search ones fixed for this CMA-ES run.
+                    curr_prob_pass, best_cmaes_hyperparams = self.run_cmaes(
+                        frac_data_in_safety=frac_data_in_safety,
+                        fixed_hyperparam_setting=hyperparam_setting,
+                        **kwargs)
+                    print("Done.")
+                    # combine best cmaes params with existing hyperparam setting
+                    full_hyperparam_setting = hyperparam_setting + tuple(best_cmaes_hyperparams)
+                    all_est_prob_pass[full_hyperparam_setting] = curr_prob_pass
+                elif do_powell:
+                    print("Running Powell...")
+                    # Run Powell with a single hyperparameter to tune,
+                    # keeping the grid search parameters fixed.
+                    curr_prob_pass, best_cmaes_hyperparams = self.run_powell(
+                        frac_data_in_safety=frac_data_in_safety,
+                        fixed_hyperparam_setting=hyperparam_setting,
+                        **kwargs)
+                    print("Done.")
+                    full_hyperparam_setting = hyperparam_setting + tuple(best_cmaes_hyperparams)
+                    all_est_prob_pass[full_hyperparam_setting] = curr_prob_pass
+
+
+                else:
+                    # No CMA-ES or Powell, just use this combo of hyperparameters
+                    # to estimate probability of passing.
+                    curr_prob_pass, _, _, _, _, curr_ran_new_bs_trials = self.get_est_prob_pass(
+                            frac_data_in_safety,
+                            candidate_dataset,
+                            n_bootstrap_samples_candidate,
+                            n_bootstrap_samples_safety,
+                            bootstrap_savedir,
+                            hyperparam_setting
+                    )
+                    all_est_prob_pass[hyperparam_setting] = curr_prob_pass
 
             # Select the hyperparameter with the highest predicited probability of passing.
             best_hyperparam_setting = max(all_est_prob_pass, key=lambda k: all_est_prob_pass[k])
-
-        elif tuning_method == "CMA-ES":
-            import cma
-            from seldonian.utils.io_utils import cmaes_logger
-
-            if self.write_logfile:
-                log_counter = 0
-                logdir = os.path.join(os.getcwd(), "cmaes_logs")
-                os.makedirs(logdir, exist_ok=True)
-                filename = os.path.join(
-                    logdir, f"cmaes_log{log_counter}.csv"
-                )
-
-                while os.path.exists(filename):
-                    filename = filename.replace(
-                        f"log{log_counter}", f"log{log_counter+1}"
-                    )
-                    log_counter += 1
-
-                logger = partial(cmaes_logger,filename=filename)
-            else:
-                logger = None
-
-            opts = {}
-            if "maxiter" in kwargs:
-                opts["maxiter"] = kwargs["maxiter"]
-
-            if "seed" in kwargs:
-                opts["seed"] = kwargs["seed"]
-
-            if "sigma0" in kwargs:
-                sigma0 = kwargs["sigma0"]
-            else:
-                sigma0 = 0.2
-
-            # Map initial hyperparameter values to theta vector
-            theta_init = self._get_theta_init_from_hyper_dict()
-            print("Running CMA-ES with:")
-            print(f"initial theta: {theta_init}")
-            es = cma.CMAEvolutionStrategy(theta_init, sigma0, opts)
-            partial_objective = partial(
-                self.cmaes_objective,
-                frac_data_in_safety=frac_data_in_safety,
-            )
-            es.optimize(partial_objective,callback=logger)
+        
             
-            es.disp()
-            if self.write_logfile and kwargs["verbose"]:
-                print(f"Wrote {filename} with CMA-ES log info")
-
-            theta_best = es.result.xbest
-            best_hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta_best)
-
         # Set spec with best hyperparameter setting.
         best_hyperparam_spec = self.set_spec_with_hyperparam_setting(
                 copy.deepcopy(self.spec), best_hyperparam_setting)
 
         return best_hyperparam_setting, best_hyperparam_spec
+
+    def run_cmaes(self,frac_data_in_safety,fixed_hyperparam_setting,**kwargs):
+        """ Run CMA-ES over the hyperparameters that 
+        we specified in hyper_dict to have tuning_method = "CMA-ES". 
+        Use fixed values for all other hyperparams. 
+        """  
+        if self.write_logfile:
+            log_counter = 0
+            logdir = os.path.join(os.getcwd(), "cmaes_logs")
+            os.makedirs(logdir, exist_ok=True)
+            filename = os.path.join(
+                logdir, f"cmaes_log{log_counter}.csv"
+            )
+
+            while os.path.exists(filename):
+                filename = filename.replace(
+                    f"log{log_counter}", f"log{log_counter+1}"
+                )
+                log_counter += 1
+
+            logger = partial(cmaes_logger,filename=filename)
+        else:
+            logger = None
+
+        opts = {}
+        if "maxiter" in kwargs:
+            opts["maxiter"] = kwargs["maxiter"]
+
+        if "seed" in kwargs:
+            opts["seed"] = kwargs["seed"]
+
+        if "sigma0" in kwargs:
+            sigma0 = kwargs["sigma0"]
+        else:
+            sigma0 = 0.2
+
+        # Map initial hyperparameter values to theta vector
+        theta_init = self._get_theta_init_from_hyper_dict()
+        print(f"Running CMA-ES with initial theta: {theta_init}")
+        es = cma.CMAEvolutionStrategy(theta_init, sigma0, opts)
+        partial_objective = partial(
+            self.cmaes_objective,
+            frac_data_in_safety=frac_data_in_safety,
+            fixed_hyperparam_setting=fixed_hyperparam_setting
+        )
+        es.optimize(partial_objective,callback=logger)
+        
+        es.disp()
+        if self.write_logfile and kwargs["verbose"]:
+            print(f"Wrote {filename} with CMA-ES log info")
+
+        best_prob_pass = es.result.fbest
+
+        theta_best = es.result.xbest
+        best_hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta_best)
+        return best_prob_pass,best_hyperparam_setting
+
+
+    def run_powell(self,frac_data_in_safety,fixed_hyperparam_setting,**kwargs):
+        """ Run Powell minimization over a single hyperparameter. 
+        This is the fallback optimizer we use when we only have 1 hyperparameter
+        and CMA-ES tuning is specified. CMA-ES is not intended for use in 1D.
+        Use fixed values for all other hyperparams. 
+        """  
+        
+        opts = {}
+        if "maxiter" in kwargs:
+            opts["maxiter"] = kwargs["maxiter"]
+
+        if "seed" in kwargs:
+            opts["seed"] = kwargs["seed"]
+
+        if "sigma0" in kwargs:
+            sigma0 = kwargs["sigma0"]
+        else:
+            sigma0 = 0.2
+
+        # Map initial hyperparameter values to theta vector
+        theta_init = self._get_theta_init_from_hyper_dict()
+        print(f"Running Powell with initial theta: {theta_init}")
+        partial_objective = partial(
+            self.powell_objective,
+            frac_data_in_safety=frac_data_in_safety,
+            fixed_hyperparam_setting=fixed_hyperparam_setting
+        )
+
+        res = minimize(fun=partial_objective,x0=theta_init,method="Powell")
+        theta_best = res.x        
+        best_prob_pass = res.fun        
+        # if self.write_logfile and kwargs["verbose"]:
+        #     print(f"Wrote {filename} with CMA-ES log info")
+
+        print(f"theta_best: {theta_best}")
+        best_hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta_best)
+        return best_prob_pass,best_hyperparam_setting
 
 
     def _get_theta_init_from_hyper_dict(self):
@@ -1146,12 +1235,19 @@ class HyperparamSearch:
         """
         # self.hyper_dict is an ordered dict 
         theta_init = []
-        for name in self.hyper_dict:
-            hyper_val = self.hyper_dict[name]["initial_value"]
-            x_min,x_max = self.hyper_dict[name]['min_val'],self.hyper_dict[name]['max_val']
-            G = (x_max-x_min)/(hyper_val-x_min)
-            theta_ii = np.log(1/(G-1))
-            theta_init.append(theta_ii)
+        for (hyper_name, hyper_info) in self.hyper_dict.items():
+            if hyper_info["tuning_method"] == "CMA-ES":
+                hyper_val = hyper_info["initial_value"]
+                x_min,x_max = hyper_info['min_val'],hyper_info['max_val']
+                if hyper_info["search_distribution"] == "log-uniform":
+                    hyper_val = np.log(hyper_val) 
+                    x_min,x_max = np.log(x_min),np.log(x_max) 
+                # reverse the sigmoiding process for encoding parameter gets encoded to theta (see _unpack_theta_to_hyperparam_values())
+                G = (x_max-x_min)/(hyper_val-x_min)
+                theta_ii = np.log(1/(G-1))
+                if hyper_info["search_distribution"] == 'log-uniform':
+                    theta_ii = np.exp(theta_ii)
+                theta_init.append(theta_ii)
         return theta_init
 
     def _unpack_theta_to_hyperparam_values(self,theta):
@@ -1162,13 +1258,24 @@ class HyperparamSearch:
         :param theta: Vector of hyperparameters
         """
         hyperparam_setting = []
-        for ii,name in enumerate(self.hyper_param_names):
-            x_min,x_max = self.hyper_dict[name]['min_val'],self.hyper_dict[name]['max_val']
-            hyper_val = self.sigmoid(theta[ii])*(x_max-x_min) + x_min
-            if self.hyper_dict[name]["dtype"] == "int":    
+        for ii,(hyper_name,hyper_info) in enumerate(self.hyper_dict.items()):
+            if hyper_info["tuning_method"] != "CMA-ES":
+                continue
+            x_min,x_max = hyper_info['min_val'],hyper_info['max_val']
+            if hyper_info["search_distribution"] == "log-uniform":
+                # this ensures that search is done uniformly in log space
+                # this is especially important for step size where we want to 
+                # explore small step sizes just as often as large step sizes
+                x_min,x_max = np.log(x_min),np.log(x_max)
+                log_hyper_val = self.sigmoid(theta[ii])*(x_max-x_min) + x_min # squashes to be between [-10,0] for example
+                hyper_val = np.exp(log_hyper_val)
+            else:
+                hyper_val = self.sigmoid(theta[ii])*(x_max-x_min) + x_min  
+            
+            if hyper_info["dtype"] == "int":    
                 hyper_val = int(round(hyper_val))
 
-            hyperparam_setting.append((name,self.hyper_dict[name]['hyper_type'],hyper_val))
+            hyperparam_setting.append((hyper_name,hyper_info['hyper_type'],hyper_val))
 
         return hyperparam_setting
     
@@ -1179,12 +1286,16 @@ class HyperparamSearch:
         self,
         theta,
         frac_data_in_safety,
+        fixed_hyperparam_setting,
     ):
         """ The objective function that CMA-ES tries to minimize. 
         We want to minimize (1-prob_pass) in order to maximize prob_pass. 
         Need to return the thing we are trying to minimze. 
 
         :param theta: Vector of hyperparameters
+        :param frac_data_in_safety: Fraction of data going to safety test
+        :param fixed_hyperparam_setting: The hyperparameters from grid search
+            that are frozen for this CMA-ES run.
         """
         # Unpack theta to get hyperparam setting
         hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta)
@@ -1194,8 +1305,13 @@ class HyperparamSearch:
             self.cmaes_iteration += 1
         else:
             self.cmaes_iteration = 0
+        
+        iteration_savedir = os.path.join(
+            self.results_dir,
+            f"frac_data_in_safety_{frac_data_in_safety:.2f}",
+            f"cmaes_iteration{self.cmaes_iteration}"
+        )
 
-        iteration_savedir = os.path.join(self.results_dir,f"cmaes_iteration{self.cmaes_iteration}")
         os.makedirs(iteration_savedir,exist_ok=True)
         # TODO: Log created_trial_datasets
 
@@ -1209,21 +1325,21 @@ class HyperparamSearch:
         # Run the trials.
         bs_trials_ran = [] # List indicating if the bootstrap trial was run.
         start_time = time.time()
-        # if self.hyperparam_spec.n_bootstrap_workers == 1:
-        for bootstrap_trial_i in tqdm(range(self.hyperparam_spec.n_bootstrap_trials), leave=False):
-            # TODO: Log bs_trials_run.
-            bs_trials_ran.append(helper(bootstrap_trial_i))
-        # elif self.hyperparam_spec.n_bootstrap_workers > 1: 
-        #     with ProcessPoolExecutor(
-        #             max_workers=self.hyperparam_spec.n_bootstrap_workers, mp_context=mp.get_context("fork")
-        #     ) as ex:
-        #         for ran_trial in tqdm(
-        #                 ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
-        #                 total=self.hyperparam_spec.n_bootstrap_trials, leave=False):
-        #             bs_trials_ran.append(ran_trial)
-        # else:
-        #     raise ValueError(f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1")
-        elapsed_time = time.time() - start_time
+        if self.hyperparam_spec.n_bootstrap_workers == 1:
+            for bootstrap_trial_i in tqdm(range(self.hyperparam_spec.n_bootstrap_trials), leave=False):
+                # TODO: Log bs_trials_run.
+                bs_trials_ran.append(helper(bootstrap_trial_i))
+        elif self.hyperparam_spec.n_bootstrap_workers > 1: 
+            with ProcessPoolExecutor(
+                    max_workers=self.hyperparam_spec.n_bootstrap_workers, mp_context=mp.get_context("fork")
+            ) as ex:
+                for ran_trial in tqdm(
+                        ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
+                        total=self.hyperparam_spec.n_bootstrap_trials, leave=False):
+                    bs_trials_ran.append(ran_trial)
+        else:
+            raise ValueError(f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1")
+        # elapsed_time = time.time() - start_time
 
         # If trial was run, we want to indicate that at least one trial was run.
         ran_new_bs_trials = any(bs_trials_ran)
@@ -1231,9 +1347,81 @@ class HyperparamSearch:
         # Accumulate results from bootstrap trials get estimate.
         est_prob_pass, lower_bound, upper_bound, results_df = \
                 self.aggregate_est_prob_pass(
-                        frac_data_in_safety, bootstrap_savedir)
+                        frac_data_in_safety, iteration_savedir)
         print("est_prob_pass:")
         print(est_prob_pass)
+        return 1-est_prob_pass
+
+    def powell_objective(
+        self,
+        theta,
+        frac_data_in_safety,
+        fixed_hyperparam_setting,
+    ):
+        """ The objective function that Powell tries to minimize. 
+        We want to minimize (1-prob_pass) in order to maximize prob_pass. 
+        Need to return the thing we are trying to minimze. 
+
+        :param theta: Vector of hyperparameters
+        :param frac_data_in_safety: Fraction of data going to safety test
+        :param fixed_hyperparam_setting: The hyperparameters from grid search
+            that are frozen for this run.
+        """
+        # Unpack theta to get hyperparam setting
+        hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta)
+        print("hyperparams for this iteration of Powell:")
+        print(hyperparam_setting)
+        print(f"theta: {theta}")
+        if hasattr(self,"powell_iteration"):
+            self.powell_iteration += 1
+        else:
+            self.powell_iteration = 0
+
+        iteration_savedir = os.path.join(
+            self.results_dir,
+            f"frac_data_in_safety_{frac_data_in_safety:.2f}",
+            f"powell_iteration{self.powell_iteration}"
+        )
+        os.makedirs(iteration_savedir,exist_ok=True)
+        # TODO: Log created_trial_datasets
+
+        partial_kwargs = { 
+                "frac_data_in_safety": frac_data_in_safety,
+                "parent_savedir": iteration_savedir,
+                "hyperparam_setting": hyperparam_setting
+                }
+        
+        helper = partial(self.run_bootstrap_trial, **partial_kwargs)
+
+        # Run the trials.
+        bs_trials_ran = [] # List indicating if the bootstrap trial was run.
+        start_time = time.time()
+        if self.hyperparam_spec.n_bootstrap_workers == 1:
+            for bootstrap_trial_i in tqdm(range(self.hyperparam_spec.n_bootstrap_trials), leave=False):
+                # TODO: Log bs_trials_run.
+                bs_trials_ran.append(helper(bootstrap_trial_i))
+        elif self.hyperparam_spec.n_bootstrap_workers > 1: 
+            with ProcessPoolExecutor(
+                    max_workers=self.hyperparam_spec.n_bootstrap_workers, mp_context=mp.get_context("fork")
+            ) as ex:
+                for ran_trial in tqdm(
+                        ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
+                        total=self.hyperparam_spec.n_bootstrap_trials, leave=False):
+                    bs_trials_ran.append(ran_trial)
+        else:
+            raise ValueError(f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1")
+        # elapsed_time = time.time() - start_time
+
+        # If trial was run, we want to indicate that at least one trial was run.
+        # ran_new_bs_trials = any(bs_trials_ran)
+
+        # Accumulate results from bootstrap trials get estimate.
+        est_prob_pass, lower_bound, upper_bound, results_df = \
+                self.aggregate_est_prob_pass(
+                        frac_data_in_safety, iteration_savedir)
+        print("est_prob_pass:")
+        print(est_prob_pass)
+        print()
         return 1-est_prob_pass
 
 

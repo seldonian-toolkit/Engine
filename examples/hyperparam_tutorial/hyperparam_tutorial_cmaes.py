@@ -41,31 +41,53 @@ if __name__ == "__main__":
         parse_trees=parse_trees,
         sub_regime='regression',
         frac_data_in_safety=frac_data_in_safety,
+        optimization_technique="gradient_descent",
+        optimizer="adam",
+        optimization_hyperparams={
+            "lambda_init": 0.5,
+            "alpha_theta": 0.005,
+            "alpha_lamb": 0.005,
+            "beta_velocity": 0.9,
+            "beta_rmsprop": 0.95,
+            "num_iters": 200,
+            "gradient_library": "autograd",
+            "use_batches": False,
+            "hyper_search": None,
+            "verbose": False,
+        },
     )
-    spec.verbose=True
+    spec.verbose=False
     # 4. Do hyperparameter search using CMA-ES
 
     hyper_schema = HyperSchema(
-        tuning_method="CMA-ES",
         hyper_dict={
             "alpha_theta": {
-                "initial_value": 0.005,
-                "hyper_type": "optimization",
-                "dtype": "float",
+                "initial_value":0.005,
                 "min_val": 0.0001,
-                "max_val": 0.1
+                "max_val": 0.1,
+                "dtype": "float",
+                "hyper_type":"optimization",
+                "search_distribution": "log-uniform",
+                "tuning_method": "CMA-ES"
+                },
+            "alpha_lamb": {
+                "initial_value":0.005,
+                "min_val": 0.0001,
+                "max_val": 0.1,
+                "dtype": "float",
+                "hyper_type":"optimization",
+                "search_distribution": "log-uniform",
+                "tuning_method": "CMA-ES"
                 },
             "num_iters": {
-                "initial_value": 100,
+                "values": [100,200],
                 "hyper_type": "optimization",
-                "dtype": "int",
-                "min_val": 10,
-                "max_val": 10000,
+                "tuning_method": "grid_search"
                 }
             }
     )
-    n_bootstrap_trials = 10
-    n_bootstrap_workers = 1
+    n_bootstrap_trials = 5
+    n_bootstrap_workers = 10
     use_bs_pools=True
     HS_spec = HyperparameterSelectionSpec(
             hyper_schema=hyper_schema,
@@ -82,5 +104,7 @@ if __name__ == "__main__":
     best_hyperparam_setting, best_hyperparam_spec = HS.find_best_hyperparameters(
             frac_data_in_safety=frac_data_in_safety,
             tuning_method="CMA-ES")
+    print()
+    print("Finished!")
+    print("best hyperparameters found:")
     print(best_hyperparam_setting)
-    # expected_best_hyperparam_settuion) # True, [0.17256748 0.17382125]
