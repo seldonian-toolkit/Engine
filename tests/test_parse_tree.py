@@ -423,7 +423,6 @@ def test_parse_tree_from_simple_string():
     assert pt.root.right.right.name == "4"
     assert pt.root.right.right.value == 4
 
-
 def test_parse_tree_with_inequalities():
     # First one without inequalities
     # constraint_str = 'FPR <= 0.5 + 0.3*(PR | [M])'
@@ -540,7 +539,6 @@ def test_parse_tree_with_inequalities():
     assert pt_gte0.root.right.left.name == "0.5"
     assert pt_gte0.root.right.left.value == 0.5
     assert pt_gte0.root.right.right.name == "PR | [M]"
-
 
 def test_math_functions():
     """Test that math functions like
@@ -688,7 +686,6 @@ def test_math_functions():
     )
     assert str(excinfo.value) == error_str
 
-
 def test_measure_functions_recognized():
     delta = 0.05
 
@@ -759,7 +756,6 @@ def test_measure_functions_recognized():
     )
     pt.create_from_ast(constraint_str)
     assert pt.root.right.measure_function_name == "ACC"
-
 
 def test_multiclass_measure_functions():
     delta = 0.05
@@ -846,7 +842,6 @@ def test_multiclass_measure_functions():
     pt.create_from_ast(constraint_str)
     assert pt.root.right.measure_function_name == "ACC"
 
-
 def test_rl_new_policy_base_node():
     delta = 0.05
     constraint_str = "J_pi_new_IS - 0.5"
@@ -856,7 +851,6 @@ def test_rl_new_policy_base_node():
     assert pt.root.left.measure_function_name == "J_pi_new_IS"
     assert pt.root.left.name == "J_pi_new_IS"
     assert isinstance(pt.root.left, NewPolicyPerformanceBaseNode)
-
 
 def test_rl_alt_reward_string():
     delta = 0.05
@@ -900,7 +894,6 @@ def test_rl_alt_reward_string():
     assert pt.root.left.alt_reward_number == 1
     assert isinstance(pt.root.left, NewPolicyPerformanceBaseNode)
     assert isinstance(pt.root.left, RLAltRewardBaseNode)
-
 
 def test_rl_alt_reward_bad_string():
     # Test that using non-numeric characters for the alt reward number raises an error
@@ -952,7 +945,6 @@ def test_rl_alt_reward_bad_string():
         pt.create_from_ast(constraint_str)
     error_str = "The alternate reward number you entered was not an integer."
     assert str(excinfo.value) == error_str
-
 
 def test_rl_alt_reward_precalc_return():
     np.random.seed(0)
@@ -1053,7 +1045,6 @@ def test_rl_alt_reward_precalc_return():
     ]["weighted_returns"]
     assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
 
-
 def test_measure_function_with_conditional_bad_syntax_captured():
     delta = 0.05
     error_str = (
@@ -1096,7 +1087,6 @@ def test_measure_function_with_conditional_bad_syntax_captured():
         "was not in the list of  columns provided: []"
     )
     assert str(excinfo.value) == error_str
-
 
 def test_measure_function_from_wrong_regime():
     """Test that if a measure function from the incorrect
@@ -1162,7 +1152,6 @@ def test_measure_function_from_wrong_regime():
     )
     assert str(excinfo.value) in error_str
 
-
 def test_custom_base_nodes():
     constraint_str = "MED_MF - 0.1"
     delta = 0.05
@@ -1184,7 +1173,6 @@ def test_custom_base_nodes():
     assert pt.root.left.alpha == 0.1
     assert pt.n_base_nodes == 1
     assert len(pt.base_node_dict) == 1
-
 
 def test_unary_op():
     delta = 0.05
@@ -1249,7 +1237,6 @@ def test_unary_op():
     )
     assert str(excinfo.value) == error_str
 
-
 def test_raise_error_on_excluded_operators():
     constraint_str = "FPR^4"
     delta = 0.05
@@ -1306,7 +1293,6 @@ def test_raise_error_on_excluded_operators():
     )
     assert str(excinfo.value) == error_str
 
-
 def test_single_conditional_columns_assigned():
     constraint_str = "abs(Mean_Error|[X]) - 0.1"
     delta = 0.05
@@ -1318,7 +1304,6 @@ def test_single_conditional_columns_assigned():
     assert pt.n_base_nodes == 1
     assert len(pt.base_node_dict) == 1
     assert pt.root.left.left.conditional_columns == ["X"]
-
 
 def test_multiple_conditional_columns_assigned():
     constraint_str = "abs(Mean_Error|[X,Y,Z]) - 0.1"
@@ -1334,7 +1319,6 @@ def test_multiple_conditional_columns_assigned():
     assert pt.n_base_nodes == 1
     assert len(pt.base_node_dict) == 1
     assert pt.root.left.left.conditional_columns == ["X", "Y", "Z"]
-
 
 def test_math_functions_propagate():
     np.random.seed(0)
@@ -1394,7 +1378,6 @@ def test_math_functions_propagate():
     # assert pt.root.lower == pytest.approx(-2.5187904943528903)
     # assert pt.root.upper == pytest.approx(-2.470509955060809)
 
-
 def test_deltas_assigned_equally():
     constraint_str = "abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1"
     delta = 0.05
@@ -1413,7 +1396,6 @@ def test_deltas_assigned_equally():
     assert pt.root.name == "sub"
     assert pt.root.left.left.left.delta_lower == delta / (2 * n_unique_base_nodes)
     assert pt.root.left.left.right.delta_upper == delta / (2 * n_unique_base_nodes)
-
 
 def test_deltas_assigned_once_per_unique_basenode():
     """Make sure that the delta assigned to each base node
@@ -1446,7 +1428,6 @@ def test_deltas_assigned_once_per_unique_basenode():
     assert pt.root.right.right.left.delta_upper == delta / (2 * n_unique_base_nodes)
     assert pt.root.right.right.right.delta_lower == delta / (2 * n_unique_base_nodes)
     assert pt.root.right.right.right.delta_upper == delta / (2 * n_unique_base_nodes)
-
 
 def test_deltas_assigned_correctly_not_all_bounds_needed():
     """Make sure that when not all bounds are needed,
@@ -1549,11 +1530,10 @@ def test_delta_vector_assignment():
     pt = ParseTree(
         tree_delta, regime="supervised_learning", sub_regime="classification"
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
+    pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.05])
+    
     # Should find that only the upper bound on FPR is needed
     # and upper bound gets assigned the correct delta
-    pt.assign_deltas(weight_method="manual", delta_vector=[0.05])
     assert pt.root.delta_lower == None
     assert pt.root.delta_upper == 0.05
     assert pt.base_node_dict["FPR"]["delta_lower"] == None
@@ -1566,10 +1546,7 @@ def test_delta_vector_assignment():
     pt = ParseTree(
         tree_delta, regime="supervised_learning", sub_regime="classification"
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
-    # Only the upper bound on FPR is needed
-    pt.assign_deltas(weight_method="manual", delta_vector=[0.06])
+    pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.06])
     assert pt.root.delta_lower == None
     assert pt.root.delta_upper == 0.05
     assert pt.base_node_dict["FPR"]["delta_lower"] == None
@@ -1586,9 +1563,7 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
-    pt.assign_deltas(weight_method="manual", delta_vector=[0.01, 0.02, 0.03, 0.04])
+    pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.01, 0.02, 0.03, 0.04])
     reweighted_deltas = [
         0.012313129661287526,
         0.012436878671712491,
@@ -1615,9 +1590,7 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
-    pt.assign_deltas(weight_method="manual", delta_vector=[-1, -0.2, 0, 2])
+    pt.build_tree(constraint_str, delta_weight_method="manual", delta_vector=[-1, -0.2, 0, 2])
     reweighted_deltas = [
         0.0038418155970352825,
         0.008550117850922747,
@@ -1644,10 +1617,8 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
-    pt.assign_deltas(
-        weight_method="manual", delta_vector=np.array([0.01, 0.02, 0.03, 0.04])
+    pt.build_tree(constraint_str,
+        delta_weight_method="manual", delta_vector=np.array([0.01, 0.02, 0.03, 0.04])
     )
     reweighted_deltas = [
         0.012313129661287526,
@@ -1673,10 +1644,9 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
+
     with pytest.raises(ValueError) as excinfo:
-        pt.assign_deltas(weight_method="manual", delta_vector=[0.01, 0.02, 0.03])
+        pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.01, 0.02, 0.03])
 
     error_str = "delta_vector has length: 3, but should be of length: 4"
     assert str(excinfo.value) == error_str
@@ -1690,10 +1660,8 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
     with pytest.raises(ValueError) as excinfo:
-        pt.assign_deltas(weight_method="manual", delta_vector=(0.01, 0.02, 0.03))
+        pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=(0.01, 0.02, 0.03))
 
     error_str = "delta_vector must be a list or 1D numpy array"
     assert str(excinfo.value) == error_str
@@ -1707,17 +1675,15 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
     with pytest.raises(ValueError) as excinfo:
-        pt.assign_deltas(
-            weight_method="manual", delta_vector=np.array([[0.01], [0.02], [0.03]])
+        pt.build_tree(constraint_str,
+            delta_weight_method="manual", delta_vector=np.array([[0.01], [0.02], [0.03]])
         )
 
     error_str = "delta_vector must be a list or 1D numpy array"
     assert str(excinfo.value) == error_str
 
-    # Test case #8: Trying to assign deltas before assinging bounds raises a RuntimeError
+    # Test case #9: Trying to assign deltas before assinging bounds raises a RuntimeError
     tree_delta = 0.1
     constraint_str = "abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1"
     pt = ParseTree(
@@ -1736,7 +1702,7 @@ def test_delta_vector_assignment():
     )
     assert str(excinfo.value) == error_str
 
-    # Test case #9: If softmaxing explodes due to e^(large), raise ValueError
+    # Test case #10: If softmaxing explodes due to e^(large), raise ValueError
     tree_delta = 0.1
     constraint_str = "abs((Mean_Error | [M]) - (Mean_Error | [F])) - 0.1"
     pt = ParseTree(
@@ -1745,11 +1711,9 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.create_from_ast(constraint_str)
-    pt.assign_bounds_needed()
     delta_vector = [1000, 0.1, 0.2, 0.3]
     with pytest.raises(ValueError) as excinfo:
-        pt.assign_deltas(weight_method="manual", delta_vector=delta_vector)
+        pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=delta_vector)
 
     error_str = f"softmaxing delta_vector={delta_vector} resulted in nan or inf."
     assert str(excinfo.value) == error_str

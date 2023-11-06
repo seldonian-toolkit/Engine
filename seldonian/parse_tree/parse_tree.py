@@ -95,7 +95,7 @@ class ParseTree(object):
             self.sub_regime
         ]
 
-    def build_tree(self, constraint_str, delta_weight_method="equal", infl_factor_method="constant", infl_factors=2):
+    def build_tree(self, constraint_str, delta_weight_method="equal", delta_vector=[], infl_factor_method="constant", infl_factors=2):
         """
         Convenience function for building the tree from
         a constraint string,
@@ -110,6 +110,7 @@ class ParseTree(object):
                 How you want to assign the deltas to the base nodes.
                 The default 'equal' splits up delta equally
                 among unique base nodes
+        :param delta_vector: 1D array of delta values to assign to the unique base nodes.
         :type delta_weight_method: str, defaults to 'equal'
         :param infl_factor_method: 
                 How you want to assign the inflation factors to the base nodes.
@@ -126,7 +127,7 @@ class ParseTree(object):
 
         self.assign_bounds_needed()
 
-        self.assign_deltas(weight_method=delta_weight_method)
+        self.assign_deltas(weight_method=delta_weight_method,delta_vector=delta_vector)
 
         self.assign_infl_factors(method=infl_factor_method,factors=infl_factors)
 
@@ -758,6 +759,8 @@ class ParseTree(object):
         """
         Checks to make sure supplied delta vector is the correct length.
         Also if it does not sum to self.delta normalize it so it does.
+
+        :param delta_vector: 1D array of delta values to assign to the unique base nodes
         """
         if self.n_unique_bounds_tot is None:
             raise RuntimeError(
