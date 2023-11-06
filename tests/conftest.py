@@ -172,13 +172,7 @@ def simulated_regression_dataset_aslists():
                 delta=delta, regime=regime, sub_regime=sub_regime, columns=[]
             )
 
-            # Fill out tree
-            parse_tree.create_from_ast(constraint_str)
-            # Assign bounds needed on the base nodes
-            parse_tree.assign_bounds_needed()
-            # assign deltas for each base node
-            # use equal weighting for each base node
-            parse_tree.assign_deltas(weight_method="equal")
+            parse_tree.build_tree(constraint_str=constraint_str)
 
             parse_trees.append(parse_tree)
 
@@ -236,14 +230,7 @@ def simulated_regression_dataset():
                 delta=delta, regime=regime, sub_regime=sub_regime, columns=[]
             )
 
-            # Fill out tree
-            parse_tree.create_from_ast(constraint_str)
-            # Assign bounds needed on the base nodes
-            parse_tree.assign_bounds_needed()
-
-            # assign deltas for each base node
-            # use equal weighting for each base node
-            parse_tree.assign_deltas(weight_method="equal")
+            parse_tree.build_tree(constraint_str=constraint_str)
 
             parse_trees.append(parse_tree)
 
@@ -293,15 +280,7 @@ def gpa_regression_dataset():
                 columns=sensitive_col_names,
             )
 
-            # Fill out tree
-            parse_tree.create_from_ast(constraint_str)
-            # Assign bounds needed on the base nodes
-            parse_tree.assign_bounds_needed()
-
-            # assign deltas for each base node
-            # use equal weighting for each base node
-            parse_tree.assign_deltas(weight_method="equal")
-
+            parse_tree.build_tree(constraint_str=constraint_str)
             parse_trees.append(parse_tree)
 
         return dataset, model, primary_objective, parse_trees
@@ -350,14 +329,7 @@ def gpa_classification_dataset():
                 columns=["M", "F"],
             )
 
-            # Fill out tree
-            parse_tree.create_from_ast(constraint_str)
-            # Assign bounds needed on the base nodes
-            parse_tree.assign_bounds_needed()
-
-            # assign deltas for each base node
-            # use equal weighting for each base node
-            parse_tree.assign_deltas(weight_method="equal")
+            parse_tree.build_tree(constraint_str=constraint_str)
 
             parse_trees.append(parse_tree)
 
@@ -407,14 +379,7 @@ def gpa_multiclass_dataset():
                 columns=sensitive_col_names,
             )
 
-            # Fill out tree
-            parse_tree.create_from_ast(constraint_str)
-            # Assign bounds needed on the base nodes
-            parse_tree.assign_bounds_needed()
-            # assign deltas for each base node
-            # use equal weighting for each base node
-            parse_tree.assign_deltas(weight_method="equal")
-
+            parse_tree.build_tree(constraint_str=constraint_str)
             parse_trees.append(parse_tree)
 
         return dataset, model, primary_objective, parse_trees
