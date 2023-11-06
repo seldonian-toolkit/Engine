@@ -55,7 +55,10 @@ function, condition on these columns being == 1</p></li>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>node_type</strong> (<em>str</em>) – equal to ‘base_node’</p></li>
-<li><p><strong>delta</strong> (<em>float</em>) – The share of the confidence put into this node</p></li>
+<li><p><strong>delta_lower</strong> (<em>float</em>) – The share of the confidence put into calculating the lower bound on this node</p></li>
+<li><p><strong>delta_upper</strong> (<em>float</em>) – The share of the confidence put into calculating the upper bound on this node</p></li>
+<li><p><strong>infl_factor_lower</strong> (<em>float</em>) – The bound inflation factor for calculating the lower bound on this node during candidate selection</p></li>
+<li><p><strong>infl_factor_upper</strong> (<em>float</em>) – The bound inflation factor for calculating the upper bound on this node during candidate selection</p></li>
 <li><p><strong>measure_function_name</strong> (<em>str</em>) – str
 The name of the statistical measurement
 function that this node represents, e.g. “FPR”.
