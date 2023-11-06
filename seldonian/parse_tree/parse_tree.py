@@ -95,7 +95,7 @@ class ParseTree(object):
             self.sub_regime
         ]
 
-    def build_tree(self, constraint_str, delta_weight_method="equal"):
+    def build_tree(self, constraint_str, delta_weight_method="equal", infl_factor_method="constant", infl_factors=2):
         """
         Convenience function for building the tree from
         a constraint string,
@@ -111,6 +111,15 @@ class ParseTree(object):
                 The default 'equal' splits up delta equally
                 among unique base nodes
         :type delta_weight_method: str, defaults to 'equal'
+        :param infl_factor_method: 
+                How you want to assign the inflation factors to the base nodes.
+                The default 'constant' applies a constant factor
+                to each base node bound. 'manual' allows assinging 
+                unique inflation factors to each base node bound.
+        :type infl_factor_method: str, defaults to 'constant'
+        :param infl_factors: 
+                The bound inflation factors. Int if infl_factor_method="constant",
+                array-like if infl_factor_method="manual".
         """
 
         self.create_from_ast(s=constraint_str)
@@ -118,6 +127,8 @@ class ParseTree(object):
         self.assign_bounds_needed()
 
         self.assign_deltas(weight_method=delta_weight_method)
+
+        self.assign_infl_factors(method=infl_factor_method,factors=infl_factors)
 
     def create_from_ast(self, s):
         """
@@ -281,6 +292,8 @@ class ParseTree(object):
                     "upper_needed": None,
                     "delta_lower": None,
                     "delta_upper": None,
+                    "infl_factor_lower": None,
+                    "infl_factor_upper": None,
                     "data_dict": None,
                 }
 
@@ -769,6 +782,124 @@ class ParseTree(object):
             )
         delta_vector = [np.exp(y) * self.delta / denom for y in delta_vector]
         return delta_vector
+
+    def assign_infl_factors(self, method="constant", factors=2):
+        """
+        Assign the bound inflation factors (for candidate selection) to the base nodes in the tree.
+
+        :param method: str, defaults to 'constant',
+            which assigns a factor of the 'factors' value to all bounds.
+            If method == "manual", then factors should be a vector 
+            of values to use for the bounds whose length is equal to 
+            the number of total unique bounds across all base nodes. 
+        :type method: str
+        :param factors: If an integer and method=="constant", that integer is applied to all bounds.
+            If method=="manual", this needs to be a vector of bound inflation factors to assign to each unique 
+            base node. 
+        """
+        assert method in ["constant", "manual"]
+        assert self.n_base_nodes > 0, (
+            "Number of base nodes must be > 0. "
+            "Make sure to build the tree before assigning bound inflation factors."
+        )
+        factors = self._validate_infl_factors(method, factors)
+        
+        self._infl_factor_base_node_index = 0
+
+        self._assign_infl_factors_helper(self.root, method, factors)
+
+    def _assign_infl_factors_helper(self, node, method, factors):
+        """
+        Helper function to traverse the parse tree
+        and assign bound inflation factors values to base nodes.
+
+        :param node: node in the parse tree
+        :type node: :py:class:`.Node` object
+        :param method:
+                How you want to assign the bound inflation factors to the base nodes
+        :type method: str
+        :param factors: If an integer and method=="constant", that integer is applied to all bounds.
+            If method=="manual", this needs to be a vector of bound inflation factors to assign to each unique 
+            base node. 
+        """
+        if not node:
+            return
+
+        # If we get to a base node then update the base_node_dict
+        # if this is the first time encoutering this base node.
+        if isinstance(node, BaseNode):  # captures all child classes of BaseNode as well
+            if (self.base_node_dict[node.name]["infl_factor_lower"] is not None) or (
+                self.base_node_dict[node.name]["infl_factor_upper"] is not None
+            ):
+                # This is a reused base node
+                node.infl_factor_lower = self.base_node_dict[node.name]["infl_factor_lower"]
+                node.infl_factor_upper = self.base_node_dict[node.name]["infl_factor_upper"]
+            else:
+                # This is the first time encountering this base node
+                if method == "constant":
+                    if node.will_lower_bound and node.will_upper_bound:
+                        node.infl_factor_lower = factors
+                        node.infl_factor_upper = factors
+                    elif node.will_lower_bound:
+                        node.infl_factor_lower = factors
+                    elif node.will_upper_bound:
+                        node.infl_factor_upper = factors
+
+                elif method == "manual":
+                    if node.will_lower_bound and node.will_upper_bound:
+                        node.infl_factor_lower = factors[self._infl_factor_base_node_index]
+                        node.infl_factor_upper = factors[self._infl_factor_base_node_index + 1]
+                        self._infl_factor_base_node_index += 2
+                    elif node.will_lower_bound:
+                        node.infl_factor_lower = factors[self._infl_factor_base_node_index]
+                        self._infl_factor_base_node_index += 1
+                    elif node.will_upper_bound:
+                        node.infl_factor_upper = factors[self._infl_factor_base_node_index]
+                        self._infl_factor_base_node_index += 1
+                self.base_node_dict[node.name]["infl_factor_lower"] = node.infl_factor_lower
+                self.base_node_dict[node.name]["infl_factor_upper"] = node.infl_factor_upper
+
+        self._assign_infl_factors_helper(node.left, method, factors)
+        self._assign_infl_factors_helper(node.right, method, factors)
+        return
+
+    def _validate_infl_factors(self, method, factors):
+        """
+        Checks to make sure supplied factors has correct dtype and size
+        given the method.
+        """
+        if self.n_unique_bounds_tot is None:
+            raise RuntimeError(
+                "Need to run assign_bounds_needed() before "
+                "assigning inflation factors."
+            )
+
+        if method == "constant":
+            if not isinstance(factors, (float,int)):
+                raise ValueError(f"When method='{method}', factors must be a single number")     
+            if factors < 0:
+                raise ValueError(
+                    f"factors must all be non-negative"
+                )
+        
+        if method == "manual":
+            if not (
+                isinstance(factors, list) or (
+                isinstance(factors, np.ndarray) and factors.ndim == 1)
+            ):
+                raise ValueError(f"When method='{method}', factors must be a list or 1D numpy array")
+
+            if len(factors) != self.n_unique_bounds_tot:
+                raise ValueError(
+                    f"factors has length: {len(factors)}, but should be of length: {self.n_unique_bounds_tot}"
+                )
+
+            # Factors must be non-negative
+            if any([x<0 for x in factors]):
+                raise ValueError(
+                    f"factors must all be non-negative"
+                )
+        return factors
 
     def propagate_bounds(self, **kwargs):
         """
@@ -1259,7 +1390,10 @@ class ParseTree(object):
 
     def reset_base_node_dict(self, reset_data=False):
         """
-        Reset base node dict to initial obs
+        Reset base node dict so that any bounds or values stored
+        are removed. However, keeps the delta values and bound inflation factors
+        for each bound that were set when the tree was built. If those
+        need to be reset, create an entirely new parse tree. 
 
         :param reset_data:
                 Whether to reset the cached data

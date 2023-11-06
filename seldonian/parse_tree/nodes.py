@@ -144,9 +144,18 @@ class BaseNode(Node):
         :ivar node_type:
             equal to 'base_node'
         :vartype node_type: str
-        :ivar delta:
-            The share of the confidence put into this node
-        :vartype delta: float
+        :ivar delta_lower:
+            The share of the confidence put into calculating the lower bound on this node
+        :vartype delta_lower: float
+        :ivar delta_upper:
+            The share of the confidence put into calculating the upper bound on this node
+        :vartype delta_upper: float
+        :ivar infl_factor_lower:
+            The bound inflation factor for calculating the lower bound on this node during candidate selection
+        :vartype infl_factor_lower: float
+        :ivar infl_factor_upper:
+            The bound inflation factor for calculating the upper bound on this node during candidate selection
+        :vartype infl_factor_upper: float
         :ivar measure_function_name: str
             The name of the statistical measurement
             function that this node represents, e.g. "FPR".
@@ -159,6 +168,8 @@ class BaseNode(Node):
         self.node_type = "base_node"
         self.delta_lower = None
         self.delta_upper = None
+        self.infl_factor_lower = None 
+        self.infl_factor_upper = None 
         self.measure_function_name = ""
 
     def __repr__(self):
@@ -433,7 +444,7 @@ class BaseNode(Node):
             bound_method = kwargs["bound_method"]
 
             if bound_method == "ttest":
-                lower = data.mean() - 2 * stddev(data) / np.sqrt(datasize) * tinv(
+                lower = data.mean() - self.infl_factor_lower * stddev(data) / np.sqrt(datasize) * tinv(
                     1.0 - delta, datasize - 1
                 )
             else:
@@ -463,7 +474,7 @@ class BaseNode(Node):
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
             if bound_method == "ttest":
-                lower = data.mean() + 2 * stddev(data) / np.sqrt(datasize) * tinv(
+                lower = data.mean() + self.infl_factor_upper * stddev(data) / np.sqrt(datasize) * tinv(
                     1.0 - delta, datasize - 1
                 )
             else:
@@ -1188,7 +1199,7 @@ class CVaRSQeBaseNode(BaseNode):
             np.zeros(n_candidate),
             np.minimum(
                 np.ones(n_candidate),
-                np.arange(n_candidate) / n_candidate + 2 * sqrt_term,
+                np.arange(n_candidate) / n_candidate + self.infl_factor_lower * sqrt_term,
             )
             - (1 - self.alpha),
         )
@@ -1226,7 +1237,7 @@ class CVaRSQeBaseNode(BaseNode):
         max_term = np.maximum(
             np.zeros(n_candidate),
             (1 + np.arange(n_candidate)) / n_candidate
-            - 2 * sqrt_term
+            - self.infl_factor_upper * sqrt_term
             - (1 - self.alpha),
         )
         upper = Znew[-1] - (1 / self.alpha) * sum(np.diff(Znew) * max_term)
