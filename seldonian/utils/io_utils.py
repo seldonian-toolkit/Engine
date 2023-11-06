@@ -64,11 +64,11 @@ def save_json(filename, data, indent=2, verbose=False):
         print(f"Saved {filename}\n")
 
 
-def cmaes_logger(es,filename):
-    """ A function that is used as a callback each time the
+def cmaes_logger(es, filename):
+    """A function that is used as a callback each time the
     CMA-ES evoluation strategy object, es, is evaluated,
     allowing us to log the xmean and f value at each
-    iteration 
+    iteration
 
     """
     it_str = str(es.countiter)

@@ -3,6 +3,7 @@ import autograd.numpy as np  # Thinly-wrapped version of Numpy
 
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
+
 class SeldonianModel(object):
     def __init__(self):
         """Parent class for all machine learning models"""
@@ -150,12 +151,12 @@ class BaseLogisticRegressionModel(ClassificationModel):
         Let:
                 i = number of datapoints
                 j = number of features (including bias term, if provied)
-                k = number of classes 
+                k = number of classes
 
         :param X: The features
         :type X: array of shape (i,j)
         :param Y: The labels
-        :type Y: array of shape (i,k) 
+        :type Y: array of shape (i,k)
         :return: fitted model weights
         :rtype: array of shape (j,k)
         """

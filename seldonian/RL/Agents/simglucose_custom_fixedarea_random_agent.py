@@ -1,10 +1,15 @@
 from seldonian.RL.Agents.Agent import *
 from seldonian.RL.Agents.Function_Approximators.Table import *
 from seldonian.RL.Agents.Policies.Softmax import *
-from seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea import SigmoidPolicyFixedArea
+from seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea import (
+    SigmoidPolicyFixedArea,
+)
+
 
 class SimglucoseFixedAreaAgent(Agent):
-    def __init__(self, bb_crmin, bb_crmax, bb_cfmin, bb_cfmax, cr_shrink_factor, cf_shrink_factor):
+    def __init__(
+        self, bb_crmin, bb_crmax, bb_cfmin, bb_cfmax, cr_shrink_factor, cf_shrink_factor
+    ):
         """
 
         :param hyperparameter_and_setting_dict: Specifies the
@@ -14,7 +19,9 @@ class SimglucoseFixedAreaAgent(Agent):
             of the environment
         :type env_description: :py:class:`.Env_Description`
         """
-        self.policy = SigmoidPolicyFixedArea(bb_crmin, bb_crmax, bb_cfmin, bb_cfmax, cr_shrink_factor, cf_shrink_factor)
+        self.policy = SigmoidPolicyFixedArea(
+            bb_crmin, bb_crmax, bb_cfmin, bb_cfmax, cr_shrink_factor, cf_shrink_factor
+        )
 
     def choose_action(self, obs):
         """Return a CR,CF by sampling from uniform random distributions
@@ -26,13 +33,13 @@ class SimglucoseFixedAreaAgent(Agent):
         :return: array of actions
         """
         theta = self.policy.get_params()
-        cr1,cr2,cf1,cf2 = self.policy.theta2crcf(theta)
-        cr = np.random.uniform(cr1,cr2)
-        cf = np.random.uniform(cf1,cf2)
-        return cr,cf
+        cr1, cr2, cf1, cf2 = self.policy.theta2crcf(theta)
+        cr = np.random.uniform(cr1, cr2)
+        cf = np.random.uniform(cf1, cf2)
+        return cr, cf
 
-    def get_prob_this_action(self,observation, action):
-        return 0 # this is a continuous action space so all individual actions have 0 probability
+    def get_prob_this_action(self, observation, action):
+        return 0  # this is a continuous action space so all individual actions have 0 probability
 
     def update(self, observation, next_observation, reward, terminated):
         """

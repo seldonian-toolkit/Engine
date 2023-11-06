@@ -24,17 +24,20 @@ class Policy(object):
 
     def get_prob_this_action(self, obs, action):
         """Get probability of taking an action given an observation.
-        Does not necessarily need to be overridden, but is often called from 
+        Does not necessarily need to be overridden, but is often called from
         self.get_probs_from_observations_and_actions()"""
         raise NotImplementedError()
 
-    def get_probs_from_observations_and_actions(self,observations,actions,behavior_action_probs):
+    def get_probs_from_observations_and_actions(
+        self, observations, actions, behavior_action_probs
+    ):
         """Get probabilities for each observation and action in the input arrays"""
         raise NotImplementedError()
 
+
 class Discrete_Action_Policy(Policy):
     def __init__(self, hyperparam_and_setting_dict, env_description):
-        """General policy class where actions are discrete. Converts 
+        """General policy class where actions are discrete. Converts
         input actions into 0-indexed actions.
 
         :param hyperparameter_and_setting_dict: Specifies the
@@ -86,7 +89,7 @@ class Discrete_Action_Policy(Policy):
             return self.construct_basis_and_linear_FA(
                 env_description, hyperparam_and_setting_dict
             )
-        else:
+        else:  # pragma: no cover
             error(
                 f"unhandled state type {type(env_description.observation_space)} and action type {type(env_description.action_space)} for make_state_action_FA()"
             )
@@ -108,7 +111,7 @@ class Discrete_Action_Policy(Policy):
         basis_type = hyperparam_and_setting_dict["basis"]
         if basis_type == "Fourier":
             basis = Fourier(hyperparam_and_setting_dict, env_description)
-        else:
+        else:  # pragma: no cover
             error("unknown basis type ", basis_type)
         return Linear_state_action_value_FA(basis, env_description)
 

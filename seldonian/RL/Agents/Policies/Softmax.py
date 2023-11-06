@@ -45,10 +45,10 @@ class Softmax(Discrete_Action_Policy):
                     action_num_zero_indexed
                 )
 
-        print(stop_value)
-        print(roulette_wheel_start)
-        print(action_probs)
-        error("reached the end of SoftMax.choose_action(), this should never happen")
+        print(stop_value, roulette_wheel_start, action_probs)  # pragma: no cover
+        error(
+            "reached the end of SoftMax.choose_action(), this should never happen"
+        )  # pragma: no cover
 
     def get_action_probs_from_action_values(self, action_values):
         """Get action probabilities given a list of action values (param weights)"""
@@ -78,8 +78,10 @@ class Softmax(Discrete_Action_Policy):
         this_action = self.from_environment_action_to_0_indexed_action(action)
         return action_probs[this_action]
 
-    def get_probs_from_observations_and_actions(self, observations, actions, behavior_action_probs):
-        """Get the action probabilities of a selected actions and observations under 
+    def get_probs_from_observations_and_actions(
+        self, observations, actions, behavior_action_probs
+    ):
+        """Get the action probabilities of a selected actions and observations under
         the new policy
 
         :param observations: array of observations of the environment
@@ -89,8 +91,11 @@ class Softmax(Discrete_Action_Policy):
         :return: action probabilities of the observation,action pairs under the new policy
         :rtype: numpy.ndarray(float)
         """
-        action_probs = np.array(list(map(self.get_prob_this_action,observations,actions)))
+        action_probs = np.array(
+            list(map(self.get_prob_this_action, observations, actions))
+        )
         return action_probs
+
 
 class DiscreteSoftmax(Softmax):
     def __init__(self, hyperparam_and_setting_dict, env_description):
@@ -131,8 +136,10 @@ class DiscreteSoftmax(Softmax):
         """
         return np.exp(self._arg(observation, action)) / self._denom(observation)
 
-    def get_probs_from_observations_and_actions(self, observations, actions, behavior_action_probs):
-        """Get the action probabilities of a selected actions and observations under 
+    def get_probs_from_observations_and_actions(
+        self, observations, actions, behavior_action_probs
+    ):
+        """Get the action probabilities of a selected actions and observations under
         the new policy
 
         :param observations: array of observations of the environment
@@ -142,7 +149,9 @@ class DiscreteSoftmax(Softmax):
         :return: action probabilities of the observation,action pairs under the new policy
         :rtype: numpy.ndarray(float)
         """
-        action_probs = np.array(list(map(self.get_prob_this_action,observations,actions)))
+        action_probs = np.array(
+            list(map(self.get_prob_this_action, observations, actions))
+        )
 
         # Clear the cache
         # This is necessary because cache is only correct
@@ -151,9 +160,10 @@ class DiscreteSoftmax(Softmax):
         self._arg.cache_clear()
         return action_probs
 
+
 class MixedSoftmax(Softmax):
     def __init__(self, hyperparam_and_setting_dict, env_description, alpha=0.5):
-        """ Softmax mixed policy, as in https://people.cs.umass.edu/~pthomas/papers/Thomas2015b.pdf
+        """Softmax mixed policy, as in https://people.cs.umass.edu/~pthomas/papers/Thomas2015b.pdf
         see equation for mu in last paragraph before Section 2.1. Stationarity
 
         :param hyperparameter_and_setting_dict: Specifies the
@@ -171,7 +181,7 @@ class MixedSoftmax(Softmax):
         self.alpha = alpha
 
     def get_prob_this_action(self, observation, action, pi_b):
-        """ Get the probability of a selected action under the mixed policy 
+        """Get the probability of a selected action under the mixed policy
         given observation, action and action probability of the behavior policy
 
         :param observation: The current obseravation of the environment
@@ -185,6 +195,5 @@ class MixedSoftmax(Softmax):
         action_probs = self.get_action_probs_from_action_values(action_values)
         this_action = self.from_environment_action_to_0_indexed_action(action)
         pi_new = action_probs[this_action]
-        pi_mixed = self.alpha*pi_new + (1-self.alpha)*pi_b
+        pi_mixed = self.alpha * pi_new + (1 - self.alpha) * pi_b
         return pi_mixed
-

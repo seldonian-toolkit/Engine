@@ -97,9 +97,9 @@ class CandidateSelection(object):
 
         :param batch_index: The batch number (0-indexed)
         :type batch_index: int
-        :param batch_size: The size of the batches 
+        :param batch_size: The size of the batches
         :type batch_size: int
-        
+
         :return: None
         """
         batch_start = batch_index * batch_size
@@ -155,10 +155,10 @@ class CandidateSelection(object):
                 meta=self.candidate_dataset.meta,
             )
         # If this batch is smaller than the batch size and not the first batch
-        # then that means we shouldn't consider a candidate solution calculated from it 
+        # then that means we shouldn't consider a candidate solution calculated from it
         if batch_index > 0 and (batch_num_datapoints < batch_size):
             return True
-        else: 
+        else:
             return False
 
     def run(self, **kwargs):
@@ -167,7 +167,7 @@ class CandidateSelection(object):
         :return: Optimized model weights or 'NSF'
         :rtype: array or str
         """
-        
+
         if self.optimization_technique == "gradient_descent":
             if self.optimizer != "adam":
                 raise NotImplementedError(
@@ -175,6 +175,7 @@ class CandidateSelection(object):
                 )
 
             from seldonian.optimizers.gradient_descent import gradient_descent_adam
+
             if "clip_theta" not in kwargs:
                 kwargs["clip_theta"] = None
             # Figure out number of batches
@@ -298,7 +299,6 @@ class CandidateSelection(object):
             candidate_solution = res["candidate_solution"]
 
         elif self.optimization_technique == "barrier_function":
-            
             opts = {}
             if "maxiter" in kwargs:
                 opts["maxiter"] = kwargs["maxiter"]
@@ -331,9 +331,7 @@ class CandidateSelection(object):
                     log_counter = 0
                     logdir = os.path.join(os.getcwd(), "logs")
                     os.makedirs(logdir, exist_ok=True)
-                    filename = os.path.join(
-                        logdir, f"cmaes_log{log_counter}.csv"
-                    )
+                    filename = os.path.join(logdir, f"cmaes_log{log_counter}.csv")
 
                     while os.path.exists(filename):
                         filename = filename.replace(
@@ -341,7 +339,7 @@ class CandidateSelection(object):
                         )
                         log_counter += 1
 
-                    logger = partial(cmaes_logger,filename=filename)
+                    logger = partial(cmaes_logger, filename=filename)
                 else:
                     logger = None
 
@@ -355,13 +353,15 @@ class CandidateSelection(object):
 
                 es = cma.CMAEvolutionStrategy(self.initial_solution, sigma0, opts)
 
-                es.optimize(self.objective_with_barrier,callback=logger)
+                es.optimize(self.objective_with_barrier, callback=logger)
                 if kwargs["verbose"]:
                     es.disp()
                 if self.write_logfile and kwargs["verbose"]:
                     print(f"Wrote {filename} with candidate selection log info")
                 candidate_solution = es.result.xbest
-                if (candidate_solution is None) or (not all(np.isfinite(candidate_solution))):
+                if (candidate_solution is None) or (
+                    not all(np.isfinite(candidate_solution))
+                ):
                     candidate_solution = "NSF"
                 self.optimization_result = es.result
             else:
@@ -397,13 +397,19 @@ class CandidateSelection(object):
         # and the entire candidate dataset
         if self.regime == "supervised_learning":
             result = self.primary_objective(
-                self.model, theta, self.features, self.labels, sub_regime=self.candidate_dataset.meta.sub_regime
+                self.model,
+                theta,
+                self.features,
+                self.labels,
+                sub_regime=self.candidate_dataset.meta.sub_regime,
             )
 
-        elif self.regime == 'reinforcement_learning':
-        	result = -1.0*self.primary_objective(self.model,theta,self.candidate_dataset.episodes)
+        elif self.regime == "reinforcement_learning":
+            result = -1.0 * self.primary_objective(
+                self.model, theta, self.candidate_dataset.episodes
+            )
 
-        # Optionally adding regularization term 
+        # Optionally adding regularization term
         if hasattr(self, "reg_func"):
             reg_res = self.reg_func(theta)
             result += reg_res
@@ -469,7 +475,11 @@ class CandidateSelection(object):
 
         if self.regime == "supervised_learning":
             result = self.primary_objective(
-                self.model, theta, self.batch_features, self.batch_labels, sub_regime=self.candidate_dataset.meta.sub_regime
+                self.model,
+                theta,
+                self.batch_features,
+                self.batch_labels,
+                sub_regime=self.candidate_dataset.meta.sub_regime,
             )
 
         elif self.regime == "reinforcement_learning":
@@ -524,7 +534,7 @@ class CandidateSelection(object):
 
     def get_importance_weights(self, theta):
         """Get an array of importance weights evaluated on the candidate dataset
-        given model weights, theta. 
+        given model weights, theta.
 
         :param theta: model weights
         :type theta: numpy.ndarray

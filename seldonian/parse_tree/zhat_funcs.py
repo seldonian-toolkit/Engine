@@ -3,10 +3,14 @@
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
 import math
 
-from seldonian.utils.stats_utils import (weighted_sum_gamma,
-    custom_cumprod, stability_const)
+from seldonian.utils.stats_utils import (
+    weighted_sum_gamma,
+    custom_cumprod,
+    stability_const,
+)
 
 """ Convenience functions """
+
 
 def batcher(func, N, batch_size, num_batches):
     """Calls function func num_batches times,
@@ -22,6 +26,7 @@ def batcher(func, N, batch_size, num_batches):
 
     :return: A wrapper function that does the actual function calls
     """
+
     def wrapper(*args, **kw):
         regime = kw["regime"]
         model = args[0]
@@ -62,9 +67,9 @@ def batcher(func, N, batch_size, num_batches):
 
 
 def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
-    """Set up the args,kwargs to pass to the 
+    """Set up the args,kwargs to pass to the
     zhat functions.
-    
+
     :param model: SeldonianModel instance
     :param theta: The parameter weights
     :type theta: numpy ndarray
@@ -73,15 +78,15 @@ def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
     :param sub_regime: The specific type of ML problem, e.g. "classification"
     :type sub_regime: str
 
-    :return: (args, msr_func_kwargs, num_datapoints), 
-        a tuple consisting of positional arguments (args), 
+    :return: (args, msr_func_kwargs, num_datapoints),
+        a tuple consisting of positional arguments (args),
         keyword arguments (msr_func_kwargs) and the total
         number of datapoints to consider (num_datapoints).
     """
     regime = kwargs["regime"]
     dataset = kwargs["dataset"]
     msr_func_kwargs = {"regime": regime}
-    
+
     if regime == "supervised_learning":
         num_datapoints = len(data_dict["labels"])
         args = [model, theta, data_dict["features"], data_dict["labels"]]
@@ -100,7 +105,7 @@ def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
         msr_func_kwargs["weighted_returns"] = data_dict["weighted_returns"]
         args = [model, theta, episodes]
 
-    return args,msr_func_kwargs,num_datapoints
+    return args, msr_func_kwargs, num_datapoints
 
 
 def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
@@ -121,17 +126,9 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
     branch = kwargs["branch"]
     regime = kwargs["regime"]
     sub_regime = kwargs["dataset"].meta.sub_regime
-    
-    (
-        args,
-        msr_func_kwargs,
-        num_datapoints
-    ) = _setup_params_for_stat_funcs(
-        model=model,
-        theta=theta, 
-        data_dict=data_dict,
-        sub_regime=sub_regime,
-        **kwargs
+
+    (args, msr_func_kwargs, num_datapoints) = _setup_params_for_stat_funcs(
+        model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
     )
 
     msr_func = measure_function_vector_mapper[statistic_name]
@@ -152,7 +149,10 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
             batch_size_safety = num_datapoints
             num_batches = 1
         return batcher(
-            msr_func, N=num_datapoints, batch_size=batch_size_safety, num_batches=num_batches
+            msr_func,
+            N=num_datapoints,
+            batch_size=batch_size_safety,
+            num_batches=num_batches,
         )(*args, **msr_func_kwargs)
 
 
@@ -173,17 +173,9 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
     branch = kwargs["branch"]
     regime = kwargs["regime"]
     sub_regime = kwargs["dataset"].meta.sub_regime
-    
-    (
-        args,
-        msr_func_kwargs,
-        num_datapoints
-    ) = _setup_params_for_stat_funcs(
-        model=model,
-        theta=theta, 
-        data_dict=data_dict,
-        sub_regime=sub_regime,
-        **kwargs
+
+    (args, msr_func_kwargs, num_datapoints) = _setup_params_for_stat_funcs(
+        model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
     )
 
     msr_func = measure_function_vector_mapper[statistic_name]
@@ -215,6 +207,7 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
 
 
 """ Regression zhat functions """
+
 
 def vector_Squared_Error(model, theta, X, Y, **kwargs):
     """Calculate squared error for each observation
@@ -285,7 +278,7 @@ def vector_Positive_Rate(model, theta, X, Y, **kwargs):
 def _vector_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate positive rate
-    for each observation. This is the probability of 
+    for each observation. This is the probability of
     predicting the positive class.
 
     :param model: SeldonianModel instance
@@ -306,7 +299,7 @@ def _vector_Positive_Rate_binary(model, theta, X, Y, **kwargs):
 def _vector_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     Calculate positive rate
-    for each observation. This is the probability of 
+    for each observation. This is the probability of
     predicting class=class_index.
 
     :param model: SeldonianModel instance
@@ -494,8 +487,8 @@ def vector_False_Negative_Rate(model, theta, X, Y, **kwargs):
 def _vector_False_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate false negative rate
-    for each observation. This is the probability of predicting 
-    the negative class when the true label was the positive class. 
+    for each observation. This is the probability of predicting
+    the negative class when the true label was the positive class.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -565,8 +558,8 @@ def vector_True_Positive_Rate(model, theta, X, Y, **kwargs):
 def _vector_True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate true positive rate
-    for each observation. This is the probability of predicting the 
-    positive class when the true label is the positive class. 
+    for each observation. This is the probability of predicting the
+    positive class when the true label is the positive class.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -587,7 +580,7 @@ def _vector_True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
 def _vector_True_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     Calculate true positive rate
-    for each observation. This is the probability of predicting  
+    for each observation. This is the probability of predicting
     class=class_index when the true label is class_index.
 
     :param model: SeldonianModel instance
@@ -658,7 +651,7 @@ def _vector_True_Negative_Rate_binary(model, theta, X, Y, **kwargs):
 def _vector_True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     Calculate true negative rate
-    for each observation. This is the probability 
+    for each observation. This is the probability
     of predicting class!=class_index when the true label was not class_index.
 
     :param model: SeldonianModel instance
@@ -723,7 +716,7 @@ def _vector_Error_Rate_binary(model, theta, X, Y, **kwargs):
     # Get probabilities of true positives and true negatives
     # Use the vector Y_pred as it already has the true positive
     # probs. Just need to replace the probabilites in the neg mask with 1-prob
-    return Y*(1-Y_pred_probs) + (1-Y)*Y_pred_probs
+    return Y * (1 - Y_pred_probs) + (1 - Y) * Y_pred_probs
 
 
 def _vector_Error_Rate_multiclass(model, theta, X, Y, **kwargs):
@@ -789,7 +782,7 @@ def _vector_Accuracy_binary(model, theta, X, Y, **kwargs):
     :rtype: numpy ndarray(float between 0 and 1)
     """
     Y_pred_probs = model.predict(theta, X)
-    return Y*Y_pred_probs + (1-Y)*(1-Y_pred_probs)
+    return Y * Y_pred_probs + (1 - Y) * (1 - Y_pred_probs)
 
 
 def _vector_Accuracy_multiclass(model, theta, X, Y, **kwargs):
@@ -850,6 +843,7 @@ def vector_confusion_matrix(model, theta, X, Y, l_i, l_k, **kwargs):
 
 """ RL zhat functions """
 
+
 def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     """Calculate the unweighted importance sampling estimate
     on each episodes in the dataframe
@@ -899,11 +893,11 @@ def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
             theta, ep.observations, ep.actions, ep.action_probs
         )
         pi_ratios = pi_news / ep.action_probs
-        
+
         # autograd doesn't support np.cumprod
         pi_ratio_prods = custom_cumprod(pi_ratios)
 
-        PDIS_vector.append( np.sum(pi_ratio_prods * discount * ep.rewards) )
+        PDIS_vector.append(np.sum(pi_ratio_prods * discount * ep.rewards))
 
     return np.array(PDIS_vector)
 
@@ -919,7 +913,7 @@ def vector_WIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     :param weighted_returns: A pre-calculated list of weighted returns
         from the reward that is present in the constraint
 
-    :return: A vector of WIS estimates calculated for each episode, 
+    :return: A vector of WIS estimates calculated for each episode,
         such that the mean of this vector will be the WIS estimate.
     :rtype: numpy ndarray(float)
     """
@@ -931,23 +925,25 @@ def vector_WIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
         pi_news = model.get_probs_from_observations_and_actions(
             theta, ep.observations, ep.actions, ep.action_probs
         )
-        rho_array.append(np.prod(pi_news/ep.action_probs))
+        rho_array.append(np.prod(pi_news / ep.action_probs))
     rho_array = np.array(rho_array)
-    WIS_vector = n*rho_array*weighted_returns/np.sum(rho_array)
+    WIS_vector = n * rho_array * weighted_returns / np.sum(rho_array)
     return WIS_vector
 
 
-def vector_auxiliary_return_US_estimate(model, theta, episodes, weighted_returns, **kwargs):
+def vector_auxiliary_return_US_estimate(
+    model, theta, episodes, weighted_returns, **kwargs
+):
     """Get the auxiliary reward returns for episodes
-     whose actions fall within the theta bounding box.
-     This function is used for constraints, unlike Bounding_box_estimate()
-     which is used for primary objective functions.
+    whose actions fall within the theta bounding box.
+    This function is used for constraints, unlike Bounding_box_estimate()
+    which is used for primary objective functions.
     """
-    crmin,crmax,cfmin,cfmax = model.policy.theta2crcf(theta)
+    crmin, crmax, cfmin, cfmax = model.policy.theta2crcf(theta)
 
     returns_inside_theta_box = []
     for ii, ep in enumerate(episodes):
-        cr,cf = ep.actions[0] # behavior policy action
+        cr, cf = ep.actions[0]  # behavior policy action
         secondary_return = ep.alt_rewards[0][0]
         # theta is crmin, crmax, cfmin, cfmax
         if (crmin <= cr <= crmax) and (cfmin <= cf <= cfmax):
@@ -969,7 +965,7 @@ measure_function_vector_mapper = {
     "TNR": vector_True_Negative_Rate,
     "ACC": vector_Accuracy,
     "J_pi_new_IS": vector_IS_estimate,
-    'J_pi_new_PDIS':vector_PDIS_estimate,
-    'J_pi_new_WIS':vector_WIS_estimate,
-    'J_pi_new_US':vector_auxiliary_return_US_estimate,
+    "J_pi_new_PDIS": vector_PDIS_estimate,
+    "J_pi_new_WIS": vector_WIS_estimate,
+    "J_pi_new_US": vector_auxiliary_return_US_estimate,
 }
