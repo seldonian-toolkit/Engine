@@ -26,6 +26,7 @@ from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
 from seldonian.utils.io_utils import load_pickle,save_pickle,cmaes_logger
 from seldonian.utils.stats_utils import tinv
+from seldonian.utils.hyperparam_utils as hp_utils 
 
 
 class HyperSchema(object):
@@ -343,49 +344,6 @@ class HyperparamSearch:
             S_s = dataset.sensitive_attrs[n_candidate:]
             return E_c, E_s, S_c, S_s, n_candidate, n_safety
 
-
-    def create_shuffled_dataset(
-            self,
-            dataset
-    ):
-        """Create new dataset containing the same data as the given original dataset,
-            but with the data shuffled in a new order.
-
-        :param dataset: a dataset object containing data
-        :type dataset: :py:class:`.DataSet` object
-
-        :return: shuffled_dataset, a dataset with same points in dataset, but shuffled.
-        :rtype: :py:class:`.DataSet` object
-        """
-        ix_shuffle = np.arange(dataset.num_datapoints)
-        np.random.shuffle(ix_shuffle)
-
-        # features can be list of arrays or a single array
-        if type(dataset.features) == list:
-            resamp_features = [x[ix_shuffle] for x in flist]
-        else:
-            resamp_features = dataset.features[ix_shuffle] 
-
-
-        # labels and sensitive attributes must be arrays
-        resamp_labels = dataset.labels[ix_shuffle]
-
-        if isinstance(dataset.sensitive_attrs, np.ndarray):
-            resamp_sensitive_attrs = dataset.sensitive_attrs[ix_shuffle]
-        else:
-            resamp_sensitive_attrs = []
-
-        shuffled_dataset = SupervisedDataSet(
-            features=resamp_features,
-            labels=resamp_labels,
-            sensitive_attrs=resamp_sensitive_attrs,
-            num_datapoints=dataset.num_datapoints,
-            meta=dataset.meta,
-        )
-
-        return shuffled_dataset
-
-
     def create_dataset(
             self,
             dataset,
@@ -410,7 +368,7 @@ class HyperparamSearch:
         :rtype: Tuple containing two `.DataSet` objects.
         """
         if shuffle:
-            dataset = self.create_shuffled_dataset(dataset)
+            dataset = hp_utils.create_shuffled_dataset(dataset)
 
         if self.regime == "supervised_learning":
 
@@ -485,55 +443,6 @@ class HyperparamSearch:
         return candidate_dataset, safety_dataset
 
 
-    def bootstrap_sample_dataset(
-            self,
-            dataset,
-            n_bootstrap_samples,
-    ):
-        """Bootstrap sample a dataset of size n_bootstrap_samples from the data points
-            in dataset.
-
-        :param dataset: The original dataset from which to resample
-        :type dataset: pandas DataFrame
-        :param n_bootstrap_samples: The size of the bootstrapped dataset
-        :type n_bootstrap_samples: int
-        :param savename: Path to save the bootstrapped dataset.
-        :type savename: str
-        """ 
-        if self.regime == "supervised_learning":
-            ix_resamp = np.random.choice(
-                range(dataset.num_datapoints), n_bootstrap_samples, replace=True
-            )
-            # features can be list of arrays or a single array
-            if type(dataset.features) == list:
-                resamp_features = [x[ix_resamp] for x in flist]
-            else:
-                resamp_features = dataset.features[ix_resamp]
-
-            # labels and sensitive attributes must be arrays
-            resamp_labels = dataset.labels[ix_resamp]
-            if isinstance(dataset.sensitive_attrs, np.ndarray):
-                resamp_sensitive_attrs = dataset.sensitive_attrs[ix_resamp]
-            else:
-                resamp_sensitive_attrs = []
-
-            bootstrap_dataset = SupervisedDataSet(
-                features=resamp_features,
-                labels=resamp_labels,
-                sensitive_attrs=resamp_sensitive_attrs,
-                num_datapoints=n_bootstrap_samples,
-                meta=dataset.meta,
-            )
-
-            return bootstrap_dataset
-
-        elif self.regime == "reinforcement_learning":
-            # TODO: Finish implementing this.
-            raise NotImplementedError(
-                    "Creating bootstrap sampled datasets not yet implemented for "
-                    "reinforcement_learning regime")
-
-
     def generate_all_bootstrap_datasets(
             self,
             candidate_dataset,
@@ -589,16 +498,16 @@ class HyperparamSearch:
                         candidate_dataset, frac_data_in_safety, shuffle=True)
 
                 # Sample from pools.
-                bootstrap_datasets_dict["candidate"] = self.bootstrap_sample_dataset(
-                        bootstrap_pool_candidate, n_bootstrap_samples_candidate)
-                bootstrap_datasets_dict["safety"] = self.bootstrap_sample_dataset(
-                        bootstrap_pool_safety, n_bootstrap_samples_safety)
+                bootstrap_datasets_dict["candidate"] = hp_utils.bootstrap_sample_dataset(
+                        bootstrap_pool_candidate, n_bootstrap_samples_candidate,self.regime)
+                bootstrap_datasets_dict["safety"] = hp_utils.bootstrap_sample_dataset(
+                        bootstrap_pool_safety, n_bootstrap_samples_safety,self.regime)
 
             else: # Sample directly from candidate datset.
-                bootstrap_datasets_dict["candidate"] = self.bootstrap_sample_dataset(
-                        candidate_dataset, n_bootstrap_samples_candidate)
-                bootstrap_datasets_dict["safety"] = self.bootstrap_sample_dataset(
-                        candidate_dataset, n_bootstrap_samples_safety)
+                bootstrap_datasets_dict["candidate"] = hp_utils.bootstrap_sample_dataset(
+                        candidate_dataset, n_bootstrap_samples_candidate,self.regime)
+                bootstrap_datasets_dict["safety"] = hp_utils.bootstrap_sample_dataset(
+                        candidate_dataset, n_bootstrap_samples_safety,self.regime)
 
             # Save datasets.
             save_pickle(bootstrap_datasets_savename, bootstrap_datasets_dict, verbose=self.spec.verbose)
@@ -631,6 +540,10 @@ class HyperparamSearch:
                         " is not yet implemented"
                     )
                 elif hyper_type == "SA":
+                    if 
+                    "bound_inflation_factor",
+                    "frac_data_in_safety",
+                    "delta_split_dict"
                     raise NotImplementedError(
                         f"Setting hyperparameter type {hyper_type} in hyperparameter selection"
                         " is not yet implemented"
@@ -1005,16 +918,14 @@ class HyperparamSearch:
         Create iterator for every combination of grid-searchable hyperparameter values that we want to
             optimize for.
 
-        Note that we do not consider frac_data_in_safety a hyperparameter we optimize
-            in combination with other hyperparamters, so it is not included.
         """
         all_hyper_iterables = []
 
         for (hyper_name, hyper_info) in self.hyper_dict.items():
-            if hyper_name == "frac_data_in_safety": 
-                continue
             if hyper_info["tuning_method"] == "grid_search":
                 hyper_values, hyper_type = hyper_info["values"], hyper_info["hyper_type"]
+                if hyper_name == "frac_data_in_safety":
+                    hyper_values = sorted(hyper_values,reverse=True)
                 all_hyper_iterables.append([(hyper_name, hyper_type, value) for value in hyper_values])
 
         return itertools.product(*all_hyper_iterables)
@@ -1074,11 +985,13 @@ class HyperparamSearch:
         do_cmaes = False
         do_powell = False
         cmaes_hps = [name for name,hyper_info in self.hyper_dict.items() if hyper_info['tuning_method']=="CMA-ES"]
+        
         if len(cmaes_hps) == 1:
             # CMA-ES won't work with 1 param, so use powell
             do_powell = True
         if len(cmaes_hps) > 1:
             do_cmaes = True
+
         if do_grid_search:
             print(f"doing grid search over: {grid_search_hps}")
             for hyperparam_setting in self.get_gridsearchable_hyperparameter_iterator():

@@ -79,6 +79,15 @@ if __name__ == "__main__":
                 "search_distribution": "log-uniform",
                 "tuning_method": "CMA-ES"
                 },
+            "bound_inflation_factor": {
+                "initial_value":[1,1],
+                "min_val": 0.1,
+                "max_val": 4,
+                "dtype": "float",
+                "hyper_type":"SA",
+                "search_distribution": "uniform",
+                "tuning_method": "CMA-ES"
+                },
             "num_iters": {
                 "values": [100,200],
                 "hyper_type": "optimization",
