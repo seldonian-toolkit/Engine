@@ -26,7 +26,7 @@ from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
 from seldonian.utils.io_utils import load_pickle,save_pickle,cmaes_logger
 from seldonian.utils.stats_utils import tinv
-from seldonian.utils.hyperparam_utils as hp_utils 
+import seldonian.utils.hyperparam_utils as hp_utils 
 
 
 class HyperSchema(object):
@@ -89,7 +89,7 @@ class HyperSchema(object):
         self.allowed_SA_hyperparams = [
             "bound_inflation_factor",
             "frac_data_in_safety",
-            "delta_split_dict"
+            "delta_split_vector"
         ]
         self.allowable_tuning_methods = ["grid_search","CMA-ES"]
         self.allowable_hyper_types = ["optimization","model","SA"]
@@ -106,7 +106,7 @@ class HyperSchema(object):
             if not isinstance(hyper_info,dict):
                 raise RuntimeError(f"hyper_dict['{hyper_name}'] is not a dictionary. ")
             
-            # Check if grid search parameter
+            # Check for tuning method
             if "tuning_method" not in hyper_info:
                 raise KeyError(f"hyper_dict['{hyper_name}'] must have the key: 'tuning_method'. ")
 
@@ -514,46 +514,6 @@ class HyperparamSearch:
 
         return 
 
-    def set_spec_with_hyperparam_setting(
-            self,
-            spec,
-            hyperparam_setting
-    ):
-        """
-        Update spec according to hyperparam_setting.
-
-        :type hyperparam_setting: tuple containing hyperparameter values that should be
-            set for this bootstrap experiment (if not given will use default from self.spec)
-        :type hyperparam_setting: tuple of tuples, where each inner tuple takes the form
-            (hyperparameter name, hyperparameter type, hyperparameter value)
-                Example:
-                (("alpha_theta", "optimization", 0.001), ("num_iters", "optimization", 500))
-        """
-        if hyperparam_setting is not None:
-            for (hyper_name, hyper_type, hyper_value) in hyperparam_setting:
-                if hyper_type == "optimization":
-                    spec.optimization_hyperparams[hyper_name] = hyper_value
-                elif hyper_type == "model":
-                    # TODO: Not yet implemented
-                    raise NotImplementedError(
-                        f"Setting hyperparameter type {hyper_type} in hyperparameter selection"
-                        " is not yet implemented"
-                    )
-                elif hyper_type == "SA":
-                    if 
-                    "bound_inflation_factor",
-                    "frac_data_in_safety",
-                    "delta_split_dict"
-                    raise NotImplementedError(
-                        f"Setting hyperparameter type {hyper_type} in hyperparameter selection"
-                        " is not yet implemented"
-                    )
-                else:
-                    raise ValueError(
-                        f"{hyper_type} is not a valid hyperparameter type"
-                    )
-
-        return spec
 
     def create_bootstrap_trial_spec(
             self,
@@ -597,7 +557,7 @@ class HyperparamSearch:
         spec_for_bootstrap_trial.frac_data_in_safety = frac_data_in_safety
 
         # Update spec with hyperparam_setting.
-        spec_for_bootstrap_trial = self.set_spec_with_hyperparam_setting(
+        spec_for_bootstrap_trial = hp_utils.set_spec_with_hyperparam_setting(
                 spec_for_bootstrap_trial, hyperparam_setting)
 
         return spec_for_bootstrap_trial
@@ -663,57 +623,6 @@ class HyperparamSearch:
         return True
 
 
-    def ttest_bound(
-            self,
-            bootstrap_trial_data,
-            delta=0.1
-    ):
-        """
-        Compute ttest bound on the probability of passing using the bootstrap data across
-            bootstrap trials.
-
-        :param bootstrap_trial_data: Array of size n_bootstrap_samples, containing the 
-            result of each bootstrap trial.
-        :type bootstrap_trial_data: np.array
-        :param delta: confidence level, i.e. 0.05
-        :type delta: float
-        """
-        bs_data_mean = np.nanmean(bootstrap_trial_data) # estimated probability of passing
-        bs_data_stddev = np.nanstd(bootstrap_trial_data)
-
-        lower_bound = bs_data_mean - bs_data_stddev / np.sqrt(
-                self.hyperparam_spec.n_bootstrap_trials)  * tinv(
-                        1.0 - delta, self.hyperparam_spec.n_bootstrap_trials - 1)
-        upper_bound = bs_data_mean + bs_data_stddev / np.sqrt(
-                self.hyperparam_spec.n_bootstrap_trials) * tinv(
-                1.0 - delta, self.hyperparam_spec.n_bootstrap_trials - 1)
-
-        return lower_bound, upper_bound
-
-
-    def clopper_pearson_bound(
-            self,
-            pass_count, 
-            alpha=0.1, # Acceptable error
-    ):
-        # TODO: Write tests.
-        # Update this to work here.
-        """
-        Computes a 1-alpha clopper pearson bound on the probability of passing. 
-
-        :param pass_count: number of trials out of n_bootstrap_trials that passed
-        :type pass_count: int
-        :param alpha: confidence parameter
-        :type alpha : float
-        """
-        lower_bound = scipy.stats.beta.ppf(alpha/2, pass_count, 
-                self.hyperparam_spec.n_bootstrap_trials - pass_count + 1)
-        upper_bound = scipy.stats.beta.ppf(1 - alpha/2, pass_count+ 1, 
-                self.hyperparam_spec.n_bootstrap_trials - pass_count)
-
-        return lower_bound, upper_bound
-
-
     def aggregate_est_prob_pass(
             self,
             est_frac_data_in_safety,
@@ -763,9 +672,9 @@ class HyperparamSearch:
 
         # TODO: Update so delta is passed through to CIs.
         if self.hyperparam_spec.confidence_interval_type == "ttest":
-            lower_bound, upper_bound = self.ttest_bound(bs_trials_pass)
+            lower_bound, upper_bound = hp_utils.ttest_bound(self.hyperparam_spec,bs_trials_pass)
         elif self.hyperparam_spec.confidence_interval_type == "clopper-pearson":
-            lower_bound, upper_bound = self.clopper_pearson_bound(num_trials_passed)
+            lower_bound, upper_bound = hp_utils.clopper_pearson_bound(self.hyperparam_spec,num_trials_passed)
         else:
             lower_bound, upper_bound = None, None
 
@@ -1009,6 +918,8 @@ class HyperparamSearch:
                     print("Done.")
                     # combine best cmaes params with existing hyperparam setting
                     full_hyperparam_setting = hyperparam_setting + tuple(best_cmaes_hyperparams)
+                    print("full_hyperparam_setting:")
+                    print(full_hyperparam_setting)
                     all_est_prob_pass[full_hyperparam_setting] = curr_prob_pass
                 elif do_powell:
                     print("Running Powell...")
@@ -1041,7 +952,7 @@ class HyperparamSearch:
         
             
         # Set spec with best hyperparameter setting.
-        best_hyperparam_spec = self.set_spec_with_hyperparam_setting(
+        best_hyperparam_spec = hp_utils.set_spec_with_hyperparam_setting(
                 copy.deepcopy(self.spec), best_hyperparam_setting)
 
         return best_hyperparam_setting, best_hyperparam_spec
@@ -1212,8 +1123,10 @@ class HyperparamSearch:
         """
         # Unpack theta to get hyperparam setting
         hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta)
+        # combine the CMA-ES hyperparams with the fixed hyperparams
+        full_hyperparam_setting = fixed_hyperparam_setting + tuple(hyperparam_setting)
         print("hyperparams for this iteration of CMAES:")
-        print(hyperparam_setting)
+        print(full_hyperparam_setting)
         if hasattr(self,"cmaes_iteration"):
             self.cmaes_iteration += 1
         else:
@@ -1231,7 +1144,7 @@ class HyperparamSearch:
         partial_kwargs = { 
                 "frac_data_in_safety": frac_data_in_safety,
                 "parent_savedir": iteration_savedir,
-                "hyperparam_setting": hyperparam_setting
+                "hyperparam_setting": full_hyperparam_setting
                 }
         helper = partial(self.run_bootstrap_trial, **partial_kwargs)
 
@@ -1282,8 +1195,9 @@ class HyperparamSearch:
         """
         # Unpack theta to get hyperparam setting
         hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta)
+        full_hyperparam_setting = fixed_hyperparam_setting + tuple(hyperparam_setting)
         print("hyperparams for this iteration of Powell:")
-        print(hyperparam_setting)
+        print(full_hyperparam_setting)
         print(f"theta: {theta}")
         if hasattr(self,"powell_iteration"):
             self.powell_iteration += 1
@@ -1301,7 +1215,7 @@ class HyperparamSearch:
         partial_kwargs = { 
                 "frac_data_in_safety": frac_data_in_safety,
                 "parent_savedir": iteration_savedir,
-                "hyperparam_setting": hyperparam_setting
+                "hyperparam_setting": full_hyperparam_setting
                 }
         
         helper = partial(self.run_bootstrap_trial, **partial_kwargs)

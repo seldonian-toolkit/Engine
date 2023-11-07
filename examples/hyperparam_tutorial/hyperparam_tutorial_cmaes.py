@@ -79,24 +79,34 @@ if __name__ == "__main__":
                 "search_distribution": "log-uniform",
                 "tuning_method": "CMA-ES"
                 },
+            # "bound_inflation_factor": {
+            #     "initial_value":[1,2],
+            #     "min_val": 0.1,
+            #     "max_val": 4,
+            #     "dtype": "float",
+            #     "hyper_type":"SA",
+            #     "search_distribution": "uniform",
+            #     "tuning_method": "CMA-ES"
+            #     },
             "bound_inflation_factor": {
-                "initial_value":[1,1],
-                "min_val": 0.1,
-                "max_val": 4,
-                "dtype": "float",
+                "values":((1,1.1),(1.5,1.6),(2,2)),
                 "hyper_type":"SA",
-                "search_distribution": "uniform",
-                "tuning_method": "CMA-ES"
+                "tuning_method": "grid_search"
+                },
+            "delta_split_vector": {
+                "values":((0.1,0.4),(0.4,0.1),(0.025,0.025)),
+                "hyper_type":"SA",
+                "tuning_method": "grid_search"
                 },
             "num_iters": {
-                "values": [100,200],
+                "values": (100,200),
                 "hyper_type": "optimization",
                 "tuning_method": "grid_search"
                 }
             }
     )
     n_bootstrap_trials = 5
-    n_bootstrap_workers = 10
+    n_bootstrap_workers = 8
     use_bs_pools=True
     HS_spec = HyperparameterSelectionSpec(
             hyper_schema=hyper_schema,
