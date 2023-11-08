@@ -119,6 +119,43 @@ class SeldonianAlgorithm:
                 print(f"Safety dataset has {self.n_safety} episodes")
                 print(f"Candidate dataset has {self.n_candidate} episodes")
 
+        elif self.regime == "custom":
+            self.sub_regime = None
+            self.model = self.spec.model
+            # Split into candidate and safety datasets
+
+            (
+                self.candidate_data,
+                self.safety_data,
+                self.candidate_sensitive_attrs,
+                self.safety_sensitive_attrs,
+                self.n_candidate,
+                self.n_safety,
+            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
+
+            self.candidate_dataset = CustomDataSet(
+                data=self.candidate_data,
+                sensitive_attrs=self.candidate_sensitive_attrs,
+                num_datapoints=self.n_candidate,
+                meta=self.dataset.meta,
+            )
+
+            self.safety_dataset = CustomDataSet(
+                data=self.safety_data,
+                sensitive_attrs=self.safety_sensitive_attrs,
+                num_datapoints=self.n_safety,
+                meta=self.dataset.meta,
+            )
+
+            if self.n_candidate < 2 or self.n_safety < 2:
+                warning_msg = (
+                    "Warning: not enough data to " "run the Seldonian algorithm."
+                )
+                warnings.warn(warning_msg)
+            if self.spec.verbose:
+                print(f"Safety dataset has {self.n_safety} datapoints")
+                print(f"Candidate dataset has {self.n_candidate} datapoints")
+
         if self.spec.primary_objective is None:
             if self.regime == "reinforcement_learning":
                 self.spec.primary_objective = objectives.IS_estimate
@@ -129,6 +166,10 @@ class SeldonianAlgorithm:
                     self.spec.primary_objective = objectives.multiclass_logistic_loss
                 elif self.spec.sub_regime == "regression":
                     self.spec.primary_objective = objectives.Mean_Squared_Error
+            elif self.regime == "custom":
+                raise RuntimeError(
+                    "Primary objective must be specified when regime='custom'"
+                )
 
     def candidate_safety_split(self, frac_data_in_safety):
         """Split features, labels and sensitive attributes
@@ -170,6 +211,18 @@ class SeldonianAlgorithm:
             S_c = self.dataset.sensitive_attrs[:n_candidate]
             S_s = self.dataset.sensitive_attrs[n_candidate:]
             return E_c, E_s, S_c, S_s, n_candidate, n_safety
+
+        elif self.regime == "custom":
+            # Split data    
+            D_c = self.dataset.data[:n_candidate]
+            D_s = self.dataset.data[n_candidate:]
+
+            # Split sensitive attributes 
+            S_c = self.dataset.sensitive_attrs[:n_candidate]
+            S_s = self.dataset.sensitive_attrs[n_candidate:]
+            return D_c,D_s, S_c, S_s, n_candidate, n_safety
+        else:
+            raise NotImplementedError(f"{self.regime} is not a supported regime")
 
     def candidate_selection(self, write_logfile=False):
         """Create the candidate selection object
@@ -251,6 +304,16 @@ class SeldonianAlgorithm:
             else:
                 self.initial_solution = self.spec.initial_solution_fn(
                     self.candidate_dataset
+                )
+
+        elif self.regime == "custom":
+            if self.spec.initial_solution_fn is None:
+                raise RuntimeError(
+                    "An initial solution function is required for regime='custom'"
+                )
+            else:
+                self.initial_solution = self.spec.initial_solution_fn(
+                    self.model, self.candidate_data
                 )
 
         if verbose:

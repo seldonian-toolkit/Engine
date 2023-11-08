@@ -131,7 +131,10 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
         model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
     )
 
-    msr_func = measure_function_vector_mapper[statistic_name]
+    if regime == "custom":
+        msr_func = kwargs["custom_measure_functions"][statistic_name]
+    else:
+        msr_func = measure_function_vector_mapper[statistic_name]
 
     if branch == "candidate_selection":
         return msr_func(*args, **msr_func_kwargs)
@@ -178,7 +181,10 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
         model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
     )
 
-    msr_func = measure_function_vector_mapper[statistic_name]
+    if regime == "custom":
+        msr_func = kwargs["custom_measure_functions"][statistic_name]
+    else:
+        msr_func = measure_function_vector_mapper[statistic_name]
 
     if branch == "candidate_selection":
         return np.mean(msr_func(*args, **msr_func_kwargs))

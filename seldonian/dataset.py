@@ -128,10 +128,10 @@ class DataSet(object):
 
         :param num_datapoints: Number of rows or episodes (for RL) in the dataset
         :type num_datapoints: int
-        :param meta_information: list of all column names in the dataframe
-        :type meta_information: List(str)
+        :param meta: Metadata
+        :type meta: :py:class:`.MetaData`
         :param regime: The category of the machine learning algorithm,
-                e.g., supervised_learning or reinforcement_learning
+                e.g., "supervised_learning", "reinforcement_learning" or "custom"
         :type regime: str
         """
         self.num_datapoints = num_datapoints
@@ -192,6 +192,32 @@ class RLDataSet(DataSet):
             regime="reinforcement_learning",
         )
 
+class CustomDataSet(DataSet):
+    def __init__(self, data, sensitive_attrs, num_datapoints, meta, **kwargs):
+        """Object for holding data of arbitrary form. 
+
+        :param data: An 1D array of data samples, where the samples can have any form.
+        :param num_datapoints: Number of data samples
+        :type num_datapoints: int
+        :param meta_information: list of all column names in the dataframe
+        :type meta_information: List(str)
+        :param regime: The category of the machine learning algorithm,
+                e.g., supervised_learning or reinforcement_learning
+        :type regime: str
+        """
+        super().__init__(
+            num_datapoints=num_datapoints,
+            meta=meta,
+            regime="custom",
+        )
+        self.data = data
+        assert (
+            isinstance(self.data, np.ndarray) or self.data == []
+        ), "data must be a numpy array or []"
+        self.sensitive_attrs = sensitive_attrs
+        assert (
+            isinstance(self.sensitive_attrs, np.ndarray) or self.sensitive_attrs == []
+        ), "sensitive_attrs must be a numpy array or []"
 
 class Episode(object):
     def __init__(self, observations, actions, rewards, action_probs, alt_rewards=[]):
@@ -279,6 +305,17 @@ class RLMetaData(MetaData):
             sensitive_col_names=sensitive_col_names,
         )
 
+class CustomMetaData(MetaData):
+    def __init__(
+        self,
+        all_col_names,
+        sensitive_col_names=[],
+    ):
+        """Class for holding custom dataset metadata"""
+        super().__init__(
+            regime="custom", sub_regime=None, all_col_names=all_col_names, sensitive_col_names=sensitive_col_names
+        )
+
 
 def load_supervised_metadata(filename):
     """Load metadata from JSON file into a dictionary
@@ -346,3 +383,25 @@ def load_RL_metadata(metadata_filename, required_col_names):
         all_col_names=all_col_names, sensitive_col_names=sensitive_col_names
     )
     return meta
+
+
+def load_custom_metadata(filename):
+    """Load metadata from JSON file into a dictionary
+
+    :param filename: The file to load
+    """
+    metadata_dict = load_json(filename)
+    regime = metadata_dict["regime"]
+    assert regime == "custom"
+
+    all_col_names = metadata_dict["all_col_names"]
+
+    if "sensitive_col_names" not in metadata_dict:
+        sensitive_col_names = []
+    else:
+        sensitive_col_names = metadata_dict["sensitive_col_names"]
+
+    return CustomMetaData(
+        all_col_names,
+        sensitive_col_names,
+    )
