@@ -2325,10 +2325,11 @@ def test_custom_text_dataset(custom_text_spec):
 def test_custom_loan_dataset(custom_loan_spec):
     # Test that the loan dataset with regime="custom" runs all the way through the algorithm
     # This tests using conditional columns with the custom regime, which the custom text dataset does not
+    # Also tests batching
     np.random.seed(0)
     spec = custom_loan_spec()
     SA = SeldonianAlgorithm(spec)
-    passed_safety, solution = SA.run()
+    passed_safety, solution = SA.run(debug=True)
 
     assert len(solution) == 58
     assert passed_safety == True

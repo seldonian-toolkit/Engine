@@ -37,6 +37,8 @@ def batcher(func, N, batch_size, num_batches):
         elif regime == "reinforcement_learning":
             episodes = args[2]
             weighted_returns = kw["weighted_returns"]
+        elif regime == "custom":
+            data = args[2]
         if num_batches > 1:
             res = np.zeros(N)
             batch_start = 0
@@ -55,6 +57,11 @@ def batcher(func, N, batch_size, num_batches):
                     episodes_batch = episodes[batch_start:batch_end]
                     weighted_returns_batch = weighted_returns[batch_start:batch_end]
                     batch_args = [model, theta, episodes_batch, weighted_returns_batch]
+
+
+                elif regime == "custom":
+                    data_batch = data[batch_start:batch_end]
+                    batch_args = [model, theta, data_batch]
 
                 res[batch_start:batch_end] = func(*batch_args, **kw)
 
@@ -109,7 +116,6 @@ def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
         num_datapoints = len(data_dict["data"])
         args = [model, theta, data_dict["data"]]
         msr_func_kwargs = kwargs
-
 
     return args, msr_func_kwargs, num_datapoints
 
