@@ -7,7 +7,7 @@ from seldonian.parse_tree.parse_tree import *
 from seldonian.utils.io_utils import load_json, load_pickle
 from seldonian.utils.tutorial_utils import generate_data
 from seldonian.dataset import *
-from seldonian.spec import SupervisedSpec
+from seldonian.spec import *
 from seldonian.models import objectives
 from seldonian.models.models import *
 
@@ -516,3 +516,280 @@ def RL_gridworld_dataset_alt_rewards():
         return dataset, policy, env_kwargs, primary_objective
 
     return generate_dataset
+
+@pytest.fixture
+def custom_text_spec():
+    import seldonian.models.custom_text_model as custom_text_model
+
+    def generate_spec():
+        # Load some string data in as lists of lists
+        N_chars = 100
+        l=[chr(x) for x in np.random.randint(97,122,N_chars)] # lowercase letters
+        data = [l[i*3:i*3+3] for i in range(N_chars//3)]
+
+        all_col_names = ["string"]
+        meta = CustomMetaData(all_col_names=all_col_names)
+        dataset = CustomDataSet(data=data, sensitive_attrs=[], num_datapoints=len(data), meta=meta)
+
+        regime='custom'
+        sub_regime=None
+        sensitive_attrs = []
+
+        num_datapoints = len(data)
+
+        dataset = CustomDataSet(
+            data=data,
+            sensitive_attrs=sensitive_attrs,
+            num_datapoints=num_datapoints,
+            meta=meta
+        )
+        frac_data_in_safety=0.6
+        sensitive_col_names = []
+
+        model = custom_text_model.CustomTextModel()
+
+        def custom_initial_solution_fn(model,data,**kwargs):
+            return np.array([-1.0,0.0,1.0])
+
+        def custom_loss_fn(model,theta,data,**kwargs):
+            """Calculate average logistic loss
+            over all data points for binary classification.
+
+            :param model: SeldonianModel instance
+            :param theta: The parameter weights
+            :type theta: numpy ndarray
+            :param data: A list of samples, where in this case samples are
+                lists of length three with each element a single character
+
+            :return: mean of the predictions
+            :rtype: float
+            """
+            # Figure out features and labels
+            # In this case I know that the label column is the final column
+            # I also know that data is a 2D numpy array. The data structure
+            # will be custom to the use case, so user will have to manipulate 
+            # accordingly. 
+            predictions = model.predict(theta,data) # floats length of data
+            loss = np.mean(predictions)
+            return loss
+
+
+        # Define behavioral constraint
+        constraint_str = 'CUST_LOSS <= 30.0'
+        delta = 0.05
+        
+        # Define custom measure function for CPR and register it when making parse tree
+        def custom_measure_function(model, theta, data, **kwargs):
+            """
+            Calculate 
+            for each observation. Meaning depends on whether
+            binary or multi-class classification.
+
+            :param model: SeldonianModel instance
+            :param theta: The parameter weights
+            :type theta: numpy ndarray
+            :param data: A list of samples, where in this case samples are
+                lists of length three with each element a single character
+
+            :return: Positive rate for each observation
+            :rtype: numpy ndarray(float between 0 and 1)
+            """
+            predictions = model.predict(theta,data)
+            return predictions
+
+        custom_measure_functions = {
+            "CUST_LOSS": custom_measure_function
+        }
+        
+        # Create parse tree object
+        pt = ParseTree(
+            delta=delta, regime=regime, sub_regime=sub_regime, columns=sensitive_col_names,
+            custom_measure_functions=custom_measure_functions
+        )
+
+        # Fill out tree
+        pt.build_tree(
+            constraint_str=constraint_str
+        )
+
+        parse_trees = [pt]
+
+        # Use vanilla Spec object for custom datasets.
+        spec = Spec(
+            dataset=dataset,
+            model=model,
+            parse_trees=parse_trees,
+            frac_data_in_safety=frac_data_in_safety,
+            primary_objective=custom_loss_fn,
+            initial_solution_fn=custom_initial_solution_fn,
+            use_builtin_primary_gradient_fn=False,
+            optimization_technique='gradient_descent',
+            optimizer='adam',
+            optimization_hyperparams={
+                'lambda_init'   : np.array([0.5]),
+                'alpha_theta'   : 0.01,
+                'alpha_lamb'    : 0.01,
+                'beta_velocity' : 0.9,
+                'beta_rmsprop'  : 0.95,
+                'use_batches'   : False,
+                'num_iters'     : 100,
+                'gradient_library': "autograd",
+                'hyper_search'  : None,
+                'verbose'       : True,
+            }
+        )
+
+        return spec
+
+    return generate_spec
+
+@pytest.fixture
+def custom_loan_spec():
+    def generate_spec():
+        # Load some string data in as lists of lists
+        data_pth = "static/datasets/custom/german_credit/german_loan_numeric_forseldonian.csv"
+        metadata_pth = "static/datasets/custom/german_credit/metadata_german_loan.json"
+        save_dir = '.'
+        os.makedirs(save_dir,exist_ok=True)
+        # Create dataset from data and metadata file
+        regime='custom'
+        sub_regime=None
+
+        meta = load_custom_metadata(metadata_pth)
+
+        # One needs to load their custom dataset using their own script
+        df = pd.read_csv(data_pth, header=None, names=meta.all_col_names)
+
+        sensitive_attrs = df.loc[:, meta.sensitive_col_names].values
+        # data is everything else (includes labels in this case). 
+        # will handle separating features and labels inside objective functions and measure functions
+        data_col_names = [col for col in meta.all_col_names if col not in meta.sensitive_col_names]
+        data = df.loc[:,data_col_names].values
+
+        num_datapoints = len(data)
+
+        dataset = CustomDataSet(
+            data=data,
+            sensitive_attrs=sensitive_attrs,
+            num_datapoints=num_datapoints,
+            meta=meta
+        )
+       
+        sensitive_col_names = dataset.meta.sensitive_col_names
+
+        # Use logistic regression model
+        model = BinaryLogisticRegressionModel()
+        
+        # Define the primary objective to be log loss
+        # Can just call the existing log loss function
+        # but must wrap it because in this custom 
+        # setting we don't know what features and labels
+        # are a priori. We just have a "data" argument 
+        # that we have to manipulate accordingly.
+
+        def custom_initial_solution_fn(model,data,**kwargs):
+            features = data[:,:-1]
+            labels = data[:,-1]
+            return model.fit(features,labels)
+
+        def custom_log_loss(model,theta,data,**kwargs):
+            """Calculate average logistic loss
+            over all data points for binary classification.
+
+            :param model: SeldonianModel instance
+            :param theta: The parameter weights
+            :type theta: numpy ndarray
+            :param data: A list of samples, where in this case samples are
+                rows of a 2D numpy array
+
+            :return: mean logistic loss
+            :rtype: float
+            """
+            # Figure out features and labels
+            # In this case I know that the label column is the final column
+            # I also know that data is a 2D numpy array. The data structure
+            # will be custom to the use case, so user will have to manipulate 
+            # accordingly. 
+            features = data[:,:-1]
+            labels = data[:,-1]
+            return objectives.binary_logistic_loss(model, theta, features, labels, **kwargs)
+
+        # Define behavioral constraints
+        epsilon = 0.6
+        constraint_name = "disparate_impact"
+        if constraint_name == "disparate_impact":
+            constraint_strs = [f'min((CPR | [M])/(CPR | [F]),(CPR | [F])/(CPR | [M])) >= {epsilon}'] 
+        deltas = [0.05]
+        
+        # Define custom measure function for CPR and register it when making parse tree
+        def custom_vector_Positive_Rate(model, theta, data, **kwargs):
+            """
+            Calculate positive rate
+            for each observation. Meaning depends on whether
+            binary or multi-class classification.
+
+            :param model: SeldonianModel instance
+            :param theta: The parameter weights
+            :type theta: numpy ndarray
+            :param data: A list of samples, where in this case samples are
+                rows of a 2D numpy array
+
+            :return: Positive rate for each observation
+            :rtype: numpy ndarray(float between 0 and 1)
+            """
+            features = data[:,:-1]
+            labels = data[:,-1]
+            return zhat_funcs._vector_Positive_Rate_binary(model, theta, features, labels)
+
+        custom_measure_functions = {
+            "CPR": custom_vector_Positive_Rate
+        }
+        # For each constraint (in this case only one), make a parse tree
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+
+            # Create parse tree object
+            pt = ParseTree(
+                delta=delta, regime=regime, sub_regime=sub_regime, columns=sensitive_col_names,
+                custom_measure_functions=custom_measure_functions
+            )
+
+            # Fill out tree
+            pt.build_tree(
+                constraint_str=constraint_str
+            )
+
+            parse_trees.append(pt)
+
+
+        # Use vanilla Spec object for custom datasets.
+        spec = Spec(
+            dataset=dataset,
+            model=model,
+            parse_trees=parse_trees,
+            frac_data_in_safety=0.6,
+            primary_objective=custom_log_loss,
+            initial_solution_fn=custom_initial_solution_fn,
+            use_builtin_primary_gradient_fn=False,
+            optimization_technique='gradient_descent',
+            optimizer='adam',
+            optimization_hyperparams={
+                'lambda_init'   : np.array([0.5]),
+                'alpha_theta'   : 0.01,
+                'alpha_lamb'    : 0.01,
+                'beta_velocity' : 0.9,
+                'beta_rmsprop'  : 0.95,
+                'use_batches'   : False,
+                'num_iters'     : 100,
+                'gradient_library': "autograd",
+                'hyper_search'  : None,
+                'verbose'       : True,
+            }
+        )
+        return spec
+
+    return generate_spec
+

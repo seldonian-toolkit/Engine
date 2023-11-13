@@ -105,6 +105,12 @@ def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
         msr_func_kwargs["weighted_returns"] = data_dict["weighted_returns"]
         args = [model, theta, episodes]
 
+    elif regime == "custom":
+        num_datapoints = len(data_dict["data"])
+        args = [model, theta, data_dict["data"]]
+        msr_func_kwargs = kwargs
+
+
     return args, msr_func_kwargs, num_datapoints
 
 
@@ -131,7 +137,10 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
         model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
     )
 
-    msr_func = measure_function_vector_mapper[statistic_name]
+    if regime == "custom":
+        msr_func = kwargs["custom_measure_functions"][statistic_name]
+    else:
+        msr_func = measure_function_vector_mapper[statistic_name]
 
     if branch == "candidate_selection":
         return msr_func(*args, **msr_func_kwargs)
@@ -178,7 +187,10 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
         model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
     )
 
-    msr_func = measure_function_vector_mapper[statistic_name]
+    if regime == "custom":
+        msr_func = kwargs["custom_measure_functions"][statistic_name]
+    else:
+        msr_func = measure_function_vector_mapper[statistic_name]
 
     if branch == "candidate_selection":
         return np.mean(msr_func(*args, **msr_func_kwargs))

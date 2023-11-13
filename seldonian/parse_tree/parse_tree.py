@@ -16,7 +16,7 @@ default_bound_method = "ttest"
 
 
 class ParseTree(object):
-    def __init__(self, delta, regime, sub_regime, columns=[]):
+    def __init__(self, delta, regime, sub_regime, columns=[],custom_measure_functions={}):
         """
         Class to represent a parse tree for a single behavioral constraint
 
@@ -91,9 +91,13 @@ class ParseTree(object):
         self.base_node_dict = {}
         self.n_unique_bounds_tot = None
         self.node_fontsize = 12
-        self.available_measure_functions = measure_functions_dict[self.regime][
-            self.sub_regime
-        ]
+        
+        if self.regime in ["supervised_learning","reinforcement_learning"]:
+            self.available_measure_functions = measure_functions_dict[self.regime][self.sub_regime]
+        elif self.regime == "custom":
+            self.available_measure_functions = []
+        self.custom_measure_functions = custom_measure_functions
+        self.available_measure_functions.extend(list(custom_measure_functions.keys()))
 
     def build_tree(self, constraint_str, delta_weight_method="equal", delta_vector=[], infl_factor_method="constant", infl_factors=2):
         """
@@ -961,7 +965,8 @@ class ParseTree(object):
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
-
+                if self.regime == "custom":
+                    kwargs["custom_measure_functions"] = self.custom_measure_functions
                 bound_result = node.calculate_bounds(
                     bound_method=bound_method, **kwargs
                 )
