@@ -62,9 +62,6 @@
     "n__num_people_liable",
     "credit_rating"
   ],
-  "label_col_names": [
-    "credit_rating"
-  ],
   "sensitive_col_names": [
     "F",
     "M"

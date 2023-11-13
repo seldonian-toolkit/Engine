@@ -105,6 +105,12 @@ def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
         msr_func_kwargs["weighted_returns"] = data_dict["weighted_returns"]
         args = [model, theta, episodes]
 
+    elif regime == "custom":
+        num_datapoints = len(data_dict["data"])
+        args = [model, theta, data_dict["data"]]
+        msr_func_kwargs = kwargs
+
+
     return args, msr_func_kwargs, num_datapoints
 
 

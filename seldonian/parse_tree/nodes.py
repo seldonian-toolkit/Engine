@@ -244,6 +244,10 @@ class BaseNode(Node):
             masked_episodes = np.asarray(dataset.episodes)[joint_mask]
             return masked_episodes
 
+        elif dataset.regime == "custom":
+            masked_data = dataset.data[joint_mask]
+            return masked_data
+
     def calculate_data_forbound(self, **kwargs):
         """
         Prepare data inputs
@@ -306,6 +310,20 @@ class BaseNode(Node):
                 "episodes": masked_episodes,
                 "weighted_returns": masked_returns,
             }
+
+        elif regime == "custom":
+            # mask the data using the conditional columns, if present
+
+            data = dataset.data
+
+            if self.conditional_columns:
+                masked_data = self.mask_data(
+                    dataset, self.conditional_columns
+                )
+            else:
+                masked_data = data
+
+            data_dict = {"data": masked_data}
 
         return data_dict
 

@@ -7,10 +7,11 @@ from seldonian.parse_tree import zhat_funcs
 
 from seldonian.dataset import CustomDataSet, load_custom_metadata
 from seldonian.utils.io_utils import (load_json,save_pickle)
-from seldonian.spec import SupervisedSpec
+from seldonian.spec import Spec
 from seldonian.models.models import (
     BinaryLogisticRegressionModel as LogisticRegressionModel) 
 from seldonian.models import objectives
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
 
 if __name__ == '__main__':
     data_pth = "../../static/datasets/custom/german_credit/german_loan_numeric_forseldonian.csv"
@@ -52,6 +53,11 @@ if __name__ == '__main__':
     # setting we don't know what features and labels
     # are a priori. We just have a "data" argument 
     # that we have to manipulate accordingly.
+
+    def custom_initial_solution_fn(model,data,**kwargs):
+        features = data[:,:-1]
+        labels = data[:,-1]
+        return model.fit(features,labels)
 
     def custom_log_loss(model,theta,data,**kwargs):
         """Calculate average logistic loss
@@ -134,7 +140,7 @@ if __name__ == '__main__':
         parse_trees=parse_trees,
         frac_data_in_safety=0.6,
         primary_objective=custom_log_loss,
-        initial_solution_fn=model.fit,
+        initial_solution_fn=custom_initial_solution_fn,
         use_builtin_primary_gradient_fn=False,
         optimization_technique='gradient_descent',
         optimizer='adam',

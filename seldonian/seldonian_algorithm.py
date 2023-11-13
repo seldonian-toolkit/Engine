@@ -6,7 +6,7 @@ import autograd.numpy as np  # Thinly-wrapped version of Numpy
 
 import warnings
 from seldonian.warnings.custom_warnings import *
-from seldonian.dataset import SupervisedDataSet, RLDataSet
+from seldonian.dataset import SupervisedDataSet, RLDataSet, CustomDataSet
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives

@@ -211,13 +211,18 @@ class CustomDataSet(DataSet):
             regime="custom",
         )
         self.data = data
-        assert (
-            isinstance(self.data, np.ndarray) or self.data == []
-        ), "data must be a numpy array or []"
+        if not ( (isinstance(self.data, np.ndarray) and self.data.ndim == 2) or isinstance(self.data,list)):
+            raise RuntimeError("data must be a numpy array or list")
+
+        if isinstance(self.data,list):
+            if type(self.data[0]) != type(self.data[-1]):
+                raise ValueError("All elements of data must be of same type")
+                
         self.sensitive_attrs = sensitive_attrs
         assert (
             isinstance(self.sensitive_attrs, np.ndarray) or self.sensitive_attrs == []
         ), "sensitive_attrs must be a numpy array or []"
+        self.sensitive_col_names = meta.sensitive_col_names
 
 class Episode(object):
     def __init__(self, observations, actions, rewards, action_probs, alt_rewards=[]):

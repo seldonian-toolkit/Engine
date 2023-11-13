@@ -7,7 +7,7 @@ import pandas as pd
 from functools import partial
 
 from seldonian.models import objectives
-from seldonian.dataset import SupervisedDataSet, RLDataSet
+from seldonian.dataset import SupervisedDataSet, RLDataSet, CustomDataSet
 
 
 class CandidateSelection(object):
@@ -151,6 +151,26 @@ class CandidateSelection(object):
             self.batch_dataset = RLDataSet(
                 episodes=batch_episodes,
                 sensitive_attrs=self.batch_sensitive_attrs,
+                num_datapoints=batch_num_datapoints,
+                meta=self.candidate_dataset.meta,
+            )
+        elif self.regime == "custom":
+            if batch_size < num_datapoints:
+                
+                self.batch_data = self.candidate_dataset.data[batch_start:batch_end]
+                batch_num_datapoints = len(self.batch_data)
+
+                self.batch_sensitive_attrs = self.candidate_dataset.sensitive_attrs[
+                    batch_start:batch_end
+                ]
+            else:
+                self.batch_data = self.candidate_dataset.data
+                self.batch_sensitive_attrs = self.candidate_dataset.sensitive_attrs
+                batch_num_datapoints = num_datapoints
+
+            self.batch_dataset = CustomDataSet(
+                self.batch_data,
+                self.batch_sensitive_attrs,
                 num_datapoints=batch_num_datapoints,
                 meta=self.candidate_dataset.meta,
             )
@@ -491,6 +511,12 @@ class CandidateSelection(object):
                 theta=theta,
                 episodes=self.batch_dataset.episodes,
                 weighted_returns=None,
+            )
+        elif self.regime == "custom":
+            result = self.primary_objective(
+                self.model,
+                theta,
+                self.batch_data
             )
 
         if hasattr(self, "reg_coef"):
