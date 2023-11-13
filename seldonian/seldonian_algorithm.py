@@ -48,73 +48,84 @@ class SeldonianAlgorithm:
                         "bound_method"
                     ] = this_bound_method_dict[node_name]
 
-        self.dataset = self.spec.dataset
-        self.regime = self.dataset.regime
-        self.column_names = self.dataset.meta.all_col_names
+
+        # Deal with possibility of manually provided candidate and safety datasets
+        split_dataset = True
+        if self.spec.candidate_dataset:
+            split_dataset = False
+            self.candidate_dataset = self.spec.candidate_dataset
+            self.safety_dataset = self.spec.safety_dataset
+            self.regime = self.candidate_dataset.regime
+        else:
+            self.dataset = self.spec.dataset
+            self.regime = self.dataset.regime
 
         if self.regime == "supervised_learning":
             self.sub_regime = self.spec.sub_regime
             self.model = self.spec.model
-            # Split into candidate and safety datasets
+            if split_dataset:
+                # Split into candidate and safety datasets
+                (
+                    self.candidate_features,
+                    self.safety_features,
+                    self.candidate_labels,
+                    self.safety_labels,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-            (
-                self.candidate_features,
-                self.safety_features,
-                self.candidate_labels,
-                self.safety_labels,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
-            self.candidate_dataset = SupervisedDataSet(
-                features=self.candidate_features,
-                labels=self.candidate_labels,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                num_datapoints=self.n_candidate,
-                meta=self.dataset.meta,
-            )
-
-            self.safety_dataset = SupervisedDataSet(
-                features=self.safety_features,
-                labels=self.safety_labels,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                num_datapoints=self.n_safety,
-                meta=self.dataset.meta,
-            )
-
-            if self.n_candidate < 2 or self.n_safety < 2:
-                warning_msg = (
-                    "Warning: not enough data to " "run the Seldonian algorithm."
+                self.candidate_dataset = SupervisedDataSet(
+                    features=self.candidate_features,
+                    labels=self.candidate_labels,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    num_datapoints=self.n_candidate,
+                    meta=self.dataset.meta,
                 )
-                warnings.warn(warning_msg)
+
+                self.safety_dataset = SupervisedDataSet(
+                    features=self.safety_features,
+                    labels=self.safety_labels,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    num_datapoints=self.n_safety,
+                    meta=self.dataset.meta,
+                )
+            else:
+                self.n_candidate = self.candidate_dataset.num_datapoints
+                self.n_safety = self.safety_dataset.num_datapoints
+
             if self.spec.verbose:
                 print(f"Safety dataset has {self.n_safety} datapoints")
                 print(f"Candidate dataset has {self.n_candidate} datapoints")
 
         elif self.regime == "reinforcement_learning":
             self.model = self.spec.model
+            if split_dataset:
+                (
+                    self.candidate_episodes,
+                    self.safety_episodes,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-            (
-                self.candidate_episodes,
-                self.safety_episodes,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
+                self.candidate_dataset = RLDataSet(
+                    episodes=self.candidate_episodes,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    meta=self.dataset.meta,
+                )
 
-            self.candidate_dataset = RLDataSet(
-                episodes=self.candidate_episodes,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                meta=self.dataset.meta,
-            )
+                self.safety_dataset = RLDataSet(
+                    episodes=self.safety_episodes,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    meta=self.dataset.meta,
+                )
+            else:
+                self.n_candidate = self.candidate_dataset.num_datapoints
+                self.n_safety = self.safety_dataset.num_datapoints
 
-            self.safety_dataset = RLDataSet(
-                episodes=self.safety_episodes,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                meta=self.dataset.meta,
-            )
             if self.spec.verbose:
                 print(f"Safety dataset has {self.n_safety} episodes")
                 print(f"Candidate dataset has {self.n_candidate} episodes")
@@ -123,38 +134,42 @@ class SeldonianAlgorithm:
             self.sub_regime = None
             self.model = self.spec.model
             # Split into candidate and safety datasets
+            if split_dataset:
+                (
+                    self.candidate_data,
+                    self.safety_data,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-            (
-                self.candidate_data,
-                self.safety_data,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
-
-            self.candidate_dataset = CustomDataSet(
-                data=self.candidate_data,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                num_datapoints=self.n_candidate,
-                meta=self.dataset.meta,
-            )
-
-            self.safety_dataset = CustomDataSet(
-                data=self.safety_data,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                num_datapoints=self.n_safety,
-                meta=self.dataset.meta,
-            )
-
-            if self.n_candidate < 2 or self.n_safety < 2:
-                warning_msg = (
-                    "Warning: not enough data to " "run the Seldonian algorithm."
+                self.candidate_dataset = CustomDataSet(
+                    data=self.candidate_data,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    num_datapoints=self.n_candidate,
+                    meta=self.dataset.meta,
                 )
-                warnings.warn(warning_msg)
+
+                self.safety_dataset = CustomDataSet(
+                    data=self.safety_data,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    num_datapoints=self.n_safety,
+                    meta=self.dataset.meta,
+                )
+            else:
+                self.n_candidate = self.candidate_dataset.num_datapoints
+                self.n_safety = self.safety_dataset.num_datapoints
+            
             if self.spec.verbose:
                 print(f"Safety dataset has {self.n_safety} datapoints")
                 print(f"Candidate dataset has {self.n_candidate} datapoints")
+
+        if self.n_candidate < 2 or self.n_safety < 2:
+            warning_msg = (
+                "Warning: not enough data to " "run the Seldonian algorithm."
+            )
+            warnings.warn(warning_msg)
 
         if self.spec.primary_objective is None:
             if self.regime == "reinforcement_learning":
@@ -267,7 +282,7 @@ class SeldonianAlgorithm:
                     print("Attempting to use initial solution function")
                 try:
                     self.initial_solution = self.spec.initial_solution_fn(
-                        self.model, self.candidate_features, self.candidate_labels
+                        self.model, self.candidate_dataset.features, self.candidate_dataset.labels
                     )
                 except:
                     if verbose:
@@ -288,7 +303,7 @@ class SeldonianAlgorithm:
                 if self.model.has_intercept:
                     n_features += 1
                 if self.sub_regime == "multiclass_classification":
-                    n_classes = len(np.unique(self.candidate_labels))
+                    n_classes = len(np.unique(self.candidate_dataset.labels))
                     self.initial_solution = np.zeros((n_features, n_classes))
                 else:
                     self.initial_solution = np.zeros(n_features)
