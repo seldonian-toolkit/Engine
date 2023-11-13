@@ -14,7 +14,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="seldonian.dataset.DataSetLoader" href="seldonian.dataset.DataSetLoader.html" />
-    <link rel="prev" title="seldonian.dataset.load_supervised_metadata" href="seldonian.dataset.load_supervised_metadata.html" />
+    <link rel="prev" title="seldonian.dataset.CustomMetaData" href="seldonian.dataset.CustomMetaData.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -45,9 +45,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_datapoints</strong> (<em>int</em>) – Number of rows or episodes (for RL) in the dataset</p></li>
-<li><p><strong>meta_information</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – list of all column names in the dataframe</p></li>
+<li><p><strong>meta</strong> (<a class="reference internal" href="seldonian.dataset.MetaData.html#seldonian.dataset.MetaData" title="seldonian.dataset.MetaData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetaData</span></code></a>) – Metadata</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
-e.g., supervised_learning or reinforcement_learning</p></li>
+e.g., “supervised_learning”, “reinforcement_learning” or “custom”</p></li>
 </ul>
 </dd>
 </dl>
@@ -94,7 +94,10 @@ e.g., supervised_learning or reinforcement_learning</p></li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_RL_metadata.html">seldonian.dataset.load_RL_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_custom_metadata.html">seldonian.dataset.load_custom_metadata</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_supervised_metadata.html">seldonian.dataset.load_supervised_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.CustomDataSet.html">seldonian.dataset.CustomDataSet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.CustomMetaData.html">seldonian.dataset.CustomMetaData</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.dataset.DataSet</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#seldonian.dataset.DataSet"><code class="docutils literal notranslate"><span class="pre">DataSet</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.dataset.DataSet.__init__"><code class="docutils literal notranslate"><span class="pre">DataSet.__init__()</span></code></a></li>
@@ -134,7 +137,7 @@ e.g., supervised_learning or reinforcement_learning</p></li>
   <li><a href="../api.html">API</a><ul>
   <li><a href="seldonian.html">seldonian</a><ul>
   <li><a href="seldonian.dataset.html">seldonian.dataset</a><ul>
-      <li>Previous: <a href="seldonian.dataset.load_supervised_metadata.html" title="previous chapter">seldonian.dataset.load_supervised_metadata</a></li>
+      <li>Previous: <a href="seldonian.dataset.CustomMetaData.html" title="previous chapter">seldonian.dataset.CustomMetaData</a></li>
       <li>Next: <a href="seldonian.dataset.DataSetLoader.html" title="next chapter">seldonian.dataset.DataSetLoader</a></li>
   </ul></li>
   </ul></li>

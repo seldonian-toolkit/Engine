@@ -40,7 +40,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.dataset.load_RL_metadata.html#seldonian.dataset.load_RL_metadata" title="seldonian.dataset.load_RL_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_RL_metadata</span></code></a>(metadata_filename, ...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="seldonian.dataset.load_supervised_metadata.html#seldonian.dataset.load_supervised_metadata" title="seldonian.dataset.load_supervised_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_supervised_metadata</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.dataset.load_custom_metadata.html#seldonian.dataset.load_custom_metadata" title="seldonian.dataset.load_custom_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_custom_metadata</span></code></a>(filename)</p></td>
+<td><p>Load metadata from JSON file into a dictionary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.dataset.load_supervised_metadata.html#seldonian.dataset.load_supervised_metadata" title="seldonian.dataset.load_supervised_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_supervised_metadata</span></code></a>(filename)</p></td>
 <td><p>Load metadata from JSON file into a dictionary</p></td>
 </tr>
 </tbody>
@@ -48,6 +51,12 @@
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="seldonian.dataset.CustomDataSet.html#seldonian.dataset.CustomDataSet" title="seldonian.dataset.CustomDataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CustomDataSet</span></code></a>(data, sensitive_attrs, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="seldonian.dataset.CustomMetaData.html#seldonian.dataset.CustomMetaData" title="seldonian.dataset.CustomMetaData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CustomMetaData</span></code></a>(all_col_names[, ...])</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.dataset.DataSet.html#seldonian.dataset.DataSet" title="seldonian.dataset.DataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataSet</span></code></a>(num_datapoints, meta, regime, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
@@ -102,7 +111,10 @@
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">seldonian.dataset</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_RL_metadata.html">seldonian.dataset.load_RL_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_custom_metadata.html">seldonian.dataset.load_custom_metadata</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.load_supervised_metadata.html">seldonian.dataset.load_supervised_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.CustomDataSet.html">seldonian.dataset.CustomDataSet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.CustomMetaData.html">seldonian.dataset.CustomMetaData</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSet.html">seldonian.dataset.DataSet</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.DataSetLoader.html">seldonian.dataset.DataSetLoader</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.dataset.Episode.html">seldonian.dataset.Episode</a></li>

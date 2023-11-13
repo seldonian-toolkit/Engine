@@ -15,6 +15,7 @@ seldonian.dataset
       :toctree:                                         
    
       load_RL_metadata
+      load_custom_metadata
       load_supervised_metadata
    
    
@@ -27,6 +28,8 @@ seldonian.dataset
       :toctree:                                         
       :template: custom-class-template.rst              
    
+      CustomDataSet
+      CustomMetaData
       DataSet
       DataSetLoader
       Episode

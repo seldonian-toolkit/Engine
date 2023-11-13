@@ -29,6 +29,7 @@ seldonian.models
    :recursive:
 
 
+   seldonian.models.custom_text_model
    seldonian.models.models
    seldonian.models.objectives
    seldonian.models.pytorch_cnn
