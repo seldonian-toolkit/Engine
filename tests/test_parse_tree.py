@@ -187,7 +187,6 @@ answer_dict = {
 ### Propagator tests ###
 ########################
 
-
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_add_bounds(interval_index, stump):
     ### Addition ###
@@ -200,7 +199,6 @@ def test_add_bounds(interval_index, stump):
     assert pt.root.upper == answer[1]
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
-
 
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_subtract_bounds(interval_index, stump):
@@ -216,7 +214,6 @@ def test_subtract_bounds(interval_index, stump):
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
 
-
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_multiply_bounds(interval_index, stump):
     ### Multiplication ###
@@ -231,7 +228,6 @@ def test_multiply_bounds(interval_index, stump):
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
 
-
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_divide_bounds(interval_index, stump):
     ### Division ###
@@ -245,7 +241,6 @@ def test_divide_bounds(interval_index, stump):
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
-
 
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_power_bounds(interval_index, stump):
@@ -285,7 +280,6 @@ def test_power_bounds(interval_index, stump):
         assert pt.base_node_dict["a"]["bound_computed"] == True
         assert pt.base_node_dict["b"]["bound_computed"] == True
 
-
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_min_bounds(interval_index, stump):
     ### min ###
@@ -302,7 +296,6 @@ def test_min_bounds(interval_index, stump):
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
-
 
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_max_bounds(interval_index, stump):
@@ -321,7 +314,6 @@ def test_max_bounds(interval_index, stump):
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
 
-
 @pytest.mark.parametrize("interval_index", range(len(single_interval_options)))
 def test_abs_bounds(interval_index, edge):
     ### Absolute value ###
@@ -334,7 +326,6 @@ def test_abs_bounds(interval_index, edge):
     assert pt.root.lower == pytest.approx(answer[0])
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
-
 
 @pytest.mark.parametrize("interval_index", range(len(single_interval_options)))
 def test_log_bounds(interval_index, edge):
@@ -349,11 +340,9 @@ def test_log_bounds(interval_index, edge):
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
 
-
 ##################
 ### Node tests ###
 ##################
-
 
 def test_node_reprs(stump):
     a, b = [[2.0, 3.0], [4.0, 5.0]]
@@ -399,11 +388,9 @@ def test_node_reprs(stump):
         ["[2]", "b", "\u03B5" + " " + right_bounds_str + ", \u03B4=(None,0.025)"]
     )
 
-
 ########################
 ### Parse tree tests ###
 ########################
-
 
 def test_parse_tree_from_simple_string():
     constraint_str = "FPR - (FNR + PR)*4"
@@ -1151,6 +1138,73 @@ def test_measure_function_from_wrong_regime():
         "FPR"
     )
     assert str(excinfo.value) in error_str
+
+def test_provided_measure_function_custom_regime():
+    """Test that the functionality of providing a custom measure function 
+    in the custom regime works as expected """
+
+    # First test that one can provide a custom measure function
+    delta = 0.05
+    regime = "custom"
+    sub_regime = None
+    # Define behavioral constraint
+    constraint_str = 'CUST_LOSS <= 30.0'
+    delta = 0.05
+
+    # Define custom measure function for CPR and register it when making parse tree
+    def custom_measure_function(model, theta, data, **kwargs):
+        """
+        Calculate 
+        for each observation. Meaning depends on whether
+        binary or multi-class classification.
+
+        :param model: SeldonianModel instance
+        :param theta: The parameter weights
+        :type theta: numpy ndarray
+        :param data: A list of samples, where in this case samples are
+            lists of length three with each element a single character
+
+        :return: Positive rate for each observation
+        :rtype: numpy ndarray(float between 0 and 1)
+        """
+        predictions = model.predict(theta,data)
+        return predictions
+
+    custom_measure_functions = {
+        "CUST_LOSS": custom_measure_function
+        }
+
+    # Create parse tree object
+    pt = ParseTree(
+        delta=delta, regime=regime, sub_regime=sub_regime, columns=[],
+        custom_measure_functions=custom_measure_functions
+    )
+
+    pt.build_tree(constraint_str)
+    assert "CUST_LOSS" in pt.available_measure_functions
+    assert "PR" not in pt.available_measure_functions
+    assert "Mean_Squared_Error" not in pt.available_measure_functions
+
+    # Now test that if one does not provide a custom measure function and tries to use it
+    # an error is raised
+    # Define behavioral constraint
+    constraint_str = 'XYZ <= 0'
+    delta = 0.05
+
+    # Create parse tree object
+    pt = ParseTree(
+        delta=delta, regime=regime, sub_regime=sub_regime, columns=[]
+    )
+
+    with pytest.raises(NotImplementedError) as excinfo:
+        pt.build_tree(constraint_str)
+    
+    error_str = (
+        "Error parsing your expression. "
+        "A variable name was used which we do not recognize: XYZ"
+    )
+    assert str(excinfo.value) == error_str
+
 
 def test_custom_base_nodes():
     constraint_str = "MED_MF - 0.1"
@@ -2259,7 +2313,6 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
     assert pt.root.lower == float("-inf")  # not computed
     assert pt.root.upper == pytest.approx(13.1514499)
 
-
 def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # dummy data for linear regression
 
@@ -2397,7 +2450,6 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
         regime="supervised_learning",
     )
     assert pt.root.upper == pytest.approx(-0.930726)
-
 
 def test_bad_bound_method(simulated_regression_dataset):
     # dummy data for linear regression
@@ -2565,9 +2617,9 @@ def test_bad_bound_method(simulated_regression_dataset):
     error_str = f"Bounding method {bound_method} is not supported"
     assert str(excinfo.value) == error_str
 
-
 def test_evaluate_constraint(
-    simulated_regression_dataset, gpa_classification_dataset, RL_gridworld_dataset
+    simulated_regression_dataset, gpa_classification_dataset, RL_gridworld_dataset,
+    custom_text_spec
 ):
     # Evaluate constraint mean, not the bound
     # test all of the statistics in all regimes
@@ -2694,6 +2746,19 @@ def test_evaluate_constraint(
     )
     assert pt.root.right.value == pytest.approx(12.983593429599098)
 
+    np.random.seed(0)
+    custom_spec = custom_text_spec()
+    pt = custom_spec.parse_trees[0]
+    theta_init = np.array([-1.0,0.0,1.0])
+    pt.evaluate_constraint(
+        theta=theta_init,
+        dataset=custom_spec.dataset,
+        model=custom_spec.model,
+        regime="custom",
+        branch="safety_test",
+        custom_measure_functions=pt.custom_measure_functions
+    )
+    assert pt.root.left.value == 10.0
 
 def test_reset_parse_tree():
     constraint_str = "(FPR + FNR) - 0.5"
@@ -2735,7 +2800,6 @@ def test_reset_parse_tree():
     assert pt.base_node_dict["FPR"]["upper"] == float("inf")
     assert pt.base_node_dict["FNR"]["lower"] == float("-inf")
     assert pt.base_node_dict["FNR"]["upper"] == float("inf")
-
 
 def test_single_conditional_columns_propagated(
     gpa_regression_dataset,
@@ -2831,7 +2895,6 @@ def test_single_conditional_columns_propagated(
 
     assert len(RL_pt.base_node_dict["J_pi_new_IS | [M]"]["data_dict"]["episodes"]) == 52
 
-
 def test_build_tree():
     """Test the convenience function that builds the tree,
     weights deltas, and assigns bounds all in one"""
@@ -2865,7 +2928,6 @@ def test_build_tree():
     assert pt2.base_node_dict["FNR"]["upper"] == float("inf")
     assert pt2.base_node_dict["FNR"]["bound_computed"] == False
 
-
 def test_bad_delta():
     """Test that supplying delta not in (0,1) raises a ValueError"""
     constraint_str = "FPR <= 0.1"
@@ -2896,7 +2958,6 @@ def test_bad_delta():
 
     error_str = "delta must be in (0,1)"
     assert str(excinfo.value) == error_str
-
 
 def test_e_assigned_as_constant_node():
     constraint_str = "FPR <= e*0.05"

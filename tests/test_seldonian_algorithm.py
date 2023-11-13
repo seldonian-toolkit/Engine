@@ -2310,6 +2310,30 @@ def test_gpa_random_forest(gpa_classification_dataset):
         solution_to_compare = solution_dict[constraint]
         assert np.allclose(solution, solution_to_compare)
 
+""" Custom regime tests """
+
+def test_custom_text_dataset(custom_text_spec):
+    # Test that the custom dataset (lists of strings) runs all the way through the algorithm
+    np.random.seed(0)
+    spec = custom_text_spec()
+    SA = SeldonianAlgorithm(spec)
+    passed_safety, solution = SA.run()
+    expected = np.array([-1.01, -0.01,  0.99])
+    assert passed_safety == True
+    assert np.allclose(solution,expected)
+
+def test_custom_loan_dataset(custom_loan_spec):
+    # Test that the loan dataset with regime="custom" runs all the way through the algorithm
+    # This tests using conditional columns with the custom regime, which the custom text dataset does not
+    np.random.seed(0)
+    spec = custom_loan_spec()
+    SA = SeldonianAlgorithm(spec)
+    passed_safety, solution = SA.run()
+
+    assert len(solution) == 58
+    assert passed_safety == True
+    
+
 
 """ RL based tests """
 

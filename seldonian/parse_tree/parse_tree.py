@@ -91,12 +91,13 @@ class ParseTree(object):
         self.base_node_dict = {}
         self.n_unique_bounds_tot = None
         self.node_fontsize = 12
+        
         if self.regime in ["supervised_learning","reinforcement_learning"]:
             self.available_measure_functions = measure_functions_dict[self.regime][self.sub_regime]
         elif self.regime == "custom":
-            self.custom_measure_functions = custom_measure_functions
-            self.available_measure_functions = list(custom_measure_functions.keys())
-
+            self.available_measure_functions = []
+        self.custom_measure_functions = custom_measure_functions
+        self.available_measure_functions.extend(list(custom_measure_functions.keys()))
 
     def build_tree(self, constraint_str, delta_weight_method="equal", delta_vector=[], infl_factor_method="constant", infl_factors=2):
         """
