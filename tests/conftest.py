@@ -766,6 +766,29 @@ def custom_loan_spec():
 
 
         # Use vanilla Spec object for custom datasets.
+        # spec = Spec(
+        #     dataset=dataset,
+        #     model=model,
+        #     parse_trees=parse_trees,
+        #     frac_data_in_safety=0.6,
+        #     primary_objective=custom_log_loss,
+        #     initial_solution_fn=custom_initial_solution_fn,
+        #     use_builtin_primary_gradient_fn=False,
+        #     optimization_technique='gradient_descent',
+        #     optimizer='adam',
+        #     optimization_hyperparams={
+        #         'lambda_init'   : np.array([0.5]),
+        #         'alpha_theta'   : 0.01,
+        #         'alpha_lamb'    : 0.01,
+        #         'beta_velocity' : 0.9,
+        #         'beta_rmsprop'  : 0.95,
+        #         'use_batches'   : False,
+        #         'num_iters'     : 100,
+        #         'gradient_library': "autograd",
+        #         'hyper_search'  : None,
+        #         'verbose'       : True,
+        #     }
+        # )
         spec = Spec(
             dataset=dataset,
             model=model,
@@ -782,8 +805,9 @@ def custom_loan_spec():
                 'alpha_lamb'    : 0.01,
                 'beta_velocity' : 0.9,
                 'beta_rmsprop'  : 0.95,
-                'use_batches'   : False,
-                'num_iters'     : 100,
+                'use_batches'   : True,
+                'batch_size'    : 50,
+                'n_epochs'      : 2,
                 'gradient_library': "autograd",
                 'hyper_search'  : None,
                 'verbose'       : True,
