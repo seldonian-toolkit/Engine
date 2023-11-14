@@ -2430,15 +2430,14 @@ def test_RL_builtin_or_custom_gradient_not_supported(RL_gridworld_dataset):
 
     # Run seldonian algorithm, making sure we capture error
     error_str2 = (
-        "Using a provided primary objective gradient"
-        " is not yet supported for regimes other"
-        " than supervised learning"
+        "Using a provided primary objective gradient "
+        "is not yet supported for regime='reinforcement_learning'."
     )
     with pytest.raises(NotImplementedError) as excinfo2:
         SA = SeldonianAlgorithm(spec2)
         passed_safety, solution = SA.run()
 
-    assert error_str2 in str(excinfo2.value)
+    assert error_str2 == str(excinfo2.value)
 
 
 def test_RL_gridworld_gradient_descent(RL_gridworld_dataset):

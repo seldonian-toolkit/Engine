@@ -284,11 +284,21 @@ class CandidateSelection(object):
                         )
 
                     gd_kwargs["primary_gradient"] = grad_primary_objective_theta
+                elif self.regime == "custom":
+                    grad_primary_objective = kwargs["custom_primary_gradient_fn"]
+
+                    def grad_primary_objective_theta(theta):
+                        return grad_primary_objective(
+                            model=self.model,
+                            theta=theta,
+                            data=self.batch_data
+                        )
+
+                    gd_kwargs["primary_gradient"] = grad_primary_objective_theta
                 else:
                     raise NotImplementedError(
-                        "Using a provided primary objective gradient"
-                        " is not yet supported for regimes other"
-                        " than supervised learning"
+                        "Using a provided primary objective gradient "
+                        f"is not yet supported for regime='{self.regime}'."
                     )
 
             res = gradient_descent_adam(**gd_kwargs)

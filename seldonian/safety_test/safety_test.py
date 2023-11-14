@@ -117,6 +117,13 @@ class SafetyTest(object):
                 reg_term = 0
             result += reg_term
             return result
+        elif self.regime == "custom":
+            result = primary_objective(
+                self.model,
+                theta,
+                self.safety_dataset.data,
+            )
+            return result
 
     def get_importance_weights(self, theta):
         """Get an array of importance weights evaluated on the candidate dataset
