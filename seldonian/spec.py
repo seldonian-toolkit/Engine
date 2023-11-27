@@ -80,9 +80,18 @@ class Spec(object):
         },
         regularization_hyperparams={},
         batch_size_safety=None,
+        candidate_dataset=None,
+        safety_dataset=None,
         verbose=False,
     ):
         self.dataset = dataset
+        self.candidate_dataset = candidate_dataset
+        self.safety_dataset = safety_dataset
+        if self.candidate_dataset or self.safety_dataset:
+            if not (self.candidate_dataset and self.safety_dataset):
+                raise RuntimeError(
+                    "Cannot provide one of candidate_dataset or safety_dataset. "
+                    "Must provide both.")
         self.model = model
         self.frac_data_in_safety = frac_data_in_safety
         self.primary_objective = primary_objective
@@ -170,6 +179,8 @@ class SupervisedSpec(Spec):
         },
         regularization_hyperparams={},
         batch_size_safety=None,
+        candidate_dataset=None,
+        safety_dataset=None,
         verbose=False,
     ):
         super().__init__(
@@ -187,6 +198,8 @@ class SupervisedSpec(Spec):
             optimization_hyperparams=optimization_hyperparams,
             regularization_hyperparams=regularization_hyperparams,
             batch_size_safety=batch_size_safety,
+            candidate_dataset=candidate_dataset,
+            safety_dataset=safety_dataset,
             verbose=verbose,
         )
         self.sub_regime = sub_regime
@@ -277,6 +290,8 @@ class RLSpec(Spec):
         },
         regularization_hyperparams={},
         batch_size_safety=None,
+        candidate_dataset=None,
+        safety_dataset=None,
         verbose=False,
     ):
         super().__init__(
@@ -294,6 +309,8 @@ class RLSpec(Spec):
             optimization_hyperparams=optimization_hyperparams,
             regularization_hyperparams=regularization_hyperparams,
             batch_size_safety=batch_size_safety,
+            candidate_dataset=candidate_dataset,
+            safety_dataset=safety_dataset,
             verbose=verbose,
         )
 
