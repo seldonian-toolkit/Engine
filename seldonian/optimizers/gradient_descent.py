@@ -152,7 +152,7 @@ def gradient_descent_adam(
             if verbose:
                 if batch_index % 10 == 0:
                     print(f"Epoch: {epoch}, batch iteration {batch_index}")
-            is_small_batch = batch_calculator(batch_index, batch_size)
+            is_small_batch = batch_calculator(batch_index, batch_size, epoch, n_batches)
             primary_val = primary_objective(theta)
             g_vec = upper_bounds_function(theta)
             L_val = primary_val + sum(lamb * g_vec)

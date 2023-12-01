@@ -82,30 +82,147 @@ class Spec(object):
         batch_size_safety=None,
         candidate_dataset=None,
         safety_dataset=None,
+        additional_datasets={},
         verbose=False,
     ):
-        self.dataset = dataset
-        self.candidate_dataset = candidate_dataset
-        self.safety_dataset = safety_dataset
-        if self.candidate_dataset or self.safety_dataset:
-            if not (self.candidate_dataset and self.safety_dataset):
-                raise RuntimeError(
-                    "Cannot provide one of candidate_dataset or safety_dataset. "
-                    "Must provide both.")
+        self.dataset = dataset                        
         self.model = model
         self.frac_data_in_safety = frac_data_in_safety
         self.primary_objective = primary_objective
         self.initial_solution_fn = initial_solution_fn
         self.use_builtin_primary_gradient_fn = use_builtin_primary_gradient_fn
         self.custom_primary_gradient_fn = custom_primary_gradient_fn
-        self.parse_trees = validate_parse_trees(parse_trees)
+        self.parse_trees = self.validate_parse_trees(parse_trees)
         self.base_node_bound_method_dict = base_node_bound_method_dict
         self.optimization_technique = optimization_technique
         self.optimizer = optimizer
         self.optimization_hyperparams = optimization_hyperparams
         self.regularization_hyperparams = regularization_hyperparams
         self.batch_size_safety = batch_size_safety
+
+        # Deal with custom datasets
+        self.candidate_dataset, self.safety_dataset = self.validate_custom_datasets(
+            candidate_dataset,safety_dataset)
+        
+        # Deal with additional datasets
+        self.additional_datasets = self.validate_additional_datasets(
+            additional_datasets)
+        
         self.verbose = verbose
+
+    def validate_parse_trees(self,parse_trees):
+        """Ensure that there are no duplicate
+        constraints in a list of parse trees
+
+        :param parse_trees: List of :py:class:`.ParseTree` objects
+        """
+        from collections import Counter
+
+        constraint_strs = [pt.constraint_str for pt in parse_trees]
+        ct_dict = Counter(constraint_strs)
+
+        for constraint_str in ct_dict:
+            if ct_dict[constraint_str] > 1:
+                raise RuntimeError(
+                    f"The constraint: '{constraint_str}' "
+                    "appears more than once in the list of constraints. "
+                    "Duplicate constraints are not allowed."
+                )
+        return parse_trees
+
+    def validate_custom_datasets(self,candidate_dataset,safety_dataset):
+        """Ensure that if either candidate_dataset or safety_dataset
+        is specified, both are specified.
+
+        :param candidate_dataset: The dataset provided by the user to be used
+            for candidate selection.
+        :param safety_dataset: The dataset provided by the user to be used
+            for the safety test.
+        """
+        if candidate_dataset or safety_dataset:
+            if not (candidate_dataset and safety_dataset):
+                raise RuntimeError(
+                    "Cannot provide one of candidate_dataset or safety_dataset. "
+                    "Must provide both.")
+        return candidate_dataset,safety_dataset
+
+    def validate_additional_datasets(self,additional_datasets):
+        """Ensure that the additional datasets dict is valid. 
+        It is valid if 
+        1) the strings for the parse trees and base nodes match what is in the parse trees.
+        2) Either a "dataset" key is present or 
+            BOTH "candidate_dataset" and "safety_dataset" are present in each subdict.
+
+        Also, for the missing parse trees and base nodes, 
+        fill those entires with the primary dataset or candidate/safety split if provided.
+        """
+        valid_constraint_strings = set([pt.constraint_str for pt in self.parse_trees])
+        if additional_datasets == {}:
+            return {}
+
+        for constraint_str in additional_datasets:
+            if constraint_str not in valid_constraint_strings:
+                raise RuntimeError(
+                    f"The constraint: '{constraint_str}' "
+                    "does not match the constraint strings found in the parse trees:"
+                    f"{valid_constraint_strings}. "
+                    "Check formatting."
+                )
+            
+            this_pt = [pt for pt in self.parse_trees if pt.constraint_str == constraint_str][0]
+            valid_base_nodes_this_tree = list(this_pt.base_node_dict.keys())
+            for base_node in additional_datasets[constraint_str]:
+                if base_node not in valid_base_nodes_this_tree:
+                    raise RuntimeError(
+                        f"The base node: '{base_node}' "
+                        "does not match the base nodes found in this parse tree:"
+                        f"{valid_base_nodes_this_tree}. "
+                        "Check formatting."
+                    )
+
+                this_dict = additional_datasets[constraint_str][base_node]
+                # Ensure correct keys are present
+                if "dataset" in this_dict:
+                    if "candidate_dataset" in this_dict or "safety_dataset" in this_dict:
+                        raise RuntimeError(
+                            f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
+                            "'dataset' key is present, so 'candidate_dataset' and 'safety_dataset' keys cannot be present. "
+                        )
+                else:
+                    if not ("candidate_dataset" in this_dict and "safety_dataset" in this_dict):
+                        raise RuntimeError(
+                            f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
+                            "'dataset' key is not present, so 'candidate_dataset' and 'safety_dataset' keys must be present. "
+                        )
+        # Now fill in the missing parse tree/base node combinations with the primary dataset
+        # If user provided custom candidate/safety datasets for the primary, then use those instead
+        if self.candidate_dataset:
+            default_dict = {
+                "candidate_dataset":self.candidate_dataset,
+                "safety_dataset":self.safety_dataset,
+            }
+        else:
+            default_dict = {
+                "dataset":self.dataset,
+            }
+
+        for pt in self.parse_trees:
+            constraint_str = pt.constraint_str
+            base_nodes_this_tree = list(pt.base_node_dict.keys())
+            if constraint_str not in additional_datasets:
+                # Make a new entry for this constraint in additional_datasets
+                additional_datasets[constraint_str] = {}
+                # for each base node in this tree need to add dict containing the 
+                # primary dataset (or custom candidate/safety datasets)
+                for base_node in base_nodes_this_tree:
+                    additional_datasets[constraint_str][base_node] = default_dict
+            else:
+                # also need to fill in missing base nodes for trees that aren't completely missing
+                for base_node in base_nodes_this_tree:
+                    if base_node not in additional_datasets[constraint_str]:
+                        additional_datasets[constraint_str][base_node] = default_dict
+
+        return additional_datasets
 
 
 class SupervisedSpec(Spec):
@@ -180,6 +297,7 @@ class SupervisedSpec(Spec):
         regularization_hyperparams={},
         batch_size_safety=None,
         candidate_dataset=None,
+        additional_datasets={},
         safety_dataset=None,
         verbose=False,
     ):
@@ -200,6 +318,7 @@ class SupervisedSpec(Spec):
             batch_size_safety=batch_size_safety,
             candidate_dataset=candidate_dataset,
             safety_dataset=safety_dataset,
+            additional_datasets=additional_datasets,
             verbose=verbose,
         )
         self.sub_regime = sub_regime
@@ -292,6 +411,7 @@ class RLSpec(Spec):
         batch_size_safety=None,
         candidate_dataset=None,
         safety_dataset=None,
+        additional_datasets={},
         verbose=False,
     ):
         super().__init__(
@@ -311,6 +431,7 @@ class RLSpec(Spec):
             batch_size_safety=batch_size_safety,
             candidate_dataset=candidate_dataset,
             safety_dataset=safety_dataset,
+            additional_datasets=additional_datasets,
             verbose=verbose,
         )
 
@@ -579,22 +700,3 @@ def createRLSpec(
     return spec
 
 
-def validate_parse_trees(parse_trees):
-    """Ensure that there are no duplicate
-    constraints in a list of parse trees
-
-    :param parse_trees: List of :py:class:`.ParseTree` objects
-    """
-    from collections import Counter
-
-    constraint_strs = [pt.constraint_str for pt in parse_trees]
-    ct_dict = Counter(constraint_strs)
-
-    for constraint_str in ct_dict:
-        if ct_dict[constraint_str] > 1:
-            raise RuntimeError(
-                f"The constraint: '{constraint_str}' "
-                "appears more than once in the list of constraints. "
-                "Duplicate constraints are not allowed."
-            )
-    return parse_trees

@@ -257,6 +257,7 @@ class BaseNode(Node):
             "theta", "dataset", "model", "regime", "branch"
         )(kwargs)
 
+
         if branch == "candidate_selection":
             # Then we're in candidate selection
             n_safety = kwargs["n_safety"]
@@ -417,7 +418,7 @@ class BaseNode(Node):
         else:
             raise RuntimeError("bound_method not specified!")
 
-    def zhat(self, model, theta, data_dict, **kwargs):
+    def zhat(self, model, theta, data_dict, sub_regime, **kwargs):
         """
         Calculate an unbiased estimate of the
         base variable node.
@@ -438,6 +439,7 @@ class BaseNode(Node):
             statistic_name=self.measure_function_name,
             theta=theta,
             data_dict=data_dict,
+            sub_regime=sub_regime,
             **kwargs,
         )
 

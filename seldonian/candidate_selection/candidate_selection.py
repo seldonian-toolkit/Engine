@@ -23,6 +23,7 @@ class CandidateSelection(object):
         initial_solution=None,
         regime="supervised_learning",
         write_logfile=False,
+        additional_datasets={},
         **kwargs,
     ):
         """Object for running candidate selection
@@ -91,7 +92,10 @@ class CandidateSelection(object):
         if "reg_func" in kwargs:
             self.reg_func = kwargs["reg_func"]
 
-    def calculate_batches(self, batch_index, batch_size):
+        self.additional_datasets = additional_datasets
+
+
+    def calculate_batches(self, batch_index, batch_size, epoch, n_batches):
         """Create a batch dataset to be used in gradient descent.
         Does not return anything, instead sets self.batch_dataset.
 
@@ -99,6 +103,12 @@ class CandidateSelection(object):
         :type batch_index: int
         :param batch_size: The size of the batches
         :type batch_size: int
+        :param epoch: The 0-indexed epoch
+            (needed for additional datasets, if provided)
+        :type epoch: int
+        :param n_batches: The number of batches per epoch
+            (needed for additional datasets, if provided)
+        :type n_batches: int
 
         :return: None
         """
@@ -135,6 +145,7 @@ class CandidateSelection(object):
                 num_datapoints=batch_num_datapoints,
                 meta=self.candidate_dataset.meta,
             )
+
 
         elif self.regime == "reinforcement_learning":
             if batch_size < num_datapoints:
@@ -174,12 +185,162 @@ class CandidateSelection(object):
                 num_datapoints=batch_num_datapoints,
                 meta=self.candidate_dataset.meta,
             )
+
+        # Handle additional datasets
+        self.calculate_batches_addl_datasets(epoch,batch_index,n_batches)
         # If this batch is smaller than the batch size and not the first batch
         # then that means we shouldn't consider a candidate solution calculated from it
         if batch_index > 0 and (batch_num_datapoints < batch_size):
             return True
         else:
             return False
+
+    def calculate_batches_addl_datasets(self, primary_epoch_index, primary_batch_index, n_batches):
+        """For each additional dataset, create a batch dataset using the current batch.
+        Uses the batch_indices list stored in the additional datasets dictionary that was 
+        precalculated to make this easy. 
+
+        :param primary_epoch_index: The epoch number (0-indexed) of the primary dataset
+        :type primary_epoch_index: int
+        :param primary_batch_index: The batch number (0-indexed) of the primary dataset
+        :type primary_batch_index: int
+        :param n_batches: The number of primary dataset batches per epoch
+        :type n_batches: int
+        
+
+        :return: None
+        """
+        for pt in self.additional_datasets:
+            for base_node in self.additional_datasets[pt]:
+                this_dict = self.additional_datasets[pt][base_node]
+                batch_index_list = this_dict["batch_index_list"]
+                lookup_index = primary_epoch_index*n_batches + primary_batch_index
+                batch_indices = batch_index_list[lookup_index]
+                # could be 2 or 4 (if wraparound)
+                wraps = False
+                if len(batch_indices) == 4:
+                    wraps = True
+                start1,end1 = batch_indices[0:2]
+                batch_num_datapoints = end1 - start1
+                if wraps:
+                    start2,end2 = batch_indices[2:4]
+                    batch_num_datapoints += (end2-start2)
+                cand_dataset = this_dict["candidate_dataset"]
+                if self.regime == "supervised_learning":
+                    batch_features = cand_dataset.features[start1:end1]
+                    batch_labels = cand_dataset.labels[start1:end1]
+                    batch_sensitive_attrs = cand_dataset.sensitive_attrs[start1:end1]
+
+                    if wraps:
+                        wrapped_features = cand_dataset.features[start2:end2]
+                        wrapped_labels = cand_dataset.labels[start2:end2]
+                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
+                        batch_features = np.vstack((batch_features,wrapped_features))
+                        batch_labels = np.vstack((batch_labels,wrapped_labels))
+                        batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
+                   
+                    batch_dataset = SupervisedDataSet(
+                        features=batch_features,
+                        labels=batch_labels,
+                        sensitive_attrs=batch_sensitive_attrs,
+                        num_datapoints=batch_num_datapoints,
+                        meta=cand_dataset.meta)
+
+                elif self.regime == "reinforcement_learning":
+                    batch_episodes = dataset.episodes[start1:end1]
+                    batch_sensitive_attrs = dataset.sensitive_attrs[start1:end1]
+                    if wraps:
+                        wrapped_episodes = dataset.episodes[start2:end2]
+                        wrapped_sensitive_attrs = dataset.sensitive_attrs[start2:end2]
+                        batch_episodes = np.vstack((batch_episodes,wrapped_episodes))
+                        batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
+                    
+                    batch_dataset = RLDataSet(
+                        episodes=batch_episodes,
+                        sensitive_attrs=batch_sensitive_attrs,
+                        num_datapoints=batch_num_datapoints,
+                        meta=cand_dataset.meta,
+                    )
+
+                elif self.regime == "custom":
+                    batch_data = dataset.data[start1:end1]
+                    batch_sensitive_attrs = dataset.sensitive_attrs[start1:end1]
+                    if wraps:
+                        wrapped_data = dataset.data[start2:end2]
+                        wrapped_sensitive_attrs = dataset.sensitive_attrs[start2:end2]
+                        batch_data = np.vstack((batch_data,wrapped_data))
+                        batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
+                    
+                    batch_dataset = CustomDataSet(
+                        data=batch_data,
+                        sensitive_attrs=batch_sensitive_attrs,
+                        num_datapoints=batch_num_datapoints,
+                        meta=cand_dataset.meta,
+                    )
+
+                self.additional_datasets[pt][base_node]["batch_dataset"] = batch_dataset
+
+    def precalculate_addl_dataset_batch_indices(self, n_epochs, n_batches, primary_batch_size):
+        """For each additional dataset, create a list of indices corresponding to the starting and ending
+        of each batch. During gradient descent we can simply look up these indices and then construct the dataset
+        from them. Updates self.additional_datasets in place, so don't need to return anything.
+        
+        The rules here are:
+        i) A custom batch size can be used for each addl dataset, but 
+            if missing the primary batch batch is used. 
+        ii) We wrap around the end of addl datasets if we get to the end either within a primary epoch
+            or if we start a new epoch. For this reason, we can either have a list of length 2 (start,end)
+            or a list of length 4 (start1,end1,start2,end2), if there is wraparound.
+        iii) If n_batches = 1 then just use the entire additional dataset, 
+            but don't wrap as that would reuse datapoints in a single batch
+        iv) There is no concept of epoch for the addl datasets. We are simply wrapping back to the beginning when needed.
+
+        :param n_epochs: The total number of epochs to run gradient descent 
+        :type n_epochs: int
+        :param n_batches: The number of primary dataset batches per peoch
+        :type n_batches: int
+        :param primary_epoch_index: The epoch number (0-indexed) of the primary dataset
+        :type primary_epoch_index: int
+
+        :return: None
+        """
+        batch_datasets = {}
+        for pt in self.additional_datasets:
+            for base_node in self.additional_datasets[pt]:
+                this_dict = self.additional_datasets[pt][base_node]
+                num_datapoints_addl = this_dict["candidate_dataset"].num_datapoints
+
+                # rule iii
+                if n_batches == 1:
+                    batch_index_list = [0,num_datapoints_addl]
+                    this_dict["batch_index_list"] = [batch_index_list for _ in range(n_epochs)] # only one entry per epoch
+                    continue
+                
+                # rule i
+                if "batch_size" in this_dict:
+                    this_batch_size = this_dict["batch_size"]
+                else:
+                    this_batch_size = primary_batch_size
+
+                batch_index_addl = 0
+                batch_index_list = []
+
+                for i in range(n_epochs):
+                    for j in range(n_batches):
+                        start1 = batch_index_addl
+                        end1 = min(start1+this_batch_size,num_datapoints_addl)
+                        batch_indices = [start1,end1]
+                        diff = this_batch_size - (end1 - start1) 
+                        if diff > 0:
+                            start2 = 0 
+                            end2 = diff
+                            batch_indices.extend([start2,end2])
+                        batch_index_addl += this_batch_size 
+                        batch_index_addl %= num_datapoints_addl # rules ii/iv
+                        batch_index_list.append(batch_indices)
+
+                this_dict["batch_index_list"] = batch_index_list
+        return
 
     def run(self, **kwargs):
         """Run candidate selection
@@ -219,6 +380,10 @@ class CandidateSelection(object):
                 n_batches = 1
                 batch_size = self.candidate_dataset.num_datapoints
                 n_epochs = kwargs["num_iters"]
+
+            # If there are additionald dataset, precalculate their batch indices
+            # so we can quickly make batches on each step of gradient descent
+            self.precalculate_addl_dataset_batch_indices(n_epochs, n_batches, batch_size)
 
             gd_kwargs = dict(
                 primary_objective=self.evaluate_primary_objective,
@@ -502,7 +667,6 @@ class CandidateSelection(object):
         :return: The value of the primary objective function
                 evaluated at theta
         """
-
         if self.regime == "supervised_learning":
             result = self.primary_objective(
                 self.model,
@@ -553,14 +717,21 @@ class CandidateSelection(object):
 
         for pt in self.parse_trees:
             pt.reset_base_node_dict()
+            # Determine if there are additional datasets for base nodes in this parse tree
+            cstr = pt.constraint_str
+            if cstr in self.additional_datasets:
+                dataset_dict = {bn:self.additional_datasets[cstr][bn]["batch_dataset"] for bn in self.additional_datasets[cstr]}
+            else:
+                dataset_dict = {"all": self.batch_dataset}
 
             bounds_kwargs = dict(
                 theta=theta,
-                dataset=self.batch_dataset,
+                tree_dataset_dict=dataset_dict,
                 model=self.model,
                 branch="candidate_selection",
                 n_safety=self.n_safety,
                 regime=self.regime,
+                sub_regime=self.candidate_dataset.meta.sub_regime
             )
 
             pt.propagate_bounds(**bounds_kwargs)

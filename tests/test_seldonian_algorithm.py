@@ -661,6 +661,86 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 
     assert np.allclose(solution, array_to_compare)
 
+def test_gpa_data_regression_addl_datasets(gpa_regression_addl_datasets):
+    """Test that the gpa regression example runs
+    when using a different dataset for the base nodes compared to the primary objective
+    """
+    # Load metadata
+    rseed = 0
+    np.random.seed(rseed)
+    constraint_strs = ["Mean_Squared_Error - 5.0", "2.0 - Mean_Squared_Error"]
+    deltas = [0.05, 0.1]
+
+    (primary_dataset, additional_datasets, model, primary_objective, parse_trees) = gpa_regression_addl_datasets(
+        constraint_strs=constraint_strs, deltas=deltas
+    )
+
+    frac_data_in_safety = 0.6
+
+    def initial_solution_fn(m, x, y):
+        return m.fit(x, y)
+
+    # Create spec object
+    spec = SupervisedSpec(
+        dataset=primary_dataset,
+        additional_datasets=additional_datasets,
+        model=model,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        frac_data_in_safety=frac_data_in_safety,
+        primary_objective=primary_objective,
+        use_builtin_primary_gradient_fn=True,
+        initial_solution_fn=initial_solution_fn,
+        optimization_technique="gradient_descent",
+        optimizer="adam",
+        optimization_hyperparams={
+            "lambda_init": np.array([0.5, 0.5]),
+            "alpha_theta": 0.005,
+            "alpha_lamb": 0.005,
+            "beta_velocity": 0.9,
+            "beta_rmsprop": 0.95,
+            "num_iters": 200,
+            "use_batches": False,
+            "gradient_library": "autograd",
+            "hyper_search": None,
+            "verbose": True,
+        },
+    )
+
+    # Set up SA object
+    SA = SeldonianAlgorithm(spec)
+    # Ensure that the candidate and safety datasets were created within the additional_datasets object
+    for pt in spec.parse_trees:
+        base_nodes_this_tree = list(pt.base_node_dict.keys())
+        for bn in base_nodes_this_tree:
+            assert "candidate_dataset" in additional_datasets[pt.constraint_str][bn]
+            assert "safety_dataset" in additional_datasets[pt.constraint_str][bn]
+            bn_dataset = additional_datasets[pt.constraint_str][bn]["dataset"]
+            assert bn_dataset.num_datapoints == int(round(spec.dataset.num_datapoints*0.8))
+            cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
+            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
+            assert sd.num_datapoints == int(round((frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+
+    # Run the Seldonian algorithm
+    passed_safety, solution = SA.run()
+    assert passed_safety == True
+    array_to_compare = np.array(
+        [
+            4.18103862e-01,  
+            1.06776995e-04,  
+            8.46491836e-04,  
+            4.95734241e-04,
+            5.21233786e-04,  
+            3.25287639e-04,  
+            2.10667062e-03,  
+            1.50025360e-03,
+            -1.24865593e-04,  
+            4.89120616e-04
+        ]
+    )
+    assert np.allclose(solution, array_to_compare)
+
 
 def test_gpa_data_classification(gpa_classification_dataset):
     """Test that the gpa classification example runs
