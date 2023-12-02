@@ -945,36 +945,32 @@ class ParseTree(object):
                 return
 
             # Need to calculate the bound
-            if "tree_dataset_dict" not in kwargs:
-                raise RuntimeError(
-                    "'tree_dataset_dict' was not present in the kwargs. "
-                    "This is needed to compute the bounds on base nodes in the tree."
-                )
+            if "tree_dataset_dict" in kwargs:
 
-            # First, extract the dataset for this base node
-            tree_dataset_dict = kwargs["tree_dataset_dict"]
-            if node.name in tree_dataset_dict:
-                kwargs["dataset"] = tree_dataset_dict[node.name]
-            else:
-                if "all" not in tree_dataset_dict:
-                    raise RuntimeError(
-                        "There was an issue getting the dataset for bounding "
-                        f"the base node: {node.name} in the parse tree: {self.constraint_str}"
-                    )
-                kwargs["dataset"] = tree_dataset_dict["all"]
-            # Check if data has already been prepared
-            # for this node name. If so, use precalculated data
-            if self.base_node_dict[node.name]["data_dict"] != None:
-                data_dict = self.base_node_dict[node.name]["data_dict"]
-            else:
-                # Data not prepared already. Need to do that.
-                if isinstance(node, RLAltRewardBaseNode):
-                    kwargs["alt_reward_number"] = node.alt_reward_number
+                # First, extract the dataset for this base node
+                tree_dataset_dict = kwargs["tree_dataset_dict"]
+                if node.name in tree_dataset_dict:
+                    kwargs["dataset"] = tree_dataset_dict[node.name]
+                else:
+                    if "all" not in tree_dataset_dict:
+                        raise RuntimeError(
+                            "There was an issue getting the dataset for bounding "
+                            f"the base node: {node.name} in the parse tree: {self.constraint_str}"
+                        )
+                    kwargs["dataset"] = tree_dataset_dict["all"]
+                # Check if data has already been prepared
+                # for this node name. If so, use precalculated data
+                if self.base_node_dict[node.name]["data_dict"] != None:
+                    data_dict = self.base_node_dict[node.name]["data_dict"]
+                else:
+                    # Data not prepared already. Need to do that.
+                    if isinstance(node, RLAltRewardBaseNode):
+                        kwargs["alt_reward_number"] = node.alt_reward_number
 
-                data_dict = node.calculate_data_forbound(**kwargs)
-                self.base_node_dict[node.name]["data_dict"] = data_dict
+                    data_dict = node.calculate_data_forbound(**kwargs)
+                    self.base_node_dict[node.name]["data_dict"] = data_dict
 
-            kwargs["data_dict"] = data_dict
+                kwargs["data_dict"] = data_dict
 
             bound_method = self.base_node_dict[node.name]["bound_method"]
 
@@ -1042,18 +1038,34 @@ class ParseTree(object):
                 node.value = self.base_node_dict[node.name]["value"]
                 return
             else:
-                if "dataset" in kwargs:
+
+                if "tree_dataset_dict" in kwargs:
+
+                    # First, extract the dataset for this base node
+                    tree_dataset_dict = kwargs["tree_dataset_dict"]
+                    if node.name in tree_dataset_dict:
+                        kwargs["dataset"] = tree_dataset_dict[node.name]
+                    else:
+                        if "all" not in tree_dataset_dict:
+                            raise RuntimeError(
+                                "There was an issue getting the dataset for bounding "
+                                f"the base node: {node.name} in the parse tree: {self.constraint_str}"
+                            )
+                        kwargs["dataset"] = tree_dataset_dict["all"]
                     # Check if data has already been prepared
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
                     else:
+                        # Data not prepared already. Need to do that.
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
+
                         data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
 
                     kwargs["data_dict"] = data_dict
+
 
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index

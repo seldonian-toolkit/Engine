@@ -616,17 +616,24 @@ class CandidateSelection(object):
         # Prediction of what the safety test will return.
         # Initialized to pass
         predictSafetyTest = True
-        for tree_i, pt in enumerate(self.parse_trees):
+        for pt in self.parse_trees:
             # before we propagate, reset the bounds on all base nodes
             pt.reset_base_node_dict()
 
+            cstr = pt.constraint_str
+            if cstr in self.additional_datasets:
+                dataset_dict = {bn:self.additional_datasets[cstr][bn]["batch_dataset"] for bn in self.additional_datasets[cstr]}
+            else:
+                dataset_dict = {"all": self.candidate_dataset}
+
             bounds_kwargs = dict(
                 theta=theta,
-                dataset=self.candidate_dataset,
+                tree_dataset_dict=dataset_dict,
                 model=self.model,
                 branch="candidate_selection",
                 n_safety=self.n_safety,
                 regime=self.regime,
+                sub_regime=self.candidate_dataset.meta.sub_regime
             )
 
             pt.propagate_bounds(**bounds_kwargs)

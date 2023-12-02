@@ -463,10 +463,11 @@ def test_cvar_custom_base_node():
     pt = parse_trees[0]
     pt.evaluate_constraint(
         theta=solution,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         regime="supervised_learning",
         branch="safety_test",
+        sub_regime="regression"
     )
     assert pt.root.value == pytest.approx(-47.163772762)
 
