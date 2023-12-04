@@ -192,6 +192,7 @@ class RLDataSet(DataSet):
             regime="reinforcement_learning",
         )
 
+
 class CustomDataSet(DataSet):
     def __init__(self, data, sensitive_attrs, num_datapoints, meta, **kwargs):
         """Object for holding data of arbitrary form. 
@@ -223,6 +224,7 @@ class CustomDataSet(DataSet):
             isinstance(self.sensitive_attrs, np.ndarray) or self.sensitive_attrs == []
         ), "sensitive_attrs must be a numpy array or []"
         self.sensitive_col_names = meta.sensitive_col_names
+
 
 class Episode(object):
     def __init__(self, observations, actions, rewards, action_probs, alt_rewards=[]):
@@ -309,6 +311,7 @@ class RLMetaData(MetaData):
             all_col_names=all_col_names,
             sensitive_col_names=sensitive_col_names,
         )
+
 
 class CustomMetaData(MetaData):
     def __init__(

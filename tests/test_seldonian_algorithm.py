@@ -662,6 +662,7 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
 
     assert np.allclose(solution, array_to_compare)
 
+
 def test_gpa_data_regression_addl_datasets(gpa_regression_addl_datasets):
     """Test that the gpa regression example runs
     when using a different dataset for the base nodes compared to the primary objective
@@ -888,6 +889,163 @@ def test_gpa_data_classification(gpa_classification_dataset):
 
         assert np.allclose(solution, solution_to_compare)
 
+
+def test_gpa_data_classification_addl_datasets(gpa_classification_addl_datasets):
+    """Test that the gpa classification example runs
+    when using a different dataset for the base nodes compared to the primary objective
+    """
+    # Load metadata
+    rseed = 0
+    np.random.seed(rseed)
+    constraint_strs = ["abs((PR | [M]) - (PR | [F])) - 0.15"]
+    deltas = [0.05]
+
+    (primary_dataset, additional_datasets, model, primary_objective, parse_trees) = gpa_classification_addl_datasets(
+        constraint_strs=constraint_strs, deltas=deltas
+    )
+
+    frac_data_in_safety = 0.6
+
+    def initial_solution_fn(m, x, y):
+        return m.fit(x, y)
+
+    # Create spec object
+    spec = SupervisedSpec(
+        dataset=primary_dataset,
+        additional_datasets=additional_datasets,
+        model=model,
+        parse_trees=parse_trees,
+        sub_regime="classification",
+        frac_data_in_safety=frac_data_in_safety,
+        primary_objective=primary_objective,
+        use_builtin_primary_gradient_fn=True,
+        initial_solution_fn=initial_solution_fn,
+        optimization_technique="gradient_descent",
+        optimizer="adam",
+        optimization_hyperparams={
+            "lambda_init": np.array([0.5]),
+            "alpha_theta": 0.005,
+            "alpha_lamb": 0.005,
+            "beta_velocity": 0.9,
+            "beta_rmsprop": 0.95,
+            "num_iters": 200,
+            "use_batches": False,
+            "gradient_library": "autograd",
+            "hyper_search": None,
+            "verbose": True,
+        },
+    )
+
+    # Set up SA object
+    SA = SeldonianAlgorithm(spec)
+    # Ensure that the candidate and safety datasets were created within the additional_datasets object
+    for pt in spec.parse_trees:
+        base_nodes_this_tree = list(pt.base_node_dict.keys())
+        for bn in base_nodes_this_tree:
+            assert "candidate_dataset" in additional_datasets[pt.constraint_str][bn]
+            assert "safety_dataset" in additional_datasets[pt.constraint_str][bn]
+            bn_dataset = additional_datasets[pt.constraint_str][bn]["dataset"]
+            assert bn_dataset.num_datapoints == int(round(spec.dataset.num_datapoints*0.8))
+            cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
+            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
+            assert sd.num_datapoints == int(round((frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+
+    # Run the Seldonian algorithm
+    passed_safety, solution = SA.run()
+    assert passed_safety == True
+    array_to_compare = np.array(
+        [
+            -0.14932756, 
+            -0.04743285,  
+            0.15603878,  
+            0.10953721,  
+            0.08014052,  
+            0.03997749,
+            0.40484586,  
+            0.3045744,  
+            -0.1084586,  
+            -0.05770913
+        ]
+    )
+   
+    assert np.allclose(solution, array_to_compare)
+
+    # Now use custom batch size for additional dataset. Need to turn on batching in spec object
+    batch_size_dict = {
+        "abs((PR | [M]) - (PR | [F])) - 0.15": {
+            "PR | [M]": 1000,
+            "PR | [F]": 2000,
+        }
+    }
+    (primary_dataset, additional_datasets, model, primary_objective, parse_trees) = gpa_classification_addl_datasets(
+        constraint_strs=constraint_strs, deltas=deltas, batch_size_dict=batch_size_dict
+    )
+
+
+    # Create new spec object
+    spec2 = SupervisedSpec(
+        dataset=primary_dataset,
+        additional_datasets=additional_datasets,
+        model=model,
+        parse_trees=parse_trees,
+        sub_regime="classification",
+        frac_data_in_safety=frac_data_in_safety,
+        primary_objective=primary_objective,
+        use_builtin_primary_gradient_fn=True,
+        initial_solution_fn=initial_solution_fn,
+        optimization_technique="gradient_descent",
+        optimizer="adam",
+        optimization_hyperparams={
+            "lambda_init": np.array([0.5]),
+            "alpha_theta": 0.005,
+            "alpha_lamb": 0.005,
+            "beta_velocity": 0.9,
+            "beta_rmsprop": 0.95,
+            "use_batches": True,
+            "n_epochs": 5,
+            "batch_size": 5000,
+            "gradient_library": "autograd",
+            "hyper_search": None,
+            "verbose": True,
+        },
+    )
+
+    # Set up SA object
+    SA2 = SeldonianAlgorithm(spec2)
+    # Ensure that the candidate and safety datasets were created within the additional_datasets object
+    for pt in spec2.parse_trees:
+        base_nodes_this_tree = list(pt.base_node_dict.keys())
+        for bn in base_nodes_this_tree:
+            assert "candidate_dataset" in additional_datasets[pt.constraint_str][bn]
+            assert "safety_dataset" in additional_datasets[pt.constraint_str][bn]
+            assert "batch_size" in additional_datasets[pt.constraint_str][bn]
+            assert additional_datasets[pt.constraint_str][bn]["batch_size"] == batch_size_dict[pt.constraint_str][bn] 
+            cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
+            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
+            assert sd.num_datapoints == int(round((frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+
+    # Run the Seldonian algorithm
+    passed_safety, solution = SA2.run()
+    assert passed_safety == True
+
+    array_to_compare = np.array(
+        [
+            -0.13804318,
+            -0.03424409,
+            0.16923071,
+            0.12281471,
+            0.09275838,
+            0.05337152,
+            0.39159049,
+            0.29150553,
+            -0.09520315,
+            -0.04460401
+        ]
+    )
+   
+    assert np.allclose(solution, array_to_compare)
 
 def test_classification_statistics(gpa_classification_dataset):
     """Test all of the classification statistics (FPR, PR, NR, etc.)

@@ -171,6 +171,7 @@ class Spec(object):
             
             this_pt = [pt for pt in self.parse_trees if pt.constraint_str == constraint_str][0]
             valid_base_nodes_this_tree = list(this_pt.base_node_dict.keys())
+            
             for base_node in additional_datasets[constraint_str]:
                 if base_node not in valid_base_nodes_this_tree:
                     raise RuntimeError(
@@ -181,6 +182,7 @@ class Spec(object):
                     )
 
                 this_dict = additional_datasets[constraint_str][base_node]
+                
                 # Ensure correct keys are present
                 if "dataset" in this_dict:
                     if "candidate_dataset" in this_dict or "safety_dataset" in this_dict:
@@ -194,6 +196,7 @@ class Spec(object):
                             f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
                             "'dataset' key is not present, so 'candidate_dataset' and 'safety_dataset' keys must be present. "
                         )
+        
         # Now fill in the missing parse tree/base node combinations with the primary dataset
         # If user provided custom candidate/safety datasets for the primary, then use those instead
         if self.candidate_dataset:
