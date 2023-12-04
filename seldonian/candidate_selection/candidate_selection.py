@@ -236,9 +236,8 @@ class CandidateSelection(object):
                         wrapped_labels = cand_dataset.labels[start2:end2]
                         wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
                         batch_features = np.vstack((batch_features,wrapped_features))
-                        batch_labels = np.vstack((batch_labels,wrapped_labels))
+                        batch_labels = np.hstack((batch_labels,wrapped_labels))
                         batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
-                   
                     batch_dataset = SupervisedDataSet(
                         features=batch_features,
                         labels=batch_labels,
