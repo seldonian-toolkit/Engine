@@ -94,7 +94,6 @@ class CandidateSelection(object):
 
         self.additional_datasets = additional_datasets
 
-
     def calculate_batches(self, batch_index, batch_size, epoch, n_batches):
         """Create a batch dataset to be used in gradient descent.
         Does not return anything, instead sets self.batch_dataset.
@@ -238,6 +237,7 @@ class CandidateSelection(object):
                         batch_features = np.vstack((batch_features,wrapped_features))
                         batch_labels = np.hstack((batch_labels,wrapped_labels))
                         batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
+
                     batch_dataset = SupervisedDataSet(
                         features=batch_features,
                         labels=batch_labels,
@@ -246,11 +246,11 @@ class CandidateSelection(object):
                         meta=cand_dataset.meta)
 
                 elif self.regime == "reinforcement_learning":
-                    batch_episodes = dataset.episodes[start1:end1]
-                    batch_sensitive_attrs = dataset.sensitive_attrs[start1:end1]
+                    batch_episodes = cand_dataset.episodes[start1:end1]
+                    batch_sensitive_attrs = cand_dataset.sensitive_attrs[start1:end1]
                     if wraps:
-                        wrapped_episodes = dataset.episodes[start2:end2]
-                        wrapped_sensitive_attrs = dataset.sensitive_attrs[start2:end2]
+                        wrapped_episodes = cand_dataset.episodes[start2:end2]
+                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
                         batch_episodes = np.vstack((batch_episodes,wrapped_episodes))
                         batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
                     
@@ -262,11 +262,11 @@ class CandidateSelection(object):
                     )
 
                 elif self.regime == "custom":
-                    batch_data = dataset.data[start1:end1]
-                    batch_sensitive_attrs = dataset.sensitive_attrs[start1:end1]
+                    batch_data = cand_dataset.data[start1:end1]
+                    batch_sensitive_attrs = cand_dataset.sensitive_attrs[start1:end1]
                     if wraps:
-                        wrapped_data = dataset.data[start2:end2]
-                        wrapped_sensitive_attrs = dataset.sensitive_attrs[start2:end2]
+                        wrapped_data = cand_dataset.data[start2:end2]
+                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
                         batch_data = np.vstack((batch_data,wrapped_data))
                         batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
                     
@@ -303,7 +303,6 @@ class CandidateSelection(object):
 
         :return: None
         """
-        batch_datasets = {}
         for pt in self.additional_datasets:
             for base_node in self.additional_datasets[pt]:
                 this_dict = self.additional_datasets[pt][base_node]
@@ -313,6 +312,7 @@ class CandidateSelection(object):
                 if n_batches == 1:
                     batch_index_list = [0,num_datapoints_addl]
                     this_dict["batch_index_list"] = [batch_index_list for _ in range(n_epochs)] # only one entry per epoch
+                    print(this_dict)
                     continue
                 
                 # rule i

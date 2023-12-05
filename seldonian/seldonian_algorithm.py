@@ -107,6 +107,7 @@ class SeldonianAlgorithm:
                     this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
                     if "candidate_dataset" not in this_dict: # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
                         addl_dataset = this_dict["dataset"]
+                        this_batch_size = this_dict.get("batch_size")
                         (
                             addl_candidate_features,
                             addl_safety_features,
@@ -116,7 +117,13 @@ class SeldonianAlgorithm:
                             addl_safety_sensitive_attrs,
                             addl_n_candidate,
                             addl_n_safety,
-                        ) = self.candidate_safety_split_addl_datasets(self.spec.frac_data_in_safety,addl_dataset)
+                        ) = self.candidate_safety_split_addl_datasets(
+                            self.spec.frac_data_in_safety,
+                            addl_dataset,
+                            this_batch_size,
+                            pt_constraint_str,
+                            base_node
+                        )
 
                         addl_candidate_dataset = SupervisedDataSet(
                             features=addl_candidate_features,
@@ -181,6 +188,7 @@ class SeldonianAlgorithm:
                     this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
                     if "candidate_dataset" not in this_dict: # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
                         addl_dataset = this_dict["dataset"]
+                        this_batch_size = this_dict.get("batch_size")
                         (
                             addl_candidate_episodes,
                             addl_safety_episodes,
@@ -188,7 +196,13 @@ class SeldonianAlgorithm:
                             addl_safety_sensitive_attrs,
                             addl_n_candidate,
                             addl_n_safety,
-                        ) = self.candidate_safety_split_addl_datasets(self.spec.frac_data_in_safety,addl_dataset)
+                        ) = self.candidate_safety_split_addl_datasets(
+                            self.spec.frac_data_in_safety,
+                            addl_dataset,
+                            this_batch_size,
+                            pt_constraint_str,
+                            base_node
+                        )
 
                         addl_candidate_dataset = RLDataSet(
                             episodes=addl_candidate_episodes,
@@ -252,6 +266,7 @@ class SeldonianAlgorithm:
                     this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
 
                     if "candidate_dataset" not in this_dict: 
+                        this_batch_size = this_dict.get("batch_size")
                         addl_dataset = this_dict["dataset"]
                         (
                             addl_candidate_data,
@@ -260,7 +275,13 @@ class SeldonianAlgorithm:
                             addl_safety_sensitive_attrs,
                             addl_n_candidate,
                             addl_n_safety,
-                        ) = self.candidate_safety_split_addl_datasets(self.spec.frac_data_in_safety,addl_dataset)
+                        ) = self.candidate_safety_split_addl_datasets(
+                            self.spec.frac_data_in_safety,
+                            addl_dataset,
+                            this_batch_size,
+                            pt_constraint_str,
+                            base_node
+                        )
 
                         addl_candidate_dataset = CustomDataSet(
                             data=addl_candidate_data,
@@ -307,13 +328,24 @@ class SeldonianAlgorithm:
                     "Primary objective must be specified when regime='custom'"
                 )
 
-
-    def candidate_safety_split_addl_datasets(self, frac_data_in_safety, addl_dataset):
+    def candidate_safety_split_addl_datasets(
+        self, 
+        frac_data_in_safety, 
+        addl_dataset, 
+        batch_size, 
+        constraint_str, 
+        base_node
+    ):
         """Split dataset into candidate and safety sets. Regime-agnostic.
 
         :param frac_data_in_safety: Fraction of data used in safety test.
                 The remaining fraction will be used in candidate selection
-
+        :param addl_dataset: The dataset to split
+        :param batch_size: The batch size provided by the user (may be None)
+        :param constraint_str: The constraint string for the parse tree for which 
+            this additional dataset is to be used.
+        :param base_node: The base node within the constraint string for which 
+            this additional dataset is to be used.
         :return: For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
                 where F=features, L=labels, S=sensitive attributes
                 For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
@@ -323,6 +355,13 @@ class SeldonianAlgorithm:
         """
         n_points_tot = addl_dataset.num_datapoints
         n_candidate = int(round(n_points_tot * (1.0 - frac_data_in_safety)))
+        if batch_size != None and batch_size > n_candidate:
+
+            raise RuntimeError(
+                f"additional_datasets['{constraint_str}']['{base_node}']['batch_size'] = {batch_size}, "
+                f"which is larger than the number of data points in the candidate dataset: {n_candidate} "
+                "after splitting."
+            )
         n_safety = n_points_tot - n_candidate
 
         if self.regime == "supervised_learning":
@@ -363,7 +402,6 @@ class SeldonianAlgorithm:
             return D_c ,D_s, S_c, S_s, n_candidate, n_safety
         else:
             raise NotImplementedError(f"{self.regime} is not a supported regime")
-
 
     def candidate_safety_split(self, frac_data_in_safety):
         """Split dataset into candidate and safety sets. Regime-agnostic.
