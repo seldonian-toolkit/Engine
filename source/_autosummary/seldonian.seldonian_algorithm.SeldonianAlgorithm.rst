@@ -22,6 +22,8 @@ seldonian.seldonian\_algorithm.SeldonianAlgorithm
    ..
    ..    ~SeldonianAlgorithm.candidate_safety_split
    ..
+   ..    ~SeldonianAlgorithm.candidate_safety_split_addl_datasets
+   ..
    ..    ~SeldonianAlgorithm.candidate_selection
    ..
    ..    ~SeldonianAlgorithm.evaluate_primary_objective

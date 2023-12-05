@@ -22,6 +22,8 @@ seldonian.candidate\_selection.candidate\_selection.CandidateSelection
    ..
    ..    ~CandidateSelection.calculate_batches
    ..
+   ..    ~CandidateSelection.calculate_batches_addl_datasets
+   ..
    ..    ~CandidateSelection.evaluate_primary_objective
    ..
    ..    ~CandidateSelection.get_constraint_upper_bounds
@@ -29,6 +31,8 @@ seldonian.candidate\_selection.candidate\_selection.CandidateSelection
    ..    ~CandidateSelection.get_importance_weights
    ..
    ..    ~CandidateSelection.objective_with_barrier
+   ..
+   ..    ~CandidateSelection.precalculate_addl_dataset_batch_indices
    ..
    ..    ~CandidateSelection.run
    ..

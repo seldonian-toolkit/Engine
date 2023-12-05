@@ -17,7 +17,6 @@ seldonian.spec
       createRLSpec
       createSimpleSupervisedSpec
       createSupervisedSpec
-      validate_parse_trees
    
    
 

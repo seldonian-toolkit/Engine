@@ -35,11 +35,11 @@
 <h1>seldonian.candidate_selection.candidate_selection.CandidateSelection<a class="headerlink" href="#seldonian-candidate-selection-candidate-selection-candidateselection" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CandidateSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'barrier_function'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Powell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CandidateSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'barrier_function'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Powell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'barrier_function'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Powell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_trees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_technique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'barrier_function'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Powell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'supervised_learning'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object for running candidate selection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -81,7 +81,7 @@ to disk</p></li>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches">
-<span class="sig-name descname"><span class="pre">calculate_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a batch dataset to be used in gradient descent.
 Does not return anything, instead sets self.batch_dataset.</p>
 <dl class="field-list simple">
@@ -89,6 +89,30 @@ Does not return anything, instead sets self.batch_dataset.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>batch_index</strong> (<em>int</em>) – The batch number (0-indexed)</p></li>
 <li><p><strong>batch_size</strong> (<em>int</em>) – The size of the batches</p></li>
+<li><p><strong>epoch</strong> (<em>int</em>) – The 0-indexed epoch
+(needed for additional datasets, if provided)</p></li>
+<li><p><strong>n_batches</strong> (<em>int</em>) – The number of batches per epoch
+(needed for additional datasets, if provided)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches_addl_datasets">
+<span class="sig-name descname"><span class="pre">calculate_batches_addl_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primary_epoch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches_addl_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each additional dataset, create a batch dataset using the current batch.
+Uses the batch_indices list stored in the additional datasets dictionary that was 
+precalculated to make this easy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>primary_epoch_index</strong> (<em>int</em>) – The epoch number (0-indexed) of the primary dataset</p></li>
+<li><p><strong>primary_batch_index</strong> (<em>int</em>) – The batch number (0-indexed) of the primary dataset</p></li>
+<li><p><strong>n_batches</strong> (<em>int</em>) – The number of primary dataset batches per epoch</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -168,6 +192,43 @@ evaluated at theta</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.precalculate_addl_dataset_batch_indices">
+<span class="sig-name descname"><span class="pre">precalculate_addl_dataset_batch_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.precalculate_addl_dataset_batch_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each additional dataset, create a list of indices corresponding to the starting and ending
+of each batch. During gradient descent we can simply look up these indices and then construct the dataset
+from them. Updates self.additional_datasets in place, so don’t need to return anything.</p>
+<p>The rules here are:
+i) A custom batch size can be used for each addl dataset, but</p>
+<blockquote>
+<div><p>if missing the primary batch batch is used.</p>
+</div></blockquote>
+<ol class="lowerroman simple" start="2">
+<li><p>We wrap around the end of addl datasets if we get to the end either within a primary epoch
+or if we start a new epoch. For this reason, we can either have a list of length 2 (start,end)
+or a list of length 4 (start1,end1,start2,end2), if there is wraparound.</p></li>
+<li><p>If n_batches = 1 then just use the entire additional dataset,</p></li>
+</ol>
+<blockquote>
+<div><p>but don’t wrap as that would reuse datapoints in a single batch</p>
+</div></blockquote>
+<ol class="lowerroman simple" start="4">
+<li><p>There is no concept of epoch for the addl datasets. We are simply wrapping back to the beginning when needed.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_epochs</strong> (<em>int</em>) – The total number of epochs to run gradient descent</p></li>
+<li><p><strong>n_batches</strong> (<em>int</em>) – The number of primary dataset batches per peoch</p></li>
+<li><p><strong>primary_epoch_index</strong> (<em>int</em>) – The epoch number (0-indexed) of the primary dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run candidate selection</p>
@@ -215,10 +276,12 @@ evaluated at theta</p>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__init__()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.__repr__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__repr__()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.calculate_batches()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches_addl_datasets"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.calculate_batches_addl_datasets()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.get_constraint_upper_bounds()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_importance_weights"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.get_importance_weights()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.objective_with_barrier()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.precalculate_addl_dataset_batch_indices"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.precalculate_addl_dataset_batch_indices()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.run"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.run()</span></code></a></li>
 </ul>
 </li>

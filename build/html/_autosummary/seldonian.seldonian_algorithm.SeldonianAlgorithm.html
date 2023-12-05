@@ -64,16 +64,52 @@ set of parameters for running the Seldonian algorithm</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split">
 <span class="sig-name descname"><span class="pre">candidate_safety_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split features, labels and sensitive attributes
-into candidate and safety sets</p>
+<dd><p>Split dataset into candidate and safety sets. Regime-agnostic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>frac_data_in_safety</strong> – Fraction of data used in safety test.
-The remaining fraction will be used in candidate selection</p>
+<dd class="field-odd"><p><strong>frac_data_in_safety</strong> – <dl class="simple">
+<dt>Fraction of data used in safety test.</dt><dd><p>The remaining fraction will be used in candidate selection</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
+where F=features, L=labels, S=sensitive attributes
+For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
+where E=episodes, S=sensitive attributes
+For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
+where D=data, S=sensitive attributes</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split_addl_datasets">
+<span class="sig-name descname"><span class="pre">candidate_safety_split_addl_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addl_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split_addl_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split dataset into candidate and safety sets. Regime-agnostic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_data_in_safety</strong> – Fraction of data used in safety test.
+The remaining fraction will be used in candidate selection</p></li>
+<li><p><strong>addl_dataset</strong> – The dataset to split</p></li>
+<li><p><strong>batch_size</strong> – The batch size provided by the user (may be None)</p></li>
+<li><p><strong>constraint_str</strong> – The constraint string for the parse tree for which 
+this additional dataset is to be used.</p></li>
+<li><p><strong>base_node</strong> – The base node within the constraint string for which 
+this additional dataset is to be used.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>F_c,F_s,L_c,L_s,S_c,S_s
-where F=features, L=labels, S=sensitive attributes</p>
+<dd class="field-even"><p>For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
+where F=features, L=labels, S=sensitive attributes
+For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
+where E=episodes, S=sensitive attributes
+For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
+where D=data, S=sensitive attributes</p>
 </dd>
 </dl>
 </dd></dl>
@@ -249,6 +285,7 @@ model weights found during candidate selection or ‘NSF’.</p>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__init__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__repr__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__repr__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_safety_split()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split_addl_datasets"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_safety_split_addl_datasets()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_selection()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_cs_result()</span></code></a></li>

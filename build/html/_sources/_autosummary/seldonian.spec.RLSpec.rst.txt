@@ -20,6 +20,12 @@ seldonian.spec.RLSpec
    .. 
    ..    ~RLSpec.__init__
    ..
+   ..    ~RLSpec.validate_additional_datasets
+   ..
+   ..    ~RLSpec.validate_custom_datasets
+   ..
+   ..    ~RLSpec.validate_parse_trees
+   ..
    
    
 

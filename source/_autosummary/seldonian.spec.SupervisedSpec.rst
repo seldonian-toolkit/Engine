@@ -20,6 +20,12 @@ seldonian.spec.SupervisedSpec
    .. 
    ..    ~SupervisedSpec.__init__
    ..
+   ..    ~SupervisedSpec.validate_additional_datasets
+   ..
+   ..    ~SupervisedSpec.validate_custom_datasets
+   ..
+   ..    ~SupervisedSpec.validate_parse_trees
+   ..
    
    
 

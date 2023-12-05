@@ -565,10 +565,12 @@
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.__init__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__init__()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.__repr__"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.__repr__()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.calculate_batches()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches_addl_datasets"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.calculate_batches_addl_datasets()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.get_constraint_upper_bounds()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_importance_weights"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.get_importance_weights()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.objective_with_barrier()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.precalculate_addl_dataset_batch_indices"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.precalculate_addl_dataset_batch_indices()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="_autosummary/seldonian.candidate_selection.candidate_selection.CandidateSelection.html#seldonian.candidate_selection.candidate_selection.CandidateSelection.run"><code class="docutils literal notranslate"><span class="pre">CandidateSelection.run()</span></code></a></li>
 </ul>
 </li>
@@ -1332,6 +1334,7 @@
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__init__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm.__repr__"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.__repr__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_safety_split()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split_addl_datasets"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_safety_split_addl_datasets()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_selection"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.candidate_selection()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm.evaluate_primary_objective"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.evaluate_primary_objective()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.seldonian_algorithm.SeldonianAlgorithm.html#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_cs_result()</span></code></a></li>
@@ -1359,14 +1362,13 @@
 <li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.spec.createSupervisedSpec.html#seldonian.spec.createSupervisedSpec"><code class="docutils literal notranslate"><span class="pre">createSupervisedSpec()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.validate_parse_trees.html">seldonian.spec.validate_parse_trees</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.spec.validate_parse_trees.html#seldonian.spec.validate_parse_trees"><code class="docutils literal notranslate"><span class="pre">validate_parse_trees()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l4"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html">seldonian.spec.RLSpec</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html#seldonian.spec.RLSpec"><code class="docutils literal notranslate"><span class="pre">RLSpec</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html#seldonian.spec.RLSpec.__init__"><code class="docutils literal notranslate"><span class="pre">RLSpec.__init__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html#seldonian.spec.RLSpec.__repr__"><code class="docutils literal notranslate"><span class="pre">RLSpec.__repr__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html#seldonian.spec.RLSpec.validate_additional_datasets"><code class="docutils literal notranslate"><span class="pre">RLSpec.validate_additional_datasets()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html#seldonian.spec.RLSpec.validate_custom_datasets"><code class="docutils literal notranslate"><span class="pre">RLSpec.validate_custom_datasets()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.RLSpec.html#seldonian.spec.RLSpec.validate_parse_trees"><code class="docutils literal notranslate"><span class="pre">RLSpec.validate_parse_trees()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1375,6 +1377,9 @@
 <li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec.__init__"><code class="docutils literal notranslate"><span class="pre">Spec.__init__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec.__repr__"><code class="docutils literal notranslate"><span class="pre">Spec.__repr__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec.validate_additional_datasets"><code class="docutils literal notranslate"><span class="pre">Spec.validate_additional_datasets()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec.validate_custom_datasets"><code class="docutils literal notranslate"><span class="pre">Spec.validate_custom_datasets()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.Spec.html#seldonian.spec.Spec.validate_parse_trees"><code class="docutils literal notranslate"><span class="pre">Spec.validate_parse_trees()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1383,6 +1388,9 @@
 <li class="toctree-l5"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec"><code class="docutils literal notranslate"><span class="pre">SupervisedSpec</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec.__init__"><code class="docutils literal notranslate"><span class="pre">SupervisedSpec.__init__()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec.__repr__"><code class="docutils literal notranslate"><span class="pre">SupervisedSpec.__repr__()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec.validate_additional_datasets"><code class="docutils literal notranslate"><span class="pre">SupervisedSpec.validate_additional_datasets()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec.validate_custom_datasets"><code class="docutils literal notranslate"><span class="pre">SupervisedSpec.validate_custom_datasets()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="_autosummary/seldonian.spec.SupervisedSpec.html#seldonian.spec.SupervisedSpec.validate_parse_trees"><code class="docutils literal notranslate"><span class="pre">SupervisedSpec.validate_parse_trees()</span></code></a></li>
 </ul>
 </li>
 </ul>

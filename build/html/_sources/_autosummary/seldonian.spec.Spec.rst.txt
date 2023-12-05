@@ -20,6 +20,12 @@ seldonian.spec.Spec
    .. 
    ..    ~Spec.__init__
    ..
+   ..    ~Spec.validate_additional_datasets
+   ..
+   ..    ~Spec.validate_custom_datasets
+   ..
+   ..    ~Spec.validate_parse_trees
+   ..
    
    
 
