@@ -973,20 +973,22 @@ def test_rl_alt_reward_precalc_return():
     theta = np.random.uniform(-0.05, 0.05, (9, 4))
     IS_pt.propagate_bounds(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         branch="candidate_selection",
         regime="reinforcement_learning",
         n_safety=150,
+        sub_regime="all"
     )
     assert IS_pt.root.upper == pytest.approx(7.29027)
     IS_pt.reset_base_node_dict(reset_data=True)
     IS_pt.evaluate_constraint(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
+        sub_regime="all"
     )
     assert IS_pt.root.value == pytest.approx(3.5460865367462726)
 
@@ -1010,20 +1012,22 @@ def test_rl_alt_reward_precalc_return():
     # propagate the bounds with example theta value
     PDIS_pt.propagate_bounds(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         branch="candidate_selection",
         regime="reinforcement_learning",
         n_safety=150,
+        sub_regime="all"
     )
     assert PDIS_pt.root.upper == pytest.approx(0.2700371570087783)
     PDIS_pt.reset_base_node_dict(reset_data=True)
     PDIS_pt.evaluate_constraint(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
+        sub_regime="all"
     )
     assert PDIS_pt.root.value == pytest.approx(0.08025886028)
 
@@ -1406,10 +1410,11 @@ def test_math_functions_propagate():
     theta = np.random.uniform(-0.05, 0.05, 10)
     pt.propagate_bounds(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model_instance,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="classification"
     )
     assert pt.root.lower == pytest.approx(0.59886236)
     assert pt.root.upper == pytest.approx(0.60010258)
@@ -2178,11 +2183,13 @@ def test_ttest_bound(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        dataset=candidate_dataset,
+        tree_dataset_dict={"all":candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
+        sub_regime="regression"
+
     )
     assert pt.root.lower == float("-inf")  # not bound_computed
     assert pt.root.upper == pytest.approx(-0.932847)
@@ -2190,10 +2197,11 @@ def test_ttest_bound(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        dataset=safety_dataset,
+        tree_dataset_dict={"all":safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     assert pt.root.lower == float("-inf")  # not computed
     assert pt.root.upper == pytest.approx(-0.947693)
@@ -2217,11 +2225,12 @@ def test_ttest_bound(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        dataset=candidate_dataset,
+        tree_dataset_dict={"all":candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
+        sub_regime="regression"
     )
 
     # assert pt.root.lower == float('-inf') # not bound_computed
@@ -2230,10 +2239,11 @@ def test_ttest_bound(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        dataset=safety_dataset,
+        tree_dataset_dict={"all":safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     # assert pt.root.lower == float('-inf') # not computed
     assert pt.root.upper == pytest.approx(-0.930726)
@@ -2293,11 +2303,12 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        dataset=candidate_dataset,
+        tree_dataset_dict={"all":candidate_dataset},
         n_safety=len(safety_labels),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     assert pt.root.lower == float("-inf")  # not bound_computed
     assert pt.root.upper == pytest.approx(12.341009549)
@@ -2305,10 +2316,11 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        dataset=safety_dataset,
+        tree_dataset_dict={"all":safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     assert pt.root.lower == float("-inf")  # not computed
     assert pt.root.upper == pytest.approx(13.1514499)
@@ -2367,11 +2379,12 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # The upper bound should be different than the one we get with default inflation factor
     pt.propagate_bounds(
         theta=theta,
-        dataset=candidate_dataset,
+        tree_dataset_dict={"all":candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     assert pt.root.lower == float("-inf")  # not bound_computed
     assert pt.root.upper == pytest.approx(-1.0175258779025966)
@@ -2379,10 +2392,11 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Mock Safety test, the result should be the same because bound inflation factor is not used in safety test
     pt.propagate_bounds(
         theta=theta,
-        dataset=safety_dataset,
+        tree_dataset_dict={"all":safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     assert pt.root.lower == float("-inf")  # not computed
     assert pt.root.upper == pytest.approx(-0.947693)
@@ -2401,11 +2415,12 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        dataset=candidate_dataset,
+        tree_dataset_dict={"all":candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
+        sub_regime="regression"
     )
 
     assert pt.root.upper == pytest.approx(-0.900307)
@@ -2413,10 +2428,11 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        dataset=safety_dataset,
+        tree_dataset_dict={"all":safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="regression"
     )   
     assert pt.root.upper == pytest.approx(-0.930726)
 
@@ -2432,11 +2448,12 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        dataset=candidate_dataset,
+        tree_dataset_dict={"all":candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
+        sub_regime="regression"
     )
 
     assert pt.root.upper == pytest.approx(-0.79935738)
@@ -2444,10 +2461,11 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        dataset=safety_dataset,
+        tree_dataset_dict={"all":safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     assert pt.root.upper == pytest.approx(-0.930726)
 
@@ -2512,11 +2530,12 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            dataset=candidate_dataset,
+            tree_dataset_dict={"all":candidate_dataset},
             n_safety=len(safety_features),
             model=model,
             branch="candidate_selection",
             regime="supervised_learning",
+            sub_regime="regression"
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2528,10 +2547,11 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            dataset=safety_dataset,
+            tree_dataset_dict={"all":safety_dataset},
             model=model,
             branch="safety_test",
             regime="supervised_learning",
+            sub_regime="regression"
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2552,11 +2572,12 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            dataset=candidate_dataset,
+            tree_dataset_dict={"all":candidate_dataset},
             n_safety=len(safety_features),
             model=model,
             branch="candidate_selection",
             regime="supervised_learning",
+            sub_regime="regression"
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2568,10 +2589,11 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            dataset=safety_dataset,
+            tree_dataset_dict={"all":safety_dataset},
             model=model,
             branch="safety_test",
             regime="supervised_learning",
+            sub_regime="regression"
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2592,11 +2614,12 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            dataset=candidate_dataset,
+            tree_dataset_dict={"all":candidate_dataset},
             n_safety=len(safety_features),
             model=model,
             branch="candidate_selection",
             regime="supervised_learning",
+            sub_regime="regression"
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2608,10 +2631,11 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            dataset=safety_dataset,
+            tree_dataset_dict={"all":safety_dataset},
             model=model,
             branch="safety_test",
             regime="supervised_learning",
+            sub_regime="regression"
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2657,10 +2681,11 @@ def test_evaluate_constraint(
     theta = np.array([0, 1])
     pt.evaluate_constraint(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         regime="supervised_learning",
         branch="safety_test",
+        sub_regime="regression"
     )
 
     assert pt.root.value == pytest.approx(-1.06248)
@@ -2681,10 +2706,11 @@ def test_evaluate_constraint(
     pt = parse_trees[0]
     pt.evaluate_constraint(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         regime="supervised_learning",
         branch="safety_test",
+        sub_regime="classification"
     )
     assert pt.root.value == pytest.approx(-5.656718)
 
@@ -2711,10 +2737,11 @@ def test_evaluate_constraint(
     # The default is off-policy evaluation, which should give us one answer
     pt.evaluate_constraint(
         theta=theta_init,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
+        sub_regime="all"
     )
     assert pt.root.right.value == pytest.approx(-0.3411361059961765)
     # Now do on-policy evaluation (used as default in experiments)
@@ -2738,11 +2765,12 @@ def test_evaluate_constraint(
     pt = parse_trees[0]
     pt.evaluate_constraint(
         theta=theta_init,
-        dataset=new_dataset,
+        tree_dataset_dict={"all":new_dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
         on_policy=True,
+        sub_regime="all"
     )
     assert pt.root.right.value == pytest.approx(12.983593429599098)
 
@@ -2752,11 +2780,12 @@ def test_evaluate_constraint(
     theta_init = np.array([-1.0,0.0,1.0])
     pt.evaluate_constraint(
         theta=theta_init,
-        dataset=custom_spec.dataset,
+        tree_dataset_dict={"all":custom_spec.dataset},
         model=custom_spec.model,
         regime="custom",
         branch="safety_test",
-        custom_measure_functions=pt.custom_measure_functions
+        custom_measure_functions=pt.custom_measure_functions,
+        sub_regime=None
     )
     assert pt.root.left.value == 10.0
 
@@ -2827,10 +2856,11 @@ def test_single_conditional_columns_propagated(
     theta = np.random.uniform(-0.05, 0.05, 10)
     pt.propagate_bounds(
         theta=theta,
-        dataset=dataset,
+        tree_dataset_dict={"all":dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
+        sub_regime="regression"
     )
     assert pt.root.lower == pytest.approx(61.9001779655)
     assert pt.root.upper == pytest.approx(62.1362236720)
@@ -2885,10 +2915,11 @@ def test_single_conditional_columns_propagated(
     RL_theta = np.random.uniform(-0.05, 0.05, (9, 4))
     RL_pt.propagate_bounds(
         theta=RL_theta,
-        dataset=RL_dataset,
+        tree_dataset_dict={"all":RL_dataset},
         model=RLmodel,
         branch="safety_test",
         regime="reinforcement_learning",
+        sub_regime="all"
     )
     assert RL_pt.root.lower == pytest.approx(-0.00556309)
     assert RL_pt.root.upper == pytest.approx(0.333239520)

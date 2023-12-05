@@ -287,6 +287,124 @@ def gpa_regression_dataset():
 
     return generate_dataset
 
+@pytest.fixture
+def gpa_regression_addl_datasets():
+    # A fixture for generating a primary dataset and additional datasets
+    # for the gpa regression problem
+    from seldonian.models.models import LinearRegressionModel
+
+    def generate_datasets(constraint_strs, deltas, batch_size_dict={}):
+        """ batch_size_dict is structured d[constraint_str][base_node_name] = int
+        """
+    
+        data_pth = "static/datasets/supervised/GPA/gpa_regression_dataset.csv"
+        metadata_pth = "static/datasets/supervised/GPA/metadata_regression.json"
+
+        metadata_dict = load_json(metadata_pth)
+        regime = metadata_dict["regime"]
+        sub_regime = metadata_dict["sub_regime"]
+        all_col_names = metadata_dict["all_col_names"]
+        sensitive_col_names = metadata_dict["sensitive_col_names"]
+
+        regime = "supervised_learning"
+
+        model = LinearRegressionModel()
+
+        # Mean squared error
+        primary_objective = objectives.Mean_Squared_Error
+
+        # Load dataset from file
+        loader = DataSetLoader(regime=regime)
+
+        orig_dataset = loader.load_supervised_dataset(
+            filename=data_pth, metadata_filename=metadata_pth, file_type="csv"
+        )
+
+        # The new primary dataset has no sensitive attributes
+        primary_meta = orig_dataset.meta
+        primary_meta.all_col_names = [x for x in primary_meta.all_col_names if x not in primary_meta.sensitive_col_names]
+        primary_meta.sensitive_col_names = []
+        primary_dataset = SupervisedDataSet(
+            features=orig_dataset.features,
+            labels=orig_dataset.labels,
+            sensitive_attrs=[],
+            num_datapoints=orig_dataset.num_datapoints,
+            meta=primary_meta
+        )
+
+        # Now make a dataset to use for bounding the base nodes
+        # Take 80% of the original data
+        orig_features = orig_dataset.features
+        orig_labels = orig_dataset.labels
+        orig_sensitive_attrs = orig_dataset.sensitive_attrs
+        num_datapoints_new = int(round(len(orig_features)*0.8))
+        rand_indices = np.random.choice(
+            a=range(len(orig_features)),
+            size=num_datapoints_new,
+            replace=False
+        )
+        new_features = orig_features[rand_indices]
+        new_labels = orig_labels[rand_indices]
+        new_sensitive_attrs = orig_sensitive_attrs[rand_indices]
+        new_meta = SupervisedMetaData(
+            sub_regime=sub_regime,
+            all_col_names=all_col_names,
+            feature_col_names=primary_meta.feature_col_names,
+            label_col_names=primary_meta.label_col_names,
+            sensitive_col_names=sensitive_col_names,
+        )
+        new_dataset = SupervisedDataSet(
+            features=new_features,
+            labels=new_labels,
+            sensitive_attrs=new_sensitive_attrs,
+            num_datapoints=num_datapoints_new,
+            meta=new_meta
+
+        )
+
+
+        # For each constraint, make a parse tree 
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(
+                delta=delta,
+                regime="supervised_learning",
+                sub_regime="regression",
+                columns=sensitive_col_names,
+            )
+
+            parse_tree.build_tree(constraint_str=constraint_str)
+            parse_trees.append(parse_tree)
+
+        # For each base node in each parse_tree, 
+        # add this new dataset to additional_datasets dictionary
+        # It is possible that when a parse tree is built, 
+        # the constraint string it stores is different than the one that 
+        # was used as input. This is because the parser may simplify the expression
+        # Therefore, we want to use the constraint string attribute of the built parse 
+        # tree as the key to the additional_datasets dict.
+
+
+        additional_datasets = {}
+        for pt in parse_trees:
+            additional_datasets[pt.constraint_str] = {}
+            base_nodes_this_tree = list(pt.base_node_dict.keys())
+            for bn in base_nodes_this_tree:
+                additional_datasets[pt.constraint_str][bn] = {
+                    "dataset": new_dataset
+                }
+                try: 
+                    additional_datasets[pt.constraint_str][bn]["batch_size"] = batch_size_dict[pt.constraint_str][bn]
+                except KeyError:
+                    pass
+
+        return primary_dataset, additional_datasets, model, primary_objective, parse_trees
+
+    return generate_datasets
+
 
 @pytest.fixture
 def gpa_classification_dataset():
@@ -336,6 +454,124 @@ def gpa_classification_dataset():
         return dataset, model, primary_objective, parse_trees
 
     return generate_dataset
+
+
+@pytest.fixture
+def gpa_classification_addl_datasets():
+    # A fixture for generating a primary dataset and additional datasets
+    # for the gpa classification problem
+    from seldonian.models.models import BinaryLogisticRegressionModel
+
+    def generate_datasets(constraint_strs, deltas, batch_size_dict={}):
+        """ batch_size_dict is structured d[constraint_str][base_node_name] = int
+        """
+    
+        data_pth = "static/datasets/supervised/GPA/gpa_classification_dataset.csv"
+        metadata_pth = "static/datasets/supervised/GPA/metadata_classification.json"
+
+        metadata_dict = load_json(metadata_pth)
+        all_col_names = metadata_dict["all_col_names"]
+        regime = metadata_dict["regime"]
+        sub_regime = metadata_dict["sub_regime"]
+        sensitive_col_names = metadata_dict["sensitive_col_names"]
+
+        regime = "supervised_learning"
+
+        model = BinaryLogisticRegressionModel()
+
+        # Mean squared error
+        primary_objective = objectives.binary_logistic_loss
+
+        # Load dataset from file
+        loader = DataSetLoader(regime=regime)
+
+        orig_dataset = loader.load_supervised_dataset(
+            filename=data_pth, metadata_filename=metadata_pth, file_type="csv"
+        )
+
+        # The new primary dataset has no sensitive attributes
+        primary_meta = orig_dataset.meta
+        primary_meta.all_col_names = [x for x in primary_meta.all_col_names if x not in primary_meta.sensitive_col_names]
+        primary_meta.sensitive_col_names = []
+        primary_dataset = SupervisedDataSet(
+            features=orig_dataset.features,
+            labels=orig_dataset.labels,
+            sensitive_attrs=[],
+            num_datapoints=orig_dataset.num_datapoints,
+            meta=primary_meta
+        )
+
+        # Now make a dataset to use for bounding the base nodes
+        # Take 80% of the original data
+        orig_features = orig_dataset.features
+        orig_labels = orig_dataset.labels
+        orig_sensitive_attrs = orig_dataset.sensitive_attrs
+        num_datapoints_new = int(round(len(orig_features)*0.8))
+        rand_indices = np.random.choice(
+            a=range(len(orig_features)),
+            size=num_datapoints_new,
+            replace=False
+        )
+        new_features = orig_features[rand_indices]
+        new_labels = orig_labels[rand_indices]
+        new_sensitive_attrs = orig_sensitive_attrs[rand_indices]
+        new_meta = SupervisedMetaData(
+            sub_regime=sub_regime,
+            all_col_names=all_col_names,
+            feature_col_names=primary_meta.feature_col_names,
+            label_col_names=primary_meta.label_col_names,
+            sensitive_col_names=sensitive_col_names,
+        )
+        new_dataset = SupervisedDataSet(
+            features=new_features,
+            labels=new_labels,
+            sensitive_attrs=new_sensitive_attrs,
+            num_datapoints=num_datapoints_new,
+            meta=new_meta
+        )
+
+
+        # For each constraint, make a parse tree 
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(
+                delta=delta,
+                regime="supervised_learning",
+                sub_regime=sub_regime,
+                columns=sensitive_col_names,
+            )
+
+            parse_tree.build_tree(constraint_str=constraint_str)
+            parse_trees.append(parse_tree)
+
+        # For each base node in each parse_tree, 
+        # add this new dataset to additional_datasets dictionary
+        # It is possible that when a parse tree is built, 
+        # the constraint string it stores is different than the one that 
+        # was used as input. This is because the parser may simplify the expression
+        # Therefore, we want to use the constraint string attribute of the built parse 
+        # tree as the key to the additional_datasets dict.
+
+
+        additional_datasets = {}
+        for pt in parse_trees:
+            additional_datasets[pt.constraint_str] = {}
+            base_nodes_this_tree = list(pt.base_node_dict.keys())
+            for bn in base_nodes_this_tree:
+                additional_datasets[pt.constraint_str][bn] = {
+                    "dataset": new_dataset
+                }
+                try: 
+                    additional_datasets[pt.constraint_str][bn]["batch_size"] = batch_size_dict[pt.constraint_str][bn]
+                except KeyError:
+                    pass
+
+        return primary_dataset, additional_datasets, model, primary_objective, parse_trees
+
+    return generate_datasets
 
 
 @pytest.fixture
@@ -422,6 +658,92 @@ def RL_gridworld_dataset():
         primary_objective = objectives.IS_estimate
 
         return dataset, policy, env_kwargs, primary_objective
+
+    return generate_dataset
+
+
+@pytest.fixture
+def RL_gridworld_addl_dataset():
+    from seldonian.RL.environments import gridworld
+    from seldonian.RL.RL_model import RL_model
+    from seldonian.RL.Agents.Policies.Softmax import DiscreteSoftmax
+    from seldonian.RL.Env_Description import Spaces, Env_Description
+
+    def generate_dataset(constraint_strs,deltas,batch_size_dict={}):
+        np.random.seed(0)
+
+        # Load data from file into dataset
+        data_pth = "static/datasets/RL/gridworld/gridworld_100episodes.pkl"
+        metadata_pth = "static/datasets/RL/gridworld/gridworld_metadata.json"
+
+        loader = DataSetLoader(regime="reinforcement_learning")
+
+        primary_dataset = loader.load_RL_dataset_from_episode_file(filename=data_pth)
+
+        # Make a new dataset which has only the last 50 episodes
+        orig_episodes = primary_dataset.episodes
+        orig_meta = primary_dataset.meta
+        new_dataset = RLDataSet(
+            episodes=orig_episodes[-50:],
+            meta=orig_meta
+            )
+
+        # Env description
+        num_states = 9  # 3x3 gridworld
+        observation_space = Spaces.Discrete_Space(0, num_states - 1)
+        action_space = Spaces.Discrete_Space(0, 3)
+        env_description = Env_Description.Env_Description(
+            observation_space, action_space
+        )
+        # RL model. setting dict not needed for discrete observation and action space
+        policy = DiscreteSoftmax(
+            env_description=env_description, hyperparam_and_setting_dict={}
+        )
+
+        env_kwargs = {"gamma": 0.9}
+        model = RL_model(policy=policy, env_kwargs=env_kwargs)
+
+        primary_objective = objectives.IS_estimate
+
+        # For each constraint, make a parse tree 
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+            delta = deltas[ii]
+            # Create parse tree object
+            parse_tree = ParseTree(
+                delta=delta,
+                regime="reinforcement_learning",
+                sub_regime="all",
+                columns=[],
+            )
+
+            parse_tree.build_tree(constraint_str=constraint_str)
+            parse_trees.append(parse_tree)
+
+        # For each base node in each parse_tree, 
+        # add this new dataset to additional_datasets dictionary
+        # It is possible that when a parse tree is built, 
+        # the constraint string it stores is different than the one that 
+        # was used as input. This is because the parser may simplify the expression
+        # Therefore, we want to use the constraint string attribute of the built parse 
+        # tree as the key to the additional_datasets dict.
+
+
+        additional_datasets = {}
+        for pt in parse_trees:
+            additional_datasets[pt.constraint_str] = {}
+            base_nodes_this_tree = list(pt.base_node_dict.keys())
+            for bn in base_nodes_this_tree:
+                additional_datasets[pt.constraint_str][bn] = {
+                    "dataset": new_dataset
+                }
+                try: 
+                    additional_datasets[pt.constraint_str][bn]["batch_size"] = batch_size_dict[pt.constraint_str][bn]
+                except KeyError:
+                    pass
+
+        return primary_dataset, additional_datasets, model, primary_objective, parse_trees
 
     return generate_dataset
 
@@ -516,6 +838,186 @@ def RL_gridworld_dataset_alt_rewards():
         return dataset, policy, env_kwargs, primary_objective
 
     return generate_dataset
+
+@pytest.fixture
+def custom_loan_dataset():
+    def generate_dataset():
+        # Load German credit dataset but as a custom dataset instead of supervised dataset
+        metadata_pth = "static/datasets/custom/german_credit/metadata_german_loan.json"
+        meta = load_custom_metadata(metadata_pth)
+        
+        all_col_names = meta.all_col_names
+
+        # Load data from csv
+        data_pth = "static/datasets/custom/german_credit/german_loan_numeric_forseldonian.csv"
+        df = pd.read_csv(data_pth, header=None, names=meta.all_col_names)
+
+        sensitive_attrs = df.loc[:, meta.sensitive_col_names].values
+        # data is everything besides sensitive attrs (includes labels in this case). 
+        # Will handle separating features and labels inside objective functions and measure functions, but not here.
+        data_col_names = [col for col in meta.all_col_names if col not in meta.sensitive_col_names]
+        data = df.loc[:,data_col_names].values
+
+        num_datapoints = len(data)
+
+        dataset = CustomDataSet(
+            data=data,
+            sensitive_attrs=sensitive_attrs,
+            num_datapoints=num_datapoints,
+            meta=meta
+        )
+        
+        return dataset
+    return generate_dataset
+
+@pytest.fixture
+def custom_loan_addl_dataset():
+    def generate_dataset():
+        data_pth = "static/datasets/custom/german_credit/german_loan_numeric_forseldonian.csv"
+        metadata_pth = "static/datasets/custom/german_credit/metadata_german_loan.json"
+        save_dir = '.'
+        os.makedirs(save_dir,exist_ok=True)
+        # Create dataset from data and metadata file
+        regime='custom'
+        sub_regime=None
+
+        meta = load_custom_metadata(metadata_pth)
+
+        # One needs to load their custom dataset using their own script
+        df = pd.read_csv(data_pth, header=None, names=meta.all_col_names)
+        
+        sensitive_col_names = meta.sensitive_col_names
+        sensitive_attrs = df.loc[:, sensitive_col_names].values
+        # data is everything else (includes labels in this case). 
+        # will handle separating features and labels inside objective functions and measure functions
+        data_col_names = [col for col in meta.all_col_names if col not in sensitive_col_names]
+        data = df.loc[:,data_col_names].values
+
+        num_datapoints = len(data)
+
+        primary_dataset = CustomDataSet(
+            data=data,
+            sensitive_attrs=[],
+            num_datapoints=num_datapoints,
+            meta=meta
+        )
+
+        new_num_datapoints = 500
+        new_data = data[0:new_num_datapoints]
+        new_sensitive_attrs = sensitive_attrs[0:new_num_datapoints]
+
+        new_dataset = CustomDataSet(
+            data=new_data,
+            sensitive_attrs=new_sensitive_attrs,
+            num_datapoints=new_num_datapoints,
+            meta=meta
+            )
+       
+
+        # Use logistic regression model
+        model = BinaryLogisticRegressionModel()
+        
+        # Define the primary objective to be log loss
+        # Can just call the existing log loss function
+        # but must wrap it because in this custom 
+        # setting we don't know what features and labels
+        # are a priori. We just have a "data" argument 
+        # that we have to manipulate accordingly.
+
+
+        def custom_log_loss(model,theta,data,**kwargs):
+            """Calculate average logistic loss
+            over all data points for binary classification.
+
+            :param model: SeldonianModel instance
+            :param theta: The parameter weights
+            :type theta: numpy ndarray
+            :param data: A list of samples, where in this case samples are
+                rows of a 2D numpy array
+
+            :return: mean logistic loss
+            :rtype: float
+            """
+            # Figure out features and labels
+            # In this case I know that the label column is the final column
+            # I also know that data is a 2D numpy array. The data structure
+            # will be custom to the use case, so user will have to manipulate 
+            # accordingly. 
+            features = data[:,:-1]
+            labels = data[:,-1]
+            return objectives.binary_logistic_loss(model, theta, features, labels, **kwargs)
+
+        primary_objective = custom_log_loss
+        # Define behavioral constraints
+        epsilon = 0.6
+        constraint_strs = [f'min((CPR | [M])/(CPR | [F]),(CPR | [F])/(CPR | [M])) >= {epsilon}'] 
+        deltas = [0.05]
+        
+        # Define custom measure function for CPR and register it when making parse tree
+        def custom_vector_Positive_Rate(model, theta, data, **kwargs):
+            """
+            Calculate positive rate
+            for each observation. Meaning depends on whether
+            binary or multi-class classification.
+
+            :param model: SeldonianModel instance
+            :param theta: The parameter weights
+            :type theta: numpy ndarray
+            :param data: A list of samples, where in this case samples are
+                rows of a 2D numpy array
+
+            :return: Positive rate for each observation
+            :rtype: numpy ndarray(float between 0 and 1)
+            """
+            features = data[:,:-1]
+            labels = data[:,-1]
+            return zhat_funcs._vector_Positive_Rate_binary(model, theta, features, labels)
+
+        custom_measure_functions = {
+            "CPR": custom_vector_Positive_Rate
+        }
+        # For each constraint (in this case only one), make a parse tree
+        parse_trees = []
+        for ii in range(len(constraint_strs)):
+            constraint_str = constraint_strs[ii]
+
+            delta = deltas[ii]
+
+            # Create parse tree object
+            pt = ParseTree(
+                delta=delta, regime=regime, sub_regime=sub_regime, columns=sensitive_col_names,
+                custom_measure_functions=custom_measure_functions
+            )
+
+            # Fill out tree
+            pt.build_tree(
+                constraint_str=constraint_str
+            )
+
+            parse_trees.append(pt)
+
+        # For each base node in each parse_tree, 
+        # add this new dataset to additional_datasets dictionary
+        # It is possible that when a parse tree is built, 
+        # the constraint string it stores is different than the one that 
+        # was used as input. This is because the parser may simplify the expression
+        # Therefore, we want to use the constraint string attribute of the built parse 
+        # tree as the key to the additional_datasets dict.
+
+        additional_datasets = {}
+        for pt in parse_trees:
+            additional_datasets[pt.constraint_str] = {}
+            base_nodes_this_tree = list(pt.base_node_dict.keys())
+            for bn in base_nodes_this_tree:
+                additional_datasets[pt.constraint_str][bn] = {
+                    "dataset": new_dataset
+                }
+
+        return primary_dataset, additional_datasets, model, primary_objective, parse_trees
+
+
+    return generate_dataset
+
 
 @pytest.fixture
 def custom_text_spec():
@@ -765,30 +1267,6 @@ def custom_loan_spec():
             parse_trees.append(pt)
 
 
-        # Use vanilla Spec object for custom datasets.
-        # spec = Spec(
-        #     dataset=dataset,
-        #     model=model,
-        #     parse_trees=parse_trees,
-        #     frac_data_in_safety=0.6,
-        #     primary_objective=custom_log_loss,
-        #     initial_solution_fn=custom_initial_solution_fn,
-        #     use_builtin_primary_gradient_fn=False,
-        #     optimization_technique='gradient_descent',
-        #     optimizer='adam',
-        #     optimization_hyperparams={
-        #         'lambda_init'   : np.array([0.5]),
-        #         'alpha_theta'   : 0.01,
-        #         'alpha_lamb'    : 0.01,
-        #         'beta_velocity' : 0.9,
-        #         'beta_rmsprop'  : 0.95,
-        #         'use_batches'   : False,
-        #         'num_iters'     : 100,
-        #         'gradient_library': "autograd",
-        #         'hyper_search'  : None,
-        #         'verbose'       : True,
-        #     }
-        # )
         spec = Spec(
             dataset=dataset,
             model=model,

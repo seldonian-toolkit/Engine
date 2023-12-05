@@ -73,7 +73,7 @@ def batcher(func, N, batch_size, num_batches):
     return wrapper
 
 
-def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
+def _setup_params_for_stat_funcs(model, theta, data_dict, **kwargs):
     """Set up the args,kwargs to pass to the
     zhat functions.
 
@@ -91,13 +91,12 @@ def _setup_params_for_stat_funcs(model, theta, data_dict, sub_regime, **kwargs):
         number of datapoints to consider (num_datapoints).
     """
     regime = kwargs["regime"]
-    dataset = kwargs["dataset"]
+    sub_regime = kwargs["sub_regime"]
     msr_func_kwargs = {"regime": regime}
 
     if regime == "supervised_learning":
         num_datapoints = len(data_dict["labels"])
         args = [model, theta, data_dict["features"], data_dict["labels"]]
-        sub_regime = dataset.meta.sub_regime
         msr_func_kwargs["sub_regime"] = sub_regime
         if "class_index" in kwargs:
             msr_func_kwargs["class_index"] = kwargs["class_index"]
@@ -137,10 +136,8 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
     """
     branch = kwargs["branch"]
     regime = kwargs["regime"]
-    sub_regime = kwargs["dataset"].meta.sub_regime
-
     (args, msr_func_kwargs, num_datapoints) = _setup_params_for_stat_funcs(
-        model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
+        model=model, theta=theta, data_dict=data_dict, **kwargs
     )
 
     if regime == "custom":
@@ -187,10 +184,9 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
     """
     branch = kwargs["branch"]
     regime = kwargs["regime"]
-    sub_regime = kwargs["dataset"].meta.sub_regime
 
     (args, msr_func_kwargs, num_datapoints) = _setup_params_for_stat_funcs(
-        model=model, theta=theta, data_dict=data_dict, sub_regime=sub_regime, **kwargs
+        model=model, theta=theta, data_dict=data_dict, **kwargs
     )
 
     if regime == "custom":

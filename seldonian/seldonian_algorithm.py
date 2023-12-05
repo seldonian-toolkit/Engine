@@ -48,113 +48,270 @@ class SeldonianAlgorithm:
                         "bound_method"
                     ] = this_bound_method_dict[node_name]
 
-        self.dataset = self.spec.dataset
-        self.regime = self.dataset.regime
-        self.column_names = self.dataset.meta.all_col_names
+
+        # Deal with possibility of manually provided candidate and safety datasets
+        # First primary objective dataset
+        split_primary_dataset = True
+        if self.spec.candidate_dataset:
+            split_primary_dataset = False
+            self.candidate_dataset = self.spec.candidate_dataset
+            self.safety_dataset = self.spec.safety_dataset
+            self.regime = self.candidate_dataset.regime
+        else:
+            self.dataset = self.spec.dataset
+            self.regime = self.dataset.regime
 
         if self.regime == "supervised_learning":
             self.sub_regime = self.spec.sub_regime
             self.model = self.spec.model
-            # Split into candidate and safety datasets
+            if split_primary_dataset:
+                # Split into candidate and safety datasets
+                (
+                    self.candidate_features,
+                    self.safety_features,
+                    self.candidate_labels,
+                    self.safety_labels,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-            (
-                self.candidate_features,
-                self.safety_features,
-                self.candidate_labels,
-                self.safety_labels,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
-            self.candidate_dataset = SupervisedDataSet(
-                features=self.candidate_features,
-                labels=self.candidate_labels,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                num_datapoints=self.n_candidate,
-                meta=self.dataset.meta,
-            )
-
-            self.safety_dataset = SupervisedDataSet(
-                features=self.safety_features,
-                labels=self.safety_labels,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                num_datapoints=self.n_safety,
-                meta=self.dataset.meta,
-            )
-
-            if self.n_candidate < 2 or self.n_safety < 2:
-                warning_msg = (
-                    "Warning: not enough data to " "run the Seldonian algorithm."
+                self.candidate_dataset = SupervisedDataSet(
+                    features=self.candidate_features,
+                    labels=self.candidate_labels,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    num_datapoints=self.n_candidate,
+                    meta=self.dataset.meta,
                 )
-                warnings.warn(warning_msg)
+
+                self.safety_dataset = SupervisedDataSet(
+                    features=self.safety_features,
+                    labels=self.safety_labels,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    num_datapoints=self.n_safety,
+                    meta=self.dataset.meta,
+                )
+            else:
+                self.n_candidate = self.candidate_dataset.num_datapoints
+                self.n_safety = self.safety_dataset.num_datapoints
+
             if self.spec.verbose:
-                print(f"Safety dataset has {self.n_safety} datapoints")
-                print(f"Candidate dataset has {self.n_candidate} datapoints")
+                print(f"(Primary) Safety dataset has {self.n_safety} datapoints")
+                print(f"(Primary) Candidate dataset has {self.n_candidate} datapoints")
+
+            # Split any additional datasets that need it
+            for pt_constraint_str in self.spec.additional_datasets:
+                for base_node in self.spec.additional_datasets[pt_constraint_str]:
+
+                    this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
+                    if "candidate_dataset" not in this_dict: # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
+                        addl_dataset = this_dict["dataset"]
+                        this_batch_size = this_dict.get("batch_size")
+                        (
+                            addl_candidate_features,
+                            addl_safety_features,
+                            addl_candidate_labels,
+                            addl_safety_labels,
+                            addl_candidate_sensitive_attrs,
+                            addl_safety_sensitive_attrs,
+                            addl_n_candidate,
+                            addl_n_safety,
+                        ) = self.candidate_safety_split_addl_datasets(
+                            self.spec.frac_data_in_safety,
+                            addl_dataset,
+                            this_batch_size,
+                            pt_constraint_str,
+                            base_node
+                        )
+
+                        addl_candidate_dataset = SupervisedDataSet(
+                            features=addl_candidate_features,
+                            labels=addl_candidate_labels,
+                            sensitive_attrs=addl_candidate_sensitive_attrs,
+                            num_datapoints=addl_n_candidate,
+                            meta=addl_dataset.meta,
+                        )
+
+                        addl_safety_dataset = SupervisedDataSet(
+                            features=addl_safety_features,
+                            labels=addl_safety_labels,
+                            sensitive_attrs=addl_safety_sensitive_attrs,
+                            num_datapoints=addl_n_safety,
+                            meta=addl_dataset.meta,
+                        )
+                        this_dict["candidate_dataset"] = addl_candidate_dataset
+                        this_dict["safety_dataset"] = addl_safety_dataset
+                        if addl_n_candidate < 2 or addl_n_safety < 2:
+                            warning_msg = (
+                                "Warning: not enough data to "
+                                "run the Seldonian algorithm for additional_dataset:."
+                               f"additional_datasets['{pt_constraint_str}']['{base_node}']."
+                            )
+                            warnings.warn(warning_msg)
+
 
         elif self.regime == "reinforcement_learning":
             self.model = self.spec.model
+            if split_primary_dataset:
+                (
+                    self.candidate_episodes,
+                    self.safety_episodes,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-            (
-                self.candidate_episodes,
-                self.safety_episodes,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
+                self.candidate_dataset = RLDataSet(
+                    episodes=self.candidate_episodes,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    meta=self.dataset.meta,
+                )
 
-            self.candidate_dataset = RLDataSet(
-                episodes=self.candidate_episodes,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                meta=self.dataset.meta,
-            )
+                self.safety_dataset = RLDataSet(
+                    episodes=self.safety_episodes,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    meta=self.dataset.meta,
+                )
+            else:
+                self.n_candidate = self.candidate_dataset.num_datapoints
+                self.n_safety = self.safety_dataset.num_datapoints
 
-            self.safety_dataset = RLDataSet(
-                episodes=self.safety_episodes,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                meta=self.dataset.meta,
-            )
             if self.spec.verbose:
-                print(f"Safety dataset has {self.n_safety} episodes")
-                print(f"Candidate dataset has {self.n_candidate} episodes")
+                print(f"(Primary) Safety dataset has {self.n_safety} episodes")
+                print(f"(Primary) Candidate dataset has {self.n_candidate} episodes")
+
+            # Split any additional datasets that need it
+            for pt_constraint_str in self.spec.additional_datasets:
+                for base_node in self.spec.additional_datasets[pt_constraint_str]:
+                    this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
+                    if "candidate_dataset" not in this_dict: # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
+                        addl_dataset = this_dict["dataset"]
+                        this_batch_size = this_dict.get("batch_size")
+                        (
+                            addl_candidate_episodes,
+                            addl_safety_episodes,
+                            addl_candidate_sensitive_attrs,
+                            addl_safety_sensitive_attrs,
+                            addl_n_candidate,
+                            addl_n_safety,
+                        ) = self.candidate_safety_split_addl_datasets(
+                            self.spec.frac_data_in_safety,
+                            addl_dataset,
+                            this_batch_size,
+                            pt_constraint_str,
+                            base_node
+                        )
+
+                        addl_candidate_dataset = RLDataSet(
+                            episodes=addl_candidate_episodes,
+                            sensitive_attrs=addl_candidate_sensitive_attrs,
+                            meta=addl_dataset.meta,
+                        )
+
+                        addl_safety_dataset = RLDataSet(
+                            episodes=addl_safety_episodes,
+                            sensitive_attrs=addl_safety_sensitive_attrs,
+                            meta=addl_dataset.meta,
+                        )
+                        this_dict["candidate_dataset"] = addl_candidate_dataset
+                        this_dict["safety_dataset"] = addl_safety_dataset
+                        if addl_n_candidate < 2 or addl_n_safety < 2:
+                            warning_msg = (
+                                "Warning: not enough data to "
+                                "run the Seldonian algorithm for additional_dataset:."
+                               f"additional_datasets['{pt_constraint_str}']['{base_node}']."
+                            )
+                            warnings.warn(warning_msg)
 
         elif self.regime == "custom":
             self.sub_regime = None
             self.model = self.spec.model
             # Split into candidate and safety datasets
+            if split_primary_dataset:
+                (
+                    self.candidate_data,
+                    self.safety_data,
+                    self.candidate_sensitive_attrs,
+                    self.safety_sensitive_attrs,
+                    self.n_candidate,
+                    self.n_safety,
+                ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
 
-            (
-                self.candidate_data,
-                self.safety_data,
-                self.candidate_sensitive_attrs,
-                self.safety_sensitive_attrs,
-                self.n_candidate,
-                self.n_safety,
-            ) = self.candidate_safety_split(self.spec.frac_data_in_safety)
-
-            self.candidate_dataset = CustomDataSet(
-                data=self.candidate_data,
-                sensitive_attrs=self.candidate_sensitive_attrs,
-                num_datapoints=self.n_candidate,
-                meta=self.dataset.meta,
-            )
-
-            self.safety_dataset = CustomDataSet(
-                data=self.safety_data,
-                sensitive_attrs=self.safety_sensitive_attrs,
-                num_datapoints=self.n_safety,
-                meta=self.dataset.meta,
-            )
-
-            if self.n_candidate < 2 or self.n_safety < 2:
-                warning_msg = (
-                    "Warning: not enough data to " "run the Seldonian algorithm."
+                self.candidate_dataset = CustomDataSet(
+                    data=self.candidate_data,
+                    sensitive_attrs=self.candidate_sensitive_attrs,
+                    num_datapoints=self.n_candidate,
+                    meta=self.dataset.meta,
                 )
-                warnings.warn(warning_msg)
+
+                self.safety_dataset = CustomDataSet(
+                    data=self.safety_data,
+                    sensitive_attrs=self.safety_sensitive_attrs,
+                    num_datapoints=self.n_safety,
+                    meta=self.dataset.meta,
+                )
+            else:
+                self.n_candidate = self.candidate_dataset.num_datapoints
+                self.n_safety = self.safety_dataset.num_datapoints
+            
             if self.spec.verbose:
                 print(f"Safety dataset has {self.n_safety} datapoints")
                 print(f"Candidate dataset has {self.n_candidate} datapoints")
+            
+            # Split any additional datasets that need it
+            for pt_constraint_str in self.spec.additional_datasets:
+                for base_node in self.spec.additional_datasets[pt_constraint_str]:
+                    this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
+
+                    if "candidate_dataset" not in this_dict: 
+                        this_batch_size = this_dict.get("batch_size")
+                        addl_dataset = this_dict["dataset"]
+                        (
+                            addl_candidate_data,
+                            addl_safety_data,
+                            addl_candidate_sensitive_attrs,
+                            addl_safety_sensitive_attrs,
+                            addl_n_candidate,
+                            addl_n_safety,
+                        ) = self.candidate_safety_split_addl_datasets(
+                            self.spec.frac_data_in_safety,
+                            addl_dataset,
+                            this_batch_size,
+                            pt_constraint_str,
+                            base_node
+                        )
+
+                        addl_candidate_dataset = CustomDataSet(
+                            data=addl_candidate_data,
+                            sensitive_attrs=addl_candidate_sensitive_attrs,
+                            num_datapoints=addl_n_candidate,
+                            meta=addl_dataset.meta,
+                        )
+
+                        addl_safety_dataset = CustomDataSet(
+                            data=addl_safety_data,
+                            sensitive_attrs=addl_safety_sensitive_attrs,
+                            num_datapoints=addl_n_safety,
+                            meta=addl_dataset.meta,
+                        )
+                        this_dict["candidate_dataset"] = addl_candidate_dataset
+                        this_dict["safety_dataset"] = addl_safety_dataset
+                        if addl_n_candidate < 2 or addl_n_safety < 2:
+                            warning_msg = (
+                                "Warning: not enough data to "
+                                "run the Seldonian algorithm for additional_dataset:."
+                               f"additional_datasets['{pt_constraint_str}']['{base_node}']."
+                            )
+                            warnings.warn(warning_msg)
+
+
+        if self.n_candidate < 2 or self.n_safety < 2:
+            warning_msg = (
+                "Warning: not enough data to " "run the Seldonian algorithm."
+            )
+            warnings.warn(warning_msg)
 
         if self.spec.primary_objective is None:
             if self.regime == "reinforcement_learning":
@@ -171,15 +328,93 @@ class SeldonianAlgorithm:
                     "Primary objective must be specified when regime='custom'"
                 )
 
+    def candidate_safety_split_addl_datasets(
+        self, 
+        frac_data_in_safety, 
+        addl_dataset, 
+        batch_size, 
+        constraint_str, 
+        base_node
+    ):
+        """Split dataset into candidate and safety sets. Regime-agnostic.
+
+        :param frac_data_in_safety: Fraction of data used in safety test.
+                The remaining fraction will be used in candidate selection
+        :param addl_dataset: The dataset to split
+        :param batch_size: The batch size provided by the user (may be None)
+        :param constraint_str: The constraint string for the parse tree for which 
+            this additional dataset is to be used.
+        :param base_node: The base node within the constraint string for which 
+            this additional dataset is to be used.
+        :return: For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
+                where F=features, L=labels, S=sensitive attributes
+                For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
+                where E=episodes, S=sensitive attributes
+                For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
+                where D=data, S=sensitive attributes
+        """
+        n_points_tot = addl_dataset.num_datapoints
+        n_candidate = int(round(n_points_tot * (1.0 - frac_data_in_safety)))
+        if batch_size != None and batch_size > n_candidate:
+
+            raise RuntimeError(
+                f"additional_datasets['{constraint_str}']['{base_node}']['batch_size'] = {batch_size}, "
+                f"which is larger than the number of data points in the candidate dataset: {n_candidate} "
+                "after splitting."
+            )
+        n_safety = n_points_tot - n_candidate
+
+        if self.regime == "supervised_learning":
+            # Split features
+            if type(addl_dataset.features) == list:
+                F_c = [x[:n_candidate] for x in addl_dataset.features]
+                F_s = [x[n_candidate:] for x in addl_dataset.features]
+            else:
+                F_c = addl_dataset.features[:n_candidate]
+                F_s = addl_dataset.features[n_candidate:]
+            # Split labels - must be numpy array
+            L_c = addl_dataset.labels[:n_candidate]
+            L_s = addl_dataset.labels[n_candidate:]
+
+            # Split sensitive attributes - must be numpy array
+            S_c = addl_dataset.sensitive_attrs[:n_candidate]
+            S_s = addl_dataset.sensitive_attrs[n_candidate:]
+            return F_c, F_s, L_c, L_s, S_c, S_s, n_candidate, n_safety
+
+        elif self.regime == "reinforcement_learning":
+            # Split episodes
+            E_c = addl_dataset.episodes[0:n_candidate]
+            E_s = addl_dataset.episodes[n_candidate:]
+
+            # Split sensitive attributes - must be numpy array
+            S_c = addl_dataset.sensitive_attrs[:n_candidate]
+            S_s = addl_dataset.sensitive_attrs[n_candidate:]
+            return E_c, E_s, S_c, S_s, n_candidate, n_safety
+
+        elif self.regime == "custom":
+            # Split data    
+            D_c = addl_dataset.data[:n_candidate]
+            D_s = addl_dataset.data[n_candidate:]
+
+            # Split sensitive attributes 
+            S_c = addl_dataset.sensitive_attrs[:n_candidate]
+            S_s = addl_dataset.sensitive_attrs[n_candidate:]
+            return D_c ,D_s, S_c, S_s, n_candidate, n_safety
+        else:
+            raise NotImplementedError(f"{self.regime} is not a supported regime")
+
     def candidate_safety_split(self, frac_data_in_safety):
-        """Split features, labels and sensitive attributes
-        into candidate and safety sets
+        """Split dataset into candidate and safety sets. Regime-agnostic.
 
         :param frac_data_in_safety: Fraction of data used in safety test.
                 The remaining fraction will be used in candidate selection
 
-        :return: F_c,F_s,L_c,L_s,S_c,S_s
+         :return: For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
                 where F=features, L=labels, S=sensitive attributes
+                For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
+                where E=episodes, S=sensitive attributes
+                For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
+                where D=data, S=sensitive attributes
         """
         n_points_tot = self.dataset.num_datapoints
         n_candidate = int(round(n_points_tot * (1.0 - frac_data_in_safety)))
@@ -241,6 +476,7 @@ class SeldonianAlgorithm:
             initial_solution=self.initial_solution,
             regime=self.regime,
             write_logfile=write_logfile,
+            additional_datasets=self.spec.additional_datasets
         )
 
         cs = CandidateSelection(**cs_kwargs, **self.spec.regularization_hyperparams)
@@ -254,6 +490,7 @@ class SeldonianAlgorithm:
             model=self.model,
             parse_trees=self.spec.parse_trees,
             regime=self.regime,
+            additional_datasets=self.spec.additional_datasets
         )
 
         st = SafetyTest(**st_kwargs)
@@ -267,7 +504,7 @@ class SeldonianAlgorithm:
                     print("Attempting to use initial solution function")
                 try:
                     self.initial_solution = self.spec.initial_solution_fn(
-                        self.model, self.candidate_features, self.candidate_labels
+                        self.model, self.candidate_dataset.features, self.candidate_dataset.labels
                     )
                 except:
                     if verbose:
@@ -288,7 +525,7 @@ class SeldonianAlgorithm:
                 if self.model.has_intercept:
                     n_features += 1
                 if self.sub_regime == "multiclass_classification":
-                    n_classes = len(np.unique(self.candidate_labels))
+                    n_classes = len(np.unique(self.candidate_dataset.labels))
                     self.initial_solution = np.zeros((n_features, n_classes))
                 else:
                     self.initial_solution = np.zeros(n_features)

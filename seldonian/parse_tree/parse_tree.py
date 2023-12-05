@@ -943,42 +943,55 @@ class ParseTree(object):
                 node.lower = self.base_node_dict[node.name]["lower"]
                 node.upper = self.base_node_dict[node.name]["upper"]
                 return
-            else:
-                # Need to calculate the bound
-                if "dataset" in kwargs:
-                    # Check if data has already been prepared
-                    # for this node name. If so, use precalculated data
-                    if self.base_node_dict[node.name]["data_dict"] != None:
-                        data_dict = self.base_node_dict[node.name]["data_dict"]
-                    else:
-                        # Data not prepared already. Need to do that.
-                        if isinstance(node, RLAltRewardBaseNode):
-                            kwargs["alt_reward_number"] = node.alt_reward_number
 
-                        data_dict = node.calculate_data_forbound(**kwargs)
-                        self.base_node_dict[node.name]["data_dict"] = data_dict
+            # Need to calculate the bound
+            if "tree_dataset_dict" in kwargs:
 
-                    kwargs["data_dict"] = data_dict
+                # First, extract the dataset for this base node
+                tree_dataset_dict = kwargs["tree_dataset_dict"]
+                if node.name in tree_dataset_dict:
+                    kwargs["dataset"] = tree_dataset_dict[node.name]
+                else:
+                    if "all" not in tree_dataset_dict:
+                        raise RuntimeError(
+                            "There was an issue getting the dataset for bounding "
+                            f"the base node: {node.name} in the parse tree: {self.constraint_str}"
+                        )
+                    kwargs["dataset"] = tree_dataset_dict["all"]
+                # Check if data has already been prepared
+                # for this node name. If so, use precalculated data
+                if self.base_node_dict[node.name]["data_dict"] != None:
+                    data_dict = self.base_node_dict[node.name]["data_dict"]
+                else:
+                    # Data not prepared already. Need to do that.
+                    if isinstance(node, RLAltRewardBaseNode):
+                        kwargs["alt_reward_number"] = node.alt_reward_number
 
-                bound_method = self.base_node_dict[node.name]["bound_method"]
+                    data_dict = node.calculate_data_forbound(**kwargs)
+                    self.base_node_dict[node.name]["data_dict"] = data_dict
 
-                if isinstance(node, ConfusionMatrixBaseNode):
-                    kwargs["cm_true_index"] = node.cm_true_index
-                    kwargs["cm_pred_index"] = node.cm_pred_index
-                if self.regime == "custom":
-                    kwargs["custom_measure_functions"] = self.custom_measure_functions
-                bound_result = node.calculate_bounds(
-                    bound_method=bound_method, **kwargs
-                )
-                self.base_node_dict[node.name]["bound_computed"] = True
+                kwargs["data_dict"] = data_dict
 
-                if node.will_lower_bound:
-                    node.lower = bound_result["lower"]
-                    self.base_node_dict[node.name]["lower"] = node.lower
+            bound_method = self.base_node_dict[node.name]["bound_method"]
 
-                if node.will_upper_bound:
-                    node.upper = bound_result["upper"]
-                    self.base_node_dict[node.name]["upper"] = node.upper
+            if isinstance(node, ConfusionMatrixBaseNode):
+                kwargs["cm_true_index"] = node.cm_true_index
+                kwargs["cm_pred_index"] = node.cm_pred_index
+            if self.regime == "custom":
+                kwargs["custom_measure_functions"] = self.custom_measure_functions
+            
+            bound_result = node.calculate_bounds(
+                bound_method=bound_method, **kwargs
+            )
+            self.base_node_dict[node.name]["bound_computed"] = True
+
+            if node.will_lower_bound:
+                node.lower = bound_result["lower"]
+                self.base_node_dict[node.name]["lower"] = node.lower
+
+            if node.will_upper_bound:
+                node.upper = bound_result["upper"]
+                self.base_node_dict[node.name]["upper"] = node.upper
 
             return
 
@@ -1025,18 +1038,34 @@ class ParseTree(object):
                 node.value = self.base_node_dict[node.name]["value"]
                 return
             else:
-                if "dataset" in kwargs:
+
+                if "tree_dataset_dict" in kwargs:
+
+                    # First, extract the dataset for this base node
+                    tree_dataset_dict = kwargs["tree_dataset_dict"]
+                    if node.name in tree_dataset_dict:
+                        kwargs["dataset"] = tree_dataset_dict[node.name]
+                    else:
+                        if "all" not in tree_dataset_dict:
+                            raise RuntimeError(
+                                "There was an issue getting the dataset for bounding "
+                                f"the base node: {node.name} in the parse tree: {self.constraint_str}"
+                            )
+                        kwargs["dataset"] = tree_dataset_dict["all"]
                     # Check if data has already been prepared
                     # for this node name. If so, use precalculated data
                     if self.base_node_dict[node.name]["data_dict"] != None:
                         data_dict = self.base_node_dict[node.name]["data_dict"]
                     else:
+                        # Data not prepared already. Need to do that.
                         if isinstance(node, RLAltRewardBaseNode):
                             kwargs["alt_reward_number"] = node.alt_reward_number
+
                         data_dict = node.calculate_data_forbound(**kwargs)
                         self.base_node_dict[node.name]["data_dict"] = data_dict
 
                     kwargs["data_dict"] = data_dict
+
 
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index

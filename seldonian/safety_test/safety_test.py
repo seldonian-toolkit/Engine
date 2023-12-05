@@ -6,7 +6,13 @@ import copy
 
 class SafetyTest(object):
     def __init__(
-        self, safety_dataset, model, parse_trees, regime="supervised_learning", **kwargs
+        self, 
+        safety_dataset, 
+        model, 
+        parse_trees, 
+        regime="supervised_learning", 
+        additional_datasets = {},
+        **kwargs
     ):
         """
         Object for running safety test
@@ -29,6 +35,8 @@ class SafetyTest(object):
         self.model = model
         self.parse_trees = parse_trees
         self.regime = regime
+        self.additional_datasets = additional_datasets
+
         self.st_result = {}  # stores parse tree evaluated on safety test data
 
     def run(self, solution, batch_size_safety=None, **kwargs):
@@ -54,13 +62,20 @@ class SafetyTest(object):
             # before we propagate reset the tree
             pt.reset_base_node_dict()
 
+            cstr = pt.constraint_str
+            if cstr in self.additional_datasets:
+                dataset_dict = {bn:self.additional_datasets[cstr][bn]["safety_dataset"] for bn in self.additional_datasets[cstr]}
+            else:
+                dataset_dict = {"all": self.safety_dataset}
+
             bounds_kwargs = dict(
                 theta=solution,
-                dataset=self.safety_dataset,
+                tree_dataset_dict=dataset_dict,
                 model=self.model,
                 branch="safety_test",
                 regime=self.regime,
                 batch_size_safety=batch_size_safety,
+                sub_regime=self.safety_dataset.meta.sub_regime,
                 **kwargs
             )
 
@@ -88,7 +103,6 @@ class SafetyTest(object):
 
         :return: The primary objective function evaluated at theta
         """
-
         # Get value of the primary objective given model weights
         if self.regime == "supervised_learning":
             result = primary_objective(
@@ -116,6 +130,14 @@ class SafetyTest(object):
             else:
                 reg_term = 0
             result += reg_term
+            return result
+        
+        elif self.regime == "custom":
+            result = primary_objective(
+                self.model,
+                theta,
+                self.safety_dataset.data,
+            )
             return result
 
     def get_importance_weights(self, theta):
