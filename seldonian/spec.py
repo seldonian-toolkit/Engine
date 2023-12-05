@@ -196,6 +196,11 @@ class Spec(object):
                             f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
                             "'dataset' key is not present, so 'candidate_dataset' and 'safety_dataset' keys must be present. "
                         )
+                    if "batch_size" in this_dict and this_dict["batch_size"] > this_dict["candidate_dataset"].num_datapoints:
+                        raise RuntimeError(
+                            f"additional_datasets['{constraint_str}']['{base_node}']['batch_size'] = {this_dict['batch_size']} "
+                            f"which is larger than the number of data points in the candidate dataset: {this_dict['candidate_dataset'].num_datapoints}"
+                        )
 
         
         # Now fill in the missing parse tree/base node combinations with the primary dataset
