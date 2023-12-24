@@ -312,7 +312,6 @@ class CandidateSelection(object):
                 if n_batches == 1:
                     batch_index_list = [0,num_datapoints_addl]
                     this_dict["batch_index_list"] = [batch_index_list for _ in range(n_epochs)] # only one entry per epoch
-                    print(this_dict)
                     continue
                 
                 # rule i
@@ -722,7 +721,7 @@ class CandidateSelection(object):
         upper_bounds = []
 
         for pt in self.parse_trees:
-            pt.reset_base_node_dict()
+            pt.reset_base_node_dict(reset_data=True)
             # Determine if there are additional datasets for base nodes in this parse tree
             cstr = pt.constraint_str
             if cstr in self.additional_datasets:
