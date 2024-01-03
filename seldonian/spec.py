@@ -3,11 +3,11 @@ import os
 import importlib
 
 from seldonian.utils.io_utils import save_pickle
+from seldonian.utils.stats_utils import default_supervised_initial_solution_fn
 from seldonian.dataset import load_supervised_metadata
 from seldonian.models.models import *
 from seldonian.models import objectives
 from seldonian.parse_tree.parse_tree import make_parse_trees_from_constraints
-
 
 class Spec(object):
     """Base class for specification object required to
@@ -587,6 +587,7 @@ def createSupervisedSpec(
         columns=meta.sensitive_col_names,
         delta_weight_method="equal",
     )
+    
 
     # Save spec object, using defaults where necessary
     spec = SupervisedSpec(
@@ -597,7 +598,7 @@ def createSupervisedSpec(
         use_builtin_primary_gradient_fn=True,
         parse_trees=parse_trees,
         sub_regime=meta.sub_regime,
-        initial_solution_fn=model.fit,
+        initial_solution_fn=default_supervised_initial_solution_fn,
         optimization_technique="gradient_descent",
         optimizer="adam",
         optimization_hyperparams={

@@ -79,3 +79,15 @@ def custom_cumprod(x):
             cumprods.append(next_num)
 
     return np.array(cumprods)
+
+def default_supervised_initial_solution_fn(model,X,y):
+    """A wrapper around model.fit() to use as the initial_solution_fn 
+    parameter to the spec.
+
+    :param model: SeldonianModel instance
+    :param X: Features array (2D numpy array)
+    :param y: Labels array (1D numpy array)
+    :return: The cumulative product of the array
+    :rtype: numpy ndarray(float)
+    """
+    return model.fit(X,y)
