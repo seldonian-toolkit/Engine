@@ -258,4 +258,69 @@ def test_custom_dataset():
     assert dataset.num_datapoints == 4
     assert dataset.sensitive_attrs == []
 
+def test_add_supervised_datasets():
+    """Test that supervised learning datasets can be loaded
+    from various formats"""
+
+    # Classification
+    metadata_pth = "static/datasets/supervised/GPA/metadata_classification.json"
+    metadata_dict = load_json(metadata_pth)
+    regime = metadata_dict["regime"]
+    sub_regime = metadata_dict["sub_regime"]
+    all_col_names = metadata_dict["all_col_names"]
+
+    loader_classification = DataSetLoader(regime=regime)
+
+    # Load dataset from file
+
+    # First, from csv
+    data_pth_csv = "static/datasets/supervised/GPA/gpa_classification_dataset.csv"
+
+    dataset1 = loader_classification.load_supervised_dataset(
+        filename=data_pth_csv, metadata_filename=metadata_pth, file_type="csv"
+    )
+    dataset2 = loader_classification.load_supervised_dataset(
+        filename=data_pth_csv, metadata_filename=metadata_pth, file_type="csv"
+    )
+    dataset3 = dataset1 + dataset2
+    for dataset in [dataset1,dataset2]:
+        assert dataset.meta.feature_col_names == [
+            "Physics",
+            "Biology",
+            "History",
+            "Second_Language",
+            "Geography",
+            "Literature",
+            "Portuguese_and_Essay",
+            "Math",
+            "Chemistry",
+        ]
+        assert dataset.meta.label_col_names == ["GPA_class"]
+        assert dataset.meta.sensitive_col_names == ["M", "F"]
+        assert dataset.meta.sub_regime == "classification"
+        assert dataset.features.shape == (43303, 9)
+        assert dataset.sensitive_col_names == ["M", "F"]
+        assert dataset.num_datapoints == 43303
+
+    assert dataset3.meta.feature_col_names == [
+            "Physics",
+            "Biology",
+            "History",
+            "Second_Language",
+            "Geography",
+            "Literature",
+            "Portuguese_and_Essay",
+            "Math",
+            "Chemistry",
+        ]
+    assert dataset3.meta.label_col_names == ["GPA_class"]
+    assert dataset3.meta.sensitive_col_names == ["M", "F"]
+    assert dataset3.meta.sub_regime == "classification"
+    assert dataset3.features.shape == (86606, 9)
+    assert dataset3.sensitive_col_names == ["M", "F"]
+    assert dataset3.num_datapoints == 86606
+
+
+
+
   
