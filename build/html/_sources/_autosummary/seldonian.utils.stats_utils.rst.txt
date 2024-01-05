@@ -15,6 +15,7 @@ seldonian.utils.stats\_utils
       :toctree:                                         
    
       custom_cumprod
+      default_supervised_initial_solution_fn
       softmax
       stddev
       tinv

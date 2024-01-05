@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>seldonian.utils.stats_utils.default_supervised_initial_solution_fn &#8212; Seldonian Engine pre-release documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=bc8d421b" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=6a9260ee"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="seldonian.utils.stats_utils.softmax" href="seldonian.utils.stats_utils.softmax.html" />
+    <link rel="prev" title="seldonian.utils.stats_utils.custom_cumprod" href="seldonian.utils.stats_utils.custom_cumprod.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="seldonian-utils-stats-utils-default-supervised-initial-solution-fn">
+<h1>seldonian.utils.stats_utils.default_supervised_initial_solution_fn<a class="headerlink" href="#seldonian-utils-stats-utils-default-supervised-initial-solution-fn" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="seldonian.utils.stats_utils.default_supervised_initial_solution_fn">
+<span class="sig-name descname"><span class="pre">default_supervised_initial_solution_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.utils.stats_utils.default_supervised_initial_solution_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around model.fit() to use as the initial_solution_fn 
+parameter to the spec.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – SeldonianModel instance</p></li>
+<li><p><strong>X</strong> – Features array (2D numpy array)</p></li>
+<li><p><strong>y</strong> – Labels array (1D numpy array)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The cumulative product of the array</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Seldonian Engine</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="seldonian.html">seldonian</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="seldonian.RL.html">seldonian.RL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.dataset.html">seldonian.dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.hyperparam_search.html">seldonian.hyperparam_search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.models.html">seldonian.models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.optimizers.html">seldonian.optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.parse_tree.html">seldonian.parse_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.safety_test.html">seldonian.safety_test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.seldonian_algorithm.html">seldonian.seldonian_algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.spec.html">seldonian.spec</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="seldonian.utils.html">seldonian.utils</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="seldonian.utils.RL_utils.html">seldonian.utils.RL_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.utils.io_utils.html">seldonian.utils.io_utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.utils.plot_utils.html">seldonian.utils.plot_utils</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="seldonian.utils.stats_utils.html">seldonian.utils.stats_utils</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.stats_utils.custom_cumprod.html">seldonian.utils.stats_utils.custom_cumprod</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.utils.stats_utils.default_supervised_initial_solution_fn</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.utils.stats_utils.default_supervised_initial_solution_fn"><code class="docutils literal notranslate"><span class="pre">default_supervised_initial_solution_fn()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.stats_utils.softmax.html">seldonian.utils.stats_utils.softmax</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.stats_utils.stddev.html">seldonian.utils.stats_utils.stddev</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.stats_utils.tinv.html">seldonian.utils.stats_utils.tinv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="seldonian.utils.stats_utils.weighted_sum_gamma.html">seldonian.utils.stats_utils.weighted_sum_gamma</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="seldonian.utils.tutorial_utils.html">seldonian.utils.tutorial_utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="seldonian.warnings.html">seldonian.warnings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+  <li><a href="seldonian.html">seldonian</a><ul>
+  <li><a href="seldonian.utils.html">seldonian.utils</a><ul>
+  <li><a href="seldonian.utils.stats_utils.html">seldonian.utils.stats_utils</a><ul>
+      <li>Previous: <a href="seldonian.utils.stats_utils.custom_cumprod.html" title="previous chapter">seldonian.utils.stats_utils.custom_cumprod</a></li>
+      <li>Next: <a href="seldonian.utils.stats_utils.softmax.html" title="next chapter">seldonian.utils.stats_utils.softmax</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, University of Massachusetts.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/_autosummary/seldonian.utils.stats_utils.default_supervised_initial_solution_fn.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
