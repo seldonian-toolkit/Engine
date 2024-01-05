@@ -1,4 +1,4 @@
-# createSpec.py
+#createspec_nodups.py
 from seldonian.parse_tree.parse_tree import *
 from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import save_pickle
@@ -10,10 +10,8 @@ def initial_solution_fn(m,X,y):
     return m.fit(X,y)
 
 if __name__ == '__main__':
-
     primary_cand_data_pth = "gpa_classification_primary_cand_dataset.csv"
     primary_safety_data_pth = "gpa_classification_primary_safety_dataset.csv"
-
     primary_metadata_pth = "primary_metadata_classification.json"
 
     addl_cand_data_pth = "gpa_classification_addl_cand_dataset.csv"

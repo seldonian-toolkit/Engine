@@ -267,7 +267,10 @@ class CandidateSelection(object):
                     if wraps:
                         wrapped_data = cand_dataset.data[start2:end2]
                         wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
-                        batch_data = np.vstack((batch_data,wrapped_data))
+                        if isinstance(batch_data,list):
+                            batch_data += wrapped_data
+                        else:
+                            batch_data = np.vstack((batch_data,wrapped_data))
                         batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
                     
                     batch_dataset = CustomDataSet(

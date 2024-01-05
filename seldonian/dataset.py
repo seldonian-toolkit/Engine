@@ -165,6 +165,38 @@ class SupervisedDataSet(DataSet):
         self.n_labels = len(self.label_col_names)
         self.n_sensitive_attrs = len(self.sensitive_col_names)
 
+    def __add__(self,other):
+        """ Overrides the '+' operator to enable adding datasets together via dataset1 + dataset2
+
+        :param other: A second SupervisedDataSet object
+        :return: A SupervisedDataSet object where features, labels, 
+            and sensitive attributes are merged
+        """
+        if not isinstance(other,SupervisedDataSet):
+            raise ValueError("Can only add SupervisedDataSet objects with other SupervisedDataSet objects")
+        if self.meta.sub_regime != other.meta.sub_regime:
+            raise ValueError("Can only add SupervisedDataSet objects with same sub_regime")
+        if self.meta.all_col_names != other.meta.all_col_names:
+            raise ValueError("Can only add SupervisedDataSet objects that have the same columns")
+        if self.meta.sensitive_col_names != other.meta.sensitive_col_names:
+            raise ValueError("Can only add SupervisedDataSet objects that have the same sensitive attributes")
+        if self.meta.feature_col_names != other.meta.feature_col_names:
+            raise ValueError("Can only add SupervisedDataSet objects that have the same features")
+        if self.meta.label_col_names != other.meta.label_col_names:
+            raise ValueError("Can only add SupervisedDataSet objects that have the same labels")
+
+        merged_features = np.vstack([self.features,other.features])
+        merged_labels = np.hstack([self.labels,other.labels])
+        merged_sensitive_attrs = np.vstack([self.sensitive_attrs,other.sensitive_attrs])
+        merged_num_datapoints = self.num_datapoints + other.num_datapoints
+        
+        return SupervisedDataSet(
+            features=merged_features,
+            labels=merged_labels,
+            sensitive_attrs=merged_sensitive_attrs,
+            num_datapoints=merged_num_datapoints,
+            meta=self.meta
+        )
 
 class RLDataSet(DataSet):
     def __init__(
