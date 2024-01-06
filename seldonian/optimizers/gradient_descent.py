@@ -126,6 +126,9 @@ def gradient_descent_adam(
     L_vals = []
     f_vals = []  # primary
     g_vals = []  # constraint upper bound values
+    # min(sqrt(g**2)) used to select candidate solution if no feasible solution found
+    best_g_norm = np.inf 
+    best_index_g_norm = 0
 
     # Get df/dtheta and dg/dtheta automatic gradients
     (grad_primary_theta, grad_upper_bound_theta) = setup_gradients(
@@ -155,6 +158,15 @@ def gradient_descent_adam(
             is_small_batch = batch_calculator(batch_index, batch_size, epoch, n_batches)
             primary_val = primary_objective(theta)
             g_vec = upper_bounds_function(theta)
+            # Check if the 2-norm is smallest so far.
+            # We will use the smallest overall as a backup 
+            # candidate solution in case we don't find a feasible solution
+            g_norm = np.linalg.norm(g_vec)
+            if g_norm < best_g_norm:
+                best_g_norm = g_norm
+                best_index_g_norm = gd_index
+                candidate_solution_best_g_norm = np.copy(theta)
+
             L_val = primary_val + sum(lamb * g_vec)
 
             if debug:
@@ -185,7 +197,7 @@ def gradient_descent_adam(
                 candidate_solution = np.copy(theta)
 
             # store values
-            theta_vals.append(np.copy(theta))
+            # theta_vals.append(np.copy(theta))
             lamb_vals.append(np.copy(lamb))
             f_vals.append(primary_val)
             g_vals.append(g_vec)
@@ -279,12 +291,11 @@ def gradient_descent_adam(
                     "Returning solution with lowest sqrt(|g|**2)"
                 )
             # best g is when norm of g is minimized
-            best_index = np.argmin(np.linalg.norm(g_vals, axis=1))
-            best_primary = f_vals[best_index]
-            best_lamb = lamb_vals[best_index]
-            best_g_vec = g_vals[best_index]
-            best_L = L_vals[best_index]
-            candidate_solution = theta_vals[best_index]
+            best_primary = f_vals[best_index_g_norm]
+            best_lamb = lamb_vals[best_index_g_norm]
+            best_g_vec = g_vals[best_index_g_norm]
+            best_L = L_vals[best_index_g_norm]
+            candidate_solution = candidate_solution_best_g_norm
 
     solution["candidate_solution"] = candidate_solution
     solution["best_index"] = best_index
