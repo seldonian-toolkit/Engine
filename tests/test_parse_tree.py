@@ -2701,7 +2701,6 @@ def test_evaluate_constraint(
         constraint_strs=constraint_strs, deltas=deltas
     )
 
-    # theta = np.zeros((10,2))
     theta = np.zeros(10)
     pt = parse_trees[0]
     pt.evaluate_constraint(
@@ -2775,6 +2774,8 @@ def test_evaluate_constraint(
     assert pt.root.right.value == pytest.approx(12.983593429599098)
 
     np.random.seed(0)
+
+    ### Custom regime
     custom_spec = custom_text_spec()
     pt = custom_spec.parse_trees[0]
     theta_init = np.array([-1.0,0.0,1.0])
@@ -2784,10 +2785,10 @@ def test_evaluate_constraint(
         model=custom_spec.model,
         regime="custom",
         branch="safety_test",
-        custom_measure_functions=pt.custom_measure_functions,
         sub_regime=None
     )
     assert pt.root.left.value == 10.0
+
 
 def test_reset_parse_tree():
     constraint_str = "(FPR + FNR) - 0.5"

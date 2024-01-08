@@ -1071,6 +1071,9 @@ class ParseTree(object):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
 
+                if self.regime == "custom":
+                    kwargs["custom_measure_functions"] = self.custom_measure_functions
+                    
                 value = node.calculate_value(**kwargs)
                 node.value = value
                 self.base_node_dict[node.name]["value_computed"] = True
