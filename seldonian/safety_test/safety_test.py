@@ -6,12 +6,12 @@ import copy
 
 class SafetyTest(object):
     def __init__(
-        self, 
-        safety_dataset, 
-        model, 
-        parse_trees, 
-        regime="supervised_learning", 
-        additional_datasets = {},
+        self,
+        safety_dataset,
+        model,
+        parse_trees,
+        regime="supervised_learning",
+        additional_datasets={},
         **kwargs
     ):
         """
@@ -64,7 +64,10 @@ class SafetyTest(object):
 
             cstr = pt.constraint_str
             if cstr in self.additional_datasets:
-                dataset_dict = {bn:self.additional_datasets[cstr][bn]["safety_dataset"] for bn in self.additional_datasets[cstr]}
+                dataset_dict = {
+                    bn: self.additional_datasets[cstr][bn]["safety_dataset"]
+                    for bn in self.additional_datasets[cstr]
+                }
             else:
                 dataset_dict = {"all": self.safety_dataset}
 
@@ -131,7 +134,7 @@ class SafetyTest(object):
                 reg_term = 0
             result += reg_term
             return result
-        
+
         elif self.regime == "custom":
             result = primary_objective(
                 self.model,

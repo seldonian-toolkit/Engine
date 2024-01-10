@@ -11,20 +11,43 @@ from simglucose.controller.bolus_only_controller import BolusController
 class SimglucoseCustomEnv(Environment):
     def __init__(self, bb_crmin, bb_crmax, bb_cfmin, bb_cfmax):
         """
+        A custom Simglucose environment that runs simglucose
+        simulations given cr,cf values of a bolus calculator.
+        See this example for details: https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/
 
-        :ivar num_states: The number of distinct grid cells
+        :param bb_crmin: The bounding box minimum value in CR space.
+        :type bb_crmin: float
+        :param bb_crmax: The bounding box maximum value in CR space.
+        :type bb_crmax: float
+        :param bb_cfmin: The bounding box minimum value in CF space.
+        :type bb_cfmin: float
+        :param bb_cfmax: The bounding box maximum value in CF space.
+        :type bb_cfmax: float
+
+        :ivar id: The RL Gym ID
+        :ivar patient_name: The RL Gym patient name
+        :ivar target_bg: The target blood glucose concentration
+        :ivar num_states: Number of states, just one in this case.
         :ivar env_description: contains attributes describing the environment
         :vartype env_description: :py:class:`.Env_Description`
-        :ivar obs: The current obs
-        :vartype obs: int
+        :ivar gym_env: The RL Gym environment we are wrapping here.
+        :ivar state: The current observation (fixed at state 0 always)
         :ivar terminal_state: Whether the terminal obs is occupied
         :vartype terminal_state: bool
         :ivar time: The current timestep
         :vartype time: int
         :ivar max_time: Maximum allowed timestep
         :vartype max_time: int
-        :ivar gamma: The discount factor in calculating the expected return
-        :vartype gamma: float
+        :ivar low_cutoff_BG: Cutoff blood glucose concentration, below which
+            the simulation will cease and return the minimum possible reward
+            for the remainder of the timesteps.
+        :ivar high_cutoff_BG: Cutoff blood glucose concentration, above which
+            the simulation will cease and return the minimum possible reward
+            for the remainder of the timesteps.
+        :ivar min_primary_reward: The minimum possible reward of the primary
+            reward function.
+        :ivar min_secondary_reward: The minimum possible reward of the secondary
+            reward function.
         """
         self.bb_crmin = bb_crmin
         self.bb_crmax = bb_crmax
@@ -55,7 +78,6 @@ class SimglucoseCustomEnv(Environment):
     def create_env_description(self):
         """Creates the environment description object.
 
-        :param num_states: The number of states
         :return: Environment description for the obs and action spaces
         :rtype: :py:class:`.Env_Description`
         """
@@ -68,6 +90,7 @@ class SimglucoseCustomEnv(Environment):
         return Env_Description(observation_space, action_space)
 
     def deregister_and_register(self):
+        """Wrapper to run deregister and register back to back."""
         self.deregister()
         register(
             id=self.id,
@@ -76,6 +99,7 @@ class SimglucoseCustomEnv(Environment):
         )
 
     def deregister(self):
+        """Remove this environment from the Gym registry"""
         env_dict = gym.envs.registration.registry.env_specs.copy()
         for env in env_dict:
             if self.id in env:
@@ -92,14 +116,14 @@ class SimglucoseCustomEnv(Environment):
         is an entire trial of the simglucose simulator
 
         :param action: The P value of the P controller
-        :return: reward for reaching the next obs
+        :return: (primary_return, alt_return), the expected primary
+            and secondary returns from the simglucose simulation.
         """
         observation, primary_reward, alt_reward, done, info = self.gym_env.reset()
         t = 0
         primary_rewards = self.min_primary_reward * np.ones(self.max_time)
         alt_rewards = self.min_secondary_reward * np.ones(self.max_time)
-        # primary_return = primary_reward
-        # alt_return = alt_reward
+
         cr, cf = action
         controller = BolusController(cr=cr, cf=cf, target=self.target_bg)
         while not done:
@@ -127,13 +151,6 @@ class SimglucoseCustomEnv(Environment):
     def get_observation(self):
         """Get the current obs"""
         return self.state
-
-    def update_position(self, action):
-        """Helper function for transition() that updates the
-        current position given an action
-
-        :param action: A possible action at the current obs
-        """
 
     def is_in_goal_state(self):
         """Check whether current obs is goal obs

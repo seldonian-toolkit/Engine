@@ -127,7 +127,7 @@ def gradient_descent_adam(
     f_vals = []  # primary
     g_vals = []  # constraint upper bound values
     # min(sqrt(g**2)) used to select candidate solution if no feasible solution found
-    best_g_norm = np.inf 
+    best_g_norm = np.inf
     best_index_g_norm = 0
 
     # Get df/dtheta and dg/dtheta automatic gradients
@@ -159,7 +159,7 @@ def gradient_descent_adam(
             primary_val = primary_objective(theta)
             g_vec = upper_bounds_function(theta)
             # Check if the 2-norm is smallest so far.
-            # We will use the smallest overall as a backup 
+            # We will use the smallest overall as a backup
             # candidate solution in case we don't find a feasible solution
             g_norm = np.linalg.norm(g_vec)
             if g_norm < best_g_norm:

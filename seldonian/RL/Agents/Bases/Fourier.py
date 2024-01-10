@@ -6,15 +6,14 @@ class Fourier(object):
     def __init__(self, hyperparam_and_setting_dict, env_desc):
         """Fourier basis used for linear value function
         approximation. See http://irl.cs.brown.edu/fb.php for
-        a reference
+        a reference. Each feature is a sine or cosine function of a certain order.
 
         :param hyperparameter_and_setting_dict: Specifies the
             environment, agent, number of episodes per trial,
             and number of trials
-
-        :param env_description: an object for accessing attributes
+        :param env_desc: an object for accessing attributes
             of the environment
-        :type env_description: :py:class:`.Env_Description`
+        :type env_desc: :py:class:`.Env_Description`
         """
         self.num_observation_dims = env_desc.get_num_observation_dims()
         self.order = hyperparam_and_setting_dict["order"]
@@ -42,7 +41,27 @@ class Fourier(object):
         self.basis_matrix = self.construct_basis_matrix()
 
     def calculate_num_features(self, order, max_coupled_vars, num_obs_dims):
-        """Determine the number of features in the basis"""
+        """Calculate the number of features in a Reinforcement Learning (RL) Fourier basis.
+
+        This function computes the total number of Fourier basis features for a given order,
+        considering the maximum number of coupled variables and the number of observation
+        dimensions in the RL environment.
+
+        :param order: The maximum order of the Fourier basis. This defines the highest
+            frequency of sine and cosine functions in the basis.
+        :type order: int
+        :param max_coupled_vars: The maximum number of variables that can be coupled in a
+            single feature. This parameter controls the complexity of interaction terms in the
+            Fourier basis.
+        :type max_coupled_vars: int
+        :param num_obs_dims: The number of dimensions in the observation space of the RL
+            environment. Each dimension can be considered as a variable in the Fourier basis.
+        :type num_obs_dims: int
+
+        :return num_features: The total number of features in the Fourier basis, which includes all possible
+            combinations of sine and cosine functions up to the specified order, considering the
+            limit on coupled variables and the number of observation dimensions.
+        """
         num_features = (order + 1) ** num_obs_dims
         for mandatory_0_observation_variables in range(
             max_coupled_vars + 1, num_obs_dims + 1
@@ -56,7 +75,15 @@ class Fourier(object):
         return num_features
 
     def construct_basis_matrix(self):
-        """Create the basis matrix"""
+        """Construct and return the basis matrix for a Reinforcement Learning (RL) Fourier basis.
+
+        This function builds a matrix where each row represents a feature in the Fourier basis.
+
+        :return basis_matrix: A 2D numpy array of shape (num_features, num_observation_dims), where
+        num_features is the total number of valid Fourier basis features and num_observation_dims
+        is the number of dimensions in the observation space. Each entry in the matrix is an
+        integer representing the frequency for that dimension in the Fourier basis.
+        """
         basis_matrix = np.zeros(
             (self.num_features, self.num_observation_dims), dtype=int
         )
@@ -84,14 +111,24 @@ class Fourier(object):
         return basis_matrix
 
     def get_features(self, obs):
-        """Get the basis feature given an observation"""
+        """Get the basis feature given an observation
+
+        :param obs: unnormalized observation
+
+        :return ret_matrix: A matrix of features for the given observation
+        """
         normalized_obs = self.get_normalized_observation(obs)
         ret_matrix = np.dot(self.basis_matrix, normalized_obs)
         ret_matrix = np.cos(pi * ret_matrix)
         return ret_matrix
 
     def get_normalized_observation(self, obs):
-        """Get the normalized observation given an observation"""
+        """Get the normalized observation given an observation
+
+        :param obs: unnormalized observation
+
+        :return norm_obs: normalized observation
+        """
         norm_obs = np.zeros(self.num_observation_dims)
         for obs_dim in range(self.num_observation_dims):
             norm_obs[obs_dim] = (obs[obs_dim] - self.mins[obs_dim]) / self.ranges[

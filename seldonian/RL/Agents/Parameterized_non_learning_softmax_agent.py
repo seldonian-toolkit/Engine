@@ -14,8 +14,6 @@ class Parameterized_non_learning_softmax_agent(Agent):
         :type env_description: :py:class:`.Env_Description`
         :param hyperparam_and_setting_dict: Contains additional
                 info about the environment and data generation
-        :ivar FA: Function approximator
-        :vartype FA: :py:class:`.Q_Table`
         :ivar softmax: The policy
         :vartype softmax: :py:class:`.Softmax`
         """
@@ -45,19 +43,11 @@ class Parameterized_non_learning_softmax_agent(Agent):
         Updates agent's parameters according to the learning rule.
         Not implemented for this agent.
 
-        :param observation: The current observation of the agent,
-                type depends on environment.
-        :param next_observation: The observation of the agent after
-                an action is taken
-        :param reward: The reward for taking the action
-        :param terminated: Whether next_observation is the
-                terminal observation
-        :type terminated: bool
         """
         pass
 
     def get_prob_this_action(self, observation, action):
-        """Get the probability of a selected action in a given obs
+        """Get the probability of a selected action in a given obs using softmax.
 
         :param observation: The current obs of the agent, type depends on environment.
         :param action: The action selected, type depends on environment

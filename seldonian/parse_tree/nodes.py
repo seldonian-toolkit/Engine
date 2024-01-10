@@ -168,8 +168,8 @@ class BaseNode(Node):
         self.node_type = "base_node"
         self.delta_lower = None
         self.delta_upper = None
-        self.infl_factor_lower = None 
-        self.infl_factor_upper = None 
+        self.infl_factor_lower = None
+        self.infl_factor_upper = None
         self.measure_function_name = ""
 
     def __repr__(self):
@@ -257,7 +257,6 @@ class BaseNode(Node):
             "theta", "dataset", "model", "regime", "branch"
         )(kwargs)
 
-
         if branch == "candidate_selection":
             # Then we're in candidate selection
             n_safety = kwargs["n_safety"]
@@ -318,9 +317,7 @@ class BaseNode(Node):
             data = dataset.data
 
             if self.conditional_columns:
-                masked_data = self.mask_data(
-                    dataset, self.conditional_columns
-                )
+                masked_data = self.mask_data(dataset, self.conditional_columns)
             else:
                 masked_data = data
 
@@ -464,9 +461,9 @@ class BaseNode(Node):
             bound_method = kwargs["bound_method"]
 
             if bound_method == "ttest":
-                lower = data.mean() - self.infl_factor_lower * stddev(data) / np.sqrt(datasize) * tinv(
-                    1.0 - delta, datasize - 1
-                )
+                lower = data.mean() - self.infl_factor_lower * stddev(data) / np.sqrt(
+                    datasize
+                ) * tinv(1.0 - delta, datasize - 1)
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
@@ -494,9 +491,9 @@ class BaseNode(Node):
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
             if bound_method == "ttest":
-                lower = data.mean() + self.infl_factor_upper * stddev(data) / np.sqrt(datasize) * tinv(
-                    1.0 - delta, datasize - 1
-                )
+                lower = data.mean() + self.infl_factor_upper * stddev(data) / np.sqrt(
+                    datasize
+                ) * tinv(1.0 - delta, datasize - 1)
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
@@ -1219,7 +1216,8 @@ class CVaRSQeBaseNode(BaseNode):
             np.zeros(n_candidate),
             np.minimum(
                 np.ones(n_candidate),
-                np.arange(n_candidate) / n_candidate + self.infl_factor_lower * sqrt_term,
+                np.arange(n_candidate) / n_candidate
+                + self.infl_factor_lower * sqrt_term,
             )
             - (1 - self.alpha),
         )

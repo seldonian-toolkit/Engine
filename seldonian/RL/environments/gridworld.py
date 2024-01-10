@@ -4,15 +4,18 @@ from seldonian.RL.Env_Description.Env_Description import *
 
 class Gridworld(Environment):
     def __init__(self, size=3):
-        """Square gridworld RL environment of arbitrary size.
-        Actions: 0,1,2,3 -> up,right,down,left
+        """Square 2D gridworld RL environment of arbitrary size.
+        Actions: 0,1,2,3 -> up,right,down,left. Hardcoded such that
+        entering state 7 returns a reward=-1. Reward=1 when
+        entering terminal state (bottom right), and Reward=0 elsewhere.
 
         :param size: The number of grid cells on a side
         :ivar num_states: The number of distinct grid cells
         :ivar env_description: contains attributes describing the environment
         :vartype env_description: :py:class:`.Env_Description`
-        :ivar obs: The current obs
-        :vartype obs: int
+
+        :ivar state: The location in the gridworld, ranging from 0 (top left)
+            to size**2 (bottom right)
         :ivar terminal_state: Whether the terminal obs is occupied
         :vartype terminal_state: bool
         :ivar time: The current timestep
@@ -37,6 +40,7 @@ class Gridworld(Environment):
         """Creates the environment description object.
 
         :param num_states: The number of states
+
         :return: Environment description for the obs and action spaces
         :rtype: :py:class:`.Env_Description`
         """

@@ -28,7 +28,10 @@ class Softmax(Discrete_Action_Policy):
         return self.choose_action_from_action_values(action_values)
 
     def choose_action_from_action_values(self, action_values):
-        """Select an action given a list of action values (param weights)"""
+        """Select an action given a list of action values
+
+        :param action_values: List of action values (param weights)
+        """
         if len(action_values) != self.num_actions:
             error(
                 f"should have {self.num_actions} actions, but got {len(action_values)} action values"
@@ -51,13 +54,23 @@ class Softmax(Discrete_Action_Policy):
         )  # pragma: no cover
 
     def get_action_probs_from_action_values(self, action_values):
-        """Get action probabilities given a list of action values (param weights)"""
+        """Get action probabilities given a list of action values
+
+        :param action_values: List of action values (param weights)
+
+        :return: array of action probabilites
+        """
         e_to_the_something_terms = self.get_e_to_the_something_terms(action_values)
         denom = sum(e_to_the_something_terms)
         return e_to_the_something_terms / denom
 
     def get_e_to_the_something_terms(self, action_values):
-        """Exponentiate list of action values (param weights)"""
+        """Exponentiate list of action values
+
+        :param action_values: List of action values (param weights)
+
+        :return: array of exponentiated action values
+        """
         max_value = np.max(action_values)
         e_to_the_something_terms = np.exp(
             action_values - max_value
@@ -67,7 +80,7 @@ class Softmax(Discrete_Action_Policy):
     def get_prob_this_action(self, observation, action):
         """Get the probability of a selected action in a given obsertavtion
 
-        :param observation: The current obseravation of the environment
+        :param observation: The current observation of the environment
         :param action: The selected action
 
         :return: probability of action
@@ -88,7 +101,7 @@ class Softmax(Discrete_Action_Policy):
         :param actions: array of selected actions
         :param behavior_action_probs: The probability of the selected actions under the behavior policy
 
-        :return: action probabilities of the observation,action pairs under the new policy
+        :return: array action probabilities of the observation,action pairs under the new policy
         :rtype: numpy.ndarray(float)
         """
         action_probs = np.array(
@@ -139,8 +152,8 @@ class DiscreteSoftmax(Softmax):
     def get_probs_from_observations_and_actions(
         self, observations, actions, behavior_action_probs
     ):
-        """Get the action probabilities of a selected actions and observations under
-        the new policy
+        """Get the action probabilities of selected actions and observations under
+        the new policy.
 
         :param observations: array of observations of the environment
         :param actions: array of selected actions

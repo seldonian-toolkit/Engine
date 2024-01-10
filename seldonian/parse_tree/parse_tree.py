@@ -16,7 +16,9 @@ default_bound_method = "ttest"
 
 
 class ParseTree(object):
-    def __init__(self, delta, regime, sub_regime, columns=[],custom_measure_functions={}):
+    def __init__(
+        self, delta, regime, sub_regime, columns=[], custom_measure_functions={}
+    ):
         """
         Class to represent a parse tree for a single behavioral constraint
 
@@ -91,15 +93,24 @@ class ParseTree(object):
         self.base_node_dict = {}
         self.n_unique_bounds_tot = None
         self.node_fontsize = 12
-        
-        if self.regime in ["supervised_learning","reinforcement_learning"]:
-            self.available_measure_functions = measure_functions_dict[self.regime][self.sub_regime]
+
+        if self.regime in ["supervised_learning", "reinforcement_learning"]:
+            self.available_measure_functions = measure_functions_dict[self.regime][
+                self.sub_regime
+            ]
         elif self.regime == "custom":
             self.available_measure_functions = []
         self.custom_measure_functions = custom_measure_functions
         self.available_measure_functions.extend(list(custom_measure_functions.keys()))
 
-    def build_tree(self, constraint_str, delta_weight_method="equal", delta_vector=[], infl_factor_method="constant", infl_factors=2):
+    def build_tree(
+        self,
+        constraint_str,
+        delta_weight_method="equal",
+        delta_vector=[],
+        infl_factor_method="constant",
+        infl_factors=2,
+    ):
         """
         Convenience function for building the tree from
         a constraint string,
@@ -116,13 +127,13 @@ class ParseTree(object):
                 among unique base nodes
         :param delta_vector: 1D array of delta values to assign to the unique base nodes.
         :type delta_weight_method: str, defaults to 'equal'
-        :param infl_factor_method: 
+        :param infl_factor_method:
                 How you want to assign the inflation factors to the base nodes.
                 The default 'constant' applies a constant factor
-                to each base node bound. 'manual' allows assinging 
+                to each base node bound. 'manual' allows assinging
                 unique inflation factors to each base node bound.
         :type infl_factor_method: str, defaults to 'constant'
-        :param infl_factors: 
+        :param infl_factors:
                 The bound inflation factors. Int if infl_factor_method="constant",
                 array-like if infl_factor_method="manual".
         """
@@ -131,9 +142,9 @@ class ParseTree(object):
 
         self.assign_bounds_needed()
 
-        self.assign_deltas(weight_method=delta_weight_method,delta_vector=delta_vector)
+        self.assign_deltas(weight_method=delta_weight_method, delta_vector=delta_vector)
 
-        self.assign_infl_factors(method=infl_factor_method,factors=infl_factors)
+        self.assign_infl_factors(method=infl_factor_method, factors=infl_factors)
 
     def create_from_ast(self, s):
         """
@@ -796,13 +807,13 @@ class ParseTree(object):
 
         :param method: str, defaults to 'constant',
             which assigns a factor of the 'factors' value to all bounds.
-            If method == "manual", then factors should be a vector 
-            of values to use for the bounds whose length is equal to 
-            the number of total unique bounds across all base nodes. 
+            If method == "manual", then factors should be a vector
+            of values to use for the bounds whose length is equal to
+            the number of total unique bounds across all base nodes.
         :type method: str
         :param factors: If an integer and method=="constant", that integer is applied to all bounds.
-            If method=="manual", this needs to be a vector of bound inflation factors to assign to each unique 
-            base node. 
+            If method=="manual", this needs to be a vector of bound inflation factors to assign to each unique
+            base node.
         """
         assert method in ["constant", "manual"]
         assert self.n_base_nodes > 0, (
@@ -810,7 +821,7 @@ class ParseTree(object):
             "Make sure to build the tree before assigning bound inflation factors."
         )
         factors = self._validate_infl_factors(method, factors)
-        
+
         self._infl_factor_base_node_index = 0
 
         self._assign_infl_factors_helper(self.root, method, factors)
@@ -826,8 +837,8 @@ class ParseTree(object):
                 How you want to assign the bound inflation factors to the base nodes
         :type method: str
         :param factors: If an integer and method=="constant", that integer is applied to all bounds.
-            If method=="manual", this needs to be a vector of bound inflation factors to assign to each unique 
-            base node. 
+            If method=="manual", this needs to be a vector of bound inflation factors to assign to each unique
+            base node.
         """
         if not node:
             return
@@ -839,8 +850,12 @@ class ParseTree(object):
                 self.base_node_dict[node.name]["infl_factor_upper"] is not None
             ):
                 # This is a reused base node
-                node.infl_factor_lower = self.base_node_dict[node.name]["infl_factor_lower"]
-                node.infl_factor_upper = self.base_node_dict[node.name]["infl_factor_upper"]
+                node.infl_factor_lower = self.base_node_dict[node.name][
+                    "infl_factor_lower"
+                ]
+                node.infl_factor_upper = self.base_node_dict[node.name][
+                    "infl_factor_upper"
+                ]
             else:
                 # This is the first time encountering this base node
                 if method == "constant":
@@ -854,17 +869,29 @@ class ParseTree(object):
 
                 elif method == "manual":
                     if node.will_lower_bound and node.will_upper_bound:
-                        node.infl_factor_lower = factors[self._infl_factor_base_node_index]
-                        node.infl_factor_upper = factors[self._infl_factor_base_node_index + 1]
+                        node.infl_factor_lower = factors[
+                            self._infl_factor_base_node_index
+                        ]
+                        node.infl_factor_upper = factors[
+                            self._infl_factor_base_node_index + 1
+                        ]
                         self._infl_factor_base_node_index += 2
                     elif node.will_lower_bound:
-                        node.infl_factor_lower = factors[self._infl_factor_base_node_index]
+                        node.infl_factor_lower = factors[
+                            self._infl_factor_base_node_index
+                        ]
                         self._infl_factor_base_node_index += 1
                     elif node.will_upper_bound:
-                        node.infl_factor_upper = factors[self._infl_factor_base_node_index]
+                        node.infl_factor_upper = factors[
+                            self._infl_factor_base_node_index
+                        ]
                         self._infl_factor_base_node_index += 1
-                self.base_node_dict[node.name]["infl_factor_lower"] = node.infl_factor_lower
-                self.base_node_dict[node.name]["infl_factor_upper"] = node.infl_factor_upper
+                self.base_node_dict[node.name][
+                    "infl_factor_lower"
+                ] = node.infl_factor_lower
+                self.base_node_dict[node.name][
+                    "infl_factor_upper"
+                ] = node.infl_factor_upper
 
         self._assign_infl_factors_helper(node.left, method, factors)
         self._assign_infl_factors_helper(node.right, method, factors)
@@ -882,19 +909,21 @@ class ParseTree(object):
             )
 
         if method == "constant":
-            if not isinstance(factors, (float,int)):
-                raise ValueError(f"When method='{method}', factors must be a single number")     
-            if factors < 0:
+            if not isinstance(factors, (float, int)):
                 raise ValueError(
-                    f"factors must all be non-negative"
+                    f"When method='{method}', factors must be a single number"
                 )
-        
+            if factors < 0:
+                raise ValueError(f"factors must all be non-negative")
+
         if method == "manual":
             if not (
-                isinstance(factors, list) or (
-                isinstance(factors, np.ndarray) and factors.ndim == 1)
+                isinstance(factors, list)
+                or (isinstance(factors, np.ndarray) and factors.ndim == 1)
             ):
-                raise ValueError(f"When method='{method}', factors must be a list or 1D numpy array")
+                raise ValueError(
+                    f"When method='{method}', factors must be a list or 1D numpy array"
+                )
 
             if len(factors) != self.n_unique_bounds_tot:
                 raise ValueError(
@@ -902,10 +931,8 @@ class ParseTree(object):
                 )
 
             # Factors must be non-negative
-            if any([x<0 for x in factors]):
-                raise ValueError(
-                    f"factors must all be non-negative"
-                )
+            if any([x < 0 for x in factors]):
+                raise ValueError(f"factors must all be non-negative")
         return factors
 
     def propagate_bounds(self, **kwargs):
@@ -946,7 +973,6 @@ class ParseTree(object):
 
             # Need to calculate the bound
             if "tree_dataset_dict" in kwargs:
-
                 # First, extract the dataset for this base node
                 tree_dataset_dict = kwargs["tree_dataset_dict"]
                 if node.name in tree_dataset_dict:
@@ -979,10 +1005,8 @@ class ParseTree(object):
                 kwargs["cm_pred_index"] = node.cm_pred_index
             if self.regime == "custom":
                 kwargs["custom_measure_functions"] = self.custom_measure_functions
-            
-            bound_result = node.calculate_bounds(
-                bound_method=bound_method, **kwargs
-            )
+
+            bound_result = node.calculate_bounds(bound_method=bound_method, **kwargs)
             self.base_node_dict[node.name]["bound_computed"] = True
 
             if node.will_lower_bound:
@@ -1038,9 +1062,7 @@ class ParseTree(object):
                 node.value = self.base_node_dict[node.name]["value"]
                 return
             else:
-
                 if "tree_dataset_dict" in kwargs:
-
                     # First, extract the dataset for this base node
                     tree_dataset_dict = kwargs["tree_dataset_dict"]
                     if node.name in tree_dataset_dict:
@@ -1066,14 +1088,13 @@ class ParseTree(object):
 
                     kwargs["data_dict"] = data_dict
 
-
                 if isinstance(node, ConfusionMatrixBaseNode):
                     kwargs["cm_true_index"] = node.cm_true_index
                     kwargs["cm_pred_index"] = node.cm_pred_index
 
                 if self.regime == "custom":
                     kwargs["custom_measure_functions"] = self.custom_measure_functions
-                    
+
                 value = node.calculate_value(**kwargs)
                 node.value = value
                 self.base_node_dict[node.name]["value_computed"] = True
@@ -1433,7 +1454,7 @@ class ParseTree(object):
         Reset base node dict so that any bounds or values stored
         are removed. However, keeps the delta values and bound inflation factors
         for each bound that were set when the tree was built. If those
-        need to be reset, create an entirely new parse tree. 
+        need to be reset, create an entirely new parse tree.
 
         :param reset_data:
                 Whether to reset the cached data

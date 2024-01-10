@@ -165,38 +165,53 @@ class SupervisedDataSet(DataSet):
         self.n_labels = len(self.label_col_names)
         self.n_sensitive_attrs = len(self.sensitive_col_names)
 
-    def __add__(self,other):
-        """ Overrides the '+' operator to enable adding datasets together via dataset1 + dataset2
+    def __add__(self, other):
+        """Overrides the '+' operator to enable adding datasets together via dataset1 + dataset2
 
         :param other: A second SupervisedDataSet object
-        :return: A SupervisedDataSet object where features, labels, 
+        :return: A SupervisedDataSet object where features, labels,
             and sensitive attributes are merged
         """
-        if not isinstance(other,SupervisedDataSet):
-            raise ValueError("Can only add SupervisedDataSet objects with other SupervisedDataSet objects")
+        if not isinstance(other, SupervisedDataSet):
+            raise ValueError(
+                "Can only add SupervisedDataSet objects with other SupervisedDataSet objects"
+            )
         if self.meta.sub_regime != other.meta.sub_regime:
-            raise ValueError("Can only add SupervisedDataSet objects with same sub_regime")
+            raise ValueError(
+                "Can only add SupervisedDataSet objects with same sub_regime"
+            )
         if self.meta.all_col_names != other.meta.all_col_names:
-            raise ValueError("Can only add SupervisedDataSet objects that have the same columns")
+            raise ValueError(
+                "Can only add SupervisedDataSet objects that have the same columns"
+            )
         if self.meta.sensitive_col_names != other.meta.sensitive_col_names:
-            raise ValueError("Can only add SupervisedDataSet objects that have the same sensitive attributes")
+            raise ValueError(
+                "Can only add SupervisedDataSet objects that have the same sensitive attributes"
+            )
         if self.meta.feature_col_names != other.meta.feature_col_names:
-            raise ValueError("Can only add SupervisedDataSet objects that have the same features")
+            raise ValueError(
+                "Can only add SupervisedDataSet objects that have the same features"
+            )
         if self.meta.label_col_names != other.meta.label_col_names:
-            raise ValueError("Can only add SupervisedDataSet objects that have the same labels")
+            raise ValueError(
+                "Can only add SupervisedDataSet objects that have the same labels"
+            )
 
-        merged_features = np.vstack([self.features,other.features])
-        merged_labels = np.hstack([self.labels,other.labels])
-        merged_sensitive_attrs = np.vstack([self.sensitive_attrs,other.sensitive_attrs])
+        merged_features = np.vstack([self.features, other.features])
+        merged_labels = np.hstack([self.labels, other.labels])
+        merged_sensitive_attrs = np.vstack(
+            [self.sensitive_attrs, other.sensitive_attrs]
+        )
         merged_num_datapoints = self.num_datapoints + other.num_datapoints
-        
+
         return SupervisedDataSet(
             features=merged_features,
             labels=merged_labels,
             sensitive_attrs=merged_sensitive_attrs,
             num_datapoints=merged_num_datapoints,
-            meta=self.meta
+            meta=self.meta,
         )
+
 
 class RLDataSet(DataSet):
     def __init__(
@@ -227,7 +242,7 @@ class RLDataSet(DataSet):
 
 class CustomDataSet(DataSet):
     def __init__(self, data, sensitive_attrs, num_datapoints, meta, **kwargs):
-        """Object for holding data of arbitrary form. 
+        """Object for holding data of arbitrary form.
 
         :param data: An 1D array of data samples, where the samples can have any form.
         :param num_datapoints: Number of data samples
@@ -244,13 +259,16 @@ class CustomDataSet(DataSet):
             regime="custom",
         )
         self.data = data
-        if not ( (isinstance(self.data, np.ndarray) and self.data.ndim == 2) or isinstance(self.data,list)):
+        if not (
+            (isinstance(self.data, np.ndarray) and self.data.ndim == 2)
+            or isinstance(self.data, list)
+        ):
             raise RuntimeError("data must be a numpy array or list")
 
-        if isinstance(self.data,list):
+        if isinstance(self.data, list):
             if type(self.data[0]) != type(self.data[-1]):
                 raise ValueError("All elements of data must be of same type")
-                
+
         self.sensitive_attrs = sensitive_attrs
         assert (
             isinstance(self.sensitive_attrs, np.ndarray) or self.sensitive_attrs == []
@@ -353,7 +371,10 @@ class CustomMetaData(MetaData):
     ):
         """Class for holding custom dataset metadata"""
         super().__init__(
-            regime="custom", sub_regime=None, all_col_names=all_col_names, sensitive_col_names=sensitive_col_names
+            regime="custom",
+            sub_regime=None,
+            all_col_names=all_col_names,
+            sensitive_col_names=sensitive_col_names,
         )
 
 

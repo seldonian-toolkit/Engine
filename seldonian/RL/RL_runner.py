@@ -17,16 +17,16 @@ from concurrent.futures import ProcessPoolExecutor
 
 
 def run_trial_given_agent_and_env(agent, env, num_episodes):
-    """A wrapper for run_trial() where parameters
-    are specified explicity rather than via a dictionary.
+    """Run a set of epidoes given parameters
+    explicitly rather than via a dictionary.
 
-    Not parallelized here because often agent or env is not pickleable.
+    Not parallelized here because often agent or env are not pickleable.
 
     :param agent: RL Agent
     :param env: RL Environment
     :param num_episodes: Number of episodes to run
 
-    :return: List of episodes
+    :return: List of generated episodes
     """
     episodes = []
 
@@ -42,7 +42,7 @@ def run_trial(
     n_workers=8,
     verbose=False,
 ):
-    """Run a single trial consists of an arbitrary number of episodes.
+    """Run a set of episodes given a setting dictionary.
 
     :param hyperparameter_and_setting_dict: Specifies the
         environment, agent and number of episodes to run
@@ -51,7 +51,7 @@ def run_trial(
     :parallel: Whether to use parallel processing
     :n_workers: Number of cpus if using parallel processing
 
-    :return: (List of episodes, agent)
+    :return: List of generated episodes
     """
     episodes = []
     num_episodes = hyperparameter_and_setting_dict["num_episodes"]
@@ -127,23 +127,23 @@ def run_trial(
 
 
 def run_episodes_par(create_agent_func, create_env_func, num_episodes_this_proc):
-    """Run a bunch of episodes. Function that is run in parallel.
+    """Run a bunch of episodes. Function that is run in a parallel process.
+    Parameters include functions to create agent and environment because
+    explicitly passing those often results in an error because
+    many agents and environments aren't picklable, a necessary condition
+    for using Python's multiprocessing pools.
 
-    :param hyperparameter_and_setting_dict: Specifies the
-        environment, agent and number of episodes to run
-    :type hyperparameter_and_setting_dict: dict
-    :model_params: Policy parameters to set before running the trial
-    :parallel: Whether to use parallel processing
-    :n_workers: Number of cpus if using parallel processing
+    :param create_agent_func: Function that returns an :py:class:`.Agents.Agent` object
+    :param create_env_func: Function that returns an :py:class:`.Environment` object
+    :num_episodes_this_proc: Number of episodes to run in this parallel process
 
-    :return: (List of episodes, agent)
+    :return: List of generated episodes
     """
     np.random.seed()
     env = create_env_func()
     agent = create_agent_func()
     episodes_this_proc = []
     for i in range(num_episodes_this_proc):
-        print(f"Episode {i+1}/{num_episodes_this_proc}")
         episodes_this_proc.append(run_episode(agent, env))
     return episodes_this_proc
 
@@ -188,10 +188,14 @@ def run_episode(agent, env):
 
 
 def run_episode_from_dict(hyperparameter_and_setting_dict, model_params=None):
-    """Run a single episode
+    """Run a single episode from a parameter dictionary
 
-    :param agent: RL Agent
-    :param env: RL Environment
+    :param hyperparameter_and_setting_dict: Specifies the
+        environment and agent
+    :type hyperparameter_and_setting_dict: dict
+
+    :param model_params: Policy parameters to set before running the episode
+    :type model_params: defaults to None
 
     :return: RL Episode
     :rtype: :py:class:`.Episode`
@@ -233,11 +237,12 @@ def run_episode_from_dict(hyperparameter_and_setting_dict, model_params=None):
 
 
 def create_agent_fromdict(hyperparameter_and_setting_dict):
-    """Create an agent from a dictionary specification
+    """Create an agent from a dictionary specification. This only
+    works for built-in agents.
 
     :param hyperparameter_and_setting_dict: Specifies the
-        environment, agent, number of episodes per trial,
-        and number of trials
+        environment and agent
+    :type hyperparameter_and_setting_dict: dict
 
     :return: RL agent
     :rtype: :py:class:`.Agents.Agent`

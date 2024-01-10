@@ -58,7 +58,6 @@ def batcher(func, N, batch_size, num_batches):
                     weighted_returns_batch = weighted_returns[batch_start:batch_end]
                     batch_args = [model, theta, episodes_batch, weighted_returns_batch]
 
-
                 elif regime == "custom":
                     data_batch = data[batch_start:batch_end]
                     batch_args = [model, theta, data_batch]

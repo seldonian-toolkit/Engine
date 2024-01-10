@@ -9,6 +9,7 @@ from seldonian.models.models import *
 from seldonian.models import objectives
 from seldonian.parse_tree.parse_tree import make_parse_trees_from_constraints
 
+
 class Spec(object):
     """Base class for specification object required to
     run the Seldonian algorithm
@@ -85,7 +86,7 @@ class Spec(object):
         additional_datasets={},
         verbose=False,
     ):
-        self.dataset = dataset                        
+        self.dataset = dataset
         self.model = model
         self.frac_data_in_safety = frac_data_in_safety
         self.primary_objective = primary_objective
@@ -102,15 +103,17 @@ class Spec(object):
 
         # Deal with custom datasets
         self.candidate_dataset, self.safety_dataset = self.validate_custom_datasets(
-            candidate_dataset,safety_dataset)
-        
+            candidate_dataset, safety_dataset
+        )
+
         # Deal with additional datasets
         self.additional_datasets = self.validate_additional_datasets(
-            additional_datasets)
-        
+            additional_datasets
+        )
+
         self.verbose = verbose
 
-    def validate_parse_trees(self,parse_trees):
+    def validate_parse_trees(self, parse_trees):
         """Ensure that there are no duplicate
         constraints in a list of parse trees
 
@@ -130,7 +133,7 @@ class Spec(object):
                 )
         return parse_trees
 
-    def validate_custom_datasets(self,candidate_dataset,safety_dataset):
+    def validate_custom_datasets(self, candidate_dataset, safety_dataset):
         """Ensure that if either candidate_dataset or safety_dataset
         is specified, both are specified.
 
@@ -143,17 +146,18 @@ class Spec(object):
             if not (candidate_dataset and safety_dataset):
                 raise RuntimeError(
                     "Cannot provide one of candidate_dataset or safety_dataset. "
-                    "Must provide both.")
-        return candidate_dataset,safety_dataset
+                    "Must provide both."
+                )
+        return candidate_dataset, safety_dataset
 
-    def validate_additional_datasets(self,additional_datasets):
-        """Ensure that the additional datasets dict is valid. 
-        It is valid if 
+    def validate_additional_datasets(self, additional_datasets):
+        """Ensure that the additional datasets dict is valid.
+        It is valid if
         1) the strings for the parse trees and base nodes match what is in the parse trees.
-        2) Either a "dataset" key is present or 
+        2) Either a "dataset" key is present or
             BOTH "candidate_dataset" and "safety_dataset" are present in each subdict.
 
-        Also, for the missing parse trees and base nodes, 
+        Also, for the missing parse trees and base nodes,
         fill those entires with the primary dataset or candidate/safety split if provided.
         """
         valid_constraint_strings = set([pt.constraint_str for pt in self.parse_trees])
@@ -168,10 +172,12 @@ class Spec(object):
                     f"{valid_constraint_strings}. "
                     "Check formatting."
                 )
-            
-            this_pt = [pt for pt in self.parse_trees if pt.constraint_str == constraint_str][0]
+
+            this_pt = [
+                pt for pt in self.parse_trees if pt.constraint_str == constraint_str
+            ][0]
             valid_base_nodes_this_tree = list(this_pt.base_node_dict.keys())
-            
+
             for base_node in additional_datasets[constraint_str]:
                 if base_node not in valid_base_nodes_this_tree:
                     raise RuntimeError(
@@ -182,37 +188,46 @@ class Spec(object):
                     )
 
                 this_dict = additional_datasets[constraint_str][base_node]
-                
+
                 # Ensure correct keys are present
                 if "dataset" in this_dict:
-                    if "candidate_dataset" in this_dict or "safety_dataset" in this_dict:
+                    if (
+                        "candidate_dataset" in this_dict
+                        or "safety_dataset" in this_dict
+                    ):
                         raise RuntimeError(
                             f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
                             "'dataset' key is present, so 'candidate_dataset' and 'safety_dataset' keys cannot be present. "
                         )
                 else:
-                    if not ("candidate_dataset" in this_dict and "safety_dataset" in this_dict):
+                    if not (
+                        "candidate_dataset" in this_dict
+                        and "safety_dataset" in this_dict
+                    ):
                         raise RuntimeError(
                             f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
                             "'dataset' key is not present, so 'candidate_dataset' and 'safety_dataset' keys must be present. "
                         )
-                    if "batch_size" in this_dict and this_dict["batch_size"] > this_dict["candidate_dataset"].num_datapoints:
+                    if (
+                        "batch_size" in this_dict
+                        and this_dict["batch_size"]
+                        > this_dict["candidate_dataset"].num_datapoints
+                    ):
                         raise RuntimeError(
                             f"additional_datasets['{constraint_str}']['{base_node}']['batch_size'] = {this_dict['batch_size']} "
                             f"which is larger than the number of data points in the candidate dataset: {this_dict['candidate_dataset'].num_datapoints}"
                         )
 
-        
         # Now fill in the missing parse tree/base node combinations with the primary dataset
         # If user provided custom candidate/safety datasets for the primary, then use those instead
         if self.candidate_dataset:
             default_dict = {
-                "candidate_dataset":self.candidate_dataset,
-                "safety_dataset":self.safety_dataset,
+                "candidate_dataset": self.candidate_dataset,
+                "safety_dataset": self.safety_dataset,
             }
         else:
             default_dict = {
-                "dataset":self.dataset,
+                "dataset": self.dataset,
             }
 
         for pt in self.parse_trees:
@@ -221,7 +236,7 @@ class Spec(object):
             if constraint_str not in additional_datasets:
                 # Make a new entry for this constraint in additional_datasets
                 additional_datasets[constraint_str] = {}
-                # for each base node in this tree need to add dict containing the 
+                # for each base node in this tree need to add dict containing the
                 # primary dataset (or custom candidate/safety datasets)
                 for base_node in base_nodes_this_tree:
                     additional_datasets[constraint_str][base_node] = default_dict
@@ -587,7 +602,6 @@ def createSupervisedSpec(
         columns=meta.sensitive_col_names,
         delta_weight_method="equal",
     )
-    
 
     # Save spec object, using defaults where necessary
     spec = SupervisedSpec(
@@ -708,5 +722,3 @@ def createRLSpec(
         spec_save_name = os.path.join(save_dir, "spec.pkl")
         save_pickle(spec_save_name, spec, verbose=verbose)
     return spec
-
-
