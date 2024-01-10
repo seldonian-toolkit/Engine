@@ -77,7 +77,7 @@ class Spec(object):
             "num_iters": 200,
             "gradient_library": "autograd",
             "hyper_search": None,
-            "verbose": True,
+            "verbose": False,
         },
         regularization_hyperparams={},
         batch_size_safety=None,
@@ -87,6 +87,8 @@ class Spec(object):
         verbose=False,
     ):
         self.dataset = dataset
+        self.candidate_dataset = candidate_dataset
+        self.safety_dataset = safety_dataset
         self.model = model
         self.frac_data_in_safety = frac_data_in_safety
         self.primary_objective = primary_objective
@@ -316,7 +318,7 @@ class SupervisedSpec(Spec):
             "gradient_library": "autograd",
             "use_batches": False,
             "hyper_search": None,
-            "verbose": True,
+            "verbose": False,
         },
         regularization_hyperparams={},
         batch_size_safety=None,
@@ -429,7 +431,7 @@ class RLSpec(Spec):
             "use_batches": False,
             "gradient_library": "autograd",
             "hyper_search": None,
-            "verbose": True,
+            "verbose": False,
         },
         regularization_hyperparams={},
         batch_size_safety=None,
@@ -459,6 +461,35 @@ class RLSpec(Spec):
             verbose=verbose,
         )
 
+class HyperparameterSelectionSpec(object):
+    """Class for the specification object for selecting hyperparameters
+
+    :param hyper_schema: A hyperparameter schema specifying which hyperparameters to tune
+        and the values to sweep over.
+    :type hyper_schema: seldonian.hyperparam_search.HyperSchema
+    :param n_bootstrap_trials: The number of bootstrap trials to run
+    :type n_bootstrap_trials: int
+    :param n_bootstrap_workers: The number of workers (parallel processes) to use when running bootstrap trials
+    :type n_bootstrap_workers: int
+    :param use_bs_pools: Whether to use sampling pools during bootstrapping
+    :type use_bs_pools: bool
+    :param confidence_interval_type: "ttest" or "clopper-pearson"
+    :type confidence_interval_type: str
+    """
+
+    def __init__(
+        self,
+        hyper_schema,
+        n_bootstrap_trials,
+        n_bootstrap_workers,
+        use_bs_pools,
+        confidence_interval_type=None
+    ):
+        self.hyper_schema = hyper_schema
+        self.n_bootstrap_trials = n_bootstrap_trials
+        self.n_bootstrap_workers = n_bootstrap_workers
+        self.use_bs_pools = use_bs_pools,
+        self.confidence_interval_type = confidence_interval_type
 
 def createSimpleSupervisedSpec(
     dataset,

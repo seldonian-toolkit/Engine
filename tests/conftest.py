@@ -834,9 +834,7 @@ def RL_gridworld_dataset_alt_rewards():
         env_kwargs = {"gamma": 0.9}
 
         primary_objective = objectives.IS_estimate
-
-        return dataset, policy, env_kwargs, primary_objective
-
+        return dataset,policy,env_kwargs,primary_objective
     return generate_dataset
 
 @pytest.fixture
@@ -868,6 +866,7 @@ def custom_loan_dataset():
         )
         
         return dataset
+
     return generate_dataset
 
 @pytest.fixture
@@ -1295,3 +1294,40 @@ def custom_loan_spec():
 
     return generate_spec
 
+
+#### Hyperparamater fixtures
+
+@pytest.fixture
+def Hyperparam_spec(all_frac_data_in_safety, n_bootstrap_trials=100, n_bootstrap_workers=30,
+        use_bs_pools=False, hyper_schema=None):
+    if hyper_schema is None:
+        hyper_schema = HyperSchema(
+                {
+                    "frac_data_in_safety": {
+                        "values": all_frac_data_in_safety,
+                        "hyper_type": "SA"
+                        },
+                    "alpha_theta": {
+                        "values": [0.001, 0.005, 0.05],
+                        "hyper_type": "optimization"
+                        },
+                    "num_iters": {
+                        "values": [500,1000],
+                        "hyper_type": "optimization"
+                        },
+                    "bound_inflation_factor": {
+                        "values": [1.0, 2.0, 3.0],
+                        "hyper_type": "SA"
+                        }
+                    }
+                )
+
+    HS_spec = HyperparameterSelectionSpec(
+            hyper_schema=hyper_schema,
+            n_bootstrap_trials=n_bootstrap_trials,
+            n_bootstrap_workers=n_bootstrap_workers,
+            use_bs_pools=use_bs_pools,
+            confidence_interval_type=None
+    )
+
+    return HS_spec

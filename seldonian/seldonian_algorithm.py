@@ -60,6 +60,19 @@ class SeldonianAlgorithm:
             self.dataset = self.spec.dataset
             self.regime = self.dataset.regime
 
+
+        if self.spec.primary_objective is None:
+            if self.regime == "reinforcement_learning":
+                self.spec.primary_objective = objectives.IS_estimate
+            elif self.regime == "supervised_learning":
+                if self.spec.sub_regime in ["classification", "binary_classification"]:
+                    self.spec.primary_objective = objectives.binary_logistic_loss
+                elif self.spec.sub_regime == "multiclass_classification":
+                    self.spec.primary_objective = objectives.multiclass_logistic_loss
+                elif self.spec.sub_regime == "regression":
+                    self.spec.primary_objective = objectives.Mean_Squared_Error
+
+        # Create or load candidate selection and safety data splits.
         if self.regime == "supervised_learning":
             self.sub_regime = self.spec.sub_regime
             self.model = self.spec.model
@@ -82,6 +95,7 @@ class SeldonianAlgorithm:
                     sensitive_attrs=self.candidate_sensitive_attrs,
                     num_datapoints=self.n_candidate,
                     meta=self.dataset.meta,
+
                 )
 
                 self.safety_dataset = SupervisedDataSet(
