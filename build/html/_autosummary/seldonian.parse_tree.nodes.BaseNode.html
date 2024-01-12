@@ -85,6 +85,12 @@ list in <a class="reference internal" href="seldonian.parse_tree.operators.html#
 <span class="sig-name descname"><span class="pre">calculate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.calculate_bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate confidence bounds given a bound_method,
 such as t-test.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary mapping the bound name to its value, 
+e.g., {“lower”:-1.0, “upper”: 1.0}</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -92,6 +98,11 @@ such as t-test.</p>
 <span class="sig-name descname"><span class="pre">calculate_data_forbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.calculate_data_forbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare data inputs
 for confidence bound calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>data_dict, a dictionary containing the prepared data</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -117,6 +128,9 @@ evaluated at each observation in dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>lower, the high-confidence lower bound</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -124,7 +138,8 @@ evaluated at each observation in dataset</p></li>
 <dt class="sig sig-object py" id="seldonian.parse_tree.nodes.BaseNode.compute_HC_upper_and_lowerbound">
 <span class="sig-name descname"><span class="pre">compute_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_upper</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.compute_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
-Used in safety test.</p>
+Used in safety test. Confidence levels
+for lower and upper bound do not have to be equivalent.</p>
 <p>Depending on the bound_method,
 this is not always equivalent
 to calling compute_HC_lowerbound() and
@@ -135,8 +150,12 @@ compute_HC_upperbound() independently.</p>
 <li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
-<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+<li><p><strong>delta_lower</strong> – Confidence level for the lower bound, e.g. 0.05</p></li>
+<li><p><strong>delta_upper</strong> – Confidence level for the upper bound, e.g. 0.05</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(lower,upper) the high-confidence lower and upper bounds.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -154,6 +173,9 @@ evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>upper, the high-confidence upper bound</p>
 </dd>
 </dl>
 </dd></dl>
@@ -196,6 +218,9 @@ evaluated at each observation in dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>lower, the predicted high-confidence lower bound</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -204,7 +229,8 @@ evaluated at each observation in dataset</p></li>
 <span class="sig-name descname"><span class="pre">predict_HC_upper_and_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_upper</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.nodes.BaseNode.predict_HC_upper_and_lowerbound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate high confidence lower and upper bounds
 that we expect to pass the safety test.
-Used in candidate selection.</p>
+Used in candidate selection. Confidence levels
+for lower and upper bound do not have to be equivalent.</p>
 <p>Depending on the bound_method,
 this is not always equivalent
 to calling predict_HC_lowerbound() and
@@ -215,8 +241,12 @@ predict_HC_upperbound() independently.</p>
 <li><p><strong>data</strong> (<em>numpy ndarray</em>) – Vector containing base variable
 evaluated at each observation in dataset</p></li>
 <li><p><strong>datasize</strong> (<em>int</em>) – The number of observations in the safety dataset</p></li>
-<li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
+<li><p><strong>delta_lower</strong> – Confidence level for the lower bound, e.g. 0.05</p></li>
+<li><p><strong>delta_upper</strong> – Confidence level for the upper bound, e.g. 0.05</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(lower,upper) the predicted high-confidence lower and upper bounds.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -236,6 +266,9 @@ evaluated at each observation in dataset</p></li>
 <li><p><strong>delta</strong> (<em>float</em>) – Confidence level, e.g. 0.05</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>upper, the predicted high-confidence upper bound</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -252,6 +285,9 @@ base variable node.</p>
 <li><p><strong>data_dict</strong> (<em>dict</em>) – Contains inputs to model,
 such as features and labels</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A vector of unbiased estimates of the measure function</p>
 </dd>
 </dl>
 </dd></dl>

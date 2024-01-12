@@ -45,11 +45,7 @@ from a vanilla decision tree built using SKLearn’s DecisionTreeClassifier
 object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>classifier</strong> – The SKLearn classifier object</p></li>
-<li><p><strong>has_intercept</strong> – Whether the model has an intercept term</p></li>
-<li><p><strong>params_updated</strong> – An internal flag used during the optimization</p></li>
-</ul>
+<dd class="field-odd"><p><strong>classifier</strong> – The SKLearn classifier object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -115,6 +111,9 @@ where i run over datapoints and j run over model parameters.</p>
 <li><p><strong>theta</strong> – The weight vector, which isn’t used in this method</p></li>
 <li><p><strong>X</strong> – The features</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>J, the Jacobian matrix</p>
 </dd>
 </dl>
 </dd></dl>

@@ -66,11 +66,11 @@ of the environment</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.choose_action">
 <span class="sig-name descname"><span class="pre">choose_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.choose_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Choose an action given an observation. To be overridden</p>
+<dd><p>Choose action from discrete uniform random distribution.
+Does not use observation to inform action.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observation</strong> – The current observation of the agent,
-type depends on environment.</p>
+<dd class="field-odd"><p><strong>observation</strong> – Environment-specific observation.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -82,14 +82,21 @@ type depends on environment.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.get_policy">
+<span class="sig-name descname"><span class="pre">get_policy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.get_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the agent’s policy object</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.get_prob_this_action">
 <span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get probability of a given action provided environment
-is in a observation. To be overridden</p>
+<dd><p>Get uniform random probability. Does not use observation or action.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observation</strong> – The current observation of the agent,
-type depends on environment.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observation</strong> – The current observation of the agent.</p></li>
+<li><p><strong>observation</strong> – The action taken by the agent from this observation.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -97,10 +104,10 @@ type depends on environment.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.set_new_params">
 <span class="sig-name descname"><span class="pre">set_new_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.set_new_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update the parameters of the agent’s policy</p>
+<dd><p>Update the parameters of the agent’s policy to theta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>theta</strong> – model parameters</p>
+<dd class="field-odd"><p><strong>theta</strong> – policy parameters</p>
 </dd>
 </dl>
 </dd></dl>
@@ -108,21 +115,8 @@ type depends on environment.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminated</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates agent’s parameters according to the learning rule
-To be overriden</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>observation</strong> – The current observation of the agent,
-type depends on environment.</p></li>
-<li><p><strong>next_observation</strong> – The observation of the agent after
-an action is taken</p></li>
-<li><p><strong>reward</strong> – The reward for taking the action</p></li>
-<li><p><strong>terminated</strong> (<em>bool</em>) – Whether next_observation is the
-terminal observation</p></li>
-</ul>
-</dd>
-</dl>
+<dd><p>Updates agent’s parameters according to the learning rule.
+Not used in this agent. To be overriden</p>
 </dd></dl>
 
 </dd></dl>
@@ -162,6 +156,7 @@ terminal observation</p></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.__repr__"><code class="docutils literal notranslate"><span class="pre">Discrete_Random_Agent.__repr__()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.choose_action"><code class="docutils literal notranslate"><span class="pre">Discrete_Random_Agent.choose_action()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.get_params"><code class="docutils literal notranslate"><span class="pre">Discrete_Random_Agent.get_params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.get_policy"><code class="docutils literal notranslate"><span class="pre">Discrete_Random_Agent.get_policy()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">Discrete_Random_Agent.get_prob_this_action()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.set_new_params"><code class="docutils literal notranslate"><span class="pre">Discrete_Random_Agent.set_new_params()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.Discrete_Random_Agent.Discrete_Random_Agent.update"><code class="docutils literal notranslate"><span class="pre">Discrete_Random_Agent.update()</span></code></a></li>
@@ -183,9 +178,6 @@ terminal observation</p></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

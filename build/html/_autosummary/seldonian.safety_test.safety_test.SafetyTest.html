@@ -50,6 +50,8 @@
 behavioral constraints</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
 e.g., supervised_learning or reinforcement_learning</p></li>
+<li><p><strong>additional_datasets</strong> (<em>dict</em><em>, </em><em>defaults to {}</em>) – Specifies optional additional datasets to use
+for bounding the base nodes of the parse trees.</p></li>
 </ul>
 </dd>
 </dl>
@@ -69,8 +71,8 @@ e.g., supervised_learning or reinforcement_learning</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest.evaluate_primary_objective">
 <span class="sig-name descname"><span class="pre">evaluate_primary_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.evaluate_primary_objective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get value of the primary objective given model weights,
-theta, on the safety dataset. Wrapper for primary_objective where
+<dd><p>Get value of the primary objective given model weights
+theta, and the safety data, D_s. This is a wrapper for primary_objective where
 data is fixed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -81,7 +83,10 @@ you want to evaluate</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The primary objective function evaluated at theta</p>
+<dd class="field-even"><p>The primary objective function evaluated at theta, D_s</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -89,17 +94,17 @@ you want to evaluate</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.safety_test.safety_test.SafetyTest.get_importance_weights">
 <span class="sig-name descname"><span class="pre">get_importance_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.safety_test.safety_test.SafetyTest.get_importance_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get an array of importance weights evaluated on the candidate dataset
-given model weights, theta.</p>
+<dd><p>Get an array of importance weights given model weights, theta,
+and the safety data, D_s. Only relevant for RL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of upper bounds on the constraint</p>
+<dd class="field-even"><p>The importance weights</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p>numpy.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -113,9 +118,9 @@ the upper bounds of all parse tree root nodes are less than or equal to 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>solution</strong> (<em>numpy ndarray</em>) – The solution found by candidate selection</p></li>
+<li><p><strong>solution</strong> (<em>numpy ndarray</em>) – The candidate solution found by candidate selection</p></li>
 <li><p><strong>batch_size_safety</strong> (<em>int</em>) – The number of datapoints
-to pass through the measure functions at a time</p></li>
+to pass through the model in a single forward pass</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

@@ -13,7 +13,7 @@
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="seldonian.RL.generate_gridworld_episodes" href="seldonian.RL.generate_gridworld_episodes.html" />
+    <link rel="next" title="seldonian.candidate_selection" href="seldonian.candidate_selection.html" />
     <link rel="prev" title="seldonian.RL.environments.n_step_mountaincar" href="seldonian.RL.environments.n_step_mountaincar.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -40,7 +40,22 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Extends the classic Mountaincar environment such that
+each action is taken n_steps times instead of once. Refer
+to <a class="reference internal" href="seldonian.RL.environments.mountaincar.Mountaincar.html#seldonian.RL.environments.mountaincar.Mountaincar" title="seldonian.RL.environments.mountaincar.Mountaincar"><code class="xref py py-class docutils literal notranslate"><span class="pre">mountaincar.Mountaincar</span></code></a> docstring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of repeated steps to take following
+a single action.</p></li>
+<li><p><strong>mc_env</strong> – An instance of the Mountaincar class.</p></li>
+<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – contains attributes describing the environment</p></li>
+<li><p><strong>terminal_state</strong> (<em>bool</em>) – Whether the terminal obs is occupied</p></li>
+<li><p><strong>gamma</strong> – The discount factor, hardcoded to 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.__repr__">
@@ -56,58 +71,59 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.get_env_description">
 <span class="sig-name descname"><span class="pre">get_env_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.get_env_description" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get environment description
+<dd><p>Get environment description.
 Override this method in child class implementation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.get_observation">
 <span class="sig-name descname"><span class="pre">get_observation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.get_observation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get current observation.
-Override this method in child class implementation</p>
+<dd><p>Wrapper to get the position and velocity of the cart
+from the Mountain car environment.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.reset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset observation to initial observation
-Override this method in child class implementation</p>
+<dd><p>Go back to initial obs and timestep</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.start_visualizing">
 <span class="sig-name descname"><span class="pre">start_visualizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.start_visualizing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn on visualization debugger</p>
+<dd><p>Turn on visualization debugger.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.stop_visualizing">
 <span class="sig-name descname"><span class="pre">stop_visualizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.stop_visualizing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn off visualization debugger</p>
+<dd><p>Turn off visualization debugger.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.terminated">
 <span class="sig-name descname"><span class="pre">terminated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.terminated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the terminal obs</p>
+<dd><p>Get the terminal observation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.transition">
 <span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.transition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transition to a new observation given an action</p>
+<dd><p>Transition between states given an action, return a reward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>action</strong> – A possible action in the environment</p>
+<dd class="field-odd"><p><strong>action</strong> – A possible action at the current obs</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>reward for reaching the next obs</p>
 </dd>
 </dl>
-<p>Override this method in child class implementation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.visualize">
 <span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.n_step_mountaincar.N_step_mountaincar.visualize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print out current observation, useful for debugging
+<dd><p>Print out current observation, useful for debugging.
 Override this method in child class implementation</p>
 </dd></dl>
 
@@ -167,9 +183,6 @@ Override this method in child class implementation</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>
@@ -199,7 +212,7 @@ Override this method in child class implementation</p>
   <li><a href="seldonian.RL.environments.html">seldonian.RL.environments</a><ul>
   <li><a href="seldonian.RL.environments.n_step_mountaincar.html">seldonian.RL.environments.n_step_mountaincar</a><ul>
       <li>Previous: <a href="seldonian.RL.environments.n_step_mountaincar.html" title="previous chapter">seldonian.RL.environments.n_step_mountaincar</a></li>
-      <li>Next: <a href="seldonian.RL.generate_gridworld_episodes.html" title="next chapter">seldonian.RL.generate_gridworld_episodes</a></li>
+      <li>Next: <a href="seldonian.candidate_selection.html" title="next chapter">seldonian.candidate_selection</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

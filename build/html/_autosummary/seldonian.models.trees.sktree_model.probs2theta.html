@@ -36,7 +36,10 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.models.trees.sktree_model.probs2theta">
 <span class="sig-name descname"><span class="pre">probs2theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.trees.sktree_model.probs2theta" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get theta from p(theta) = sigmoid(theta).
+Need to add a constant for stability in case prob=0 or 1,
+which can happen in a decision tree.</p>
+</dd></dl>
 
 </section>
 

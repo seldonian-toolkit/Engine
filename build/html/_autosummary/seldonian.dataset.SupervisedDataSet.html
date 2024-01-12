@@ -40,14 +40,16 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.SupervisedDataSet.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_attrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.SupervisedDataSet.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object for holding dataframe and dataset metadata</p>
+<dd><p>Class for holding supervised learning data and metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_datapoints</strong> (<em>int</em>) – Number of rows or episodes (for RL) in the dataset</p></li>
-<li><p><strong>meta</strong> (<a class="reference internal" href="seldonian.dataset.MetaData.html#seldonian.dataset.MetaData" title="seldonian.dataset.MetaData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetaData</span></code></a>) – Metadata</p></li>
-<li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
-e.g., “supervised_learning”, “reinforcement_learning” or “custom”</p></li>
+<li><p><strong>features</strong> (<em>numpy.ndarray</em><em> or </em><em>list</em>) – Feature array - 2D array of shape (num_datapoints,n_features) 
+or a list of 1D feature columns</p></li>
+<li><p><strong>labels</strong> (<em>numpy.ndarray</em>) – Labels for each data point. Only support 1D arrays.</p></li>
+<li><p><strong>sensitive_attrs</strong> (<em>numpy.ndarray</em><em>, </em><em>defaults to</em><em> [</em><em>]</em>) – Sensitive attribute array for each data point</p></li>
+<li><p><strong>num_datapoints</strong> (<em>int</em>) – Number of data points in the dataset</p></li>
+<li><p><strong>meta</strong> (<a class="reference internal" href="seldonian.dataset.MetaData.html#seldonian.dataset.MetaData" title="seldonian.dataset.MetaData"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetaData</span></code></a>) – Metadata object</p></li>
 </ul>
 </dd>
 </dl>

@@ -38,7 +38,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.Error_Rate.html#seldonian.models.objectives.Error_Rate" title="seldonian.models.objectives.Error_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Error_Rate</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
-<td><p>Calculate error rate for the whole sample</p></td>
+<td><p>Calculate mean error rate over the whole sample.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.False_Negative_Rate.html#seldonian.models.objectives.False_Negative_Rate" title="seldonian.models.objectives.False_Negative_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False_Negative_Rate</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
 <td><p>Calculate probabilistic mean false negative rate over the whole sample.</p></td>
@@ -47,7 +47,7 @@
 <td><p>Calculate probabilistic mean false positive rate over the whole sample.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.IS_estimate.html#seldonian.models.objectives.IS_estimate" title="seldonian.models.objectives.IS_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IS_estimate</span></code></a>(model, theta, episodes, **kwargs)</p></td>
-<td><p>Calculate the vanilla importance sampling estimate on all episodes.</p></td>
+<td><p>Calculate the vanilla importance sampling estimate using all episodes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.Mean_Error.html#seldonian.models.objectives.Mean_Error" title="seldonian.models.objectives.Mean_Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Mean_Error</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
 <td><p>Calculate mean error (y_hat-y) over the whole sample</p></td>
@@ -59,7 +59,7 @@
 <td><p>Calculate mean negative rate for the whole sample.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.PDIS_estimate.html#seldonian.models.objectives.PDIS_estimate" title="seldonian.models.objectives.PDIS_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PDIS_estimate</span></code></a>(model, theta, episodes, **kwargs)</p></td>
-<td><p>Calculate per decision importance sampling estimate on all episodes.</p></td>
+<td><p>Calculate per-decision importance sampling (PDIS) estimate using all episodes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.Positive_Rate.html#seldonian.models.objectives.Positive_Rate" title="seldonian.models.objectives.Positive_Rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Positive_Rate</span></code></a>(model, theta, X, Y, **kwargs)</p></td>
 <td><p>Calculate mean positive rate for the whole sample.</p></td>
@@ -74,10 +74,10 @@
 <td><p>Get the expected return of the PRIMARY reward for behavior episodes whose actions (cr,cf) fall within the theta bounding box.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.WIS_estimate.html#seldonian.models.objectives.WIS_estimate" title="seldonian.models.objectives.WIS_estimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WIS_estimate</span></code></a>(model, theta, episodes, **kwargs)</p></td>
-<td><p>Calculate the weighted importance sampling estimate on all episodes.</p></td>
+<td><p>Calculate the weighted importance sampling (WIS) estimate using all episodes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.models.objectives.binary_logistic_loss.html#seldonian.models.objectives.binary_logistic_loss" title="seldonian.models.objectives.binary_logistic_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binary_logistic_loss</span></code></a>(model, theta, X, Y, ...)</p></td>
-<td><p>Calculate average logistic loss over all data points for binary classification</p></td>
+<td><p>Calculate mean logistic loss over all data points for binary classification</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.models.objectives.confusion_matrix.html#seldonian.models.objectives.confusion_matrix" title="seldonian.models.objectives.confusion_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">confusion_matrix</span></code></a>(model, theta, X, Y, l_i, ...)</p></td>
 <td><p>Get the mean probability of predicting class label l_k if the true class label was l_i. This is the C[l_i,l_k] element of the confusion matrix, C. Let:         i = number of datapoints         j = number of features (including bias term, if provied)         k = number of classes.</p></td>

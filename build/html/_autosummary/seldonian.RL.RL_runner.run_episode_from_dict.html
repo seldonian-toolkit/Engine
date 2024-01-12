@@ -36,12 +36,13 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.RL.RL_runner.run_episode_from_dict">
 <span class="sig-name descname"><span class="pre">run_episode_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hyperparameter_and_setting_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.run_episode_from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run a single episode</p>
+<dd><p>Run a single episode from a parameter dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>agent</strong> – RL Agent</p></li>
-<li><p><strong>env</strong> – RL Environment</p></li>
+<li><p><strong>hyperparameter_and_setting_dict</strong> (<em>dict</em>) – Specifies the
+environment and agent</p></li>
+<li><p><strong>model_params</strong> (<em>defaults to None</em>) – Policy parameters to set before running the episode</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -94,9 +95,6 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

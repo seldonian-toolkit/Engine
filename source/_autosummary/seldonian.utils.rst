@@ -30,6 +30,7 @@ seldonian.utils
 
 
    seldonian.utils.RL_utils
+   seldonian.utils.hyperparam_utils
    seldonian.utils.io_utils
    seldonian.utils.plot_utils
    seldonian.utils.stats_utils

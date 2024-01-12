@@ -44,9 +44,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> (<em>float</em>) – Confidence level. Specifies the maximum probability
-that the algorithm can return a solution violat the
-behavioral constraint.</p></li>
+<li><p><strong>delta</strong> (<em>float</em>) – Confidence level for the constraint. Specifies the maximum probability
+that the algorithm can return a solution violates the
+behavioral constraint. This gets broken up into smaller deltas
+for the base nodes.</p></li>
 <li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
 e.g., supervised_learning or reinforcement_learning</p></li>
 <li><p><strong>sub_regime</strong> (<em>str</em>) – The sub-category of ml algorithm, e.g.
@@ -168,7 +169,7 @@ and assign bound inflation factors values to base nodes.</p>
 <li><p><strong>node</strong> (<a class="reference internal" href="seldonian.parse_tree.nodes.Node.html#seldonian.parse_tree.nodes.Node" title="seldonian.parse_tree.nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object) – node in the parse tree</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – How you want to assign the bound inflation factors to the base nodes</p></li>
 <li><p><strong>factors</strong> – If an integer and method==”constant”, that integer is applied to all bounds.
-If method==”manual”, this needs to be a vector of bound inflation factors to assign to each unique 
+If method==”manual”, this needs to be a vector of bound inflation factors to assign to each unique
 base node.</p></li>
 </ul>
 </dd>
@@ -291,6 +292,22 @@ through the tree to evaluate the constraint</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._parse_subscript">
+<span class="sig-name descname"><span class="pre">_parse_subscript</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ast_node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._parse_subscript" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for dealing with base nodes
+with subscripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ast_node</strong> (<em>ast.AST node object</em>) – node in the ast tree</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>node_class - which node class to use for this base node
+node_kwargs - keyword arguments used to build the base node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._pow">
 <span class="sig-name descname"><span class="pre">_pow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._pow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the confidence interval on
@@ -383,7 +400,7 @@ and postitive infinity if in upper bound</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree._validate_delta_vector">
 <span class="sig-name descname"><span class="pre">_validate_delta_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._validate_delta_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks to make sure supplied delta vector is the correct length.
+<dd><p>Checks to ensure the supplied delta vector is the correct length.
 Also if it does not sum to self.delta normalize it so it does.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -397,14 +414,24 @@ Also if it does not sum to self.delta normalize it so it does.</p>
 <span class="sig-name descname"><span class="pre">_validate_infl_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree._validate_infl_factors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to make sure supplied factors has correct dtype and size
 given the method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – How you want to assign the bound inflation factors to the base nodes</p></li>
+<li><p><strong>factors</strong> – If an integer and method==”constant”, that integer is applied to all bounds.
+If method==”manual”, this needs to be a vector of bound inflation factors to assign to each unique
+base node.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed">
 <span class="sig-name descname"><span class="pre">assign_bounds_needed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.assign_bounds_needed" title="Permalink to this definition">¶</a></dt>
-<dd><p>DFS through the tree and
+<dd><p>Depth-first search through the tree and
 decide which bounds are required to compute
-on each child node. Eventually we get to base nodes.
+on each child node. 
 There are cases where it is not always
 necessary to compute both lower and upper
 bounds because at the end all we care about
@@ -435,11 +462,11 @@ specifying the weights as an array.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>method</strong> (<em>str</em>) – str, defaults to ‘constant’,
 which assigns a factor of the ‘factors’ value to all bounds.
-If method == “manual”, then factors should be a vector 
-of values to use for the bounds whose length is equal to 
+If method == “manual”, then factors should be a vector
+of values to use for the bounds whose length is equal to
 the number of total unique bounds across all base nodes.</p></li>
 <li><p><strong>factors</strong> – If an integer and method==”constant”, that integer is applied to all bounds.
-If method==”manual”, this needs to be a vector of bound inflation factors to assign to each unique 
+If method==”manual”, this needs to be a vector of bound inflation factors to assign to each unique
 base node.</p></li>
 </ul>
 </dd>
@@ -450,9 +477,9 @@ base node.</p></li>
 <dt class="sig sig-object py" id="seldonian.parse_tree.parse_tree.ParseTree.build_tree">
 <span class="sig-name descname"><span class="pre">build_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_weight_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infl_factor_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infl_factors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.parse_tree.parse_tree.ParseTree.build_tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience function for building the tree from
-a constraint string,
-weighting of deltas to each base node, and
-assigning which nodes need upper and lower bounding</p>
+a constraint string, subdividing the tree delta 
+to deltas for each base node, and assigning which 
+nodes need upper and lower bounding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -465,7 +492,7 @@ among unique base nodes</p></li>
 <li><p><strong>delta_vector</strong> – 1D array of delta values to assign to the unique base nodes.</p></li>
 <li><p><strong>infl_factor_method</strong> (<em>str</em><em>, </em><em>defaults to 'constant'</em>) – How you want to assign the inflation factors to the base nodes.
 The default ‘constant’ applies a constant factor
-to each base node bound. ‘manual’ allows assinging 
+to each base node bound. ‘manual’ allows assinging
 unique inflation factors to each base node bound.</p></li>
 <li><p><strong>infl_factors</strong> – The bound inflation factors. Int if infl_factor_method=”constant”,
 array-like if infl_factor_method=”manual”.</p></li>
@@ -616,6 +643,7 @@ than one needs to reset the bounds.</p>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._max"><code class="docutils literal notranslate"><span class="pre">ParseTree._max()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._min"><code class="docutils literal notranslate"><span class="pre">ParseTree._min()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._mult"><code class="docutils literal notranslate"><span class="pre">ParseTree._mult()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._parse_subscript"><code class="docutils literal notranslate"><span class="pre">ParseTree._parse_subscript()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._pow"><code class="docutils literal notranslate"><span class="pre">ParseTree._pow()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._preprocess_constraint_str"><code class="docutils literal notranslate"><span class="pre">ParseTree._preprocess_constraint_str()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#seldonian.parse_tree.parse_tree.ParseTree._propagate_value"><code class="docutils literal notranslate"><span class="pre">ParseTree._propagate_value()</span></code></a></li>

@@ -40,8 +40,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object for running the Seldonian algorithm and getting
-introspection into candidate selection and safety test</p>
+<dd><p>Object for running the Seldonian algorithm and for getting
+introspection into candidate selection and safety test.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>spec</strong> (<a class="reference internal" href="seldonian.spec.Spec.html#seldonian.spec.Spec" title="seldonian.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> object) – The specification object with the complete
@@ -61,24 +61,30 @@ set of parameters for running the Seldonian algorithm</p>
 <tbody>
 </tbody>
 </table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.parse_trees" title="seldonian.seldonian_algorithm.SeldonianAlgorithm.parse_trees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_trees</span></code></a></p></td>
+<td><p>The base_node_bound_dict specifies the bounding method for each base node.</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split">
 <span class="sig-name descname"><span class="pre">candidate_safety_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split dataset into candidate and safety sets. Regime-agnostic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>frac_data_in_safety</strong> – <dl class="simple">
-<dt>Fraction of data used in safety test.</dt><dd><p>The remaining fraction will be used in candidate selection</p>
+<dd class="field-odd"><p><strong>frac_data_in_safety</strong> – Fraction of data used in safety test.
+The remaining fraction will be used in candidate selection</p>
 </dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">return<span class="colon">:</span></dt>
-<dd class="field-odd"><p>For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
-where F=features, L=labels, S=sensitive attributes
-For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
-where E=episodes, S=sensitive attributes
-For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
-where D=data, S=sensitive attributes</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety</dt><dd><p>where F=features, L=labels, S=sensitive attributes</p>
+</dd>
+<dt>reinforcement_learning: E_c, E_s, S_c, S_s, n_candidate, n_safety</dt><dd><p>where E=episodes, S=sensitive attributes</p>
+</dd>
+<dt>custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety</dt><dd><p>where D=data, S=sensitive attributes</p>
 </dd>
 </dl>
 </p>
@@ -89,27 +95,30 @@ where D=data, S=sensitive attributes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split_addl_datasets">
 <span class="sig-name descname"><span class="pre">candidate_safety_split_addl_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac_data_in_safety</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addl_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.candidate_safety_split_addl_datasets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split dataset into candidate and safety sets. Regime-agnostic.</p>
+<dd><p>Split addl dataset into candidate and safety sets. Regime-agnostic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>frac_data_in_safety</strong> – Fraction of data used in safety test.
-The remaining fraction will be used in candidate selection</p></li>
+The remaining fraction will be used in candidate selection.</p></li>
 <li><p><strong>addl_dataset</strong> – The dataset to split</p></li>
 <li><p><strong>batch_size</strong> – The batch size provided by the user (may be None)</p></li>
-<li><p><strong>constraint_str</strong> – The constraint string for the parse tree for which 
+<li><p><strong>constraint_str</strong> – The constraint string for the parse tree for which
 this additional dataset is to be used.</p></li>
-<li><p><strong>base_node</strong> – The base node within the constraint string for which 
+<li><p><strong>base_node</strong> – The base node within the constraint string for which
 this additional dataset is to be used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
-where F=features, L=labels, S=sensitive attributes
-For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
-where E=episodes, S=sensitive attributes
-For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
-where D=data, S=sensitive attributes</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety</dt><dd><p>where F=features, L=labels, S=sensitive attributes</p>
+</dd>
+<dt>reinforcement_learning: E_c, E_s, S_c, S_s, n_candidate, n_safety</dt><dd><p>where E=episodes, S=sensitive attributes</p>
+</dd>
+<dt>custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety</dt><dd><p>where D=data, S=sensitive attributes</p>
+</dd>
+</dl>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -190,6 +199,15 @@ values of the upper bounds for that constraint</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.parse_trees">
+<span class="sig-name descname"><span class="pre">parse_trees</span></span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.parse_trees" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base_node_bound_dict specifies
+the bounding method for each base node.
+Any base nodes not in this dictionary will
+be bounded using the default method</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_cs_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run" title="Permalink to this definition">¶</a></dt>
@@ -215,10 +233,32 @@ model weights found during candidate selection or ‘NSF’.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.run_candidate_selection">
+<span class="sig-name descname"><span class="pre">run_candidate_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_candidate_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run candidate selection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>write_logfile</strong> – Whether to write out a pickle file
+containing details of candidate selection</p></li>
+<li><p><strong>debug</strong> – Boolean flag for whether to run in debug mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>candidate_solution, the model weights obtained 
+from running candidate selection or NSF if an error occurred
+during candidate selection.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray or str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test">
 <span class="sig-name descname"><span class="pre">run_safety_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size_safety</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs safety test using solution from candidate selection
-or some other means</p>
+<dd><p>Runs safety test using solution from candidate selection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -230,11 +270,11 @@ or other process</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(passed_safety, solution). passed_safety
 indicates whether solution found during candidate selection
-passes the safety test. solution is the optimized
+passed the safety test. solution is the optimized
 model weights found during candidate selection or ‘NSF’.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple</p>
+<dd class="field-odd"><p>Tuple(Bool,numpy.ndarray or str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -243,6 +283,13 @@ model weights found during candidate selection or ‘NSF’.</p>
 <dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.safety_test">
 <span class="sig-name descname"><span class="pre">safety_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.safety_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the safety test object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="seldonian.seldonian_algorithm.SeldonianAlgorithm.set_initial_solution">
+<span class="sig-name descname"><span class="pre">set_initial_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.set_initial_solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the self.initial_solution parameter by evaluating
+the initial_solution_fn if provided, otherwise use the default.</p>
 </dd></dl>
 
 </dd></dl>
@@ -291,9 +338,12 @@ model weights found during candidate selection or ‘NSF’.</p>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_cs_result"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_cs_result()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_importance_weights"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_importance_weights()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.get_st_upper_bounds"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.get_st_upper_bounds()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.parse_trees"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.parse_trees</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_candidate_selection"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run_candidate_selection()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.run_safety_test"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.run_safety_test()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.safety_test"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.safety_test()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#seldonian.seldonian_algorithm.SeldonianAlgorithm.set_initial_solution"><code class="docutils literal notranslate"><span class="pre">SeldonianAlgorithm.set_initial_solution()</span></code></a></li>
 </ul>
 </li>
 </ul>

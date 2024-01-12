@@ -28,6 +28,7 @@ seldonian.spec
       :toctree:                                         
       :template: custom-class-template.rst              
    
+      HyperparameterSelectionSpec
       RLSpec
       Spec
       SupervisedSpec

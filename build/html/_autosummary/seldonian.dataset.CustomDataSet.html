@@ -40,15 +40,14 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.CustomDataSet.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_attrs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.CustomDataSet.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object for holding data of arbitrary form.</p>
+<dd><p>A flexible container for holding data of arbitrary form for the custom regime.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – An 1D array of data samples, where the samples can have any form.</p></li>
-<li><p><strong>num_datapoints</strong> (<em>int</em>) – Number of data samples</p></li>
-<li><p><strong>meta_information</strong> (<em>List</em><em>(</em><em>str</em><em>)</em>) – list of all column names in the dataframe</p></li>
-<li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
-e.g., supervised_learning or reinforcement_learning</p></li>
+<li><p><strong>data</strong> (<em>numpy.ndarray</em><em> or </em><em>list</em>) – A list of data points, where each data point can be an object of any form.</p></li>
+<li><p><strong>sensitive_attrs</strong> (<em>numpy.ndarray</em><em>, </em><em>defaults to</em><em> [</em><em>]</em>) – Sensitive attribute array for each data point</p></li>
+<li><p><strong>num_datapoints</strong> (<em>int</em>) – Number of data points</p></li>
+<li><p><strong>meta</strong> (<a class="reference internal" href="seldonian.dataset.RLMetaData.html#seldonian.dataset.RLMetaData" title="seldonian.dataset.RLMetaData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RLMetaData</span></code></a>) – Metadata object</p></li>
 </ul>
 </dd>
 </dl>

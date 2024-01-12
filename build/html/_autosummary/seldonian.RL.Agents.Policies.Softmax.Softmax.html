@@ -82,7 +82,12 @@ of the environment</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.choose_action_from_action_values">
 <span class="sig-name descname"><span class="pre">choose_action_from_action_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.choose_action_from_action_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Select an action given a list of action values (param weights)</p>
+<dd><p>Select an action given a list of action values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>action_values</strong> – List of action values (param weights)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -118,7 +123,15 @@ and number of trials</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.get_action_probs_from_action_values">
 <span class="sig-name descname"><span class="pre">get_action_probs_from_action_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_action_probs_from_action_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get action probabilities given a list of action values (param weights)</p>
+<dd><p>Get action probabilities given a list of action values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>action_values</strong> – List of action values (param weights)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>array of action probabilites</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -130,7 +143,15 @@ and number of trials</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.Softmax.Softmax.get_e_to_the_something_terms">
 <span class="sig-name descname"><span class="pre">get_e_to_the_something_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.Softmax.Softmax.get_e_to_the_something_terms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exponentiate list of action values (param weights)</p>
+<dd><p>Exponentiate list of action values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>action_values</strong> – List of action values (param weights)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>array of exponentiated action values</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -151,7 +172,7 @@ and number of trials</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>observation</strong> – The current obseravation of the environment</p></li>
+<li><p><strong>observation</strong> – The current observation of the environment</p></li>
 <li><p><strong>action</strong> – The selected action</p></li>
 </ul>
 </dd>
@@ -178,7 +199,7 @@ the new policy</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>action probabilities of the observation,action pairs under the new policy</p>
+<dd class="field-even"><p>array action probabilities of the observation,action pairs under the new policy</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>numpy.ndarray(float)</p>
@@ -292,9 +313,6 @@ space is discrete or continous</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

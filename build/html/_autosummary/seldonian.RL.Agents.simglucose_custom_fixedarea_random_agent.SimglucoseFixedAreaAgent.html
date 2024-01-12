@@ -40,14 +40,16 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bb_crmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_crmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_cfmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_cfmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cr_shrink_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cf_shrink_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>An agent used for the simglucose problem studied in this example: <a class="reference external" href="https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/">https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/</a></p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hyperparameter_and_setting_dict</strong> – Specifies the
-environment, agent, number of episodes per trial,
-and number of trials</p></li>
-<li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – an object for accessing attributes
-of the environment</p></li>
+<li><p><strong>bb_crmin</strong> (<em>float</em>) – The bounding box minimum value in CR space.</p></li>
+<li><p><strong>bb_crmax</strong> (<em>float</em>) – The bounding box maximum value in CR space.</p></li>
+<li><p><strong>bb_cfmin</strong> (<em>float</em>) – The bounding box minimum value in CF space.</p></li>
+<li><p><strong>bb_cfmax</strong> (<em>float</em>) – The bounding box maximum value in CF space.</p></li>
+<li><p><strong>cr_shrink_factor</strong> – How much to shrink the CR size by</p></li>
+<li><p><strong>cf_shrink_factor</strong> – How much to shrink the CF size by</p></li>
 </ul>
 </dd>
 </dl>
@@ -88,14 +90,24 @@ type depends on environment</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.get_policy">
+<span class="sig-name descname"><span class="pre">get_policy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.get_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the agent’s policy object</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.get_prob_this_action">
 <span class="sig-name descname"><span class="pre">get_prob_this_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.get_prob_this_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get probability of a given action provided environment
 is in a observation. To be overridden</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observation</strong> – The current observation of the agent,
-type depends on environment.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observation</strong> – The current observation of the agent,
+type depends on environment.</p></li>
+<li><p><strong>observation</strong> – The current action of the agent,
+type depends on environment.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -173,6 +185,7 @@ terminal observation</p></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.__repr__"><code class="docutils literal notranslate"><span class="pre">SimglucoseFixedAreaAgent.__repr__()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.choose_action"><code class="docutils literal notranslate"><span class="pre">SimglucoseFixedAreaAgent.choose_action()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.get_params"><code class="docutils literal notranslate"><span class="pre">SimglucoseFixedAreaAgent.get_params()</span></code></a></li>
+<li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.get_policy"><code class="docutils literal notranslate"><span class="pre">SimglucoseFixedAreaAgent.get_policy()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.get_prob_this_action"><code class="docutils literal notranslate"><span class="pre">SimglucoseFixedAreaAgent.get_prob_this_action()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.set_new_params"><code class="docutils literal notranslate"><span class="pre">SimglucoseFixedAreaAgent.set_new_params()</span></code></a></li>
 <li class="toctree-l8"><a class="reference internal" href="#seldonian.RL.Agents.simglucose_custom_fixedarea_random_agent.SimglucoseFixedAreaAgent.update"><code class="docutils literal notranslate"><span class="pre">SimglucoseFixedAreaAgent.update()</span></code></a></li>
@@ -188,9 +201,6 @@ terminal observation</p></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

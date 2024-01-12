@@ -40,7 +40,20 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bb_crmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_crmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_cfmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_cfmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cr_shrink_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cf_shrink_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A policy used for the simglucose problem studied in this example: <a class="reference external" href="https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/">https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bb_crmin</strong> (<em>float</em>) – The bounding box minimum value in CR space.</p></li>
+<li><p><strong>bb_crmax</strong> (<em>float</em>) – The bounding box maximum value in CR space.</p></li>
+<li><p><strong>bb_cfmin</strong> (<em>float</em>) – The bounding box minimum value in CF space.</p></li>
+<li><p><strong>bb_cfmax</strong> (<em>float</em>) – The bounding box maximum value in CF space.</p></li>
+<li><p><strong>cr_shrink_factor</strong> – How much to shrink the CR size by</p></li>
+<li><p><strong>cf_shrink_factor</strong> – How much to shrink the CF size by</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.Agents.Policies.SimglucosePolicyFixedArea.SigmoidPolicyFixedArea.__repr__">
@@ -168,9 +181,6 @@ is added, it doesn’t exceed the original bounds.</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_model.html">seldonian.RL.RL_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

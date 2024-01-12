@@ -40,13 +40,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.RLDataSet.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.RLDataSet.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object for holding RL dataframe and dataset metadata</p>
+<dd><p>Class for holding reinforcement learning episodes and metadata</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>episodes</strong> (list(<a class="reference internal" href="seldonian.dataset.Episode.html#seldonian.dataset.Episode" title="seldonian.dataset.Episode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Episode</span></code></a>)) – List of episodes</p></li>
-<li><p><strong>meta_information</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of attribute names in each Episode,
-e.g. [‘o’,’a’,’r’,’pi_b’]</p></li>
+<li><p><strong>meta</strong> (<a class="reference internal" href="seldonian.dataset.RLMetaData.html#seldonian.dataset.RLMetaData" title="seldonian.dataset.RLMetaData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RLMetaData</span></code></a>) – Metadata object</p></li>
+<li><p><strong>sensitive_attrs</strong> (<em>numpy.ndarray</em><em>, </em><em>defaults to</em><em> [</em><em>]</em>) – Sensitive attribute array for each data point</p></li>
 </ul>
 </dd>
 </dl>

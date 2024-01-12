@@ -63,6 +63,8 @@ the optimizer</p></li>
 e.g., supervised_learning or reinforcement_learning</p></li>
 <li><p><strong>write_logfile</strong> (<em>bool</em>) – Whether to write outputs of candidate selection
 to disk</p></li>
+<li><p><strong>additional_datasets</strong> (<em>dict</em><em>, </em><em>defaults to {}</em>) – Specifies optional additional datasets to use
+for bounding the base nodes of the parse trees.</p></li>
 </ul>
 </dd>
 </dl>
@@ -82,8 +84,8 @@ to disk</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches">
 <span class="sig-name descname"><span class="pre">calculate_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a batch dataset to be used in gradient descent.
-Does not return anything, instead sets self.batch_dataset.</p>
+<dd><p>Create a batch dataset (for the primary dataset) to be used in gradient descent.
+Sets self.batch_dataset. See return logic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -96,7 +98,8 @@ Does not return anything, instead sets self.batch_dataset.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p>True if candidate solutions calculated using this batch are viable,
+False if not.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -105,8 +108,8 @@ Does not return anything, instead sets self.batch_dataset.</p>
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches_addl_datasets">
 <span class="sig-name descname"><span class="pre">calculate_batches_addl_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primary_epoch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_batch_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.calculate_batches_addl_datasets" title="Permalink to this definition">¶</a></dt>
 <dd><p>For each additional dataset, create a batch dataset using the current batch.
-Uses the batch_indices list stored in the additional datasets dictionary that was 
-precalculated to make this easy.</p>
+Uses the batch_indices list stored in the additional datasets dictionary that was
+precalculated to make this easy. Does not return anything.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -124,16 +127,16 @@ precalculated to make this easy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective">
 <span class="sig-name descname"><span class="pre">evaluate_primary_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.evaluate_primary_objective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get value of the primary objective given model weights,
-theta. Wrapper for self.primary_objective where
-data is fixed. Used as input to gradient descent</p>
+<dd><p>The primary objective function used for KKT/gradient descent. 
+This is just a wrapper for self.primary_objective where
+the (batched) data and model are fixed, such that the only parameter is theta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The value of the primary objective function
-evaluated at theta</p>
+evaluated at theta.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -141,14 +144,15 @@ evaluated at theta</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds">
 <span class="sig-name descname"><span class="pre">get_constraint_upper_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_constraint_upper_bounds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get value of the upper bounds of the constraint functions
-given model weights, theta. Used as input to gradient descent.</p>
+<dd><p>The constraint functions used for KKT/gradient descent. 
+Obtains the upper bounds of the parse trees
+given model weights, theta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of upper bounds on the constraint</p>
+<dd class="field-even"><p>Array of upper bounds on the parse trees.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array</p>
@@ -160,7 +164,7 @@ given model weights, theta. Used as input to gradient descent.</p>
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.get_importance_weights">
 <span class="sig-name descname"><span class="pre">get_importance_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.get_importance_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get an array of importance weights evaluated on the candidate dataset
-given model weights, theta.</p>
+given model weights, theta. Only applicable for RL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>numpy.ndarray</em>) – model weights</p>
@@ -178,7 +182,7 @@ given model weights, theta.</p>
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier">
 <span class="sig-name descname"><span class="pre">objective_with_barrier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.objective_with_barrier" title="Permalink to this definition">¶</a></dt>
 <dd><p>The objective function to be optimized if
-minimization_technique == ‘barrier’. Adds in a
+optimization_technique == ‘barrier’. Adds in a
 large penalty when any of the constraints are violated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -194,32 +198,33 @@ evaluated at theta</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.precalculate_addl_dataset_batch_indices">
 <span class="sig-name descname"><span class="pre">precalculate_addl_dataset_batch_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.precalculate_addl_dataset_batch_indices" title="Permalink to this definition">¶</a></dt>
-<dd><p>For each additional dataset, create a list of indices corresponding to the starting and ending
-of each batch. During gradient descent we can simply look up these indices and then construct the dataset
-from them. Updates self.additional_datasets in place, so don’t need to return anything.</p>
+<dd><p>For each additional dataset, create a list of indices corresponding to the start and end
+of each batch. During each iteration of gradient descent, we can look up these indices
+and then construct the dataset from them.
+Updates self.additional_datasets in place, so doesn’t return anything.</p>
 <p>The rules here are:
-i) A custom batch size can be used for each addl dataset, but</p>
+i) A custom batch size can optionally be used for each addl dataset, but</p>
 <blockquote>
-<div><p>if missing the primary batch batch is used.</p>
+<div><p>if it is missing, the primary batch batch is used.</p>
 </div></blockquote>
 <ol class="lowerroman simple" start="2">
-<li><p>We wrap around the end of addl datasets if we get to the end either within a primary epoch
-or if we start a new epoch. For this reason, we can either have a list of length 2 (start,end)
-or a list of length 4 (start1,end1,start2,end2), if there is wraparound.</p></li>
-<li><p>If n_batches = 1 then just use the entire additional dataset,</p></li>
+<li><p>If we get to the end of a dataset, we wrap around back to the start of the dataseet. 
+For this reason, when specifying the batch indices for a given batch,
+we can either have a list of length 2 (start,end) with no wraparound,
+or a list of length 4 (start1,end1,start2,end2) with wraparound.</p></li>
+<li><p>If n_batches == 1 then just use the entire additional dataset,</p></li>
 </ol>
 <blockquote>
 <div><p>but don’t wrap as that would reuse datapoints in a single batch</p>
 </div></blockquote>
-<ol class="lowerroman simple" start="4">
-<li><p>There is no concept of epoch for the addl datasets. We are simply wrapping back to the beginning when needed.</p></li>
-</ol>
+<p>iv) There is no concept of epoch for the addl datasets. 
+We are simply wrapping back to the beginning when needed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_epochs</strong> (<em>int</em>) – The total number of epochs to run gradient descent</p></li>
 <li><p><strong>n_batches</strong> (<em>int</em>) – The number of primary dataset batches per peoch</p></li>
-<li><p><strong>primary_epoch_index</strong> (<em>int</em>) – The epoch number (0-indexed) of the primary dataset</p></li>
+<li><p><strong>primary_batch_size</strong> (<em>int</em>) – The batch size for the primary dataset.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -231,10 +236,13 @@ or a list of length 4 (start1,end1,start2,end2), if there is wraparound.</p></li
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.candidate_selection.candidate_selection.CandidateSelection.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.candidate_selection.candidate_selection.CandidateSelection.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run candidate selection</p>
+<dd><p>Run candidate selection, either with gradient descent or barrier function techniques.
+Barrier function can use any black box optimizer to generate candidate solutions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optimized model weights or ‘NSF’</p>
+<dd class="field-odd"><p>candidate_solution, which is either an array of optimized model weights 
+or ‘NSF’ if there was no viable candidate solution found, usually because of an error
+during candidate selection.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>array or str</p>

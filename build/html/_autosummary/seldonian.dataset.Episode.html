@@ -40,16 +40,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.Episode.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_rewards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.Episode.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object for holding RL episodes</p>
+<dd><p>Object for holding RL episodes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>observations</strong> – List of observations for each timestep
-in the episode</p></li>
-<li><p><strong>actions</strong> – List of actions</p></li>
-<li><p><strong>rewards</strong> – List of rewards</p></li>
+<li><p><strong>observations</strong> – List of observations at each timestep.</p></li>
+<li><p><strong>actions</strong> – List of actions at each timestep.</p></li>
+<li><p><strong>rewards</strong> – List of primary rewards at each timestep.</p></li>
 <li><p><strong>action_probs</strong> – List of action probabilities
-from the behavior policy</p></li>
+from the behavior policy at each timestep.</p></li>
+<li><p><strong>alt_rewards</strong> (<em>numpy.ndarray</em>) – A 2D numpy array where each column contains the rewards for 
+a new reward function other than the primary reward function.</p></li>
 </ul>
 </dd>
 </dl>

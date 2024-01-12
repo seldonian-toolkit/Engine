@@ -42,8 +42,9 @@ in the sample.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – SeldonianModel instance</p></li>
-<li><p><strong>statistic_name</strong> (<em>str</em><em>, </em><em>e.g. 'FPR'</em>) – The name of the statistic to evaluate</p></li>
-<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The parameter weights</p></li>
+<li><p><strong>statistic_name</strong> (<em>str</em>) – The name of the statistic to evaluate,
+e.g. ‘FPR’ for false positive rate</p></li>
+<li><p><strong>theta</strong> (<em>numpy ndarray</em>) – The model weights</p></li>
 <li><p><strong>data_dict</strong> (<em>dict</em>) – Contains the features and labels</p></li>
 </ul>
 </dd>
@@ -91,6 +92,7 @@ in the sample.</p>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.html">seldonian.parse_tree.zhat_funcs</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.html#seldonian.parse_tree.zhat_funcs.measure_function_vector_mapper"><code class="docutils literal notranslate"><span class="pre">measure_function_vector_mapper</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.batcher.html">seldonian.parse_tree.zhat_funcs.batcher</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.evaluate_statistic.html">seldonian.parse_tree.zhat_funcs.evaluate_statistic</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">seldonian.parse_tree.zhat_funcs.sample_from_statistic</a><ul>

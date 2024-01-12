@@ -36,9 +36,9 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.RL.RL_runner.run_trial_given_agent_and_env">
 <span class="sig-name descname"><span class="pre">run_trial_given_agent_and_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.run_trial_given_agent_and_env" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper for run_trial() where parameters
-are specified explicity rather than via a dictionary.</p>
-<p>Not parallelized here because often agent or env is not pickleable.</p>
+<dd><p>Run a set of epidoes given parameters
+explicitly rather than via a dictionary.</p>
+<p>Not parallelized here because often agent or env are not pickleable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -48,7 +48,7 @@ are specified explicity rather than via a dictionary.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of episodes</p>
+<dd class="field-even"><p>List of generated episodes</p>
 </dd>
 </dl>
 </dd></dl>
@@ -94,9 +94,6 @@ are specified explicity rather than via a dictionary.</p>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

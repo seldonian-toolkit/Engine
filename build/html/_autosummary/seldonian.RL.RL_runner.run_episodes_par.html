@@ -36,23 +36,23 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.RL.RL_runner.run_episodes_par">
 <span class="sig-name descname"><span class="pre">run_episodes_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create_agent_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_env_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes_this_proc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_runner.run_episodes_par" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run a bunch of episodes. Function that is run in parallel.</p>
+<dd><p>Run a bunch of episodes. Function that is run in a parallel process.
+Parameters include functions to create agent and environment because
+explicitly passing those often results in an error because
+many agents and environments aren’t picklable, a necessary condition
+for using Python’s multiprocessing pools.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>hyperparameter_and_setting_dict</strong> (<em>dict</em>) – Specifies the
-environment, agent and number of episodes to run</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_agent_func</strong> – Function that returns an <code class="xref py py-class docutils literal notranslate"><span class="pre">Agents.Agent</span></code> object</p></li>
+<li><p><strong>create_env_func</strong> – Function that returns an <a class="reference internal" href="seldonian.RL.environments.Environment.Environment.html#seldonian.RL.environments.Environment.Environment" title="seldonian.RL.environments.Environment.Environment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Environment</span></code></a> object</p></li>
+</ul>
 </dd>
-<dt class="field-even">Model_params<span class="colon">:</span></dt>
-<dd class="field-even"><p>Policy parameters to set before running the trial</p>
-</dd>
-<dt class="field-odd">Parallel<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Whether to use parallel processing</p>
-</dd>
-<dt class="field-even">N_workers<span class="colon">:</span></dt>
-<dd class="field-even"><p>Number of cpus if using parallel processing</p>
+<dt class="field-even">Num_episodes_this_proc<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of episodes to run in this parallel process</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(List of episodes, agent)</p>
+<dd class="field-odd"><p>List of generated episodes</p>
 </dd>
 </dl>
 </dd></dl>
@@ -98,9 +98,6 @@ environment, agent and number of episodes to run</p>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

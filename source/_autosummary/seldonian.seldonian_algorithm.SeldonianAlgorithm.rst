@@ -49,4 +49,10 @@ seldonian.seldonian\_algorithm.SeldonianAlgorithm
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SeldonianAlgorithm.parse_trees
+   
    

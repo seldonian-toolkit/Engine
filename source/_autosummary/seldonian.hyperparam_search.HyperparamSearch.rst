@@ -20,25 +20,45 @@ seldonian.hyperparam\_search.HyperparamSearch
    .. 
    ..    ~HyperparamSearch.__init__
    ..
-   ..    ~HyperparamSearch.bootstrap_sample_dataset
+   ..    ~HyperparamSearch.aggregate_est_prob_pass
    ..
-   ..    ~HyperparamSearch.candidate_selection
+   ..    ~HyperparamSearch.candidate_safety_combine
+   ..
+   ..    ~HyperparamSearch.candidate_safety_split
+   ..
+   ..    ~HyperparamSearch.cmaes_objective
+   ..
+   ..    ~HyperparamSearch.create_bootstrap_trial_spec
    ..
    ..    ~HyperparamSearch.create_dataset
    ..
-   ..    ~HyperparamSearch.est_prob_pass
+   ..    ~HyperparamSearch.create_hyperparam_bootstrap_savedir
    ..
-   ..    ~HyperparamSearch.find_best_hyperparams
+   ..    ~HyperparamSearch.find_best_frac_data_in_safety
    ..
-   ..    ~HyperparamSearch.get_initial_solution
+   ..    ~HyperparamSearch.find_best_hyperparameters
+   ..
+   ..    ~HyperparamSearch.generate_all_bootstrap_datasets
+   ..
+   ..    ~HyperparamSearch.get_all_greater_est_prob_pass
+   ..
+   ..    ~HyperparamSearch.get_bootstrap_dataset_size
+   ..
+   ..    ~HyperparamSearch.get_est_prob_pass
+   ..
+   ..    ~HyperparamSearch.get_gridsearchable_hyperparameter_iterator
    ..
    ..    ~HyperparamSearch.get_safety_size
    ..
-   ..    ~HyperparamSearch.run_core
+   ..    ~HyperparamSearch.powell_objective
    ..
-   ..    ~HyperparamSearch.run_safety_test
+   ..    ~HyperparamSearch.run_bootstrap_trial
    ..
-   ..    ~HyperparamSearch.safety_test
+   ..    ~HyperparamSearch.run_cmaes
+   ..
+   ..    ~HyperparamSearch.run_powell
+   ..
+   ..    ~HyperparamSearch.sigmoid
    ..
    
    

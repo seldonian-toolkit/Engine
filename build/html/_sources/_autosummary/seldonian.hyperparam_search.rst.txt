@@ -19,6 +19,7 @@ seldonian.hyperparam\_search
       :toctree:                                         
       :template: custom-class-template.rst              
    
+      HyperSchema
       HyperparamSearch
    
    

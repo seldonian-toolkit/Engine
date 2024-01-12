@@ -64,7 +64,7 @@ e.g., supervised_learning or reinforcement_learning</p>
 <dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv">
 <span class="sig-name descname"><span class="pre">load_RL_dataset_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create RLDataSet object from file
-containing the episodes as a CSV with format:
+containing the episodes saved in a CSV file with format:
 episode_index,obs,action,reward,probability_of_action.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -74,17 +74,22 @@ containing the data you want to load</p></li>
 <li><p><strong>metadata_filename</strong> (<em>str</em>) – Name of metadata file</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="seldonian.dataset.RLDataSet.html#seldonian.dataset.RLDataSet" title="seldonian.dataset.RLDataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">RLDataSet</span></code></a> object</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_file">
 <span class="sig-name descname"><span class="pre">load_RL_dataset_from_episode_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.DataSetLoader.load_RL_dataset_from_episode_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create RLDataSet object from file</p>
+<dd><p>Create RLDataSet object from pickle file containing list of episodes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The file
-containing the pickled lists of <a class="reference internal" href="seldonian.dataset.Episode.html#seldonian.dataset.Episode" title="seldonian.dataset.Episode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Episode</span></code></a> objects</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The pickle file containing list of <a class="reference internal" href="seldonian.dataset.Episode.html#seldonian.dataset.Episode" title="seldonian.dataset.Episode"><code class="xref py py-class docutils literal notranslate"><span class="pre">Episode</span></code></a> objects</p></li>
+<li><p><strong>metadata_filename</strong> (<em>str</em><em>, </em><em>defaults to None.</em>) – Optional metadata filepath.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -102,6 +107,9 @@ containing the features, labels and sensitive attributes</p></li>
 containing the metadata describing the data in filename</p></li>
 <li><p><strong>file_type</strong> (<em>str</em><em>, </em><em>defaults to 'csv'</em>) – the file extension of filename</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="seldonian.dataset.SupervisedDataSet.html#seldonian.dataset.SupervisedDataSet" title="seldonian.dataset.SupervisedDataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">SupervisedDataSet</span></code></a> object</p>
 </dd>
 </dl>
 </dd></dl>

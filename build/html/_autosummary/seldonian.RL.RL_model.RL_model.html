@@ -66,19 +66,19 @@ such as gamma, the discount factor</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.RL_model.RL_model.get_probs_from_observations_and_actions">
 <span class="sig-name descname"><span class="pre">get_probs_from_observations_and_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_probs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.RL_model.RL_model.get_probs_from_observations_and_actions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get action probablities given a list of observations and actions
-taken given those observations</p>
+<dd><p>Get action probablities under policy with new parameters.
+Just a wrapper to call policy method of same name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>new_params</strong> – Parameter weights to use</p></li>
+<li><p><strong>new_params</strong> – New policy parameter weights to set</p></li>
 <li><p><strong>observations</strong> – Array of observations</p></li>
 <li><p><strong>actions</strong> – Array of actions</p></li>
 <li><p><strong>action_probs</strong> – Array of action probabilities from the behavior policy</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of probabilities</p>
+<dd class="field-even"><p>Array of action probabilities under the new policy</p>
 </dd>
 </dl>
 </dd></dl>
@@ -126,9 +126,6 @@ taken given those observations</p>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.RL_runner.html">seldonian.RL.RL_runner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.RL.environments.html">seldonian.RL.environments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

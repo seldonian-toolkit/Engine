@@ -36,8 +36,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.models.objectives.WIS_estimate">
 <span class="sig-name descname"><span class="pre">WIS_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">episodes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.objectives.WIS_estimate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the weighted importance sampling estimate
-on all episodes. This is: sum(i=0 to n) { rho_i/rhosum} * G_i,
+<dd><p>Calculate the weighted importance sampling (WIS) estimate
+using all episodes. This is: sum(i=0 to n) { rho_i/rhosum} * G_i,
 where rhosum is sum(j=0 to n) {rho_j} and G_i is the discounted expected primary return.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -48,7 +48,7 @@ where rhosum is sum(j=0 to n) {rho_j} and G_i is the discounted expected primary
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The IS estimate calculated over all episodes</p>
+<dd class="field-even"><p>The WIS estimate</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>

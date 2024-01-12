@@ -41,6 +41,20 @@
 <dt class="sig sig-object py" id="seldonian.dataset.MetaData.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_regime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_col_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitive_col_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.dataset.MetaData.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for holding dataset metadata</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>regime</strong> (<em>str</em>) – The category of the machine learning algorithm,
+e.g., supervised_learning or reinforcement_learning</p></li>
+<li><p><strong>sub_regime</strong> (<em>str</em>) – The sub-category of the machine learning algorithm,
+e.g., “classification” or “regression” for supervised learning problems.</p></li>
+<li><p><strong>all_col_names</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – A list of all of the column names in the dataset, 
+including any sensitive attributes and labels.</p></li>
+<li><p><strong>sensitive_col_names</strong> (<em>list</em><em>(</em><em>str</em><em>)</em><em>, </em><em>defaults to None</em>) – A list the sensitive column names in the dataset, 
+if any.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

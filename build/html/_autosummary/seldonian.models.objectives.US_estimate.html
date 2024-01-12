@@ -38,7 +38,13 @@
 <span class="sig-name descname"><span class="pre">US_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">episodes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.objectives.US_estimate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the expected return of the PRIMARY reward
 for behavior episodes whose actions (cr,cf)
-fall within the theta bounding box.</p>
+fall within the theta bounding box. 
+This function is the objective used in this 
+example: <a class="reference external" href="https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/">https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/</a>
+It is hardcoded for that specific application
+and in its current form should not be used
+for other problems. See <a class="reference external" href="https://arxiv.org/abs/1611.03451">https://arxiv.org/abs/1611.03451</a>
+for the general form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -48,10 +54,10 @@ fall within the theta bounding box.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A vector of IS estimates calculated for each episode</p>
+<dd class="field-even"><p>The US estimate</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy ndarray(float)</p>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>

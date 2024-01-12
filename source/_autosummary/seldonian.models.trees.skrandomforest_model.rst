@@ -14,8 +14,6 @@ seldonian.models.trees.skrandomforest\_model
    .. autosummary::
       :toctree:                                         
    
-      probs2theta
-      sigmoid
       sklearn_predict_vjp
    
    

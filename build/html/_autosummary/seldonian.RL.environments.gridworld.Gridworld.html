@@ -40,8 +40,10 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Square gridworld RL environment of arbitrary size.
-Actions: 0,1,2,3 -&gt; up,right,down,left</p>
+<dd><p>Square 2D gridworld RL environment of arbitrary size.
+Actions: 0,1,2,3 -&gt; up,right,down,left. Hardcoded such that
+entering state 7 returns a reward=-1. Reward=1 when
+entering terminal state (bottom right), and Reward=0 elsewhere.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>size</strong> – The number of grid cells on a side</p>
@@ -50,7 +52,8 @@ Actions: 0,1,2,3 -&gt; up,right,down,left</p>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>num_states</strong> – The number of distinct grid cells</p></li>
 <li><p><strong>env_description</strong> (<a class="reference internal" href="seldonian.RL.Env_Description.Env_Description.Env_Description.html#seldonian.RL.Env_Description.Env_Description.Env_Description" title="seldonian.RL.Env_Description.Env_Description.Env_Description"><code class="xref py py-class docutils literal notranslate"><span class="pre">Env_Description</span></code></a>) – contains attributes describing the environment</p></li>
-<li><p><strong>obs</strong> (<em>int</em>) – The current obs</p></li>
+<li><p><strong>state</strong> – The location in the gridworld, ranging from 0 (top left)
+to size**2 (bottom right)</p></li>
 <li><p><strong>terminal_state</strong> (<em>bool</em>) – Whether the terminal obs is occupied</p></li>
 <li><p><strong>time</strong> (<em>int</em>) – The current timestep</p></li>
 <li><p><strong>max_time</strong> (<em>int</em>) – Maximum allowed timestep</p></li>
@@ -91,7 +94,7 @@ Actions: 0,1,2,3 -&gt; up,right,down,left</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.get_env_description">
 <span class="sig-name descname"><span class="pre">get_env_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.get_env_description" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get environment description
+<dd><p>Get environment description.
 Override this method in child class implementation</p>
 </dd></dl>
 
@@ -121,19 +124,19 @@ Override this method in child class implementation</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.start_visualizing">
 <span class="sig-name descname"><span class="pre">start_visualizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.start_visualizing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn on visualization debugger</p>
+<dd><p>Turn on visualization debugger.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.stop_visualizing">
 <span class="sig-name descname"><span class="pre">stop_visualizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.stop_visualizing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn off visualization debugger</p>
+<dd><p>Turn off visualization debugger.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="seldonian.RL.environments.gridworld.Gridworld.terminated">
 <span class="sig-name descname"><span class="pre">terminated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.RL.environments.gridworld.Gridworld.terminated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the terminal obs</p>
+<dd><p>Get the terminal observation</p>
 </dd></dl>
 
 <dl class="py method">
@@ -227,9 +230,6 @@ current position given an action</p>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.RL.environments.n_step_mountaincar.html">seldonian.RL.environments.n_step_mountaincar</a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_gridworld_episodes.html">seldonian.RL.generate_gridworld_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.generate_mountaincar_episodes.html">seldonian.RL.generate_mountaincar_episodes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="seldonian.RL.hyperparams_and_settings.html">seldonian.RL.hyperparams_and_settings</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="seldonian.candidate_selection.html">seldonian.candidate_selection</a></li>

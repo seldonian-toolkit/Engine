@@ -33,12 +33,21 @@
             
   <section id="module-seldonian.parse_tree.zhat_funcs">
 <span id="seldonian-parse-tree-zhat-funcs"></span><h1>seldonian.parse_tree.zhat_funcs<a class="headerlink" href="#module-seldonian.parse_tree.zhat_funcs" title="Permalink to this heading">¶</a></h1>
-<p>Objective functions</p>
+<p>Module containing the measure functions (zhats)
+for computing unbiased estimates of base variables</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="seldonian.parse_tree.zhat_funcs.measure_function_vector_mapper">
+<span class="sig-name descname"><span class="pre">measure_function_vector_mapper</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#seldonian.parse_tree.zhat_funcs.measure_function_vector_mapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps the measure function name that 
+appears in behavioral constraint strings
+to the zhat function for that measure function.</p>
+</dd></dl>
+
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.batcher.html#seldonian.parse_tree.zhat_funcs.batcher" title="seldonian.parse_tree.zhat_funcs.batcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">batcher</span></code></a>(func, N, batch_size, num_batches)</p></td>
-<td><p>Calls function func num_batches times, batching up the inputs.</p></td>
+<td><p>Calls func num_batches times, batching up the inputs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.evaluate_statistic.html#seldonian.parse_tree.zhat_funcs.evaluate_statistic" title="seldonian.parse_tree.zhat_funcs.evaluate_statistic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_statistic</span></code></a>(model, statistic_name, ...)</p></td>
 <td><p>Evaluate the mean of a statistical function over the whole sample provided.</p></td>
@@ -128,6 +137,7 @@
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.operators.html">seldonian.parse_tree.operators</a></li>
 <li class="toctree-l4"><a class="reference internal" href="seldonian.parse_tree.parse_tree.html">seldonian.parse_tree.parse_tree</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">seldonian.parse_tree.zhat_funcs</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#seldonian.parse_tree.zhat_funcs.measure_function_vector_mapper"><code class="docutils literal notranslate"><span class="pre">measure_function_vector_mapper</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.batcher.html">seldonian.parse_tree.zhat_funcs.batcher</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.evaluate_statistic.html">seldonian.parse_tree.zhat_funcs.evaluate_statistic</a></li>
 <li class="toctree-l5"><a class="reference internal" href="seldonian.parse_tree.zhat_funcs.sample_from_statistic.html">seldonian.parse_tree.zhat_funcs.sample_from_statistic</a></li>

@@ -36,16 +36,18 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="seldonian.optimizers.gradient_descent.gradient_descent_adam">
 <span class="sig-name descname"><span class="pre">gradient_descent_adam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primary_objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_constraints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_bounds_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_calculator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_lamb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_rmsprop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'autograd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.optimizers.gradient_descent.gradient_descent_adam" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements simultaneous gradient descent/ascent using
+<dd><p>Implements KKT optimization, i.e. simultaneous gradient descent/ascent using
 the Adam optimizer on a Lagrangian:
 L(theta,lambda) = f(theta) + lambda*g(theta),
 where f is the primary objective, lambda is a vector of
 Lagrange multipliers, and g is a vector of the
-upper bound functions. Gradient descent is done for theta
-and gradient ascent is done for lambda to find the saddle
-points of L. Being part of candidate selection,
-it is important that this function always returns a solution.
-The safety test determines if No Solution Found.</p>
+upper bound functions. Gradient descent is done on theta
+and gradient ascent is done on lambda to find the saddle
+points of L. We only are interested in the optimal theta.
+Being part of candidate selection,
+If a nan or inf occurs during the optimization, NSF is returned. 
+The optimal solution is defined as the feasible solution (i.e.
+all constraints satisfied), that has the smallest primary objective value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -57,6 +59,11 @@ i.e., the loss function</p></li>
 the upper bounds on the constraints</p></li>
 <li><p><strong>theta_init</strong> (<em>float</em>) – Initial model weights</p></li>
 <li><p><strong>lambda_init</strong> – Initial values for Lagrange multiplier terms</p></li>
+<li><p><strong>batch_calculator</strong> – A function/class method that sets the current batch
+and returns whether the batch is viable for generating 
+a candidate solution</p></li>
+<li><p><strong>batches</strong> (<em>int</em>) – The number of batches per epoch</p></li>
+<li><p><strong>n_epochs</strong> (<em>int</em>) – The number of epochs to run</p></li>
 <li><p><strong>alpha_theta</strong> (<em>float</em>) – Initial learning rate for theta</p></li>
 <li><p><strong>alpha_lamb</strong> (<em>float</em>) – Initial learning rate for lambda</p></li>
 <li><p><strong>beta_velocity</strong> (<em>float</em>) – Exponential decay rate for velocity term</p></li>
@@ -64,13 +71,15 @@ the upper bounds on the constraints</p></li>
 <li><p><strong>num_iters</strong> (<em>int</em>) – The number of iterations of gradient descent to run</p></li>
 <li><p><strong>gradient_library</strong> (<em>str</em><em>, </em><em>defaults to &quot;autograd&quot;</em>) – The name of the library to use for computing
 automatic gradients.</p></li>
+<li><p><strong>clip_theta</strong> (<em>tuple</em><em>, </em><em>list</em><em> or </em><em>numpy.ndarray</em><em>, </em><em>defaults to None</em>) – Optional, the min and max values 
+between which to clip all values in the theta vector</p></li>
 <li><p><strong>verbose</strong> – Boolean flag to control verbosity</p></li>
 <li><p><strong>debug</strong> – Boolean flag to print out info useful for debugging</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>solution, a dictionary containing the solution and metadata
-about the gradient descent run</p>
+<dd class="field-even"><p>solution, a dictionary containing the candidate solution and values of 
+the parameters of the KKT optimization at each step.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>

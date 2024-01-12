@@ -37,7 +37,8 @@
 <dt class="sig sig-object py" id="seldonian.models.objectives.gradient_binary_logistic_loss">
 <span class="sig-name descname"><span class="pre">gradient_binary_logistic_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seldonian.models.objectives.gradient_binary_logistic_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gradient of binary logistic loss w.r.t. theta.
-This is only valid for binary logistic regression models!
+WARNING: This is only valid for binary logistic regression models!
+DO NOT USE FOR NEURAL NETWORKS.
 Also, the number of parameters must be the same as the number of model weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
