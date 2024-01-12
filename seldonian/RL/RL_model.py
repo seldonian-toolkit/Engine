@@ -8,14 +8,13 @@ class RL_model(SeldonianModel):  # consist of agent, env
 
         :param policy: A policy parameterization
         :type policy: :py:class:`.Policy`
-
         :param env_kwargs: Kwargs pertaining to environment
                 such as gamma, the discount factor
         :type env_kwargs: dict
         """
-
         self.policy = policy
         self.env_kwargs = env_kwargs
+
         if "gamma" not in self.env_kwargs:
             self.env_kwargs["gamma"] = 1.0
 
@@ -26,15 +25,15 @@ class RL_model(SeldonianModel):  # consist of agent, env
         actions,
         action_probs,
     ):
-        """Get action probablities given a list of observations and actions
-        taken given those observations
+        """Get action probablities under policy with new parameters.
+        Just a wrapper to call policy method of same name.
 
-        :param new_params: Parameter weights to use
+        :param new_params: New policy parameter weights to set
         :param observations: Array of observations
         :param actions: Array of actions
         :param action_probs: Array of action probabilities from the behavior policy
 
-        :return: Array of probabilities
+        :return: Array of action probabilities under the new policy
         """
         self.policy.set_new_params(new_params)
         num_probs = len(observations)

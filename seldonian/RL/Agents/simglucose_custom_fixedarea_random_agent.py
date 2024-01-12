@@ -11,13 +11,18 @@ class SimglucoseFixedAreaAgent(Agent):
         self, bb_crmin, bb_crmax, bb_cfmin, bb_cfmax, cr_shrink_factor, cf_shrink_factor
     ):
         """
+        An agent used for the simglucose problem studied in this example: https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/
 
-        :param hyperparameter_and_setting_dict: Specifies the
-            environment, agent, number of episodes per trial,
-            and number of trials
-        :param env_description: an object for accessing attributes
-            of the environment
-        :type env_description: :py:class:`.Env_Description`
+        :param bb_crmin: The bounding box minimum value in CR space.
+        :type bb_crmin: float
+        :param bb_crmax: The bounding box maximum value in CR space.
+        :type bb_crmax: float
+        :param bb_cfmin: The bounding box minimum value in CF space.
+        :type bb_cfmin: float
+        :param bb_cfmax: The bounding box maximum value in CF space.
+        :type bb_cfmax: float
+        :param cr_shrink_factor: How much to shrink the CR size by
+        :param cf_shrink_factor: How much to shrink the CF size by
         """
         self.policy = SigmoidPolicyFixedArea(
             bb_crmin, bb_crmax, bb_cfmin, bb_cfmax, cr_shrink_factor, cf_shrink_factor

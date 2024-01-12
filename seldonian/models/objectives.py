@@ -10,8 +10,9 @@ from seldonian.utils.stats_utils import (
 )
 from seldonian.models.models import BaseLogisticRegressionModel
 
-""" Regression """
+""" Supervised learning objectives """
 
+####### Regression ########
 
 def Mean_Squared_Error(model, theta, X, Y, **kwargs):
     """
@@ -33,7 +34,6 @@ def Mean_Squared_Error(model, theta, X, Y, **kwargs):
     res = sum(pow(prediction - Y, 2)) / n
 
     return res
-
 
 def gradient_Mean_Squared_Error(model, theta, X, Y, **kwargs):
     """Gradient of the mean squared error w.r.t. theta
@@ -61,7 +61,6 @@ def gradient_Mean_Squared_Error(model, theta, X, Y, **kwargs):
     X_withintercept = np.hstack([np.ones((n, 1)), np.array(X)])
     return 2 / n * np.dot(err, X_withintercept)
 
-
 def Mean_Error(model, theta, X, Y, **kwargs):
     """
     Calculate mean error (y_hat-y) over the whole sample
@@ -81,7 +80,6 @@ def Mean_Error(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)  # vector of values
     res = sum(prediction - Y) / n
     return res
-
 
 def gradient_Bounded_Squared_Error(model, theta, X, Y, **kwargs):
     """Analytical gradient of the bounded squared error (BSE)
@@ -118,12 +116,10 @@ def gradient_Bounded_Squared_Error(model, theta, X, Y, **kwargs):
     s = sum(term1 * term2)
     return -2 / n * s
 
-
-""" Classification """
-
+####### Classification ########
 
 def binary_logistic_loss(model, theta, X, Y, **kwargs):
-    """Calculate average logistic loss
+    """Calculate mean logistic loss
     over all data points for binary classification
 
     :param model: SeldonianModel instance
@@ -150,10 +146,10 @@ def binary_logistic_loss(model, theta, X, Y, **kwargs):
     )
     return res
 
-
 def gradient_binary_logistic_loss(model, theta, X, Y, **kwargs):
     """Gradient of binary logistic loss w.r.t. theta.
-    This is only valid for binary logistic regression models!
+    WARNING: This is only valid for binary logistic regression models!
+    DO NOT USE FOR NEURAL NETWORKS.
     Also, the number of parameters must be the same as the number of model weights.
 
     :param model: SeldonianModel instance
@@ -174,7 +170,6 @@ def gradient_binary_logistic_loss(model, theta, X, Y, **kwargs):
     res = (1 / len(X)) * np.dot(X_withintercept.T, (h - Y))
     return res
 
-
 def multiclass_logistic_loss(model, theta, X, Y, **kwargs):
     """Calculate mean logistic loss
     over all data points for multi-class classification
@@ -187,7 +182,7 @@ def multiclass_logistic_loss(model, theta, X, Y, **kwargs):
     :param Y: The labels
     :type Y: numpy ndarray
 
-    :return: logistic loss
+    :return: mean logistic loss
     :rtype: float
     """
     # In the multi-class setting, y_pred is an i x k matrix
@@ -200,7 +195,6 @@ def multiclass_logistic_loss(model, theta, X, Y, **kwargs):
     N = len(Y)
     probs_trueclasses = Y_pred[np.arange(N), Y.astype("int")]
     return -1 / N * sum(np.log(probs_trueclasses))
-
 
 def Positive_Rate(model, theta, X, Y, **kwargs):
     """
@@ -226,7 +220,6 @@ def Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _Positive_Rate_binary(model, theta, X, Y)
 
-
 def _Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean positive rate
@@ -246,7 +239,6 @@ def _Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     prediction = model.predict(theta, X)
     return np.sum(prediction) / len(X)  # if all 1s then PR=1.
-
 
 def _Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -269,7 +261,6 @@ def _Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     prediction = model.predict(theta, X)
     return np.sum(prediction[:, class_index]) / len(X)  # if all 1s then PR=1.
-
 
 def Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -296,7 +287,6 @@ def Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _Negative_Rate_binary(model, theta, X, Y)
 
-
 def _Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean negative rate
@@ -316,7 +306,6 @@ def _Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     prediction = model.predict(theta, X)
     return np.sum(1.0 - prediction) / len(X)  # if all 1s then PR=1.
-
 
 def _Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -340,7 +329,6 @@ def _Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     prediction = model.predict(theta, X)
     return np.sum(1.0 - prediction[:, class_index]) / len(X)
 
-
 def False_Positive_Rate(model, theta, X, Y, **kwargs):
     """
     Calculate probabilistic mean false positive rate
@@ -355,7 +343,7 @@ def False_Positive_Rate(model, theta, X, Y, **kwargs):
     :param Y: The labels
     :type Y: numpy ndarray
 
-    :return: Average false positive rate
+    :return: mean false positive rate
     :rtype: float between 0 and 1
     """
     if "class_index" in kwargs:
@@ -364,7 +352,6 @@ def False_Positive_Rate(model, theta, X, Y, **kwargs):
         )
     else:
         return _False_Positive_Rate_binary(model, theta, X, Y)
-
 
 def _False_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
@@ -381,14 +368,13 @@ def _False_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     :param Y: The labels
     :type Y: numpy ndarray
 
-    :return: Average false positive rate
+    :return: mean false positive rate
     :rtype: float between 0 and 1
     """
 
     prediction = model.predict(theta, X)
     neg_mask = Y != 1.0
     return np.sum(prediction[neg_mask]) / len(X[neg_mask])
-
 
 def _False_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -406,7 +392,7 @@ def _False_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     :param class_index: The index of the class label
     :type class_index: int, 0-indexed
 
-    :return: Average false positive rate
+    :return: mean false positive rate
     :rtype: float between 0 and 1
     """
 
@@ -414,7 +400,6 @@ def _False_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
 
     neg_mask = Y != class_index
     return np.sum(prediction[:, class_index][neg_mask]) / len(X[neg_mask])
-
 
 def False_Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -440,7 +425,6 @@ def False_Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _False_Negative_Rate_binary(model, theta, X, Y)
 
-
 def _False_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate probabilistic mean false negative rate
@@ -462,7 +446,6 @@ def _False_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == 1.0
     return np.sum(1.0 - prediction[pos_mask]) / len(X[pos_mask])
-
 
 def _False_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -488,7 +471,6 @@ def _False_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     pos_mask = Y == class_index
     return np.sum(1.0 - prediction[:, class_index][pos_mask]) / len(X[pos_mask])
 
-
 def True_Positive_Rate(model, theta, X, Y, **kwargs):
     """
     Calculate mean true positive rate
@@ -513,7 +495,6 @@ def True_Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _True_Positive_Rate_binary(model, theta, X, Y)
 
-
 def _True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean true positive rate
@@ -535,7 +516,6 @@ def _True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == 1.0
     return np.sum(prediction[pos_mask]) / len(X[pos_mask])
-
 
 def _True_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -559,7 +539,6 @@ def _True_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == class_index
     return np.sum(prediction[:, class_index][pos_mask]) / len(X[pos_mask])
-
 
 def True_Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -585,7 +564,6 @@ def True_Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _True_Negative_Rate_binary(model, theta, X, Y)
 
-
 def _True_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean true negative rate
@@ -606,7 +584,6 @@ def _True_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     neg_mask = Y != 1.0
     return np.sum(1.0 - prediction[neg_mask]) / len(X[neg_mask])
-
 
 def _True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -631,10 +608,9 @@ def _True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     neg_mask = Y != class_index
     return np.sum(1.0 - prediction[:, class_index][neg_mask]) / len(X[neg_mask])
 
-
 def Error_Rate(model, theta, X, Y, **kwargs):
     """
-    Calculate error rate for the whole sample
+    Calculate mean error rate over the whole sample.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
@@ -642,7 +618,7 @@ def Error_Rate(model, theta, X, Y, **kwargs):
     :param X: The features
     :type X: numpy ndarray
 
-    :return: False positive rate for whole sample
+    :return: Mean error rate 
     :rtype: float between 0 and 1
     """
     if kwargs["sub_regime"] == "multiclass_classification":
@@ -650,9 +626,8 @@ def Error_Rate(model, theta, X, Y, **kwargs):
     else:
         return _Error_Rate_binary(model, theta, X, Y, **kwargs)
 
-
 def _Error_Rate_binary(model, theta, X, Y, **kwargs):
-    """Calculate error rate
+    """Calculate mean error rate
     over all data points for binary classification
 
     :param model: SeldonianModel instance
@@ -663,14 +638,13 @@ def _Error_Rate_binary(model, theta, X, Y, **kwargs):
     :param Y: The labels
     :type Y: numpy ndarray
 
-    :return: error rate between 0 and 1.
+    :return: mean error rate between 0 and 1.
     :rtype: float
     """
     n = len(X)
     Y_pred_probs = model.predict(theta, X)
     res = np.sum(Y * (1 - Y_pred_probs) + (1 - Y) * Y_pred_probs) / n
     return res
-
 
 def _Error_Rate_multiclass(model, theta, X, Y, **kwargs):
     """Calculate mean error rate
@@ -691,7 +665,6 @@ def _Error_Rate_multiclass(model, theta, X, Y, **kwargs):
     Y_pred_probs = model.predict(theta, X)
     res = np.sum(1.0 - Y_pred_probs[np.arange(n), Y]) / n
     return res
-
 
 def confusion_matrix(model, theta, X, Y, l_i, l_k, **kwargs):
     """Get the mean probability of predicting class label l_k
@@ -725,19 +698,17 @@ def confusion_matrix(model, theta, X, Y, l_i, l_k, **kwargs):
     res = sum(Y_pred[:, l_k][true_mask]) / N_mask
     return res
 
-
-""" RL """
-
+""" Reinforcement learning objectives """
 
 def IS_estimate(model, theta, episodes, **kwargs):
     """Calculate the vanilla importance sampling estimate
-    on all episodes.
+    using all episodes.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
     :type theta: numpy ndarray
     :param episodes: List of episodes
-    :return: The IS estimate calculated over all episodes
+    :return: The IS estimate 
     :rtype: float
     """
 
@@ -762,16 +733,15 @@ def IS_estimate(model, theta, episodes, **kwargs):
 
     return IS_est
 
-
-def PDIS_estimate(model, theta, episodes, **kwargs) -> float:
-    """Calculate per decision importance sampling estimate
-    on all episodes.
+def PDIS_estimate(model, theta, episodes, **kwargs):
+    """Calculate per-decision importance sampling (PDIS) estimate
+    using all episodes.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
     :type theta: numpy ndarray
     :param episodes: List of episodes
-    :return: The PDIS estimate calculated over all episodes
+    :return: The PDIS estimate 
     :rtype: float
     """
 
@@ -793,17 +763,16 @@ def PDIS_estimate(model, theta, episodes, **kwargs) -> float:
 
     return PDIS_est
 
-
 def WIS_estimate(model, theta, episodes, **kwargs):
-    """Calculate the weighted importance sampling estimate
-    on all episodes. This is: sum(i=0 to n) { rho_i/rhosum} * G_i,
+    """Calculate the weighted importance sampling (WIS) estimate
+    using all episodes. This is: sum(i=0 to n) { rho_i/rhosum} * G_i,
     where rhosum is sum(j=0 to n) {rho_j} and G_i is the discounted expected primary return.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
     :type theta: numpy ndarray
     :param episodes: List of episodes
-    :return: The IS estimate calculated over all episodes
+    :return: The WIS estimate 
     :rtype: float
     """
 
@@ -829,18 +798,23 @@ def WIS_estimate(model, theta, episodes, **kwargs):
     WIS_est = np.sum(rho_array * weighted_returns) / np.sum(rho_array)
     return WIS_est
 
-
 def US_estimate(model, theta, episodes, **kwargs):
     """Get the expected return of the PRIMARY reward
     for behavior episodes whose actions (cr,cf)
-    fall within the theta bounding box.
+    fall within the theta bounding box. 
+    This function is the objective used in this 
+    example: https://seldonian.cs.umass.edu/Tutorials/examples/diabetes/
+    It is hardcoded for that specific application
+    and in its current form should not be used
+    for other problems. See https://arxiv.org/abs/1611.03451
+    for the general form.
 
     :param model: SeldonianModel instance
     :param theta: The parameter weights
     :type theta: numpy ndarray
     :param episodes: List of episodes
-    :return: A vector of IS estimates calculated for each episode
-    :rtype: numpy ndarray(float)
+    :return: The US estimate
+    :rtype: float
     """
 
     crmin, crmax, cfmin, cfmax = model.policy.theta2crcf(theta)

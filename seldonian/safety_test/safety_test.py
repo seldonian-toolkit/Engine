@@ -6,12 +6,12 @@ import copy
 
 class SafetyTest(object):
     def __init__(
-        self, 
-        safety_dataset, 
-        model, 
-        parse_trees, 
-        regime="supervised_learning", 
-        additional_datasets = {},
+        self,
+        safety_dataset,
+        model,
+        parse_trees,
+        regime="supervised_learning",
+        additional_datasets={},
         **kwargs
     ):
         """
@@ -30,6 +30,10 @@ class SafetyTest(object):
         :param regime: The category of the machine learning algorithm,
                 e.g., supervised_learning or reinforcement_learning
         :type regime: str
+
+        :param additional_datasets: Specifies optional additional datasets to use
+            for bounding the base nodes of the parse trees.
+        :type additional_datasets: dict, defaults to {}
         """
         self.safety_dataset = safety_dataset
         self.model = model
@@ -45,16 +49,15 @@ class SafetyTest(object):
         the upper bounds of all parse tree root nodes are less than or equal to 0.
 
         :param solution:
-                The solution found by candidate selection
+                The candidate solution found by candidate selection
         :type solution: numpy ndarray
 
         :param batch_size_safety: The number of datapoints
-                to pass through the measure functions at a time
+                to pass through the model in a single forward pass
         :type batch_size_safety: int
 
         :return: passed, whether the candidate solution passed the safety test
         :rtype: bool
-
         """
         passed = True
 
@@ -64,7 +67,10 @@ class SafetyTest(object):
 
             cstr = pt.constraint_str
             if cstr in self.additional_datasets:
-                dataset_dict = {bn:self.additional_datasets[cstr][bn]["safety_dataset"] for bn in self.additional_datasets[cstr]}
+                dataset_dict = {
+                    bn: self.additional_datasets[cstr][bn]["safety_dataset"]
+                    for bn in self.additional_datasets[cstr]
+                }
             else:
                 dataset_dict = {"all": self.safety_dataset}
 
@@ -91,8 +97,8 @@ class SafetyTest(object):
         return passed
 
     def evaluate_primary_objective(self, theta, primary_objective):
-        """Get value of the primary objective given model weights,
-        theta, on the safety dataset. Wrapper for primary_objective where
+        """Get value of the primary objective given model weights
+        theta, and the safety data, D_s. This is a wrapper for primary_objective where
         data is fixed.
 
         :param theta: model weights
@@ -101,7 +107,8 @@ class SafetyTest(object):
         :param primary_objective: The primary objective function
                 you want to evaluate
 
-        :return: The primary objective function evaluated at theta
+        :return: The primary objective function evaluated at theta, D_s
+        :rtype: float
         """
         # Get value of the primary objective given model weights
         if self.regime == "supervised_learning":
@@ -131,7 +138,7 @@ class SafetyTest(object):
                 reg_term = 0
             result += reg_term
             return result
-        
+
         elif self.regime == "custom":
             result = primary_objective(
                 self.model,
@@ -141,14 +148,14 @@ class SafetyTest(object):
             return result
 
     def get_importance_weights(self, theta):
-        """Get an array of importance weights evaluated on the candidate dataset
-        given model weights, theta.
+        """Get an array of importance weights given model weights, theta,
+        and the safety data, D_s. Only relevant for RL.
 
         :param theta: model weights
         :type theta: numpy.ndarray
 
-        :return: Array of upper bounds on the constraint
-        :rtype: array
+        :return: The importance weights 
+        :rtype: numpy.ndarray
         """
         assert self.regime == "reinforcement_learning"
         rho_is = []

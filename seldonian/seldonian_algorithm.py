@@ -14,24 +14,30 @@ from seldonian.models import objectives
 
 class SeldonianAlgorithm:
     def __init__(self, spec):
-        """Object for running the Seldonian algorithm and getting
-        introspection into candidate selection and safety test
+        """Object for running the Seldonian algorithm and for getting
+        introspection into candidate selection and safety test.
 
         :param spec: The specification object with the complete
-                set of parameters for running the Seldonian algorithm
+            set of parameters for running the Seldonian algorithm
         :type spec: :py:class:`.Spec` object
         """
         self.spec = spec
+        # Initialize variables keeping track of whether 
+        # candidate selection (cs)
+        # and the safety test (st) have been run.
         self.cs_has_been_run = False
-        self.cs_result = None
         self.st_has_been_run = False
+        # Variables that will hold the results from running cs and st
+        # once they have been run
+        self.cs_result = None
         self.st_result = None
 
         self.parse_trees = self.spec.parse_trees
-        # user can pass a dictionary that specifies
-        # the bounding method for each base node
-        # any base nodes not in this dictionary will
-        # be bounded using the default method
+        """ The base_node_bound_dict specifies
+        the bounding method for each base node.
+        Any base nodes not in this dictionary will
+        be bounded using the default method
+        """
         self.base_node_bound_method_dict = self.spec.base_node_bound_method_dict
         if self.base_node_bound_method_dict != {}:
             all_pt_constraint_strs = [pt.constraint_str for pt in self.parse_trees]
@@ -48,7 +54,6 @@ class SeldonianAlgorithm:
                         "bound_method"
                     ] = this_bound_method_dict[node_name]
 
-
         # Deal with possibility of manually provided candidate and safety datasets
         # First primary objective dataset
         split_primary_dataset = True
@@ -61,6 +66,19 @@ class SeldonianAlgorithm:
             self.dataset = self.spec.dataset
             self.regime = self.dataset.regime
 
+        # Set the default primary objective if none is provided
+        if self.spec.primary_objective is None:
+            if self.regime == "reinforcement_learning":
+                self.spec.primary_objective = objectives.IS_estimate
+            elif self.regime == "supervised_learning":
+                if self.spec.sub_regime in ["classification", "binary_classification"]:
+                    self.spec.primary_objective = objectives.binary_logistic_loss
+                elif self.spec.sub_regime == "multiclass_classification":
+                    self.spec.primary_objective = objectives.multiclass_logistic_loss
+                elif self.spec.sub_regime == "regression":
+                    self.spec.primary_objective = objectives.Mean_Squared_Error
+
+        # Create or load candidate selection and safety data splits.
         if self.regime == "supervised_learning":
             self.sub_regime = self.spec.sub_regime
             self.model = self.spec.model
@@ -83,6 +101,7 @@ class SeldonianAlgorithm:
                     sensitive_attrs=self.candidate_sensitive_attrs,
                     num_datapoints=self.n_candidate,
                     meta=self.dataset.meta,
+
                 )
 
                 self.safety_dataset = SupervisedDataSet(
@@ -103,9 +122,12 @@ class SeldonianAlgorithm:
             # Split any additional datasets that need it
             for pt_constraint_str in self.spec.additional_datasets:
                 for base_node in self.spec.additional_datasets[pt_constraint_str]:
-
-                    this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
-                    if "candidate_dataset" not in this_dict: # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
+                    this_dict = self.spec.additional_datasets[pt_constraint_str][
+                        base_node
+                    ]
+                    if (
+                        "candidate_dataset" not in this_dict
+                    ):  # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
                         addl_dataset = this_dict["dataset"]
                         this_batch_size = this_dict.get("batch_size")
                         (
@@ -122,7 +144,7 @@ class SeldonianAlgorithm:
                             addl_dataset,
                             this_batch_size,
                             pt_constraint_str,
-                            base_node
+                            base_node,
                         )
 
                         addl_candidate_dataset = SupervisedDataSet(
@@ -146,10 +168,9 @@ class SeldonianAlgorithm:
                             warning_msg = (
                                 "Warning: not enough data to "
                                 "run the Seldonian algorithm for additional_dataset:."
-                               f"additional_datasets['{pt_constraint_str}']['{base_node}']."
+                                f"additional_datasets['{pt_constraint_str}']['{base_node}']."
                             )
                             warnings.warn(warning_msg)
-
 
         elif self.regime == "reinforcement_learning":
             self.model = self.spec.model
@@ -185,8 +206,12 @@ class SeldonianAlgorithm:
             # Split any additional datasets that need it
             for pt_constraint_str in self.spec.additional_datasets:
                 for base_node in self.spec.additional_datasets[pt_constraint_str]:
-                    this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
-                    if "candidate_dataset" not in this_dict: # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
+                    this_dict = self.spec.additional_datasets[pt_constraint_str][
+                        base_node
+                    ]
+                    if (
+                        "candidate_dataset" not in this_dict
+                    ):  # there is already a check that safety_dataset must also be present if candidate_dataset present (and vice versa)
                         addl_dataset = this_dict["dataset"]
                         this_batch_size = this_dict.get("batch_size")
                         (
@@ -201,7 +226,7 @@ class SeldonianAlgorithm:
                             addl_dataset,
                             this_batch_size,
                             pt_constraint_str,
-                            base_node
+                            base_node,
                         )
 
                         addl_candidate_dataset = RLDataSet(
@@ -221,7 +246,7 @@ class SeldonianAlgorithm:
                             warning_msg = (
                                 "Warning: not enough data to "
                                 "run the Seldonian algorithm for additional_dataset:."
-                               f"additional_datasets['{pt_constraint_str}']['{base_node}']."
+                                f"additional_datasets['{pt_constraint_str}']['{base_node}']."
                             )
                             warnings.warn(warning_msg)
 
@@ -255,17 +280,19 @@ class SeldonianAlgorithm:
             else:
                 self.n_candidate = self.candidate_dataset.num_datapoints
                 self.n_safety = self.safety_dataset.num_datapoints
-            
+
             if self.spec.verbose:
                 print(f"Safety dataset has {self.n_safety} datapoints")
                 print(f"Candidate dataset has {self.n_candidate} datapoints")
-            
+
             # Split any additional datasets that need it
             for pt_constraint_str in self.spec.additional_datasets:
                 for base_node in self.spec.additional_datasets[pt_constraint_str]:
-                    this_dict = self.spec.additional_datasets[pt_constraint_str][base_node]
+                    this_dict = self.spec.additional_datasets[pt_constraint_str][
+                        base_node
+                    ]
 
-                    if "candidate_dataset" not in this_dict: 
+                    if "candidate_dataset" not in this_dict:
                         this_batch_size = this_dict.get("batch_size")
                         addl_dataset = this_dict["dataset"]
                         (
@@ -280,7 +307,7 @@ class SeldonianAlgorithm:
                             addl_dataset,
                             this_batch_size,
                             pt_constraint_str,
-                            base_node
+                            base_node,
                         )
 
                         addl_candidate_dataset = CustomDataSet(
@@ -302,15 +329,12 @@ class SeldonianAlgorithm:
                             warning_msg = (
                                 "Warning: not enough data to "
                                 "run the Seldonian algorithm for additional_dataset:."
-                               f"additional_datasets['{pt_constraint_str}']['{base_node}']."
+                                f"additional_datasets['{pt_constraint_str}']['{base_node}']."
                             )
                             warnings.warn(warning_msg)
 
-
         if self.n_candidate < 2 or self.n_safety < 2:
-            warning_msg = (
-                "Warning: not enough data to " "run the Seldonian algorithm."
-            )
+            warning_msg = "Warning: not enough data to " "run the Seldonian algorithm."
             warnings.warn(warning_msg)
 
         if self.spec.primary_objective is None:
@@ -329,34 +353,30 @@ class SeldonianAlgorithm:
                 )
 
     def candidate_safety_split_addl_datasets(
-        self, 
-        frac_data_in_safety, 
-        addl_dataset, 
-        batch_size, 
-        constraint_str, 
-        base_node
+        self, frac_data_in_safety, addl_dataset, batch_size, constraint_str, base_node
     ):
-        """Split dataset into candidate and safety sets. Regime-agnostic.
+        """Split addl dataset into candidate and safety sets. Regime-agnostic.
 
         :param frac_data_in_safety: Fraction of data used in safety test.
-                The remaining fraction will be used in candidate selection
+            The remaining fraction will be used in candidate selection.
         :param addl_dataset: The dataset to split
         :param batch_size: The batch size provided by the user (may be None)
-        :param constraint_str: The constraint string for the parse tree for which 
+        :param constraint_str: The constraint string for the parse tree for which
             this additional dataset is to be used.
-        :param base_node: The base node within the constraint string for which 
+        :param base_node: The base node within the constraint string for which
             this additional dataset is to be used.
-        :return: For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
+        
+        :return: 
+            supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
                 where F=features, L=labels, S=sensitive attributes
-                For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
+            reinforcement_learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
                 where E=episodes, S=sensitive attributes
-                For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
+            custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
                 where D=data, S=sensitive attributes
         """
         n_points_tot = addl_dataset.num_datapoints
         n_candidate = int(round(n_points_tot * (1.0 - frac_data_in_safety)))
         if batch_size != None and batch_size > n_candidate:
-
             raise RuntimeError(
                 f"additional_datasets['{constraint_str}']['{base_node}']['batch_size'] = {batch_size}, "
                 f"which is larger than the number of data points in the candidate dataset: {n_candidate} "
@@ -392,14 +412,14 @@ class SeldonianAlgorithm:
             return E_c, E_s, S_c, S_s, n_candidate, n_safety
 
         elif self.regime == "custom":
-            # Split data    
+            # Split data
             D_c = addl_dataset.data[:n_candidate]
             D_s = addl_dataset.data[n_candidate:]
 
-            # Split sensitive attributes 
+            # Split sensitive attributes
             S_c = addl_dataset.sensitive_attrs[:n_candidate]
             S_s = addl_dataset.sensitive_attrs[n_candidate:]
-            return D_c ,D_s, S_c, S_s, n_candidate, n_safety
+            return D_c, D_s, S_c, S_s, n_candidate, n_safety
         else:
             raise NotImplementedError(f"{self.regime} is not a supported regime")
 
@@ -407,13 +427,14 @@ class SeldonianAlgorithm:
         """Split dataset into candidate and safety sets. Regime-agnostic.
 
         :param frac_data_in_safety: Fraction of data used in safety test.
-                The remaining fraction will be used in candidate selection
+            The remaining fraction will be used in candidate selection
 
-         :return: For supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
+        :return: 
+            supervised_learning: F_c,F_s,L_c,L_s,S_c,S_s, n_candidate, n_safety
                 where F=features, L=labels, S=sensitive attributes
-                For reinforcement learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
+            reinforcement_learning: E_c, E_s, S_c, S_s, n_candidate, n_safety
                 where E=episodes, S=sensitive attributes
-                For custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
+            custom regime: D_c,D_s,S_c,S_s, n_candidate, n_safety
                 where D=data, S=sensitive attributes
         """
         n_points_tot = self.dataset.num_datapoints
@@ -448,14 +469,14 @@ class SeldonianAlgorithm:
             return E_c, E_s, S_c, S_s, n_candidate, n_safety
 
         elif self.regime == "custom":
-            # Split data    
+            # Split data
             D_c = self.dataset.data[:n_candidate]
             D_s = self.dataset.data[n_candidate:]
 
-            # Split sensitive attributes 
+            # Split sensitive attributes
             S_c = self.dataset.sensitive_attrs[:n_candidate]
             S_s = self.dataset.sensitive_attrs[n_candidate:]
-            return D_c,D_s, S_c, S_s, n_candidate, n_safety
+            return D_c, D_s, S_c, S_s, n_candidate, n_safety
         else:
             raise NotImplementedError(f"{self.regime} is not a supported regime")
 
@@ -463,7 +484,7 @@ class SeldonianAlgorithm:
         """Create the candidate selection object
 
         :param write_logfile: Whether to write out a pickle file
-                containing details of candidate selection
+            containing details of candidate selection
         """
         cs_kwargs = dict(
             model=self.model,
@@ -476,7 +497,7 @@ class SeldonianAlgorithm:
             initial_solution=self.initial_solution,
             regime=self.regime,
             write_logfile=write_logfile,
-            additional_datasets=self.spec.additional_datasets
+            additional_datasets=self.spec.additional_datasets,
         )
 
         cs = CandidateSelection(**cs_kwargs, **self.spec.regularization_hyperparams)
@@ -490,13 +511,16 @@ class SeldonianAlgorithm:
             model=self.model,
             parse_trees=self.spec.parse_trees,
             regime=self.regime,
-            additional_datasets=self.spec.additional_datasets
+            additional_datasets=self.spec.additional_datasets,
         )
 
         st = SafetyTest(**st_kwargs)
         return st
 
     def set_initial_solution(self, verbose=False):
+        """Set the self.initial_solution parameter by evaluating
+        the initial_solution_fn if provided, otherwise use the default.
+        """
         if self.regime == "supervised_learning":
             needs_init_sol = False
             if self.spec.initial_solution_fn is not None:
@@ -504,7 +528,9 @@ class SeldonianAlgorithm:
                     print("Attempting to use initial solution function")
                 try:
                     self.initial_solution = self.spec.initial_solution_fn(
-                        self.model, self.candidate_dataset.features, self.candidate_dataset.labels
+                        self.model,
+                        self.candidate_dataset.features,
+                        self.candidate_dataset.labels,
                     )
                 except:
                     if verbose:
@@ -564,12 +590,12 @@ class SeldonianAlgorithm:
         Runs seldonian algorithm using spec object
 
         :param write_cs_logfile: Whether to write candidate selection
-                log file
+            log file
         :param debug: Whether to print out debugging info
         :return: (passed_safety, solution). passed_safety
-                indicates whether solution found during candidate selection
-                passes the safety test. solution is the optimized
-                model weights found during candidate selection or 'NSF'.
+            indicates whether solution found during candidate selection
+            passes the safety test. solution is the optimized
+            model weights found during candidate selection or 'NSF'.
         :rtype: Tuple
         """
         self.set_initial_solution(
@@ -603,6 +629,17 @@ class SeldonianAlgorithm:
         return passed_safety, solution
 
     def run_candidate_selection(self, write_logfile=False, debug=False):
+        """Run candidate selection 
+
+        :param write_logfile: Whether to write out a pickle file
+            containing details of candidate selection
+        :param debug: Boolean flag for whether to run in debug mode.
+
+        :return: candidate_solution, the model weights obtained 
+            from running candidate selection or NSF if an error occurred
+            during candidate selection. 
+        :rtype: numpy.ndarray or str
+        """
         cs = self.candidate_selection(write_logfile=write_logfile)
         candidate_solution = cs.run(
             **self.spec.optimization_hyperparams,
@@ -617,17 +654,16 @@ class SeldonianAlgorithm:
 
     def run_safety_test(self, candidate_solution, batch_size_safety=None, debug=False):
         """
-        Runs safety test using solution from candidate selection
-        or some other means
+        Runs safety test using solution from candidate selection.
 
         :param candidate_solution: model weights from candidate selection
                 or other process
         :param debug: Whether to print out debugging info
         :return: (passed_safety, solution). passed_safety
                 indicates whether solution found during candidate selection
-                passes the safety test. solution is the optimized
+                passed the safety test. solution is the optimized
                 model weights found during candidate selection or 'NSF'.
-        :rtype: Tuple
+        :rtype: Tuple(Bool,numpy.ndarray or str)
         """
 
         st = self.safety_test()

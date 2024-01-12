@@ -16,7 +16,7 @@ class SkLearnLinearRegressor(SupervisedSkLearnBaseModel):
         return model
 
     def forward_pass(self, X):
-        """Make predictions given features"""
+        """Make predictions given features, X"""
         predictions = self.sklearn_model.predict(X)
         return predictions
 

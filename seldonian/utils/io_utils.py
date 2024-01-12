@@ -57,6 +57,8 @@ def save_json(filename, data, indent=2, verbose=False):
 
     :param filename: A filename where the JSON file will be saved
     :type filename: str
+    :param data: The JSON data to save.
+    :type data: dict
     """
     with open(filename, "w") as outfile:
         data = json.dump(data, outfile)
@@ -69,6 +71,9 @@ def cmaes_logger(es, filename):
     CMA-ES evoluation strategy object, es, is evaluated,
     allowing us to log the xmean and f value at each
     iteration
+
+    :param es: CMA-ES evoluation strategy object
+    :param filename: The filename where the output will be saved
 
     """
     it_str = str(es.countiter)

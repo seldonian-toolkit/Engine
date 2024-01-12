@@ -8,7 +8,7 @@ from functools import partial
 
 from seldonian.models import objectives
 from seldonian.dataset import SupervisedDataSet, RLDataSet, CustomDataSet
-
+from seldonian.optimizers.gradient_descent import gradient_descent_adam
 
 class CandidateSelection(object):
     def __init__(
@@ -67,6 +67,10 @@ class CandidateSelection(object):
                 to disk
         :type write_logfile: bool
 
+        :param additional_datasets: Specifies optional additional datasets to use
+            for bounding the base nodes of the parse trees.
+        :type additional_datasets: dict, defaults to {}
+
         """
         self.regime = regime
         self.model = model
@@ -95,8 +99,8 @@ class CandidateSelection(object):
         self.additional_datasets = additional_datasets
 
     def calculate_batches(self, batch_index, batch_size, epoch, n_batches):
-        """Create a batch dataset to be used in gradient descent.
-        Does not return anything, instead sets self.batch_dataset.
+        """Create a batch dataset (for the primary dataset) to be used in gradient descent.
+        Sets self.batch_dataset. See return logic.
 
         :param batch_index: The batch number (0-indexed)
         :type batch_index: int
@@ -109,7 +113,8 @@ class CandidateSelection(object):
             (needed for additional datasets, if provided)
         :type n_batches: int
 
-        :return: None
+        :return: True if candidate solutions calculated using this batch are viable,
+            False if not.
         """
         batch_start = batch_index * batch_size
         batch_end = batch_start + batch_size
@@ -145,7 +150,6 @@ class CandidateSelection(object):
                 meta=self.candidate_dataset.meta,
             )
 
-
         elif self.regime == "reinforcement_learning":
             if batch_size < num_datapoints:
                 batch_episodes = self.candidate_dataset.episodes[batch_start:batch_end]
@@ -164,9 +168,9 @@ class CandidateSelection(object):
                 num_datapoints=batch_num_datapoints,
                 meta=self.candidate_dataset.meta,
             )
+
         elif self.regime == "custom":
             if batch_size < num_datapoints:
-                
                 self.batch_data = self.candidate_dataset.data[batch_start:batch_end]
                 batch_num_datapoints = len(self.batch_data)
 
@@ -186,18 +190,21 @@ class CandidateSelection(object):
             )
 
         # Handle additional datasets
-        self.calculate_batches_addl_datasets(epoch,batch_index,n_batches)
-        # If this batch is smaller than the batch size and not the first batch
+        self.calculate_batches_addl_datasets(epoch, batch_index, n_batches)
+
+        # If current batch is smaller than the batch size and not the first batch
         # then that means we shouldn't consider a candidate solution calculated from it
         if batch_index > 0 and (batch_num_datapoints < batch_size):
             return True
         else:
             return False
 
-    def calculate_batches_addl_datasets(self, primary_epoch_index, primary_batch_index, n_batches):
+    def calculate_batches_addl_datasets(
+        self, primary_epoch_index, primary_batch_index, n_batches
+    ):
         """For each additional dataset, create a batch dataset using the current batch.
-        Uses the batch_indices list stored in the additional datasets dictionary that was 
-        precalculated to make this easy. 
+        Uses the batch_indices list stored in the additional datasets dictionary that was
+        precalculated to make this easy. Does not return anything.
 
         :param primary_epoch_index: The epoch number (0-indexed) of the primary dataset
         :type primary_epoch_index: int
@@ -205,7 +212,6 @@ class CandidateSelection(object):
         :type primary_batch_index: int
         :param n_batches: The number of primary dataset batches per epoch
         :type n_batches: int
-        
 
         :return: None
         """
@@ -213,47 +219,57 @@ class CandidateSelection(object):
             for base_node in self.additional_datasets[pt]:
                 this_dict = self.additional_datasets[pt][base_node]
                 batch_index_list = this_dict["batch_index_list"]
-                lookup_index = primary_epoch_index*n_batches + primary_batch_index
+                lookup_index = primary_epoch_index * n_batches + primary_batch_index
                 batch_indices = batch_index_list[lookup_index]
-                # could be 2 or 4 (if wraparound)
+                # could be 2 or 4 of these (if the batch wrapped back around to start)
                 wraps = False
                 if len(batch_indices) == 4:
                     wraps = True
-                start1,end1 = batch_indices[0:2]
+                
+                start1, end1 = batch_indices[0:2]
                 batch_num_datapoints = end1 - start1
                 if wraps:
-                    start2,end2 = batch_indices[2:4]
-                    batch_num_datapoints += (end2-start2)
+                    start2, end2 = batch_indices[2:4]
+                    batch_num_datapoints += end2 - start2
+                
                 cand_dataset = this_dict["candidate_dataset"]
                 if self.regime == "supervised_learning":
                     batch_features = cand_dataset.features[start1:end1]
                     batch_labels = cand_dataset.labels[start1:end1]
                     batch_sensitive_attrs = cand_dataset.sensitive_attrs[start1:end1]
-
                     if wraps:
                         wrapped_features = cand_dataset.features[start2:end2]
                         wrapped_labels = cand_dataset.labels[start2:end2]
-                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
-                        batch_features = np.vstack((batch_features,wrapped_features))
-                        batch_labels = np.hstack((batch_labels,wrapped_labels))
-                        batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
+                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[
+                            start2:end2
+                        ]
+                        batch_features = np.vstack((batch_features, wrapped_features))
+                        batch_labels = np.hstack((batch_labels, wrapped_labels))
+                        batch_sensitive_attrs = np.vstack(
+                            (batch_sensitive_attrs, wrapped_sensitive_attrs)
+                        )
 
                     batch_dataset = SupervisedDataSet(
                         features=batch_features,
                         labels=batch_labels,
                         sensitive_attrs=batch_sensitive_attrs,
                         num_datapoints=batch_num_datapoints,
-                        meta=cand_dataset.meta)
+                        meta=cand_dataset.meta,
+                    )
 
                 elif self.regime == "reinforcement_learning":
                     batch_episodes = cand_dataset.episodes[start1:end1]
                     batch_sensitive_attrs = cand_dataset.sensitive_attrs[start1:end1]
                     if wraps:
                         wrapped_episodes = cand_dataset.episodes[start2:end2]
-                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
-                        batch_episodes = np.vstack((batch_episodes,wrapped_episodes))
-                        batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
-                    
+                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[
+                            start2:end2
+                        ]
+                        batch_episodes = np.vstack((batch_episodes, wrapped_episodes))
+                        batch_sensitive_attrs = np.vstack(
+                            (batch_sensitive_attrs, wrapped_sensitive_attrs)
+                        )
+
                     batch_dataset = RLDataSet(
                         episodes=batch_episodes,
                         sensitive_attrs=batch_sensitive_attrs,
@@ -266,13 +282,17 @@ class CandidateSelection(object):
                     batch_sensitive_attrs = cand_dataset.sensitive_attrs[start1:end1]
                     if wraps:
                         wrapped_data = cand_dataset.data[start2:end2]
-                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[start2:end2]
-                        if isinstance(batch_data,list):
+                        wrapped_sensitive_attrs = cand_dataset.sensitive_attrs[
+                            start2:end2
+                        ]
+                        if isinstance(batch_data, list):
                             batch_data += wrapped_data
                         else:
-                            batch_data = np.vstack((batch_data,wrapped_data))
-                        batch_sensitive_attrs = np.vstack((batch_sensitive_attrs,wrapped_sensitive_attrs))
-                    
+                            batch_data = np.vstack((batch_data, wrapped_data))
+                        batch_sensitive_attrs = np.vstack(
+                            (batch_sensitive_attrs, wrapped_sensitive_attrs)
+                        )
+
                     batch_dataset = CustomDataSet(
                         data=batch_data,
                         sensitive_attrs=batch_sensitive_attrs,
@@ -282,27 +302,32 @@ class CandidateSelection(object):
 
                 self.additional_datasets[pt][base_node]["batch_dataset"] = batch_dataset
 
-    def precalculate_addl_dataset_batch_indices(self, n_epochs, n_batches, primary_batch_size):
-        """For each additional dataset, create a list of indices corresponding to the starting and ending
-        of each batch. During gradient descent we can simply look up these indices and then construct the dataset
-        from them. Updates self.additional_datasets in place, so don't need to return anything.
-        
-        The rules here are:
-        i) A custom batch size can be used for each addl dataset, but 
-            if missing the primary batch batch is used. 
-        ii) We wrap around the end of addl datasets if we get to the end either within a primary epoch
-            or if we start a new epoch. For this reason, we can either have a list of length 2 (start,end)
-            or a list of length 4 (start1,end1,start2,end2), if there is wraparound.
-        iii) If n_batches = 1 then just use the entire additional dataset, 
-            but don't wrap as that would reuse datapoints in a single batch
-        iv) There is no concept of epoch for the addl datasets. We are simply wrapping back to the beginning when needed.
+    def precalculate_addl_dataset_batch_indices(
+        self, n_epochs, n_batches, primary_batch_size
+    ):
+        """For each additional dataset, create a list of indices corresponding to the start and end
+        of each batch. During each iteration of gradient descent, we can look up these indices
+        and then construct the dataset from them.
+        Updates self.additional_datasets in place, so doesn't return anything.
 
-        :param n_epochs: The total number of epochs to run gradient descent 
+        The rules here are:
+        i) A custom batch size can optionally be used for each addl dataset, but
+            if it is missing, the primary batch batch is used.
+        ii) If we get to the end of a dataset, we wrap around back to the start of the dataseet. 
+            For this reason, when specifying the batch indices for a given batch,
+            we can either have a list of length 2 (start,end) with no wraparound,
+            or a list of length 4 (start1,end1,start2,end2) with wraparound.
+        iii) If n_batches == 1 then just use the entire additional dataset,
+            but don't wrap as that would reuse datapoints in a single batch
+        iv) There is no concept of epoch for the addl datasets. 
+        We are simply wrapping back to the beginning when needed.
+
+        :param n_epochs: The total number of epochs to run gradient descent
         :type n_epochs: int
         :param n_batches: The number of primary dataset batches per peoch
         :type n_batches: int
-        :param primary_epoch_index: The epoch number (0-indexed) of the primary dataset
-        :type primary_epoch_index: int
+        :param primary_batch_size: The batch size for the primary dataset.
+        :type primary_batch_size: int
 
         :return: None
         """
@@ -313,10 +338,12 @@ class CandidateSelection(object):
 
                 # rule iii
                 if n_batches == 1:
-                    batch_index_list = [0,num_datapoints_addl]
-                    this_dict["batch_index_list"] = [batch_index_list for _ in range(n_epochs)] # only one entry per epoch
+                    batch_index_list = [0, num_datapoints_addl]
+                    this_dict["batch_index_list"] = [
+                        batch_index_list for _ in range(n_epochs)
+                    ]  # only one entry per epoch
                     continue
-                
+
                 # rule i
                 if "batch_size" in this_dict:
                     this_batch_size = this_dict["batch_size"]
@@ -329,24 +356,27 @@ class CandidateSelection(object):
                 for i in range(n_epochs):
                     for j in range(n_batches):
                         start1 = batch_index_addl
-                        end1 = min(start1+this_batch_size,num_datapoints_addl)
-                        batch_indices = [start1,end1]
-                        diff = this_batch_size - (end1 - start1) 
-                        if diff > 0:
-                            start2 = 0 
+                        end1 = min(start1 + this_batch_size, num_datapoints_addl)
+                        batch_indices = [start1, end1]
+                        diff = this_batch_size - (end1 - start1)
+                        if diff > 0: # rule ii
+                            start2 = 0
                             end2 = diff
-                            batch_indices.extend([start2,end2])
-                        batch_index_addl += this_batch_size 
-                        batch_index_addl %= num_datapoints_addl # rules ii/iv
+                            batch_indices.extend([start2, end2])
+                        batch_index_addl += this_batch_size
+                        batch_index_addl %= num_datapoints_addl  # rules ii/iv
                         batch_index_list.append(batch_indices)
 
                 this_dict["batch_index_list"] = batch_index_list
         return
 
     def run(self, **kwargs):
-        """Run candidate selection
+        """Run candidate selection, either with gradient descent or barrier function techniques.
+        Barrier function can use any black box optimizer to generate candidate solutions.
 
-        :return: Optimized model weights or 'NSF'
+        :return: candidate_solution, which is either an array of optimized model weights 
+            or 'NSF' if there was no viable candidate solution found, usually because of an error
+            during candidate selection.
         :rtype: array or str
         """
 
@@ -356,10 +386,9 @@ class CandidateSelection(object):
                     f"Optimizer: {self.optimizer} is not supported"
                 )
 
-            from seldonian.optimizers.gradient_descent import gradient_descent_adam
-
             if "clip_theta" not in kwargs:
                 kwargs["clip_theta"] = None
+            
             # Figure out number of batches
             if "use_batches" not in kwargs:
                 raise KeyError(
@@ -382,9 +411,11 @@ class CandidateSelection(object):
                 batch_size = self.candidate_dataset.num_datapoints
                 n_epochs = kwargs["num_iters"]
 
-            # If there are additionald dataset, precalculate their batch indices
+            # If there are additionald datasets, precalculate their batch indices
             # so we can quickly make batches on each step of gradient descent
-            self.precalculate_addl_dataset_batch_indices(n_epochs, n_batches, batch_size)
+            self.precalculate_addl_dataset_batch_indices(
+                n_epochs, n_batches, batch_size
+            )
 
             gd_kwargs = dict(
                 primary_objective=self.evaluate_primary_objective,
@@ -415,10 +446,10 @@ class CandidateSelection(object):
                             objectives, f"gradient_{primary_objective_name}"
                         )
 
-                        # Now fix the features and labels so that the function
-                        # is only a function of theta
-
                         def grad_primary_objective_theta(theta, **kwargs):
+                            """ A wrapper that fixes the model, features, and labels
+                            so that the wrapper function is only a function of theta.
+                            """
                             return grad_primary_objective(
                                 model=self.model,
                                 theta=theta,
@@ -442,6 +473,9 @@ class CandidateSelection(object):
                     grad_primary_objective = kwargs["custom_primary_gradient_fn"]
 
                     def grad_primary_objective_theta(theta):
+                        """ A wrapper that fixes the model, features, and labels
+                        so that the wrapper function is only a function of theta.
+                        """
                         return grad_primary_objective(
                             model=self.model,
                             theta=theta,
@@ -454,10 +488,11 @@ class CandidateSelection(object):
                     grad_primary_objective = kwargs["custom_primary_gradient_fn"]
 
                     def grad_primary_objective_theta(theta):
+                        """ A wrapper that fixes the model and data
+                        so that the wrapper function is only a function of theta.
+                        """
                         return grad_primary_objective(
-                            model=self.model,
-                            theta=theta,
-                            data=self.batch_data
+                            model=self.model, theta=theta, data=self.batch_data
                         )
 
                     gd_kwargs["primary_gradient"] = grad_primary_objective_theta
@@ -467,12 +502,17 @@ class CandidateSelection(object):
                         f"is not yet supported for regime='{self.regime}'."
                     )
 
+            # Run KKT optimization 
             res = gradient_descent_adam(**gd_kwargs)
+
+            # Store optimization result as an instance variable
             self.optimization_result = res
             res["constraint_strs"] = [pt.constraint_str for pt in self.parse_trees]
             res["batch_size"] = batch_size
             res["n_epochs"] = n_epochs
 
+            # Write out the "candidate_selection_log*.p" file that contains the 
+            # info needed to make the KKT plots.
             if self.write_logfile:
                 log_counter = 0
                 logdir = os.path.join(os.getcwd(), "logs")
@@ -495,6 +535,11 @@ class CandidateSelection(object):
             candidate_solution = res["candidate_solution"]
 
         elif self.optimization_technique == "barrier_function":
+            if self.regime not in ["supervised_learning","reinforcement_learning"]:
+                raise NotImplementedError(
+                    f"optimization_technique: {self.optimization_technique} "
+                    f"is not supported for regime={self.regime}. "
+                )
             opts = {}
             if "maxiter" in kwargs:
                 opts["maxiter"] = kwargs["maxiter"]
@@ -574,23 +619,21 @@ class CandidateSelection(object):
         for pt in self.parse_trees:
             pt.reset_base_node_dict(reset_data=True)
 
-        # Unset data and datasize on base nodes
-        # Return the candidate solution we believe will pass the safety test
+        # Return the candidate solution
         return candidate_solution
 
     def objective_with_barrier(self, theta):
         """The objective function to be optimized if
-        minimization_technique == 'barrier'. Adds in a
+        optimization_technique == 'barrier'. Adds in a
         large penalty when any of the constraints are violated.
 
         :param theta: model weights
         :type theta: numpy.ndarray
 
         :return: the value of the objective function
-                evaluated at theta
+            evaluated at theta
         """
-        # Get the primary objective evaluated at the given theta
-        # and the entire candidate dataset
+       
         if self.regime == "supervised_learning":
             result = self.primary_objective(
                 self.model,
@@ -623,7 +666,10 @@ class CandidateSelection(object):
 
             cstr = pt.constraint_str
             if cstr in self.additional_datasets:
-                dataset_dict = {bn:self.additional_datasets[cstr][bn]["batch_dataset"] for bn in self.additional_datasets[cstr]}
+                dataset_dict = {
+                    bn: self.additional_datasets[cstr][bn]["batch_dataset"]
+                    for bn in self.additional_datasets[cstr]
+                }
             else:
                 dataset_dict = {"all": self.candidate_dataset}
 
@@ -634,7 +680,7 @@ class CandidateSelection(object):
                 branch="candidate_selection",
                 n_safety=self.n_safety,
                 regime=self.regime,
-                sub_regime=self.candidate_dataset.meta.sub_regime
+                sub_regime=self.candidate_dataset.meta.sub_regime,
             )
 
             pt.propagate_bounds(**bounds_kwargs)
@@ -644,36 +690,34 @@ class CandidateSelection(object):
 
             if (
                 upper_bound > 0.0
-            ):  # If the current constraint was not satisfied, the safety test failed
-                # If up until now all previous constraints passed,
-                # then we need to predict that the test will fail
-                # and potentially add a penalty to the objective
-                if predictSafetyTest:
-                    # Set this flag to indicate that we don't think the safety test will pass
+            ):  
+                if predictSafetyTest: 
+                    # Trip flag to False so that we don't add more than one barrier if 
+                    # more than one constraint is predicted to fail the safety test.
                     predictSafetyTest = False
 
                     # Put a barrier in the objective. Any solution
-                    # that we think will fail the safety test
+                    # that we predict will fail the safety test
                     # will have a large cost associated with it
 
                     result = 100000.0
-                # Add a shaping to the objective function that will
-                # push the search toward solutions that will pass
-                # the prediction of the safety test
-
+                
+                # Shape the objective function using the value of the constraint (plus potential barrier)
+                # to push the search toward solutions
+                # that are predicted to pass the safety test.
                 result = result + upper_bound
         return result
 
     def evaluate_primary_objective(self, theta):
-        """Get value of the primary objective given model weights,
-        theta. Wrapper for self.primary_objective where
-        data is fixed. Used as input to gradient descent
+        """The primary objective function used for KKT/gradient descent. 
+        This is just a wrapper for self.primary_objective where
+        the (batched) data and model are fixed, such that the only parameter is theta. 
 
         :param theta: model weights
         :type theta: numpy.ndarray
 
         :return: The value of the primary objective function
-                evaluated at theta
+                evaluated at theta.
         """
         if self.regime == "supervised_learning":
             result = self.primary_objective(
@@ -695,11 +739,7 @@ class CandidateSelection(object):
                 weighted_returns=None,
             )
         elif self.regime == "custom":
-            result = self.primary_objective(
-                self.model,
-                theta,
-                self.batch_data
-            )
+            result = self.primary_objective(self.model, theta, self.batch_data)
 
         if hasattr(self, "reg_coef"):
             # reg_term = self.reg_coef*np.linalg.norm(theta)
@@ -711,13 +751,14 @@ class CandidateSelection(object):
         return result
 
     def get_constraint_upper_bounds(self, theta):
-        """Get value of the upper bounds of the constraint functions
-        given model weights, theta. Used as input to gradient descent.
+        """The constraint functions used for KKT/gradient descent. 
+        Obtains the upper bounds of the parse trees
+        given model weights, theta.
 
         :param theta: model weights
         :type theta: numpy.ndarray
 
-        :return: Array of upper bounds on the constraint
+        :return: Array of upper bounds on the parse trees.
         :rtype: array
         """
 
@@ -728,7 +769,10 @@ class CandidateSelection(object):
             # Determine if there are additional datasets for base nodes in this parse tree
             cstr = pt.constraint_str
             if cstr in self.additional_datasets:
-                dataset_dict = {bn:self.additional_datasets[cstr][bn]["batch_dataset"] for bn in self.additional_datasets[cstr]}
+                dataset_dict = {
+                    bn: self.additional_datasets[cstr][bn]["batch_dataset"]
+                    for bn in self.additional_datasets[cstr]
+                }
             else:
                 dataset_dict = {"all": self.batch_dataset}
 
@@ -739,7 +783,7 @@ class CandidateSelection(object):
                 branch="candidate_selection",
                 n_safety=self.n_safety,
                 regime=self.regime,
-                sub_regime=self.candidate_dataset.meta.sub_regime
+                sub_regime=self.candidate_dataset.meta.sub_regime,
             )
 
             pt.propagate_bounds(**bounds_kwargs)
@@ -749,7 +793,7 @@ class CandidateSelection(object):
 
     def get_importance_weights(self, theta):
         """Get an array of importance weights evaluated on the candidate dataset
-        given model weights, theta.
+        given model weights, theta. Only applicable for RL.
 
         :param theta: model weights
         :type theta: numpy.ndarray

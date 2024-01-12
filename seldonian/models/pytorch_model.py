@@ -1,13 +1,9 @@
-# pytorch_model.py
-### A simple single layer Pytorch model implementing linear regression
-
 import autograd.numpy as np  # Thinly-wrapped version of Numpy
 from autograd.extend import primitive, defvjp
 from seldonian.models.models import SupervisedModel
 
 import torch
 import torch.nn as nn
-
 
 @primitive
 def pytorch_predict(theta, X, model, **kwargs):
@@ -22,28 +18,29 @@ def pytorch_predict(theta, X, model, **kwargs):
     :param model: An instance of a class inheriting from
             SupervisedPytorchBaseModel
 
-    :return pred_numpy: model predictions
-    :rtype pred_numpy: numpy ndarray same shape as labels
+    :return pred_numpy: model predictions the same shape as the true labels
+    :rtype pred_numpy: numpy.ndarray 
     """
     # First update model weights
     if not model.params_updated:
         model.update_model_params(theta, **kwargs)
         model.params_updated = True
+    
     # Do the forward pass
     pred = model.forward_pass(X, **kwargs)
+    
     # set the predictions attribute of the model
-
     model.predictions = pred
 
     # Convert predictions into a numpy array
     pred_numpy = pred.cpu().detach().numpy()
+    
     return pred_numpy
-
 
 def pytorch_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the PyTorch model,
-    obtaining the Jacobian d pred / dtheta.
-    Must convert back to numpy array before returning
+    obtaining the Jacobian d(pred) / d(theta).
+    Must convert back to numpy array before returning.
 
     :param ans: The result from the forward pass
     :type ans: numpy ndarray
@@ -60,16 +57,18 @@ def pytorch_predict_vjp(ans, theta, X, model):
     local_predictions = model.predictions
 
     def fn(v):
-        # v is a vector of shape ans, the return value of mypredict()
-        # return a 1D array [dF_i/dtheta[0],dF_i/dtheta[1],dF_i/dtheta[2]],
-        # where i is the data row index
+        """ Calculates the vector Jacobian.
+
+        :param v: a vector of shape ans, the return value of the forward pass, F(theta,X).
+        :return: a 1D array [dF_i/dtheta[0],dF_i/dtheta[1],dF_i/dtheta[2]],
+            where i is the data row index
+        """
         external_grad = torch.from_numpy(v).float().to(model.device)
         dpred_dtheta = model.backward_pass(local_predictions, external_grad)
         model.params_updated = False  # resets for the
         return np.array(dpred_dtheta)
 
     return fn
-
 
 # Link the predict function with its gradient,
 # telling autograd not to look inside either of these functions
@@ -99,7 +98,6 @@ class SupervisedPytorchBaseModel(SupervisedModel):
 
         :param theta: model weights
         :type theta: numpy ndarray
-
         :param X: model features
         :type X: numpy ndarray
 
@@ -109,8 +107,7 @@ class SupervisedPytorchBaseModel(SupervisedModel):
         return pytorch_predict(theta, X, self)
 
     def get_model_params(self, *args):
-        """Return weights of the model as a flattened 1D array
-        Also return the number of elements in each model parameter"""
+        """Return weights of the model as a flattened 1D array"""
         layer_params_list = []
         for param in self.pytorch_model.parameters():
             if param.requires_grad:
@@ -119,7 +116,7 @@ class SupervisedPytorchBaseModel(SupervisedModel):
         return np.concatenate(layer_params_list)
 
     def get_param_sizes(self):
-        """Get the sizes (shapes) of each of the model parameters"""
+        """Get the number of parameters in each model layer as a list"""
         param_sizes = []
         for param in self.pytorch_model.parameters():
             if param.requires_grad:
@@ -130,7 +127,7 @@ class SupervisedPytorchBaseModel(SupervisedModel):
         """Update all model parameters using theta,
         which must be reshaped
 
-        :param theta: model weights
+        :param theta: model weights as a flattened array
         :type theta: numpy ndarray
         """
         # Update model parameters using flattened array
@@ -149,7 +146,7 @@ class SupervisedPytorchBaseModel(SupervisedModel):
         return
 
     def zero_gradients(self):
-        """Zero out gradients of all model parameters"""
+        """Zero out gradients of all trainable model parameters"""
         for param in self.pytorch_model.parameters():
             if param.requires_grad:
                 if param.grad is not None:
@@ -159,7 +156,7 @@ class SupervisedPytorchBaseModel(SupervisedModel):
     def forward_pass(self, X, **kwargs):
         """Do a forward pass through the PyTorch model and return the
         model outputs (predicted labels). The outputs should be the same shape
-        as the true labels
+        as the true labels.
 
         :param X: model features
         :type X: numpy ndarray
@@ -168,20 +165,29 @@ class SupervisedPytorchBaseModel(SupervisedModel):
         :rtype: torch.Tensor
         """
         X_torch = torch.tensor(X).float().to(self.device)
-        predictions = self.pytorch_model(X_torch)
-        return predictions
+        return self.pytorch_model(X_torch)
 
     def backward_pass(self, predictions, external_grad):
         """Do a backward pass through the PyTorch model and return the
-        (vector) gradient of the model with respect to theta as a numpy ndarray
+        (vector) gradient of the model with respect to theta as a numpy array.
 
+        :param predictions: model predictions as an attached tensor 
+            (i.e. still has grad information)
+        :type predictions: torch.Tensor
         :param external_grad: The gradient of the model with respect to itself
                 see: https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html#differentiation-in-autograd
                 for more details
         :type external_grad: torch.Tensor
+
+        :return: the gradient of the model w.r.t. its parameters as a flattened array
+        :rtype: numpy.ndarray
         """
         self.zero_gradients()
-        predictions.backward(gradient=external_grad, retain_graph=True)
+        # Use retain_graph=True in backprop step 
+        # because we need to backprop at fixed model parameters
+        # once for primary objective
+        # and once for each constraint function.
+        predictions.backward(gradient=external_grad, retain_graph=True)  
         grad_params_list = []
         for param in self.pytorch_model.parameters():
             if param.requires_grad:

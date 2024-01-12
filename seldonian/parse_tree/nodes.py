@@ -8,6 +8,14 @@ from seldonian.utils.stats_utils import *
 
 """
 
+.. data:: custom_base_node_dict
+    :type: dict
+
+    A dictionary mapping the name of a custom 
+    base node as it would appear in the 
+    constraint string to the class representing it 
+    in :py:mod:`.nodes`
+
 .. data:: measure_functions_dict
     :type: dict[regime][sub_regime]
 
@@ -37,13 +45,15 @@ from seldonian.utils.stats_utils import *
 
         - 'J_pi_new': The performance (expected return of weighted rewards) of the new policy
 
-.. data:: custom_base_node_dict
-    :type: dict
-
-    A dictionary mapping the name of a custom 
-    base node as it would appear in the 
-    constraint string to the class representing it 
-    in :py:mod:`.nodes`
+.. data:: subscriptable_measure_functions
+    :type: list
+    
+    A list of all measure functions which 
+    can be subscripted in a constraint string. 
+    For example, CM_[0,1] is the i=0,j=1 element
+    of the confusion matrix, J_pi_new_IS_[1]
+    refers to the expected return of the 1st alternate
+    reward function under the new policy.
 
 """
 
@@ -131,31 +141,40 @@ class BaseNode(Node):
         :param name:
             The name of the node
         :type name: str
+
         :param lower:
             Lower confidence bound
         :type lower: float
+
         :param upper:
             Upper confidence bound
         :type upper: float
+
         :param conditional_columns:
             When calculating confidence bounds on a measure
             function, condition on these columns being == 1
         :type conditional_columns: List(str)
+
         :ivar node_type:
             equal to 'base_node'
         :vartype node_type: str
+
         :ivar delta_lower:
             The share of the confidence put into calculating the lower bound on this node
         :vartype delta_lower: float
+
         :ivar delta_upper:
             The share of the confidence put into calculating the upper bound on this node
         :vartype delta_upper: float
+
         :ivar infl_factor_lower:
             The bound inflation factor for calculating the lower bound on this node during candidate selection
         :vartype infl_factor_lower: float
+
         :ivar infl_factor_upper:
             The bound inflation factor for calculating the upper bound on this node during candidate selection
         :vartype infl_factor_upper: float
+
         :ivar measure_function_name: str
             The name of the statistical measurement
             function that this node represents, e.g. "FPR".
@@ -168,8 +187,8 @@ class BaseNode(Node):
         self.node_type = "base_node"
         self.delta_lower = None
         self.delta_upper = None
-        self.infl_factor_lower = None 
-        self.infl_factor_upper = None 
+        self.infl_factor_lower = None
+        self.infl_factor_upper = None
         self.measure_function_name = ""
 
     def __repr__(self):
@@ -201,6 +220,7 @@ class BaseNode(Node):
         :param dataset:
             The candidate or safety dataset
         :type dataset: dataset.Dataset object
+
         :param conditional_columns:
             List of columns for which to create
             the joint AND mask on the dataset
@@ -252,11 +272,12 @@ class BaseNode(Node):
         """
         Prepare data inputs
         for confidence bound calculation.
+
+        :return: data_dict, a dictionary containing the prepared data
         """
         theta, dataset, model, regime, branch = itemgetter(
             "theta", "dataset", "model", "regime", "branch"
         )(kwargs)
-
 
         if branch == "candidate_selection":
             # Then we're in candidate selection
@@ -318,9 +339,7 @@ class BaseNode(Node):
             data = dataset.data
 
             if self.conditional_columns:
-                masked_data = self.mask_data(
-                    dataset, self.conditional_columns
-                )
+                masked_data = self.mask_data(dataset, self.conditional_columns)
             else:
                 masked_data = data
 
@@ -331,6 +350,9 @@ class BaseNode(Node):
     def calculate_bounds(self, **kwargs):
         """Calculate confidence bounds given a bound_method,
         such as t-test.
+
+        :return: A dictionary mapping the bound name to its value, 
+            e.g., {"lower":-1.0, "upper": 1.0}
         """
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
@@ -432,6 +454,8 @@ class BaseNode(Node):
             Contains inputs to model,
             such as features and labels
         :type data_dict: dict
+
+        :return: A vector of unbiased estimates of the measure function
         """
 
         return zhat_funcs.sample_from_statistic(
@@ -459,14 +483,16 @@ class BaseNode(Node):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
+
+        :return: lower, the predicted high-confidence lower bound
         """
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
 
             if bound_method == "ttest":
-                lower = data.mean() - self.infl_factor_lower * stddev(data) / np.sqrt(datasize) * tinv(
-                    1.0 - delta, datasize - 1
-                )
+                lower = data.mean() - self.infl_factor_lower * stddev(data) / np.sqrt(
+                    datasize
+                ) * tinv(1.0 - delta, datasize - 1)
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
@@ -490,19 +516,21 @@ class BaseNode(Node):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
+
+        :return: upper, the predicted high-confidence upper bound
         """
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
             if bound_method == "ttest":
-                lower = data.mean() + self.infl_factor_upper * stddev(data) / np.sqrt(datasize) * tinv(
-                    1.0 - delta, datasize - 1
-                )
+                upper = data.mean() + self.infl_factor_upper * stddev(data) / np.sqrt(
+                    datasize
+                ) * tinv(1.0 - delta, datasize - 1)
             else:
                 raise NotImplementedError(
                     f"Bounding method {bound_method} is not supported"
                 )
 
-        return lower
+        return upper
 
     def predict_HC_upper_and_lowerbound(
         self, data, datasize, delta_lower, delta_upper, **kwargs
@@ -510,7 +538,8 @@ class BaseNode(Node):
         """
         Calculate high confidence lower and upper bounds
         that we expect to pass the safety test.
-        Used in candidate selection.
+        Used in candidate selection. Confidence levels
+        for lower and upper bound do not have to be equivalent. 
 
         Depending on the bound_method,
         this is not always equivalent
@@ -524,9 +553,13 @@ class BaseNode(Node):
         :param datasize:
             The number of observations in the safety dataset
         :type datasize: int
-        :param delta:
-            Confidence level, e.g. 0.05
+        :param delta_lower:
+            Confidence level for the lower bound, e.g. 0.05
+        :param delta_upper: 
+            Confidence level for the upper bound, e.g. 0.05
         :type delta: float
+
+        :return: (lower,upper) the predicted high-confidence lower and upper bounds.
         """
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
@@ -562,6 +595,8 @@ class BaseNode(Node):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
+
+        :return: lower, the high-confidence lower bound
         """
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
@@ -590,6 +625,8 @@ class BaseNode(Node):
         :param delta:
             Confidence level, e.g. 0.05
         :type delta: float
+
+        :return: upper, the high-confidence upper bound
         """
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
@@ -609,7 +646,8 @@ class BaseNode(Node):
     ):
         """
         Calculate high confidence lower and upper bounds
-        Used in safety test.
+        Used in safety test. Confidence levels
+        for lower and upper bound do not have to be equivalent. 
 
         Depending on the bound_method,
         this is not always equivalent
@@ -623,9 +661,13 @@ class BaseNode(Node):
         :param datasize:
             The number of observations in the safety dataset
         :type datasize: int
-        :param delta:
-            Confidence level, e.g. 0.05
+        :param delta_lower:
+            Confidence level for the lower bound, e.g. 0.05
+        :param delta_upper: 
+            Confidence level for the upper bound, e.g. 0.05
         :type delta: float
+
+        :return: (lower,upper) the high-confidence lower and upper bounds.
         """
         if "bound_method" in kwargs:
             bound_method = kwargs["bound_method"]
@@ -663,10 +705,10 @@ class ConfusionMatrixBaseNode(BaseNode):
         conditional_columns=[],
         **kwargs,
     ):
-        """A confusion matrix base node.
+        """A base node for the confusion matrix.
         Inherits all of the attributes/methods
         of basenode and sets the i,j indices
-        of the K x K confusion matrix, C:
+        of the K x K confusion matrix, C_ij:
 
         ::
 
@@ -777,7 +819,7 @@ class NewPolicyPerformanceBaseNode(BaseNode):
         i.e., one proposed during candidate selection.
         Overrides the calculate_value() method to include an
         "on_policy" boolean flag that (if True)
-        calculate the expected return via episodes
+        calculates the expected return via episodes
         generated by the new policy parameterization.
         The default is to use the off-policy estimate
         referenced by self.measure_function_name from the
@@ -852,7 +894,8 @@ class RLAltRewardBaseNode(NewPolicyPerformanceBaseNode):
         alternate reward, the base node string would be:
         "J_pi_new_IS_[2]"
         Inherits all of the attributes/methods
-        of basenode
+        of NewPolicyPerformanceBaseNode and therefore basenode. 
+        On-policy evaluation is possible via calculate_value(on_policy=True).
 
         :param name:
             The name of the node, e.g. "J_pi_new_IS_[1]"
@@ -1219,7 +1262,8 @@ class CVaRSQeBaseNode(BaseNode):
             np.zeros(n_candidate),
             np.minimum(
                 np.ones(n_candidate),
-                np.arange(n_candidate) / n_candidate + self.infl_factor_lower * sqrt_term,
+                np.arange(n_candidate) / n_candidate
+                + self.infl_factor_lower * sqrt_term,
             )
             - (1 - self.alpha),
         )

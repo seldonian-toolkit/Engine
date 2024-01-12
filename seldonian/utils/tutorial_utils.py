@@ -35,7 +35,7 @@ def generate_data(num_points, loc_X=0.0, loc_Y=0.0, sigma_X=1.0, sigma_Y=1.0):
 def generate_clipped_data(
     num_points, loc_X=0.0, loc_Y=0.0, sigma_X=1.0, sigma_Y=1.0, clip_min=-3, clip_max=3
 ):
-    """Generate 2D random normal data
+    """Generate 2D random normal data, with clipping
 
     :param num_points: The number of data points to generate
     :type num_points: int
@@ -94,6 +94,8 @@ def make_synthetic_regression_dataset(
     :param clipped: Boolean flag controlling whether to use clipping
     :param clip_min: Clip values to be >= this value
     :type clip_max: Clip values to be <= this value
+
+    :return: :py:class:`.SupervisedDataSet` object
     """
     if clipped:
         X, Y = generate_clipped_data(
