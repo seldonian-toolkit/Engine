@@ -101,6 +101,9 @@ class HyperSchema(object):
         and contains valid hyperparameters. Model hyperparameters are specific 
         to the model so we can't know what they might be ahead of time. Errors 
         regarding model hyperparameters will be caught elsewhere.
+
+        :param hyper_dict: See __init__ docstring.
+        :return: A validated hyper_dict
         """
         for hyper_name,hyper_info in hyper_dict.items():
             if not isinstance(hyper_info,dict):
@@ -150,13 +153,8 @@ class HyperparamSearch:
             results_dir,
             write_logfile=False,
     ):
-        """Object for finding the best hyperparameters to use to optimize for probability
+        """Class for finding the best hyperparameters to use to optimize for probability
         of returning a safe solution for Seldonian algorithms. 
-        
-        Note: currently only implemented for finding optimal train/safety data split.
-
-        List of hyperparameters to optimize:
-        - Percentage of data in candidate and safety datasets
 
         :param spec: The specification object with the complete
                 set of parameters for running the Seldonian algorithm
@@ -454,7 +452,7 @@ class HyperparamSearch:
         """Utility function for supervised learning to generate the
         resampled datasets to use in each bootstrap trial. Resamples (with replacement)
         features, labels and sensitive attributes to create 
-        self.hyperparam_spec.n_bootstrap_trials versions of these 
+        self.hyperparam_spec.n_bootstrap_trials versions of these. Saves pickle files.
 
         :param candidate_dataset: Dataset object containing candidate solution dataset.
                 This is the dataset we will be bootstrap sampling from.
@@ -531,6 +529,9 @@ class HyperparamSearch:
         :type frac_data_in_safety: float
         :param bootstrap_savedir: The root diretory to save all the bootstrapped datasets.
         :type bootstrap_savedir: str
+
+        :return: spec_for_bootstrap_trial
+        :rtype: :py:class:`.Spec`
         """
         spec_for_bootstrap_trial = copy.deepcopy(self.spec)
 

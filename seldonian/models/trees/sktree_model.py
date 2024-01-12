@@ -4,19 +4,18 @@ import autograd.numpy as np
 
 from autograd.extend import primitive, defvjp
 
-
 def probs2theta(probs):
-    # need to add a constant for stability in case prob=0 or 1,
-    # which can happen in the decision tree.
+    """ Get theta from p(theta) = sigmoid(theta).
+    Need to add a constant for stability in case prob=0 or 1,
+    which can happen in a decision tree.
+    """
     const = 1e-15
     probs[probs < 0.5] += const
     probs[probs >= 0.5] -= const
     return np.log(1 / (1 / probs - 1))
 
-
 def sigmoid(theta):
     return 1 / (1 + np.exp(-1 * theta))
-
 
 @primitive
 def sklearn_predict(theta, X, model, **kwargs):
@@ -26,11 +25,10 @@ def sklearn_predict(theta, X, model, **kwargs):
     :type theta: numpy ndarray
     :param X: model features
     :type X: numpy ndarray
-
-    :param model: An instance of the Seclass
+    :param model: An instance of a tree-based Seldonian model
 
     :return:
-        probs_pos_class: the vector of probabilities of predicting the positive class,
+        pred: the vector of probabilities of predicting the positive class,
         leaf_nodes_hit: the ids of the leaf nodes that were
             hit by each sample. These are needed for computing the Jacobian
     """
@@ -47,7 +45,6 @@ def sklearn_predict(theta, X, model, **kwargs):
 
     return pred, leaf_nodes_hit
 
-
 def sklearn_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the Sklearn model,
     obtaining the Jacobian d pred / dtheta.
@@ -58,7 +55,7 @@ def sklearn_predict_vjp(ans, theta, X, model):
     :type theta: numpy ndarray
     :param X: model features
     :type X: numpy ndarray
-    :param model: An instance of the SeldonianDecisionTree model
+    :param model: An instance of a tree-based Seldonian model
 
     :return fn: A function representing the vector Jacobian operator
     """
@@ -74,7 +71,6 @@ def sklearn_predict_vjp(ans, theta, X, model):
 
     return fn
 
-
 # Link the predict function with its gradient,
 # telling autograd not to look inside either of these functions
 defvjp(sklearn_predict, sklearn_predict_vjp)
@@ -87,12 +83,10 @@ class SeldonianDecisionTree(ClassificationModel):
         object.
 
         :ivar classifier: The SKLearn classifier object
-        :ivar has_intercept: Whether the model has an intercept term
-        :ivar params_updated: An internal flag used during the optimization
         """
         self.classifier = DecisionTreeClassifier(**dt_kwargs)
-        self.has_intercept = False
-        self.params_updated = False
+        self.has_intercept = False # this model does not have a y-intercept term 
+        self.params_updated = False # internal flag used during model optimization
 
     def fit(self, features, labels, **kwargs):
         """A wrapper around SKLearn's fit() method. Returns the leaf node probabilities
@@ -169,7 +163,6 @@ class SeldonianDecisionTree(ClassificationModel):
 
         :param theta: model weights (not probabilities)
         :type theta: numpy ndarray
-
         :param X: model features
         :type X: numpy ndarray
 
@@ -202,6 +195,8 @@ class SeldonianDecisionTree(ClassificationModel):
         :param ans: The result of the forward pass function evaluated on theta and X
         :param theta: The weight vector, which isn't used in this method
         :param X: The features
+
+        :return: J, the Jacobian matrix
         """
         pred, leaf_nodes_hit = ans
         indices = np.searchsorted(self.leaf_node_ids, leaf_nodes_hit)

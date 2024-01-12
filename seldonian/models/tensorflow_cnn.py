@@ -7,9 +7,7 @@ import tensorflow as tf
 
 class TensorFlowCNN(SupervisedTensorFlowBaseModel):
     def __init__(self, **kwargs):
-        """Base class for Supervised learning Seldonian
-        models implemented in TensorFlow
-
+        """Example Seldonian CNN implemented in TensorFlow.
         """
         super().__init__()
 

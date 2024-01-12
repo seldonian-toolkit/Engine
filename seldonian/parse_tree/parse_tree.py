@@ -23,10 +23,12 @@ class ParseTree(object):
         Class to represent a parse tree for a single behavioral constraint
 
         :param delta:
-                Confidence level. Specifies the maximum probability
-                that the algorithm can return a solution violat the
-                behavioral constraint.
+                Confidence level for the constraint. Specifies the maximum probability
+                that the algorithm can return a solution violates the
+                behavioral constraint. This gets broken up into smaller deltas
+                for the base nodes.
         :type delta: float
+        
         :param regime: The category of the machine learning algorithm,
                 e.g., supervised_learning or reinforcement_learning
         :type regime: str
@@ -38,6 +40,7 @@ class ParseTree(object):
                 Used to determine if conditional columns provided by user
                 are appropriate.
         :type columns: List(str)
+
         :ivar root:
                 Root node which contains the whole tree
                 via left and right child attributes.
@@ -113,9 +116,9 @@ class ParseTree(object):
     ):
         """
         Convenience function for building the tree from
-        a constraint string,
-        weighting of deltas to each base node, and
-        assigning which nodes need upper and lower bounding
+        a constraint string, subdividing the tree delta 
+        to deltas for each base node, and assigning which 
+        nodes need upper and lower bounding.
 
         :param constraint_str:
                 mathematical expression written in Python syntax
@@ -511,6 +514,17 @@ class ParseTree(object):
         return node_class(node_name), is_leaf
 
     def _parse_subscript(self, ast_node):
+        """
+        Helper function for dealing with base nodes
+        with subscripts.
+
+        :param ast_node: node in the ast tree
+        :type ast_node: ast.AST node object
+
+        :return: 
+            node_class - which node class to use for this base node
+            node_kwargs - keyword arguments used to build the base node
+        """
         if ast_node.value.id.rstrip("_") not in subscriptable_measure_functions:
             raise NotImplementedError(
                 "Error parsing your expression."
@@ -580,13 +594,13 @@ class ParseTree(object):
 
     def assign_bounds_needed(self, **kwargs):
         """
-        DFS through the tree and
+        Depth-first search through the tree and
         decide which bounds are required to compute
-        on each child node. Eventually we get to base nodes.
+        on each child node. 
         There are cases where it is not always
         necessary to compute both lower and upper
         bounds because at the end all we care about
-        is the upper bound of the root node.
+        is the upper bound of the root node. 
         """
         self.n_unique_bounds_tot = 0  # keeps track of the number of confidence bounds
         # (from unique base nodes) that will be needed in the tree.
@@ -772,7 +786,7 @@ class ParseTree(object):
 
     def _validate_delta_vector(self, delta_vector):
         """
-        Checks to make sure supplied delta vector is the correct length.
+        Checks to ensure the supplied delta vector is the correct length.
         Also if it does not sum to self.delta normalize it so it does.
 
         :param delta_vector: 1D array of delta values to assign to the unique base nodes
@@ -901,6 +915,13 @@ class ParseTree(object):
         """
         Checks to make sure supplied factors has correct dtype and size
         given the method.
+
+        :param method:
+                How you want to assign the bound inflation factors to the base nodes
+        :type method: str
+        :param factors: If an integer and method=="constant", that integer is applied to all bounds.
+            If method=="manual", this needs to be a vector of bound inflation factors to assign to each unique
+            base node.
         """
         if self.n_unique_bounds_tot is None:
             raise RuntimeError(

@@ -5,7 +5,6 @@ import autograd.numpy as np  # Thinly-wrapped version of Numpy
 from autograd.extend import primitive, defvjp
 from seldonian.models.models import SupervisedModel
 
-
 @primitive
 def sklearn_predict(theta, X, model, **kwargs):
     """Do a forward pass through the sklearn model.
@@ -15,7 +14,6 @@ def sklearn_predict(theta, X, model, **kwargs):
     :type theta: numpy ndarray
     :param X: model features
     :type X: numpy ndarray
-
     :param model: An instance of a class inheriting from
             SupervisedSkLearnBaseModel
 
@@ -32,14 +30,12 @@ def sklearn_predict(theta, X, model, **kwargs):
     model.predictions = pred
 
     # Predictions must be a numpy array
-
     return pred
-
 
 def sklearn_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the Sklearn model,
     obtaining the Jacobian d pred / dtheta.
-    Must convert back to numpy array before returning
+    Must convert back to numpy array before returning.
 
     :param ans: The result from the forward pass
     :type ans: numpy ndarray
@@ -53,7 +49,6 @@ def sklearn_predict_vjp(ans, theta, X, model):
 
     :return fn: A function representing the vector Jacobian operator
     """
-
     def fn(v):
         # v is a vector of shape ans, the return value of mypredict()
         # This function returns a 1D array:
@@ -86,12 +81,11 @@ class SupervisedSkLearnBaseModel(SupervisedModel):
 
         :param theta: model weights
         :type theta: numpy ndarray
-
         :param X: model features
         :type X: numpy ndarray
 
-        :return pred_numpy: model predictions
-        :rtype pred_numpy: numpy ndarray same shape as labels
+        :return: model predictions
+        :rtype: numpy ndarray same shape as labels
         """
         return sklearn_predict(theta, X, self)
 

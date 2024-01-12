@@ -18,7 +18,7 @@ class SupervisedModel(SeldonianModel):
 
 class RegressionModel(SupervisedModel):
     def __init__(self):
-        """Parent class for all regression-based models"""
+        """Parent class for all regression-based supervised learning models"""
         super().__init__()
         self.has_intercept = True
 
@@ -105,7 +105,7 @@ class BoundedLinearRegressionModel(LinearRegressionModel):
 
     def predict(self, theta, X):
         """Overrides the original predict
-        function to squash predictions
+        function to squash predictions. Hardcoded bounds.
 
         :param theta: The parameter weights
         :type theta: numpy ndarray

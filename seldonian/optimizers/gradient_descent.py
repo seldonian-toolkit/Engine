@@ -5,7 +5,6 @@ from autograd import grad, jacobian, elementwise_grad as egrad
 import warnings
 from seldonian.warnings.custom_warnings import *
 
-
 def setup_gradients(gradient_library, primary_objective, upper_bounds_function):
     """Wrapper to obtain the gradient functions
     of the primary objective and upper bounds function
@@ -27,7 +26,6 @@ def setup_gradients(gradient_library, primary_objective, upper_bounds_function):
         )
     return grad_primary_theta, grad_upper_bound_theta
 
-
 def gradient_descent_adam(
     primary_objective,
     n_constraints,
@@ -48,16 +46,18 @@ def gradient_descent_adam(
     debug=False,
     **kwargs,
 ):
-    """Implements simultaneous gradient descent/ascent using
+    """Implements KKT optimization, i.e. simultaneous gradient descent/ascent using
     the Adam optimizer on a Lagrangian:
     L(theta,lambda) = f(theta) + lambda*g(theta),
     where f is the primary objective, lambda is a vector of
     Lagrange multipliers, and g is a vector of the
-    upper bound functions. Gradient descent is done for theta
-    and gradient ascent is done for lambda to find the saddle
-    points of L. Being part of candidate selection,
-    it is important that this function always returns a solution.
-    The safety test determines if No Solution Found.
+    upper bound functions. Gradient descent is done on theta
+    and gradient ascent is done on lambda to find the saddle
+    points of L. We only are interested in the optimal theta.
+    Being part of candidate selection,
+    If a nan or inf occurs during the optimization, NSF is returned. 
+    The optimal solution is defined as the feasible solution (i.e.
+    all constraints satisfied), that has the smallest primary objective value. 
 
     :param primary_objective: The objective function that would
         be solely optimized in the absence of behavioral constraints,
@@ -71,6 +71,13 @@ def gradient_descent_adam(
     :type theta_init: numpy ndarray
     :param lambda_init: Initial values for Lagrange multiplier terms
     :type theta_init: float
+    :param batch_calculator: A function/class method that sets the current batch
+        and returns whether the batch is viable for generating 
+        a candidate solution
+    :param batches: The number of batches per epoch
+    :type batches: int
+    :param n_epochs: The number of epochs to run
+    :type n_epochs: int
     :param alpha_theta: Initial learning rate for theta
     :type alpha_theta: float
     :param alpha_lamb: Initial learning rate for lambda
@@ -84,11 +91,14 @@ def gradient_descent_adam(
     :param gradient_library: The name of the library to use for computing
         automatic gradients.
     :type gradient_library: str, defaults to "autograd"
+    :param clip_theta: Optional, the min and max values 
+        between which to clip all values in the theta vector
+    :type clip_theta: tuple, list or numpy.ndarray, defaults to None
     :param verbose: Boolean flag to control verbosity
     :param debug: Boolean flag to print out info useful for debugging
 
-    :return: solution, a dictionary containing the solution and metadata
-        about the gradient descent run
+    :return: solution, a dictionary containing the candidate solution and values of 
+        the parameters of the KKT optimization at each step.
     :rtype: dict
     """
 

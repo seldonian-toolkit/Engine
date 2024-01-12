@@ -53,6 +53,20 @@ class Spec(object):
     :param regularization_hyperparams: Hyperparameters for
             regularization during candidate selection. See :ref:`candidate_selection`.
     :type regularization_hyperparams: dict
+    :param batch_size_safety: The number of samples that are forward passed
+        through the model during the safety test. Value does not change result, 
+        but sometimes is necessary when dataset is large to avoid memory overflow. 
+    :type batch_size_safety: int, defaults to None
+    :param candidate_dataset: An dataset to use explicitly for candidate selection.
+        If provided, overrides the data splitting and dataset is not used. 
+    :type candidate_dataset: :py:class:`.DataSet`, defaults to None
+    :param safety_dataset: An dataset to use explicitly for the safety test.
+        If provided in conjuction with candidate_dataset, 
+        overrides the data splitting and dataset is not used. 
+    :type safety_dataset: :py:class:`.DataSet`, defaults to None
+    :param additional_datasets: Specifies optional additional datasets to use
+            for bounding the base nodes of the parse trees.
+    :type additional_datasets: dict, defaults to {}
     """
 
     def __init__(
@@ -161,6 +175,10 @@ class Spec(object):
 
         Also, for the missing parse trees and base nodes,
         fill those entires with the primary dataset or candidate/safety split if provided.
+
+        :param additional_datasets: Specifies optional additional datasets to use
+            for bounding the base nodes of the parse trees.
+        :type additional_datasets: dict, defaults to {}
         """
         valid_constraint_strings = set([pt.constraint_str for pt in self.parse_trees])
         if additional_datasets == {}:
@@ -292,6 +310,20 @@ class SupervisedSpec(Spec):
     :param regularization_hyperparams: Hyperparameters for
             regularization during candidate selection. See :ref:`candidate_selection`.
     :type regularization_hyperparams: dict
+    :param batch_size_safety: The number of samples that are forward passed
+        through the model during the safety test. Value does not change result, 
+        but sometimes is necessary when dataset is large to avoid memory overflow. 
+    :type batch_size_safety: int, defaults to None
+    :param candidate_dataset: An dataset to use explicitly for candidate selection.
+        If provided, overrides the data splitting and dataset is not used. 
+    :type candidate_dataset: :py:class:`.DataSet`, defaults to None
+    :param safety_dataset: An dataset to use explicitly for the safety test.
+        If provided in conjuction with candidate_dataset, 
+        overrides the data splitting and dataset is not used. 
+    :type safety_dataset: :py:class:`.DataSet`, defaults to None
+    :param additional_datasets: Specifies optional additional datasets to use
+            for bounding the base nodes of the parse trees.
+    :type additional_datasets: dict, defaults to {}
     """
 
     def __init__(
@@ -406,6 +438,20 @@ class RLSpec(Spec):
             regularization during candidate selection. See
             :ref:`candidate_selection`.
     :type regularization_hyperparams: dict
+    :param batch_size_safety: The number of samples that are forward passed
+        through the model during the safety test. Value does not change result, 
+        but sometimes is necessary when dataset is large to avoid memory overflow. 
+    :type batch_size_safety: int, defaults to None
+    :param candidate_dataset: An dataset to use explicitly for candidate selection.
+        If provided, overrides the data splitting and dataset is not used. 
+    :type candidate_dataset: :py:class:`.DataSet`, defaults to None
+    :param safety_dataset: An dataset to use explicitly for the safety test.
+        If provided in conjuction with candidate_dataset, 
+        overrides the data splitting and dataset is not used. 
+    :type safety_dataset: :py:class:`.DataSet`, defaults to None
+    :param additional_datasets: Specifies optional additional datasets to use
+            for bounding the base nodes of the parse trees.
+    :type additional_datasets: dict, defaults to {}
     """
 
     def __init__(
@@ -461,6 +507,7 @@ class RLSpec(Spec):
             verbose=verbose,
         )
 
+
 class HyperparameterSelectionSpec(object):
     """Class for the specification object for selecting hyperparameters
 
@@ -490,6 +537,7 @@ class HyperparameterSelectionSpec(object):
         self.n_bootstrap_workers = n_bootstrap_workers
         self.use_bs_pools = use_bs_pools,
         self.confidence_interval_type = confidence_interval_type
+
 
 def createSimpleSupervisedSpec(
     dataset,
