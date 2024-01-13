@@ -530,12 +530,12 @@ class HyperparameterSelectionSpec(object):
         n_bootstrap_trials,
         n_bootstrap_workers,
         use_bs_pools,
-        confidence_interval_type=None
+        confidence_interval_type=None,
     ):
         self.hyper_schema = hyper_schema
         self.n_bootstrap_trials = n_bootstrap_trials
         self.n_bootstrap_workers = n_bootstrap_workers
-        self.use_bs_pools = use_bs_pools,
+        self.use_bs_pools = (use_bs_pools,)
         self.confidence_interval_type = confidence_interval_type
 
 

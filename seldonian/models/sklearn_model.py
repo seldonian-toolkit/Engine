@@ -5,6 +5,7 @@ import autograd.numpy as np  # Thinly-wrapped version of Numpy
 from autograd.extend import primitive, defvjp
 from seldonian.models.models import SupervisedModel
 
+
 @primitive
 def sklearn_predict(theta, X, model, **kwargs):
     """Do a forward pass through the sklearn model.
@@ -32,6 +33,7 @@ def sklearn_predict(theta, X, model, **kwargs):
     # Predictions must be a numpy array
     return pred
 
+
 def sklearn_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the Sklearn model,
     obtaining the Jacobian d pred / dtheta.
@@ -49,6 +51,7 @@ def sklearn_predict_vjp(ans, theta, X, model):
 
     :return fn: A function representing the vector Jacobian operator
     """
+
     def fn(v):
         # v is a vector of shape ans, the return value of mypredict()
         # This function returns a 1D array:

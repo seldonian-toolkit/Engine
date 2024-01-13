@@ -6,6 +6,7 @@ import pandas as pd
 from seldonian.utils.io_utils import load_json
 from seldonian.dataset import *
 
+
 def test_load_supervised_dataset():
     """Test that supervised learning datasets can be loaded
     from various formats"""
@@ -133,6 +134,7 @@ def test_load_supervised_dataset():
 
     assert ds.sensitive_attrs == []
 
+
 def test_load_RL_dataset():
     """Test that reinforcement learning datasets can be loaded
     from various formats"""
@@ -178,6 +180,7 @@ def test_load_RL_dataset():
         episodes[0].action_probs[0:5], np.array([0.25, 0.25, 0.25, 0.25, 0.25])
     )
 
+
 def test_load_RL_dataset_alt_rewards():
     """Test that reinforcement learning datasets can be loaded
     from various formats"""
@@ -212,24 +215,29 @@ def test_load_RL_dataset_alt_rewards():
     assert np.allclose(episodes[0].alt_rewards[0][0], -8)
     assert np.allclose(episodes[0].alt_rewards[0][1], -3)
 
+
 def test_custom_dataset():
     # Load German credit dataset but as a custom dataset instead of supervised dataset
     metadata_pth = "static/datasets/custom/german_credit/metadata_german_loan.json"
     meta = load_custom_metadata(metadata_pth)
-    
+
     all_col_names = meta.all_col_names
 
     # First, from csv
-    data_pth = "static/datasets/custom/german_credit/german_loan_numeric_forseldonian.csv"
+    data_pth = (
+        "static/datasets/custom/german_credit/german_loan_numeric_forseldonian.csv"
+    )
 
     # One needs to load their custom dataset using their own script
     df = pd.read_csv(data_pth, header=None, names=meta.all_col_names)
 
     sensitive_attrs = df.loc[:, meta.sensitive_col_names].values
-    # data is everything else (includes labels in this case). 
+    # data is everything else (includes labels in this case).
     # will handle separating features and labels inside objective functions and measure functions
-    data_col_names = [col for col in meta.all_col_names if col not in meta.sensitive_col_names]
-    data = df.loc[:,data_col_names].values
+    data_col_names = [
+        col for col in meta.all_col_names if col not in meta.sensitive_col_names
+    ]
+    data = df.loc[:, data_col_names].values
 
     num_datapoints = len(data)
 
@@ -237,17 +245,17 @@ def test_custom_dataset():
         data=data,
         sensitive_attrs=sensitive_attrs,
         num_datapoints=num_datapoints,
-        meta=meta
+        meta=meta,
     )
-    
-    assert dataset.sensitive_col_names == ["F","M"]
+
+    assert dataset.sensitive_col_names == ["F", "M"]
     assert dataset.regime == "custom"
     assert dataset.data.shape == (1000, 58)
     assert dataset.num_datapoints == 1000
-    assert dataset.sensitive_attrs.shape == (1000,2)
+    assert dataset.sensitive_attrs.shape == (1000, 2)
 
     # Load some string data in a list
-    data = ["abc","def","ghi","jkl"]
+    data = ["abc", "def", "ghi", "jkl"]
     all_col_names = ["string"]
     meta = CustomMetaData(all_col_names=all_col_names)
     dataset = CustomDataSet(data=data, sensitive_attrs=[], num_datapoints=4, meta=meta)
@@ -257,6 +265,7 @@ def test_custom_dataset():
     assert len(dataset.data) == 4
     assert dataset.num_datapoints == 4
     assert dataset.sensitive_attrs == []
+
 
 def test_add_supervised_datasets():
     """Test that supervised learning datasets can be loaded
@@ -283,7 +292,7 @@ def test_add_supervised_datasets():
         filename=data_pth_csv, metadata_filename=metadata_pth, file_type="csv"
     )
     dataset3 = dataset1 + dataset2
-    for dataset in [dataset1,dataset2]:
+    for dataset in [dataset1, dataset2]:
         assert dataset.meta.feature_col_names == [
             "Physics",
             "Biology",
@@ -303,24 +312,19 @@ def test_add_supervised_datasets():
         assert dataset.num_datapoints == 43303
 
     assert dataset3.meta.feature_col_names == [
-            "Physics",
-            "Biology",
-            "History",
-            "Second_Language",
-            "Geography",
-            "Literature",
-            "Portuguese_and_Essay",
-            "Math",
-            "Chemistry",
-        ]
+        "Physics",
+        "Biology",
+        "History",
+        "Second_Language",
+        "Geography",
+        "Literature",
+        "Portuguese_and_Essay",
+        "Math",
+        "Chemistry",
+    ]
     assert dataset3.meta.label_col_names == ["GPA_class"]
     assert dataset3.meta.sensitive_col_names == ["M", "F"]
     assert dataset3.meta.sub_regime == "classification"
     assert dataset3.features.shape == (86606, 9)
     assert dataset3.sensitive_col_names == ["M", "F"]
     assert dataset3.num_datapoints == 86606
-
-
-
-
-  

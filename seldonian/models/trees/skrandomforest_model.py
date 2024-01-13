@@ -1,9 +1,10 @@
 import autograd.numpy as np
 from autograd.extend import primitive, defvjp
 
-from seldonian.models.trees.sktree_model import probs2theta,sigmoid
+from seldonian.models.trees.sktree_model import probs2theta, sigmoid
 from seldonian.models.models import ClassificationModel
 from sklearn.ensemble import RandomForestClassifier
+
 
 @primitive
 def sklearn_predict(theta, X, model, **kwargs):
@@ -36,6 +37,7 @@ def sklearn_predict(theta, X, model, **kwargs):
 
     return pred, leaf_nodes_hit
 
+
 def sklearn_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the Sklearn model,
     obtaining the Jacobian d pred / dtheta.
@@ -64,6 +66,7 @@ def sklearn_predict_vjp(ans, theta, X, model):
 
     return fn
 
+
 # Link the predict function with its gradient,
 # telling autograd not to look inside either of these functions
 defvjp(sklearn_predict, sklearn_predict_vjp)
@@ -80,8 +83,8 @@ class SeldonianRandomForest(ClassificationModel):
         """
         self.classifier = RandomForestClassifier(**rf_kwargs)
         self.n_trees = self.classifier.n_estimators
-        self.has_intercept = False # this model does not have a y-intercept term 
-        self.params_updated = False # internal flag used during the optimization
+        self.has_intercept = False  # this model does not have a y-intercept term
+        self.params_updated = False  # internal flag used during the optimization
 
     def fit(self, features, labels, **kwargs):
         """A wrapper around SKLearn's fit() method. Returns the leaf node probabilities
@@ -113,9 +116,7 @@ class SeldonianRandomForest(ClassificationModel):
         self.n_leaf_nodes = sum([len(sublist) for sublist in self.leaf_node_ids])
         return self.get_leaf_node_probs()
 
-    def get_leaf_node_probs(
-        self,
-    ):
+    def get_leaf_node_probs(self,):
         """Retrieve the leaf node probabilities from the current forest of trees
         from left to right.
 

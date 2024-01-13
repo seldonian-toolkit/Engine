@@ -387,14 +387,14 @@ def test_phil_custom_base_node(gpa_regression_dataset):
         [
             0.42523186,
             -0.00285919,
-            -0.00202504, 
-            -0.00241554, 
-            -0.00234768, 
+            -0.00202504,
+            -0.00241554,
+            -0.00234768,
             -0.00258539,
-            0.01924093,  
-            0.01865392, 
-            -0.00308652, 
-            -0.00244911
+            0.01924093,
+            0.01865392,
+            -0.00308652,
+            -0.00244911,
         ]
     )
 
@@ -462,11 +462,11 @@ def test_cvar_custom_base_node():
     pt = parse_trees[0]
     pt.evaluate_constraint(
         theta=solution,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         regime="supervised_learning",
         branch="safety_test",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.value == pytest.approx(-47.163772762)
 
@@ -655,7 +655,7 @@ def test_gpa_data_regression_custom_constraint(gpa_regression_dataset):
             0.01056612,
             0.00997911,
             -0.0017614,
-            -0.00112394
+            -0.00112394,
         ]
     )
 
@@ -672,9 +672,13 @@ def test_gpa_data_regression_addl_datasets(gpa_regression_addl_datasets):
     constraint_strs = ["Mean_Squared_Error - 5.0", "2.0 - Mean_Squared_Error"]
     deltas = [0.05, 0.1]
 
-    (primary_dataset, additional_datasets, model, primary_objective, parse_trees) = gpa_regression_addl_datasets(
-        constraint_strs=constraint_strs, deltas=deltas
-    )
+    (
+        primary_dataset,
+        additional_datasets,
+        model,
+        primary_objective,
+        parse_trees,
+    ) = gpa_regression_addl_datasets(constraint_strs=constraint_strs, deltas=deltas)
 
     frac_data_in_safety = 0.6
 
@@ -717,27 +721,33 @@ def test_gpa_data_regression_addl_datasets(gpa_regression_addl_datasets):
             assert "candidate_dataset" in additional_datasets[pt.constraint_str][bn]
             assert "safety_dataset" in additional_datasets[pt.constraint_str][bn]
             bn_dataset = additional_datasets[pt.constraint_str][bn]["dataset"]
-            assert bn_dataset.num_datapoints == int(round(spec.dataset.num_datapoints*0.8))
+            assert bn_dataset.num_datapoints == int(
+                round(spec.dataset.num_datapoints * 0.8)
+            )
             cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
-            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            assert cd.num_datapoints == int(
+                round((1.0 - frac_data_in_safety) * 0.8 * spec.dataset.num_datapoints)
+            )
             sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
-            assert sd.num_datapoints == int(round((frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            assert sd.num_datapoints == int(
+                round((frac_data_in_safety) * 0.8 * spec.dataset.num_datapoints)
+            )
 
     # Run the Seldonian algorithm
     passed_safety, solution = SA.run()
     assert passed_safety == True
     array_to_compare = np.array(
         [
-            4.18103862e-01,  
-            1.06776995e-04,  
-            8.46491836e-04,  
+            4.18103862e-01,
+            1.06776995e-04,
+            8.46491836e-04,
             4.95734241e-04,
-            5.21233786e-04,  
-            3.25287639e-04,  
-            2.10667062e-03,  
+            5.21233786e-04,
+            3.25287639e-04,
+            2.10667062e-03,
             1.50025360e-03,
-            -1.24865593e-04,  
-            4.89120616e-04
+            -1.24865593e-04,
+            4.89120616e-04,
         ]
     )
     assert np.allclose(solution, array_to_compare)
@@ -899,9 +909,13 @@ def test_gpa_data_classification_addl_datasets(gpa_classification_addl_datasets)
     constraint_strs = ["abs((PR | [M]) - (PR | [F])) - 0.15"]
     deltas = [0.05]
 
-    (primary_dataset, additional_datasets, model, primary_objective, parse_trees) = gpa_classification_addl_datasets(
-        constraint_strs=constraint_strs, deltas=deltas
-    )
+    (
+        primary_dataset,
+        additional_datasets,
+        model,
+        primary_objective,
+        parse_trees,
+    ) = gpa_classification_addl_datasets(constraint_strs=constraint_strs, deltas=deltas)
 
     frac_data_in_safety = 0.6
 
@@ -944,11 +958,17 @@ def test_gpa_data_classification_addl_datasets(gpa_classification_addl_datasets)
             assert "candidate_dataset" in additional_datasets[pt.constraint_str][bn]
             assert "safety_dataset" in additional_datasets[pt.constraint_str][bn]
             bn_dataset = additional_datasets[pt.constraint_str][bn]["dataset"]
-            assert bn_dataset.num_datapoints == int(round(spec.dataset.num_datapoints*0.8))
+            assert bn_dataset.num_datapoints == int(
+                round(spec.dataset.num_datapoints * 0.8)
+            )
             cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
-            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            assert cd.num_datapoints == int(
+                round((1.0 - frac_data_in_safety) * 0.8 * spec.dataset.num_datapoints)
+            )
             sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
-            assert sd.num_datapoints == int(round((frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            assert sd.num_datapoints == int(
+                round((frac_data_in_safety) * 0.8 * spec.dataset.num_datapoints)
+            )
 
     # Run the Seldonian algorithm
     passed_safety, solution = SA.run()
@@ -964,25 +984,26 @@ def test_gpa_data_classification_addl_datasets(gpa_classification_addl_datasets)
             0.40484586,
             0.3045744,
             -0.1084586,
-            -0.05770913
+            -0.05770913,
         ]
     )
-   
+
     assert np.allclose(solution, array_to_compare)
 
     # Now use custom batch size for additional dataset. Provide custom batch size for one base node.
-    # The other base node will get the batch size of the primary objective. 
+    # The other base node will get the batch size of the primary objective.
     # Need to turn on batching in spec object
     primary_batch_size = 5000
-    batch_size_dict = {
-        "abs((PR | [M]) - (PR | [F])) - 0.15": {
-            "PR | [M]": 1000,
-        }
-    }
-    (primary_dataset, additional_datasets, model, primary_objective, parse_trees) = gpa_classification_addl_datasets(
+    batch_size_dict = {"abs((PR | [M]) - (PR | [F])) - 0.15": {"PR | [M]": 1000,}}
+    (
+        primary_dataset,
+        additional_datasets,
+        model,
+        primary_objective,
+        parse_trees,
+    ) = gpa_classification_addl_datasets(
         constraint_strs=constraint_strs, deltas=deltas, batch_size_dict=batch_size_dict
     )
-
 
     # Create new spec object
     spec2 = SupervisedSpec(
@@ -1021,17 +1042,24 @@ def test_gpa_data_classification_addl_datasets(gpa_classification_addl_datasets)
             assert "candidate_dataset" in additional_datasets[pt.constraint_str][bn]
             assert "safety_dataset" in additional_datasets[pt.constraint_str][bn]
             if "batch_size" in additional_datasets[pt.constraint_str][bn]:
-                assert additional_datasets[pt.constraint_str][bn]["batch_size"] == batch_size_dict[pt.constraint_str][bn] 
+                assert (
+                    additional_datasets[pt.constraint_str][bn]["batch_size"]
+                    == batch_size_dict[pt.constraint_str][bn]
+                )
             cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
-            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            assert cd.num_datapoints == int(
+                round((1.0 - frac_data_in_safety) * 0.8 * spec.dataset.num_datapoints)
+            )
             sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
-            assert sd.num_datapoints == int(round((frac_data_in_safety)*0.8*spec.dataset.num_datapoints))
+            assert sd.num_datapoints == int(
+                round((frac_data_in_safety) * 0.8 * spec.dataset.num_datapoints)
+            )
 
     # Run the Seldonian algorithm
     passed_safety, solution = SA2.run()
     assert passed_safety == True
     array_to_compare = np.array(
-         [
+        [
             -0.13806723,
             -0.0342689,
             0.16904019,
@@ -1041,10 +1069,10 @@ def test_gpa_data_classification_addl_datasets(gpa_classification_addl_datasets)
             0.39152464,
             0.291386,
             -0.09522752,
-            -0.04463774
+            -0.04463774,
         ]
     )
-   
+
     assert np.allclose(solution, array_to_compare)
 
 
@@ -2550,7 +2578,9 @@ def test_gpa_random_forest(gpa_classification_dataset):
         solution_to_compare = solution_dict[constraint]
         assert np.allclose(solution, solution_to_compare)
 
+
 """ Custom regime tests """
+
 
 def test_custom_text_dataset(custom_text_spec):
     # Test that the custom dataset (lists of strings) runs all the way through the algorithm
@@ -2558,9 +2588,10 @@ def test_custom_text_dataset(custom_text_spec):
     spec = custom_text_spec()
     SA = SeldonianAlgorithm(spec)
     passed_safety, solution = SA.run()
-    expected = np.array([-1.01, -0.01,  0.99])
+    expected = np.array([-1.01, -0.01, 0.99])
     assert passed_safety == True
-    assert np.allclose(solution,expected)
+    assert np.allclose(solution, expected)
+
 
 def test_custom_loan_dataset(custom_loan_spec):
     # Test that the loan dataset with regime="custom" runs all the way through the algorithm
@@ -2573,7 +2604,8 @@ def test_custom_loan_dataset(custom_loan_spec):
 
     assert len(solution) == 58
     assert passed_safety == True
-    
+
+
 def test_custom_loan_addl_dataset(custom_loan_addl_dataset):
     # Test that the loan dataset with regime="custom" runs all the way through the algorithm
     # This tests using conditional columns with the custom regime, which the custom text dataset does not
@@ -2582,19 +2614,19 @@ def test_custom_loan_addl_dataset(custom_loan_addl_dataset):
     np.random.seed(rseed)
 
     (
-        primary_dataset, 
-        additional_datasets, 
-        model, 
-        primary_objective, 
-        parse_trees
+        primary_dataset,
+        additional_datasets,
+        model,
+        primary_objective,
+        parse_trees,
     ) = custom_loan_addl_dataset()
-  
+
     frac_data_in_safety = 0.6
 
-    def custom_initial_solution_fn(model,data,**kwargs):
-        features = data[:,:-1]
-        labels = data[:,-1]
-        return model.fit(features,labels)
+    def custom_initial_solution_fn(model, data, **kwargs):
+        features = data[:, :-1]
+        labels = data[:, -1]
+        return model.fit(features, labels)
 
     # Create spec object
     spec = Spec(
@@ -2633,15 +2665,15 @@ def test_custom_loan_addl_dataset(custom_loan_addl_dataset):
             bn_dataset = additional_datasets[pt.constraint_str][bn]["dataset"]
             assert bn_dataset.num_datapoints == 500
             cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
-            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*500))
+            assert cd.num_datapoints == int(round((1.0 - frac_data_in_safety) * 500))
             sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
-            assert sd.num_datapoints == int(round((frac_data_in_safety)*500))
+            assert sd.num_datapoints == int(round((frac_data_in_safety) * 500))
 
-     # Run the Seldonian algorithm
+    # Run the Seldonian algorithm
     passed_safety, solution = SA.run()
     assert passed_safety == True
     assert len(solution) == 58
-    
+
 
 """ RL based tests """
 
@@ -3029,14 +3061,13 @@ def test_RL_gridworld_addl_dataset(RL_gridworld_addl_dataset):
     constraint_strs = ["-10.0 - J_pi_new_IS"]
     deltas = [0.05]
 
-
     (
-        primary_dataset, 
-        additional_datasets, 
-        model, 
-        primary_objective, 
-        parse_trees
-    ) = RL_gridworld_addl_dataset(constraint_strs,deltas)
+        primary_dataset,
+        additional_datasets,
+        model,
+        primary_objective,
+        parse_trees,
+    ) = RL_gridworld_addl_dataset(constraint_strs, deltas)
 
     frac_data_in_safety = 0.6
 
@@ -3077,25 +3108,25 @@ def test_RL_gridworld_addl_dataset(RL_gridworld_addl_dataset):
             bn_dataset = additional_datasets[pt.constraint_str][bn]["dataset"]
             assert bn_dataset.num_datapoints == 50
             cd = additional_datasets[pt.constraint_str][bn]["candidate_dataset"]
-            assert cd.num_datapoints == int(round((1.0-frac_data_in_safety)*50))
+            assert cd.num_datapoints == int(round((1.0 - frac_data_in_safety) * 50))
             sd = additional_datasets[pt.constraint_str][bn]["safety_dataset"]
-            assert sd.num_datapoints == int(round((frac_data_in_safety)*50))
+            assert sd.num_datapoints == int(round((frac_data_in_safety) * 50))
 
     # Run the Seldonian algorithm
     passed_safety, solution = SA.run()
     assert passed_safety == True
-    array_to_compare = np.array([
-        [ 0.07390434, -0.0719768,  -0.0724801,   0.07081302,],
-        [ 0.07195114,  0.07210082, -0.07183858,  0.07117908,],
-        [ 0.07163089, -0.07224132, -0.07171612,  0.07213358,],
-        [-0.0718277,   0.07132247, -0.07168555,  0.07225085,],
-        [-0.07232368,  0.07285194, -0.07313774,  0.07051624,],
-        [-0.07368507, -0.07004692, -0.07180388,  0.07248678,],
-        [-0.07194876,  0.07323111,  0.0717594,   0.0721216, ],
-        [ 0.07234534,  0.07180869, -0.07459196, -0.07171865,],
-        [ 0.,          0.,          0.,          0.,        ]
-    ])
+    array_to_compare = np.array(
+        [
+            [0.07390434, -0.0719768, -0.0724801, 0.07081302,],
+            [0.07195114, 0.07210082, -0.07183858, 0.07117908,],
+            [0.07163089, -0.07224132, -0.07171612, 0.07213358,],
+            [-0.0718277, 0.07132247, -0.07168555, 0.07225085,],
+            [-0.07232368, 0.07285194, -0.07313774, 0.07051624,],
+            [-0.07368507, -0.07004692, -0.07180388, 0.07248678,],
+            [-0.07194876, 0.07323111, 0.0717594, 0.0721216,],
+            [0.07234534, 0.07180869, -0.07459196, -0.07171865,],
+            [0.0, 0.0, 0.0, 0.0,],
+        ]
+    )
 
     assert np.allclose(solution, array_to_compare)
- 
-    

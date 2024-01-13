@@ -10,6 +10,7 @@ from seldonian.models import objectives
 from seldonian.dataset import SupervisedDataSet, RLDataSet, CustomDataSet
 from seldonian.optimizers.gradient_descent import gradient_descent_adam
 
+
 class CandidateSelection(object):
     def __init__(
         self,
@@ -225,13 +226,13 @@ class CandidateSelection(object):
                 wraps = False
                 if len(batch_indices) == 4:
                     wraps = True
-                
+
                 start1, end1 = batch_indices[0:2]
                 batch_num_datapoints = end1 - start1
                 if wraps:
                     start2, end2 = batch_indices[2:4]
                     batch_num_datapoints += end2 - start2
-                
+
                 cand_dataset = this_dict["candidate_dataset"]
                 if self.regime == "supervised_learning":
                     batch_features = cand_dataset.features[start1:end1]
@@ -359,7 +360,7 @@ class CandidateSelection(object):
                         end1 = min(start1 + this_batch_size, num_datapoints_addl)
                         batch_indices = [start1, end1]
                         diff = this_batch_size - (end1 - start1)
-                        if diff > 0: # rule ii
+                        if diff > 0:  # rule ii
                             start2 = 0
                             end2 = diff
                             batch_indices.extend([start2, end2])
@@ -388,7 +389,7 @@ class CandidateSelection(object):
 
             if "clip_theta" not in kwargs:
                 kwargs["clip_theta"] = None
-            
+
             # Figure out number of batches
             if "use_batches" not in kwargs:
                 raise KeyError(
@@ -502,7 +503,7 @@ class CandidateSelection(object):
                         f"is not yet supported for regime='{self.regime}'."
                     )
 
-            # Run KKT optimization 
+            # Run KKT optimization
             res = gradient_descent_adam(**gd_kwargs)
 
             # Store optimization result as an instance variable
@@ -511,7 +512,7 @@ class CandidateSelection(object):
             res["batch_size"] = batch_size
             res["n_epochs"] = n_epochs
 
-            # Write out the "candidate_selection_log*.p" file that contains the 
+            # Write out the "candidate_selection_log*.p" file that contains the
             # info needed to make the KKT plots.
             if self.write_logfile:
                 log_counter = 0
@@ -535,7 +536,7 @@ class CandidateSelection(object):
             candidate_solution = res["candidate_solution"]
 
         elif self.optimization_technique == "barrier_function":
-            if self.regime not in ["supervised_learning","reinforcement_learning"]:
+            if self.regime not in ["supervised_learning", "reinforcement_learning"]:
                 raise NotImplementedError(
                     f"optimization_technique: {self.optimization_technique} "
                     f"is not supported for regime={self.regime}. "
@@ -633,7 +634,7 @@ class CandidateSelection(object):
         :return: the value of the objective function
             evaluated at theta
         """
-       
+
         if self.regime == "supervised_learning":
             result = self.primary_objective(
                 self.model,
@@ -688,11 +689,9 @@ class CandidateSelection(object):
             # Check if the i-th behavioral constraint is satisfied
             upper_bound = pt.root.upper
 
-            if (
-                upper_bound > 0.0
-            ):  
-                if predictSafetyTest: 
-                    # Trip flag to False so that we don't add more than one barrier if 
+            if upper_bound > 0.0:
+                if predictSafetyTest:
+                    # Trip flag to False so that we don't add more than one barrier if
                     # more than one constraint is predicted to fail the safety test.
                     predictSafetyTest = False
 
@@ -701,7 +700,7 @@ class CandidateSelection(object):
                     # will have a large cost associated with it
 
                     result = 100000.0
-                
+
                 # Shape the objective function using the value of the constraint (plus potential barrier)
                 # to push the search toward solutions
                 # that are predicted to pass the safety test.

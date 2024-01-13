@@ -5,6 +5,7 @@ from seldonian.models.models import SupervisedModel
 import torch
 import torch.nn as nn
 
+
 @primitive
 def pytorch_predict(theta, X, model, **kwargs):
     """Do a forward pass through the PyTorch model.
@@ -25,17 +26,18 @@ def pytorch_predict(theta, X, model, **kwargs):
     if not model.params_updated:
         model.update_model_params(theta, **kwargs)
         model.params_updated = True
-    
+
     # Do the forward pass
     pred = model.forward_pass(X, **kwargs)
-    
+
     # set the predictions attribute of the model
     model.predictions = pred
 
     # Convert predictions into a numpy array
     pred_numpy = pred.cpu().detach().numpy()
-    
+
     return pred_numpy
+
 
 def pytorch_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the PyTorch model,
@@ -69,6 +71,7 @@ def pytorch_predict_vjp(ans, theta, X, model):
         return np.array(dpred_dtheta)
 
     return fn
+
 
 # Link the predict function with its gradient,
 # telling autograd not to look inside either of these functions
@@ -183,11 +186,11 @@ class SupervisedPytorchBaseModel(SupervisedModel):
         :rtype: numpy.ndarray
         """
         self.zero_gradients()
-        # Use retain_graph=True in backprop step 
+        # Use retain_graph=True in backprop step
         # because we need to backprop at fixed model parameters
         # once for primary objective
         # and once for each constraint function.
-        predictions.backward(gradient=external_grad, retain_graph=True)  
+        predictions.backward(gradient=external_grad, retain_graph=True)
         grad_params_list = []
         for param in self.pytorch_model.parameters():
             if param.requires_grad:

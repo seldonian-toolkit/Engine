@@ -51,11 +51,7 @@ def test_multiclass_logistic_regression_model():
     X = np.array([[0.0, 0.0], [0.25, 0.5], [0.5, 1.0], [0.75, 1.5]])  # i x j
     Y = np.array([0, 1, 2, 0])  # length i, true labels
     theta_init = np.array(
-        [
-            [0.0, -1.0, 1.0],
-            [-1.0, -0.5, 0.5],
-            [1.0, 0.5, -0.5],
-        ]
+        [[0.0, -1.0, 1.0], [-1.0, -0.5, 0.5], [1.0, 0.5, -0.5],]
     )  # j+1 x k classes in length to account for intercept
     y_pred = model.predict(theta_init, X)
 

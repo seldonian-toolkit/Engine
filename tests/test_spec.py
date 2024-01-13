@@ -176,7 +176,8 @@ def test_duplicate_parse_trees(gpa_regression_dataset):
     constraint_strs = ["Mean_Squared_Error - 2.0", "Mean_Squared_Error - 2.0"]
     deltas = [0.05, 0.05]
     dataset, model, primary_objective, parse_trees = gpa_regression_dataset(
-            constraint_strs,deltas) 
+        constraint_strs, deltas
+    )
     with pytest.raises(RuntimeError) as excinfo:
         spec = SupervisedSpec(
             dataset=dataset,
@@ -202,9 +203,10 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
     constraint_strs = [constraint_str]
     deltas = [0.5]
     dataset, model, primary_objective, parse_trees = gpa_regression_dataset(
-        constraint_strs,deltas) 
+        constraint_strs, deltas
+    )
 
-    num_datapoints=1000
+    num_datapoints = 1000
     new_features = dataset.features[0:num_datapoints]
     new_labels = dataset.labels[0:num_datapoints]
     new_sensitive_attrs = dataset.sensitive_attrs[0:num_datapoints]
@@ -213,47 +215,39 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
         labels=new_labels,
         sensitive_attrs=new_sensitive_attrs,
         num_datapoints=num_datapoints,
-        meta=dataset.meta
+        meta=dataset.meta,
     )
     additional_datasets = {}
-    additional_datasets[constraint_str] = {
-        base_node: {
-            "dataset": new_dataset
-        }
-    }
+    additional_datasets[constraint_str] = {base_node: {"dataset": new_dataset}}
 
     spec = SupervisedSpec(
-            dataset=dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
 
     assert constraint_str in spec.additional_datasets
-    assert "dataset" in spec.additional_datasets[constraint_str][base_node] 
+    assert "dataset" in spec.additional_datasets[constraint_str][base_node]
     extracted_dataset = spec.additional_datasets[constraint_str][base_node]["dataset"]
-    assert extracted_dataset.features.shape == (1000,9)
+    assert extracted_dataset.features.shape == (1000, 9)
     assert extracted_dataset.labels.shape == (1000,)
     assert extracted_dataset.num_datapoints == num_datapoints
 
     # Test 2: An error is raised if we use a bad constraint string as a key
     bad_constraint_str = "Bad_Base_Node - 10.0"
     additional_datasets = {}
-    additional_datasets[bad_constraint_str] = {
-        base_node: {
-            "dataset": new_dataset
-        }
-    }
+    additional_datasets[bad_constraint_str] = {base_node: {"dataset": new_dataset}}
     with pytest.raises(RuntimeError) as excinfo:
         spec = SupervisedSpec(
-                dataset=dataset,
-                model=model,
-                primary_objective=primary_objective,
-                parse_trees=parse_trees,
-                sub_regime="regression",
-                additional_datasets=additional_datasets
+            dataset=dataset,
+            model=model,
+            primary_objective=primary_objective,
+            parse_trees=parse_trees,
+            sub_regime="regression",
+            additional_datasets=additional_datasets,
         )
     error_str = (
         f"The constraint: '{bad_constraint_str}' "
@@ -262,33 +256,29 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
         "Check formatting."
     )
     assert str(excinfo.value) == error_str
-    
-    # Test 3: An error is raised if we use a bad base node as a key 
+
+    # Test 3: An error is raised if we use a bad base node as a key
 
     additional_datasets = {}
-    additional_datasets[constraint_str] = {
-        "Bad_Base_Node": {
-            "dataset": new_dataset
-        }
-    }
+    additional_datasets[constraint_str] = {"Bad_Base_Node": {"dataset": new_dataset}}
     with pytest.raises(RuntimeError) as excinfo:
         spec = SupervisedSpec(
-                dataset=dataset,
-                model=model,
-                primary_objective=primary_objective,
-                parse_trees=parse_trees,
-                sub_regime="regression",
-                additional_datasets=additional_datasets
+            dataset=dataset,
+            model=model,
+            primary_objective=primary_objective,
+            parse_trees=parse_trees,
+            sub_regime="regression",
+            additional_datasets=additional_datasets,
         )
     error_str = (
-         f"The base node: 'Bad_Base_Node' "
+        f"The base node: 'Bad_Base_Node' "
         "does not match the base nodes found in this parse tree:"
         "['Mean_Squared_Error']. "
         "Check formatting."
     )
     assert str(excinfo.value) == error_str
 
-    # Test 4: An error is raised if the "dataset" key is present 
+    # Test 4: An error is raised if the "dataset" key is present
     # and the "candidate_dataset" or "safety_dataset" key is also present
 
     additional_datasets = {}
@@ -296,17 +286,17 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
         base_node: {
             "dataset": new_dataset,
             "candidate_dataset": new_dataset,
-            "safety_dataset": new_dataset
+            "safety_dataset": new_dataset,
         }
     }
     with pytest.raises(RuntimeError) as excinfo:
         spec = SupervisedSpec(
-                dataset=dataset,
-                model=model,
-                primary_objective=primary_objective,
-                parse_trees=parse_trees,
-                sub_regime="regression",
-                additional_datasets=additional_datasets
+            dataset=dataset,
+            model=model,
+            primary_objective=primary_objective,
+            parse_trees=parse_trees,
+            sub_regime="regression",
+            additional_datasets=additional_datasets,
         )
     error_str = (
         f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
@@ -314,25 +304,23 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
     )
     assert str(excinfo.value) == error_str
 
-    # Test 5: An error is raised if the "dataset" key is missing, 
+    # Test 5: An error is raised if the "dataset" key is missing,
     # and the "candidate_dataset" and "safety_dataset" keys are not both present
     additional_datasets = {}
     additional_datasets[constraint_str] = {
-        base_node: {
-            "candidate_dataset": new_dataset,
-        }
+        base_node: {"candidate_dataset": new_dataset,}
     }
     with pytest.raises(RuntimeError) as excinfo:
         spec = SupervisedSpec(
-                dataset=dataset,
-                model=model,
-                primary_objective=primary_objective,
-                parse_trees=parse_trees,
-                sub_regime="regression",
-                additional_datasets=additional_datasets
+            dataset=dataset,
+            model=model,
+            primary_objective=primary_objective,
+            parse_trees=parse_trees,
+            sub_regime="regression",
+            additional_datasets=additional_datasets,
         )
     error_str = (
-       f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
+        f"There is an issue with the additional_datasets['{constraint_str}']['{base_node}'] dictionary. "
         "'dataset' key is not present, so 'candidate_dataset' and 'safety_dataset' keys must be present. "
     )
     assert str(excinfo.value) == error_str
@@ -344,11 +332,10 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
     constraint_str = f"{base_node1} + {base_node2}  - 5.0"
     constraint_strs = [constraint_str]
     deltas = [0.5]
-    _, _, _, parse_trees = gpa_regression_dataset(
-        constraint_strs,deltas) 
-    
+    _, _, _, parse_trees = gpa_regression_dataset(constraint_strs, deltas)
+
     # Add a second dataset
-    num_datapoints2=2000
+    num_datapoints2 = 2000
     new_features2 = dataset.features[0:num_datapoints2]
     new_labels2 = dataset.labels[0:num_datapoints2]
     new_sensitive_attrs2 = dataset.sensitive_attrs[0:num_datapoints2]
@@ -357,113 +344,104 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
         labels=new_labels2,
         sensitive_attrs=new_sensitive_attrs2,
         num_datapoints=num_datapoints2,
-        meta=dataset.meta
+        meta=dataset.meta,
     )
     # Test 6: Including both base nodes works
     additional_datasets = {}
     additional_datasets[constraint_str] = {
-        base_node1: {
-            "dataset": new_dataset
-        },
-        base_node2: {
-            "dataset": new_dataset2
-        }
+        base_node1: {"dataset": new_dataset},
+        base_node2: {"dataset": new_dataset2},
     }
 
     spec = SupervisedSpec(
-            dataset=dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
 
     assert constraint_str in spec.additional_datasets
-    assert "dataset" in spec.additional_datasets[constraint_str][base_node1] 
+    assert "dataset" in spec.additional_datasets[constraint_str][base_node1]
     extracted_dataset1 = spec.additional_datasets[constraint_str][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (1000,9)
+    assert extracted_dataset1.features.shape == (1000, 9)
     assert extracted_dataset1.labels.shape == (1000,)
     assert extracted_dataset1.num_datapoints == num_datapoints
 
-    assert "dataset" in spec.additional_datasets[constraint_str][base_node2] 
+    assert "dataset" in spec.additional_datasets[constraint_str][base_node2]
     extracted_dataset2 = spec.additional_datasets[constraint_str][base_node2]["dataset"]
-    assert extracted_dataset2.features.shape == (2000,9)
+    assert extracted_dataset2.features.shape == (2000, 9)
     assert extracted_dataset2.labels.shape == (2000,)
     assert extracted_dataset2.num_datapoints == num_datapoints2
-
 
     # Test 6: Leaving out one base nodes results in that base node getting assigned the primary dataset
     additional_datasets = {}
     additional_datasets[constraint_str] = {
-        base_node1: {
-            "dataset": new_dataset
-        },
+        base_node1: {"dataset": new_dataset},
     }
 
     spec = SupervisedSpec(
-            dataset=dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
 
     assert constraint_str in spec.additional_datasets
-    assert "dataset" in spec.additional_datasets[constraint_str][base_node1] 
+    assert "dataset" in spec.additional_datasets[constraint_str][base_node1]
     extracted_dataset1 = spec.additional_datasets[constraint_str][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (1000,9)
+    assert extracted_dataset1.features.shape == (1000, 9)
     assert extracted_dataset1.labels.shape == (1000,)
     assert extracted_dataset1.num_datapoints == num_datapoints
 
-    assert "dataset" in spec.additional_datasets[constraint_str][base_node2] 
+    assert "dataset" in spec.additional_datasets[constraint_str][base_node2]
     extracted_dataset2 = spec.additional_datasets[constraint_str][base_node2]["dataset"]
-    assert extracted_dataset2.features.shape == (43303,9)
+    assert extracted_dataset2.features.shape == (43303, 9)
     assert extracted_dataset2.labels.shape == (43303,)
     assert extracted_dataset2.num_datapoints == 43303
 
-    # Test 7: It is valid for one base node to get a single dataset 
+    # Test 7: It is valid for one base node to get a single dataset
     # and the second to get candidate/safety datasets
     additional_datasets = {}
     additional_datasets[constraint_str] = {
-        base_node1: {
-            "dataset": new_dataset
-        },
-        base_node2: {
-            "candidate_dataset": new_dataset,
-            "safety_dataset": new_dataset2
-        },
+        base_node1: {"dataset": new_dataset},
+        base_node2: {"candidate_dataset": new_dataset, "safety_dataset": new_dataset2},
     }
 
     spec = SupervisedSpec(
-            dataset=dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
 
     assert constraint_str in spec.additional_datasets
-    assert "dataset" in spec.additional_datasets[constraint_str][base_node1] 
+    assert "dataset" in spec.additional_datasets[constraint_str][base_node1]
     extracted_dataset1 = spec.additional_datasets[constraint_str][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (1000,9)
+    assert extracted_dataset1.features.shape == (1000, 9)
     assert extracted_dataset1.labels.shape == (1000,)
     assert extracted_dataset1.num_datapoints == num_datapoints
 
-    assert "dataset" not in spec.additional_datasets[constraint_str][base_node2] 
-    assert "candidate_dataset" in spec.additional_datasets[constraint_str][base_node2] 
-    assert "safety_dataset" in spec.additional_datasets[constraint_str][base_node2] 
-    extracted_candidate_dataset2 = spec.additional_datasets[constraint_str][base_node2]["candidate_dataset"]
-    assert extracted_candidate_dataset2.features.shape == (1000,9)
+    assert "dataset" not in spec.additional_datasets[constraint_str][base_node2]
+    assert "candidate_dataset" in spec.additional_datasets[constraint_str][base_node2]
+    assert "safety_dataset" in spec.additional_datasets[constraint_str][base_node2]
+    extracted_candidate_dataset2 = spec.additional_datasets[constraint_str][base_node2][
+        "candidate_dataset"
+    ]
+    assert extracted_candidate_dataset2.features.shape == (1000, 9)
     assert extracted_candidate_dataset2.labels.shape == (1000,)
     assert extracted_candidate_dataset2.num_datapoints == 1000
-    extracted_safety_dataset2 = spec.additional_datasets[constraint_str][base_node2]["safety_dataset"]
-    assert extracted_safety_dataset2.features.shape == (2000,9)
+    extracted_safety_dataset2 = spec.additional_datasets[constraint_str][base_node2][
+        "safety_dataset"
+    ]
+    assert extracted_safety_dataset2.features.shape == (2000, 9)
     assert extracted_safety_dataset2.labels.shape == (2000,)
     assert extracted_safety_dataset2.num_datapoints == 2000
-
 
     # NEW SET OF TESTS: Two parse trees, two base nodes on each
 
@@ -471,10 +449,9 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
     base_node2 = "Mean_Error"
     constraint_str1 = f"{base_node1} + {base_node2}  - 15.0"
     constraint_str2 = f"max({base_node1},{base_node2})  - 2.0"
-    constraint_strs = [constraint_str1,constraint_str2]
-    deltas = [0.05,0.2]
-    _, _, _, parse_trees = gpa_regression_dataset(
-        constraint_strs,deltas) 
+    constraint_strs = [constraint_str1, constraint_str2]
+    deltas = [0.05, 0.2]
+    _, _, _, parse_trees = gpa_regression_dataset(constraint_strs, deltas)
 
     # Test 8: If we only provide a single base node for a single tree,
     # then other base node of that tree gets primary dataset
@@ -482,109 +459,111 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
 
     additional_datasets = {}
     additional_datasets[constraint_str1] = {
-        base_node1: {
-            "dataset": new_dataset
-        },
+        base_node1: {"dataset": new_dataset},
     }
 
     spec = SupervisedSpec(
-            dataset=dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
-
 
     assert constraint_str1 in spec.additional_datasets
     assert constraint_str2 in spec.additional_datasets
 
-    assert "dataset" in spec.additional_datasets[constraint_str1][base_node1] 
-    extracted_dataset1 = spec.additional_datasets[constraint_str1][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (1000,9)
+    assert "dataset" in spec.additional_datasets[constraint_str1][base_node1]
+    extracted_dataset1 = spec.additional_datasets[constraint_str1][base_node1][
+        "dataset"
+    ]
+    assert extracted_dataset1.features.shape == (1000, 9)
     assert extracted_dataset1.labels.shape == (1000,)
     assert extracted_dataset1.num_datapoints == num_datapoints
 
-    assert "dataset" in spec.additional_datasets[constraint_str1][base_node2] 
-    extracted_dataset2 = spec.additional_datasets[constraint_str1][base_node2]["dataset"]
-    assert extracted_dataset2.features.shape == (43303,9)
+    assert "dataset" in spec.additional_datasets[constraint_str1][base_node2]
+    extracted_dataset2 = spec.additional_datasets[constraint_str1][base_node2][
+        "dataset"
+    ]
+    assert extracted_dataset2.features.shape == (43303, 9)
     assert extracted_dataset2.labels.shape == (43303,)
     assert extracted_dataset2.num_datapoints == 43303
 
-    assert "dataset" in spec.additional_datasets[constraint_str2][base_node1] 
-    extracted_dataset1 = spec.additional_datasets[constraint_str2][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (43303,9)
+    assert "dataset" in spec.additional_datasets[constraint_str2][base_node1]
+    extracted_dataset1 = spec.additional_datasets[constraint_str2][base_node1][
+        "dataset"
+    ]
+    assert extracted_dataset1.features.shape == (43303, 9)
     assert extracted_dataset1.labels.shape == (43303,)
     assert extracted_dataset1.num_datapoints == 43303
 
-    assert "dataset" in spec.additional_datasets[constraint_str2][base_node2] 
-    extracted_dataset2 = spec.additional_datasets[constraint_str2][base_node2]["dataset"]
-    assert extracted_dataset2.features.shape == (43303,9)
+    assert "dataset" in spec.additional_datasets[constraint_str2][base_node2]
+    extracted_dataset2 = spec.additional_datasets[constraint_str2][base_node2][
+        "dataset"
+    ]
+    assert extracted_dataset2.features.shape == (43303, 9)
     assert extracted_dataset2.labels.shape == (43303,)
     assert extracted_dataset2.num_datapoints == 43303
-
-
 
     # Test 9: Provide custom datasets for each base node in each tree
 
     additional_datasets = {}
     additional_datasets[constraint_str1] = {
-        base_node1: {
-            "dataset": new_dataset2
-        },
-        base_node2: {
-            "dataset": new_dataset
-        },
+        base_node1: {"dataset": new_dataset2},
+        base_node2: {"dataset": new_dataset},
     }
 
     additional_datasets[constraint_str2] = {
-        base_node1: {
-            "dataset": dataset
-        },
-        base_node2: {
-            "dataset": new_dataset2
-        },
+        base_node1: {"dataset": dataset},
+        base_node2: {"dataset": new_dataset2},
     }
 
     spec = SupervisedSpec(
-            dataset=dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
-
 
     assert constraint_str1 in spec.additional_datasets
     assert constraint_str2 in spec.additional_datasets
 
-    assert "dataset" in spec.additional_datasets[constraint_str1][base_node1] 
-    extracted_dataset1 = spec.additional_datasets[constraint_str1][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (2000,9)
+    assert "dataset" in spec.additional_datasets[constraint_str1][base_node1]
+    extracted_dataset1 = spec.additional_datasets[constraint_str1][base_node1][
+        "dataset"
+    ]
+    assert extracted_dataset1.features.shape == (2000, 9)
     assert extracted_dataset1.labels.shape == (2000,)
     assert extracted_dataset1.num_datapoints == 2000
 
-    assert "dataset" in spec.additional_datasets[constraint_str1][base_node2] 
-    extracted_dataset2 = spec.additional_datasets[constraint_str1][base_node2]["dataset"]
-    assert extracted_dataset2.features.shape == (1000,9)
+    assert "dataset" in spec.additional_datasets[constraint_str1][base_node2]
+    extracted_dataset2 = spec.additional_datasets[constraint_str1][base_node2][
+        "dataset"
+    ]
+    assert extracted_dataset2.features.shape == (1000, 9)
     assert extracted_dataset2.labels.shape == (1000,)
     assert extracted_dataset2.num_datapoints == 1000
 
-    assert "dataset" in spec.additional_datasets[constraint_str2][base_node1] 
-    extracted_dataset1 = spec.additional_datasets[constraint_str2][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (43303,9)
+    assert "dataset" in spec.additional_datasets[constraint_str2][base_node1]
+    extracted_dataset1 = spec.additional_datasets[constraint_str2][base_node1][
+        "dataset"
+    ]
+    assert extracted_dataset1.features.shape == (43303, 9)
     assert extracted_dataset1.labels.shape == (43303,)
     assert extracted_dataset1.num_datapoints == 43303
 
-    assert "dataset" in spec.additional_datasets[constraint_str2][base_node2] 
-    extracted_dataset2 = spec.additional_datasets[constraint_str2][base_node2]["dataset"]
-    assert extracted_dataset2.features.shape == (2000,9)
+    assert "dataset" in spec.additional_datasets[constraint_str2][base_node2]
+    extracted_dataset2 = spec.additional_datasets[constraint_str2][base_node2][
+        "dataset"
+    ]
+    assert extracted_dataset2.features.shape == (2000, 9)
     assert extracted_dataset2.labels.shape == (2000,)
     assert extracted_dataset2.num_datapoints == 2000
 
-    # NEW SET OF TESTS: Custom candidate/safety for primary dataset 
+    # NEW SET OF TESTS: Custom candidate/safety for primary dataset
 
     candidate_dataset = new_dataset
     safety_dataset = new_dataset2
@@ -594,110 +573,109 @@ def test_supervised_spec_additional_datasets(gpa_regression_dataset):
     constraint_str = f"{base_node} - 2.0"
     constraint_strs = [constraint_str]
     deltas = [0.05]
-    _, _, _, parse_trees = gpa_regression_dataset(
-        constraint_strs,deltas) 
+    _, _, _, parse_trees = gpa_regression_dataset(constraint_strs, deltas)
 
     additional_datasets = {}
-    additional_datasets[constraint_str] = {
-        base_node: {
-            "dataset": dataset
-        }
-    }
-        
+    additional_datasets[constraint_str] = {base_node: {"dataset": dataset}}
+
     spec = SupervisedSpec(
-            dataset=None,
-            candidate_dataset=candidate_dataset,
-            safety_dataset=safety_dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=None,
+        candidate_dataset=candidate_dataset,
+        safety_dataset=safety_dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
 
-    assert spec.candidate_dataset.features.shape == (1000,9)
-    assert spec.safety_dataset.features.shape == (2000,9)
+    assert spec.candidate_dataset.features.shape == (1000, 9)
+    assert spec.safety_dataset.features.shape == (2000, 9)
     assert constraint_str in spec.additional_datasets
 
-    assert "dataset" in spec.additional_datasets[constraint_str][base_node] 
-    assert "candidate_dataset" not in spec.additional_datasets[constraint_str][base_node] 
-    assert "safety_dataset" not in spec.additional_datasets[constraint_str][base_node] 
+    assert "dataset" in spec.additional_datasets[constraint_str][base_node]
+    assert (
+        "candidate_dataset" not in spec.additional_datasets[constraint_str][base_node]
+    )
+    assert "safety_dataset" not in spec.additional_datasets[constraint_str][base_node]
     extracted_dataset1 = spec.additional_datasets[constraint_str][base_node]["dataset"]
-    assert extracted_dataset1.features.shape == (43303,9)
+    assert extracted_dataset1.features.shape == (43303, 9)
     assert extracted_dataset1.labels.shape == (43303,)
     assert extracted_dataset1.num_datapoints == 43303
 
-    # Test 10: Two trees with two base nodes. Provide additional dataset for one of them in one tree only. 
+    # Test 10: Two trees with two base nodes. Provide additional dataset for one of them in one tree only.
     # The other gets the primary candidate/safety datasets.
 
     base_node1 = "Mean_Squared_Error"
     base_node2 = "Mean_Error"
     constraint_str1 = f"{base_node1} + {base_node2}  - 15.0"
     constraint_str2 = f"max({base_node1},{base_node2})  - 2.0"
-    constraint_strs = [constraint_str1,constraint_str2]
-    deltas = [0.05,0.2]
-    _, _, _, parse_trees = gpa_regression_dataset(
-        constraint_strs,deltas) 
+    constraint_strs = [constraint_str1, constraint_str2]
+    deltas = [0.05, 0.2]
+    _, _, _, parse_trees = gpa_regression_dataset(constraint_strs, deltas)
 
     additional_datasets = {}
     additional_datasets[constraint_str1] = {
-        base_node1: {
-            "dataset": dataset
-        },
-
+        base_node1: {"dataset": dataset},
     }
-        
+
     spec = SupervisedSpec(
-            dataset=None,
-            candidate_dataset=candidate_dataset,
-            safety_dataset=safety_dataset,
-            model=model,
-            primary_objective=primary_objective,
-            parse_trees=parse_trees,
-            sub_regime="regression",
-            additional_datasets=additional_datasets
+        dataset=None,
+        candidate_dataset=candidate_dataset,
+        safety_dataset=safety_dataset,
+        model=model,
+        primary_objective=primary_objective,
+        parse_trees=parse_trees,
+        sub_regime="regression",
+        additional_datasets=additional_datasets,
     )
 
-    assert spec.candidate_dataset.features.shape == (1000,9)
-    assert spec.safety_dataset.features.shape == (2000,9)
+    assert spec.candidate_dataset.features.shape == (1000, 9)
+    assert spec.safety_dataset.features.shape == (2000, 9)
     assert constraint_str1 in spec.additional_datasets
     assert constraint_str2 in spec.additional_datasets
 
-    assert "dataset" in spec.additional_datasets[constraint_str1][base_node1] 
-    assert "candidate_dataset" not in spec.additional_datasets[constraint_str1][base_node1] 
-    assert "safety_dataset" not in spec.additional_datasets[constraint_str1][base_node1] 
-    extracted_dataset1 = spec.additional_datasets[constraint_str1][base_node1]["dataset"]
-    assert extracted_dataset1.features.shape == (43303,9)
+    assert "dataset" in spec.additional_datasets[constraint_str1][base_node1]
+    assert (
+        "candidate_dataset" not in spec.additional_datasets[constraint_str1][base_node1]
+    )
+    assert "safety_dataset" not in spec.additional_datasets[constraint_str1][base_node1]
+    extracted_dataset1 = spec.additional_datasets[constraint_str1][base_node1][
+        "dataset"
+    ]
+    assert extracted_dataset1.features.shape == (43303, 9)
     assert extracted_dataset1.labels.shape == (43303,)
     assert extracted_dataset1.num_datapoints == 43303
 
-    assert "dataset" not in spec.additional_datasets[constraint_str1][base_node2] 
-    assert "candidate_dataset" in spec.additional_datasets[constraint_str1][base_node2] 
-    assert "safety_dataset" in spec.additional_datasets[constraint_str1][base_node2] 
-    extracted_candidate_dataset1 = spec.additional_datasets[constraint_str1][base_node2]["candidate_dataset"]
-    assert extracted_candidate_dataset1.features.shape == (1000,9)
+    assert "dataset" not in spec.additional_datasets[constraint_str1][base_node2]
+    assert "candidate_dataset" in spec.additional_datasets[constraint_str1][base_node2]
+    assert "safety_dataset" in spec.additional_datasets[constraint_str1][base_node2]
+    extracted_candidate_dataset1 = spec.additional_datasets[constraint_str1][
+        base_node2
+    ]["candidate_dataset"]
+    assert extracted_candidate_dataset1.features.shape == (1000, 9)
     assert extracted_candidate_dataset1.labels.shape == (1000,)
     assert extracted_candidate_dataset1.num_datapoints == 1000
-    extracted_safety_dataset1 = spec.additional_datasets[constraint_str1][base_node2]["safety_dataset"]
-    assert extracted_safety_dataset1.features.shape == (2000,9)
+    extracted_safety_dataset1 = spec.additional_datasets[constraint_str1][base_node2][
+        "safety_dataset"
+    ]
+    assert extracted_safety_dataset1.features.shape == (2000, 9)
     assert extracted_safety_dataset1.labels.shape == (2000,)
     assert extracted_safety_dataset1.num_datapoints == 2000
 
-    for bn in [base_node1,base_node2]:
-        assert "dataset" not in spec.additional_datasets[constraint_str2][bn] 
-        assert "candidate_dataset" in spec.additional_datasets[constraint_str2][bn] 
-        assert "safety_dataset" in spec.additional_datasets[constraint_str2][bn] 
-        extracted_candidate_dataset2 = spec.additional_datasets[constraint_str2][bn]["candidate_dataset"]
-        assert extracted_candidate_dataset2.features.shape == (1000,9)
+    for bn in [base_node1, base_node2]:
+        assert "dataset" not in spec.additional_datasets[constraint_str2][bn]
+        assert "candidate_dataset" in spec.additional_datasets[constraint_str2][bn]
+        assert "safety_dataset" in spec.additional_datasets[constraint_str2][bn]
+        extracted_candidate_dataset2 = spec.additional_datasets[constraint_str2][bn][
+            "candidate_dataset"
+        ]
+        assert extracted_candidate_dataset2.features.shape == (1000, 9)
         assert extracted_candidate_dataset2.labels.shape == (1000,)
         assert extracted_candidate_dataset2.num_datapoints == 1000
-        extracted_safety_dataset2 = spec.additional_datasets[constraint_str2][bn]["safety_dataset"]
-        assert extracted_safety_dataset2.features.shape == (2000,9)
+        extracted_safety_dataset2 = spec.additional_datasets[constraint_str2][bn][
+            "safety_dataset"
+        ]
+        assert extracted_safety_dataset2.features.shape == (2000, 9)
         assert extracted_safety_dataset2.labels.shape == (2000,)
         assert extracted_safety_dataset2.num_datapoints == 2000
-
-
-
-    
-
-

@@ -5,6 +5,7 @@ from autograd import grad, jacobian, elementwise_grad as egrad
 import warnings
 from seldonian.warnings.custom_warnings import *
 
+
 def setup_gradients(gradient_library, primary_objective, upper_bounds_function):
     """Wrapper to obtain the gradient functions
     of the primary objective and upper bounds function
@@ -25,6 +26,7 @@ def setup_gradients(gradient_library, primary_objective, upper_bounds_function):
             f"gradient library: {gradient_library}" " not supported"
         )
     return grad_primary_theta, grad_upper_bound_theta
+
 
 def gradient_descent_adam(
     primary_objective,

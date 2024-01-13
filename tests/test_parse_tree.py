@@ -187,6 +187,7 @@ answer_dict = {
 ### Propagator tests ###
 ########################
 
+
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_add_bounds(interval_index, stump):
     ### Addition ###
@@ -199,6 +200,7 @@ def test_add_bounds(interval_index, stump):
     assert pt.root.upper == answer[1]
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
+
 
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_subtract_bounds(interval_index, stump):
@@ -214,6 +216,7 @@ def test_subtract_bounds(interval_index, stump):
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
 
+
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_multiply_bounds(interval_index, stump):
     ### Multiplication ###
@@ -228,6 +231,7 @@ def test_multiply_bounds(interval_index, stump):
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
 
+
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_divide_bounds(interval_index, stump):
     ### Division ###
@@ -241,6 +245,7 @@ def test_divide_bounds(interval_index, stump):
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
+
 
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_power_bounds(interval_index, stump):
@@ -280,6 +285,7 @@ def test_power_bounds(interval_index, stump):
         assert pt.base_node_dict["a"]["bound_computed"] == True
         assert pt.base_node_dict["b"]["bound_computed"] == True
 
+
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_min_bounds(interval_index, stump):
     ### min ###
@@ -296,6 +302,7 @@ def test_min_bounds(interval_index, stump):
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
+
 
 @pytest.mark.parametrize("interval_index", range(len(two_interval_options)))
 def test_max_bounds(interval_index, stump):
@@ -314,6 +321,7 @@ def test_max_bounds(interval_index, stump):
     assert pt.base_node_dict["a"]["bound_computed"] == True
     assert pt.base_node_dict["b"]["bound_computed"] == True
 
+
 @pytest.mark.parametrize("interval_index", range(len(single_interval_options)))
 def test_abs_bounds(interval_index, edge):
     ### Absolute value ###
@@ -326,6 +334,7 @@ def test_abs_bounds(interval_index, edge):
     assert pt.root.lower == pytest.approx(answer[0])
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
+
 
 @pytest.mark.parametrize("interval_index", range(len(single_interval_options)))
 def test_log_bounds(interval_index, edge):
@@ -340,9 +349,11 @@ def test_log_bounds(interval_index, edge):
     assert pt.root.upper == pytest.approx(answer[1])
     assert pt.base_node_dict["a"]["bound_computed"] == True
 
+
 ##################
 ### Node tests ###
 ##################
+
 
 def test_node_reprs(stump):
     a, b = [[2.0, 3.0], [4.0, 5.0]]
@@ -388,9 +399,11 @@ def test_node_reprs(stump):
         ["[2]", "b", "\u03B5" + " " + right_bounds_str + ", \u03B4=(None,0.025)"]
     )
 
+
 ########################
 ### Parse tree tests ###
 ########################
+
 
 def test_parse_tree_from_simple_string():
     constraint_str = "FPR - (FNR + PR)*4"
@@ -409,6 +422,7 @@ def test_parse_tree_from_simple_string():
     assert pt.root.right.left.right.name == "PR"
     assert pt.root.right.right.name == "4"
     assert pt.root.right.right.value == 4
+
 
 def test_parse_tree_with_inequalities():
     # First one without inequalities
@@ -526,6 +540,7 @@ def test_parse_tree_with_inequalities():
     assert pt_gte0.root.right.left.name == "0.5"
     assert pt_gte0.root.right.left.value == 0.5
     assert pt_gte0.root.right.right.name == "PR | [M]"
+
 
 def test_math_functions():
     """Test that math functions like
@@ -673,6 +688,7 @@ def test_math_functions():
     )
     assert str(excinfo.value) == error_str
 
+
 def test_measure_functions_recognized():
     delta = 0.05
 
@@ -743,6 +759,7 @@ def test_measure_functions_recognized():
     )
     pt.create_from_ast(constraint_str)
     assert pt.root.right.measure_function_name == "ACC"
+
 
 def test_multiclass_measure_functions():
     delta = 0.05
@@ -829,6 +846,7 @@ def test_multiclass_measure_functions():
     pt.create_from_ast(constraint_str)
     assert pt.root.right.measure_function_name == "ACC"
 
+
 def test_rl_new_policy_base_node():
     delta = 0.05
     constraint_str = "J_pi_new_IS - 0.5"
@@ -838,6 +856,7 @@ def test_rl_new_policy_base_node():
     assert pt.root.left.measure_function_name == "J_pi_new_IS"
     assert pt.root.left.name == "J_pi_new_IS"
     assert isinstance(pt.root.left, NewPolicyPerformanceBaseNode)
+
 
 def test_rl_alt_reward_string():
     delta = 0.05
@@ -881,6 +900,7 @@ def test_rl_alt_reward_string():
     assert pt.root.left.alt_reward_number == 1
     assert isinstance(pt.root.left, NewPolicyPerformanceBaseNode)
     assert isinstance(pt.root.left, RLAltRewardBaseNode)
+
 
 def test_rl_alt_reward_bad_string():
     # Test that using non-numeric characters for the alt reward number raises an error
@@ -933,6 +953,7 @@ def test_rl_alt_reward_bad_string():
     error_str = "The alternate reward number you entered was not an integer."
     assert str(excinfo.value) == error_str
 
+
 def test_rl_alt_reward_precalc_return():
     np.random.seed(0)
 
@@ -973,22 +994,22 @@ def test_rl_alt_reward_precalc_return():
     theta = np.random.uniform(-0.05, 0.05, (9, 4))
     IS_pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         branch="candidate_selection",
         regime="reinforcement_learning",
         n_safety=150,
-        sub_regime="all"
+        sub_regime="all",
     )
     assert IS_pt.root.upper == pytest.approx(7.29027)
     IS_pt.reset_base_node_dict(reset_data=True)
     IS_pt.evaluate_constraint(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
-        sub_regime="all"
+        sub_regime="all",
     )
     assert IS_pt.root.value == pytest.approx(3.5460865367462726)
 
@@ -1012,22 +1033,22 @@ def test_rl_alt_reward_precalc_return():
     # propagate the bounds with example theta value
     PDIS_pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         branch="candidate_selection",
         regime="reinforcement_learning",
         n_safety=150,
-        sub_regime="all"
+        sub_regime="all",
     )
     assert PDIS_pt.root.upper == pytest.approx(0.2700371570087783)
     PDIS_pt.reset_base_node_dict(reset_data=True)
     PDIS_pt.evaluate_constraint(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
-        sub_regime="all"
+        sub_regime="all",
     )
     assert PDIS_pt.root.value == pytest.approx(0.08025886028)
 
@@ -1035,6 +1056,7 @@ def test_rl_alt_reward_precalc_return():
         "data_dict"
     ]["weighted_returns"]
     assert weighted_returns_alt_reward[0] == pytest.approx(7.563782445399999)
+
 
 def test_measure_function_with_conditional_bad_syntax_captured():
     delta = 0.05
@@ -1078,6 +1100,7 @@ def test_measure_function_with_conditional_bad_syntax_captured():
         "was not in the list of  columns provided: []"
     )
     assert str(excinfo.value) == error_str
+
 
 def test_measure_function_from_wrong_regime():
     """Test that if a measure function from the incorrect
@@ -1143,6 +1166,7 @@ def test_measure_function_from_wrong_regime():
     )
     assert str(excinfo.value) in error_str
 
+
 def test_provided_measure_function_custom_regime():
     """Test that the functionality of providing a custom measure function 
     in the custom regime works as expected """
@@ -1152,7 +1176,7 @@ def test_provided_measure_function_custom_regime():
     regime = "custom"
     sub_regime = None
     # Define behavioral constraint
-    constraint_str = 'CUST_LOSS <= 30.0'
+    constraint_str = "CUST_LOSS <= 30.0"
     delta = 0.05
 
     # Define custom measure function for CPR and register it when making parse tree
@@ -1171,17 +1195,18 @@ def test_provided_measure_function_custom_regime():
         :return: Positive rate for each observation
         :rtype: numpy ndarray(float between 0 and 1)
         """
-        predictions = model.predict(theta,data)
+        predictions = model.predict(theta, data)
         return predictions
 
-    custom_measure_functions = {
-        "CUST_LOSS": custom_measure_function
-        }
+    custom_measure_functions = {"CUST_LOSS": custom_measure_function}
 
     # Create parse tree object
     pt = ParseTree(
-        delta=delta, regime=regime, sub_regime=sub_regime, columns=[],
-        custom_measure_functions=custom_measure_functions
+        delta=delta,
+        regime=regime,
+        sub_regime=sub_regime,
+        columns=[],
+        custom_measure_functions=custom_measure_functions,
     )
 
     pt.build_tree(constraint_str)
@@ -1192,17 +1217,15 @@ def test_provided_measure_function_custom_regime():
     # Now test that if one does not provide a custom measure function and tries to use it
     # an error is raised
     # Define behavioral constraint
-    constraint_str = 'XYZ <= 0'
+    constraint_str = "XYZ <= 0"
     delta = 0.05
 
     # Create parse tree object
-    pt = ParseTree(
-        delta=delta, regime=regime, sub_regime=sub_regime, columns=[]
-    )
+    pt = ParseTree(delta=delta, regime=regime, sub_regime=sub_regime, columns=[])
 
     with pytest.raises(NotImplementedError) as excinfo:
         pt.build_tree(constraint_str)
-    
+
     error_str = (
         "Error parsing your expression. "
         "A variable name was used which we do not recognize: XYZ"
@@ -1231,6 +1254,7 @@ def test_custom_base_nodes():
     assert pt.root.left.alpha == 0.1
     assert pt.n_base_nodes == 1
     assert len(pt.base_node_dict) == 1
+
 
 def test_unary_op():
     delta = 0.05
@@ -1295,6 +1319,7 @@ def test_unary_op():
     )
     assert str(excinfo.value) == error_str
 
+
 def test_raise_error_on_excluded_operators():
     constraint_str = "FPR^4"
     delta = 0.05
@@ -1351,6 +1376,7 @@ def test_raise_error_on_excluded_operators():
     )
     assert str(excinfo.value) == error_str
 
+
 def test_single_conditional_columns_assigned():
     constraint_str = "abs(Mean_Error|[X]) - 0.1"
     delta = 0.05
@@ -1362,6 +1388,7 @@ def test_single_conditional_columns_assigned():
     assert pt.n_base_nodes == 1
     assert len(pt.base_node_dict) == 1
     assert pt.root.left.left.conditional_columns == ["X"]
+
 
 def test_multiple_conditional_columns_assigned():
     constraint_str = "abs(Mean_Error|[X,Y,Z]) - 0.1"
@@ -1377,6 +1404,7 @@ def test_multiple_conditional_columns_assigned():
     assert pt.n_base_nodes == 1
     assert len(pt.base_node_dict) == 1
     assert pt.root.left.left.conditional_columns == ["X", "Y", "Z"]
+
 
 def test_math_functions_propagate():
     np.random.seed(0)
@@ -1410,11 +1438,11 @@ def test_math_functions_propagate():
     theta = np.random.uniform(-0.05, 0.05, 10)
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model_instance,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="classification"
+        sub_regime="classification",
     )
     assert pt.root.lower == pytest.approx(0.59886236)
     assert pt.root.upper == pytest.approx(0.60010258)
@@ -1437,6 +1465,7 @@ def test_math_functions_propagate():
     # assert pt.root.lower == pytest.approx(-2.5187904943528903)
     # assert pt.root.upper == pytest.approx(-2.470509955060809)
 
+
 def test_deltas_assigned_equally():
     constraint_str = "abs((Mean_Error|[M]) - (Mean_Error|[F])) - 0.1"
     delta = 0.05
@@ -1455,6 +1484,7 @@ def test_deltas_assigned_equally():
     assert pt.root.name == "sub"
     assert pt.root.left.left.left.delta_lower == delta / (2 * n_unique_base_nodes)
     assert pt.root.left.left.right.delta_upper == delta / (2 * n_unique_base_nodes)
+
 
 def test_deltas_assigned_once_per_unique_basenode():
     """Make sure that the delta assigned to each base node
@@ -1487,6 +1517,7 @@ def test_deltas_assigned_once_per_unique_basenode():
     assert pt.root.right.right.left.delta_upper == delta / (2 * n_unique_base_nodes)
     assert pt.root.right.right.right.delta_lower == delta / (2 * n_unique_base_nodes)
     assert pt.root.right.right.right.delta_upper == delta / (2 * n_unique_base_nodes)
+
 
 def test_deltas_assigned_correctly_not_all_bounds_needed():
     """Make sure that when not all bounds are needed,
@@ -1582,6 +1613,7 @@ def test_deltas_assigned_correctly_not_all_bounds_needed():
     assert pt.root.left.right.delta_lower == delta / 4
     assert pt.root.left.right.delta_upper == delta / 4
 
+
 def test_delta_vector_assignment():
     # Test case #1: FPR needing only an upper bound with custom delta = pt.delta
     tree_delta = 0.05
@@ -1589,8 +1621,8 @@ def test_delta_vector_assignment():
     pt = ParseTree(
         tree_delta, regime="supervised_learning", sub_regime="classification"
     )
-    pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.05])
-    
+    pt.build_tree(constraint_str, delta_weight_method="manual", delta_vector=[0.05])
+
     # Should find that only the upper bound on FPR is needed
     # and upper bound gets assigned the correct delta
     assert pt.root.delta_lower == None
@@ -1605,7 +1637,7 @@ def test_delta_vector_assignment():
     pt = ParseTree(
         tree_delta, regime="supervised_learning", sub_regime="classification"
     )
-    pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.06])
+    pt.build_tree(constraint_str, delta_weight_method="manual", delta_vector=[0.06])
     assert pt.root.delta_lower == None
     assert pt.root.delta_upper == 0.05
     assert pt.base_node_dict["FPR"]["delta_lower"] == None
@@ -1622,7 +1654,11 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.01, 0.02, 0.03, 0.04])
+    pt.build_tree(
+        constraint_str,
+        delta_weight_method="manual",
+        delta_vector=[0.01, 0.02, 0.03, 0.04],
+    )
     reweighted_deltas = [
         0.012313129661287526,
         0.012436878671712491,
@@ -1649,7 +1685,9 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.build_tree(constraint_str, delta_weight_method="manual", delta_vector=[-1, -0.2, 0, 2])
+    pt.build_tree(
+        constraint_str, delta_weight_method="manual", delta_vector=[-1, -0.2, 0, 2]
+    )
     reweighted_deltas = [
         0.0038418155970352825,
         0.008550117850922747,
@@ -1676,8 +1714,10 @@ def test_delta_vector_assignment():
         sub_regime="regression",
         columns=["M", "F"],
     )
-    pt.build_tree(constraint_str,
-        delta_weight_method="manual", delta_vector=np.array([0.01, 0.02, 0.03, 0.04])
+    pt.build_tree(
+        constraint_str,
+        delta_weight_method="manual",
+        delta_vector=np.array([0.01, 0.02, 0.03, 0.04]),
     )
     reweighted_deltas = [
         0.012313129661287526,
@@ -1705,7 +1745,11 @@ def test_delta_vector_assignment():
     )
 
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=[0.01, 0.02, 0.03])
+        pt.build_tree(
+            constraint_str,
+            delta_weight_method="manual",
+            delta_vector=[0.01, 0.02, 0.03],
+        )
 
     error_str = "delta_vector has length: 3, but should be of length: 4"
     assert str(excinfo.value) == error_str
@@ -1720,7 +1764,11 @@ def test_delta_vector_assignment():
         columns=["M", "F"],
     )
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=(0.01, 0.02, 0.03))
+        pt.build_tree(
+            constraint_str,
+            delta_weight_method="manual",
+            delta_vector=(0.01, 0.02, 0.03),
+        )
 
     error_str = "delta_vector must be a list or 1D numpy array"
     assert str(excinfo.value) == error_str
@@ -1735,8 +1783,10 @@ def test_delta_vector_assignment():
         columns=["M", "F"],
     )
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str,
-            delta_weight_method="manual", delta_vector=np.array([[0.01], [0.02], [0.03]])
+        pt.build_tree(
+            constraint_str,
+            delta_weight_method="manual",
+            delta_vector=np.array([[0.01], [0.02], [0.03]]),
         )
 
     error_str = "delta_vector must be a list or 1D numpy array"
@@ -1772,10 +1822,13 @@ def test_delta_vector_assignment():
     )
     delta_vector = [1000, 0.1, 0.2, 0.3]
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str,delta_weight_method="manual", delta_vector=delta_vector)
+        pt.build_tree(
+            constraint_str, delta_weight_method="manual", delta_vector=delta_vector
+        )
 
     error_str = f"softmaxing delta_vector={delta_vector} resulted in nan or inf."
     assert str(excinfo.value) == error_str
+
 
 def test_bounds_needed_assigned_correctly():
     delta = 0.05  # use for all trees below
@@ -1922,16 +1975,15 @@ def test_bounds_needed_assigned_correctly():
     assert pt.root.left.right.will_upper_bound == True
     assert pt.n_unique_bounds_tot == 2
 
+
 def test_bound_inflation_factor_assignment():
-    delta = 0.05 # used for all test cases
+    delta = 0.05  # used for all test cases
 
     # Test case #1: Single base node with constant inflation factor (default=2)
     constraint_str = "FPR"
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
     pt.build_tree(constraint_str=constraint_str)
-    
+
     assert pt.root.infl_factor_lower == None
     assert pt.root.infl_factor_upper == 2
     assert pt.base_node_dict["FPR"]["infl_factor_lower"] == None
@@ -1940,11 +1992,9 @@ def test_bound_inflation_factor_assignment():
     # Test case #2: Single base node with constant inflation factor (non-default=1)
     infl_factor = 1
     constraint_str = "FPR"
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
-    pt.build_tree(constraint_str=constraint_str,infl_factors=infl_factor)
-    
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
+    pt.build_tree(constraint_str=constraint_str, infl_factors=infl_factor)
+
     assert pt.root.infl_factor_lower == None
     assert pt.root.infl_factor_upper == 1
     assert pt.base_node_dict["FPR"]["infl_factor_lower"] == None
@@ -1953,11 +2003,13 @@ def test_bound_inflation_factor_assignment():
     # Test case #3: Two base nodes with constant inflation factor (default=2)
     constraint_str = "abs((PR | [M]) - (PR | [F])) - 0.1"
     pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification",
-        columns=["M","F"]
+        delta,
+        regime="supervised_learning",
+        sub_regime="classification",
+        columns=["M", "F"],
     )
     pt.build_tree(constraint_str=constraint_str)
-    
+
     assert pt.root.left.left.left.infl_factor_lower == 2
     assert pt.root.left.left.left.infl_factor_upper == 2
     assert pt.root.left.left.right.infl_factor_lower == 2
@@ -1968,15 +2020,17 @@ def test_bound_inflation_factor_assignment():
     assert pt.base_node_dict["PR | [F]"]["infl_factor_lower"] == 2
     assert pt.base_node_dict["PR | [F]"]["infl_factor_upper"] == 2
 
-    # Test case #4: Two base nodes with constant non-default factors 
+    # Test case #4: Two base nodes with constant non-default factors
     infl_factor = 3
     constraint_str = "abs((PR | [M]) - (PR | [F])) - 0.1"
     pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification",
-        columns=["M","F"]
+        delta,
+        regime="supervised_learning",
+        sub_regime="classification",
+        columns=["M", "F"],
     )
-    pt.build_tree(constraint_str=constraint_str,infl_factors=infl_factor)
-    
+    pt.build_tree(constraint_str=constraint_str, infl_factors=infl_factor)
+
     assert pt.root.left.left.left.infl_factor_lower == infl_factor
     assert pt.root.left.left.left.infl_factor_upper == infl_factor
     assert pt.root.left.left.right.infl_factor_lower == infl_factor
@@ -1986,16 +2040,20 @@ def test_bound_inflation_factor_assignment():
     assert pt.base_node_dict["PR | [M]"]["infl_factor_upper"] == infl_factor
     assert pt.base_node_dict["PR | [F]"]["infl_factor_lower"] == infl_factor
     assert pt.base_node_dict["PR | [F]"]["infl_factor_upper"] == infl_factor
-    
-    # Test case #5: Two base nodes with vector of factors 
-    factors = [1.9,2.3,0.4,3]
+
+    # Test case #5: Two base nodes with vector of factors
+    factors = [1.9, 2.3, 0.4, 3]
     constraint_str = "abs((PR | [M]) - (PR | [F])) - 0.1"
     pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification",
-        columns=["M","F"]
+        delta,
+        regime="supervised_learning",
+        sub_regime="classification",
+        columns=["M", "F"],
     )
-    pt.build_tree(constraint_str=constraint_str,infl_factor_method="manual",infl_factors=factors)
-    
+    pt.build_tree(
+        constraint_str=constraint_str, infl_factor_method="manual", infl_factors=factors
+    )
+
     assert pt.root.left.left.left.infl_factor_lower == factors[0]
     assert pt.root.left.left.left.infl_factor_upper == factors[1]
     assert pt.root.left.left.right.infl_factor_lower == factors[2]
@@ -2006,23 +2064,27 @@ def test_bound_inflation_factor_assignment():
     assert pt.base_node_dict["PR | [F]"]["infl_factor_lower"] == factors[2]
     assert pt.base_node_dict["PR | [F]"]["infl_factor_upper"] == factors[3]
 
-    # Test case #6: Four base nodes but only two unique with vector of factors 
-    factors = [1.9,2.3,0.4,3]
+    # Test case #6: Four base nodes but only two unique with vector of factors
+    factors = [1.9, 2.3, 0.4, 3]
     constraint_str = "min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M])) >= 0.8"
     pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification",
-        columns=["M","F"]
+        delta,
+        regime="supervised_learning",
+        sub_regime="classification",
+        columns=["M", "F"],
     )
-    pt.build_tree(constraint_str=constraint_str,infl_factor_method="manual",infl_factors=factors)
-    assert pt.root.right.left.left.infl_factor_lower == factors[0] # PR | [M] lower
-    assert pt.root.right.left.left.infl_factor_upper == factors[1] # PR | [M] upper
-    assert pt.root.right.left.right.infl_factor_lower == factors[2] # PR | [F] lower
-    assert pt.root.right.left.right.infl_factor_upper == factors[3] # PR | [F] upper
+    pt.build_tree(
+        constraint_str=constraint_str, infl_factor_method="manual", infl_factors=factors
+    )
+    assert pt.root.right.left.left.infl_factor_lower == factors[0]  # PR | [M] lower
+    assert pt.root.right.left.left.infl_factor_upper == factors[1]  # PR | [M] upper
+    assert pt.root.right.left.right.infl_factor_lower == factors[2]  # PR | [F] lower
+    assert pt.root.right.left.right.infl_factor_upper == factors[3]  # PR | [F] upper
 
-    assert pt.root.right.right.left.infl_factor_lower == factors[2] # PR | [F] lower
-    assert pt.root.right.right.left.infl_factor_upper == factors[3] # PR | [F] upper
-    assert pt.root.right.right.right.infl_factor_lower == factors[0] # PR | [M] lower
-    assert pt.root.right.right.right.infl_factor_upper == factors[1] # PR | [M] upper
+    assert pt.root.right.right.left.infl_factor_lower == factors[2]  # PR | [F] lower
+    assert pt.root.right.right.left.infl_factor_upper == factors[3]  # PR | [F] upper
+    assert pt.root.right.right.right.infl_factor_lower == factors[0]  # PR | [M] lower
+    assert pt.root.right.right.right.infl_factor_upper == factors[1]  # PR | [M] upper
 
     assert pt.base_node_dict["PR | [M]"]["infl_factor_lower"] == factors[0]
     assert pt.base_node_dict["PR | [M]"]["infl_factor_upper"] == factors[1]
@@ -2031,87 +2093,77 @@ def test_bound_inflation_factor_assignment():
 
     # Test case #7: Trying to run assign_infl_factors before assigning bounds results in error
     constraint_str = "FPR"
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
     pt.create_from_ast(constraint_str)
     with pytest.raises(RuntimeError) as excinfo:
         pt.assign_infl_factors()
     error_str = (
-        "Need to run assign_bounds_needed() before "
-        "assigning inflation factors."
+        "Need to run assign_bounds_needed() before " "assigning inflation factors."
     )
     assert str(excinfo.value) == error_str
 
     # Test case #8: Using "constant" method with a vector of factors results in error
     constraint_str = "FPR"
-    factors = [1,2]
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
+    factors = [1, 2]
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str=constraint_str,infl_factors=factors)
-    
-    error_str = (
-        f"When method='constant', factors must be a single number"     
-    )
+        pt.build_tree(constraint_str=constraint_str, infl_factors=factors)
+
+    error_str = f"When method='constant', factors must be a single number"
     assert str(excinfo.value) == error_str
 
     # Test case #9: Using "manual" method with a single number results in error
     constraint_str = "FPR - FNR"
     infl_factor = 2.0
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str=constraint_str,infl_factor_method="manual",infl_factors=infl_factor)
-    
-    error_str = (
-        f"When method='manual', factors must be a list or 1D numpy array"     
-    )
+        pt.build_tree(
+            constraint_str=constraint_str,
+            infl_factor_method="manual",
+            infl_factors=infl_factor,
+        )
+
+    error_str = f"When method='manual', factors must be a list or 1D numpy array"
     assert str(excinfo.value) == error_str
 
     # Test case #10: factors list must be of correct length
     constraint_str = "FPR - FNR"
     factors = [2.0]
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str=constraint_str,infl_factor_method="manual",infl_factors=factors)
-    
-    error_str = (
-        f"factors has length: 1, but should be of length: 2"
-    )
+        pt.build_tree(
+            constraint_str=constraint_str,
+            infl_factor_method="manual",
+            infl_factors=factors,
+        )
+
+    error_str = f"factors has length: 1, but should be of length: 2"
     assert str(excinfo.value) == error_str
 
     # Test case #11: factors must be positive
     constraint_str = "FPR - FNR"
-    factors = [2.0,-0.8]
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
+    factors = [2.0, -0.8]
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str=constraint_str,infl_factor_method="manual",infl_factors=factors)
-    
-    error_str = (
-        f"factors must all be non-negative"
-    )
+        pt.build_tree(
+            constraint_str=constraint_str,
+            infl_factor_method="manual",
+            infl_factors=factors,
+        )
+
+    error_str = f"factors must all be non-negative"
     assert str(excinfo.value) == error_str
 
     # Test case #12: factors must be positive
     constraint_str = "FPR"
     factors = -1.4
-    pt = ParseTree(
-        delta, regime="supervised_learning", sub_regime="classification"
-    )
+    pt = ParseTree(delta, regime="supervised_learning", sub_regime="classification")
     with pytest.raises(ValueError) as excinfo:
-        pt.build_tree(constraint_str=constraint_str,infl_factors=factors)
-    
-    error_str = (
-        f"factors must all be non-negative"
-    )
+        pt.build_tree(constraint_str=constraint_str, infl_factors=factors)
+
+    error_str = f"factors must all be non-negative"
     assert str(excinfo.value) == error_str
+
 
 def test_duplicate_base_nodes():
     constraint_str = "FPR + 4/FPR - 2.0"
@@ -2125,6 +2177,7 @@ def test_duplicate_base_nodes():
     pt.base_node_dict["FPR"]["bound_method"] = "random"
     pt.propagate_bounds()
     assert pt.base_node_dict["FPR"]["bound_computed"] == True
+
 
 def test_ttest_bound(simulated_regression_dataset):
     # dummy data for linear regression
@@ -2164,7 +2217,6 @@ def test_ttest_bound(simulated_regression_dataset):
         meta=dataset.meta,
     )
 
-
     pt = ParseTree(deltas[0], regime="supervised_learning", sub_regime="regression")
     pt.build_tree(constraint_strs[0])
     # pt.create_from_ast(constraint_strs[0])
@@ -2183,13 +2235,12 @@ def test_ttest_bound(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":candidate_dataset},
+        tree_dataset_dict={"all": candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
-        sub_regime="regression"
-
+        sub_regime="regression",
     )
     assert pt.root.lower == float("-inf")  # not bound_computed
     assert pt.root.upper == pytest.approx(-0.932847)
@@ -2197,18 +2248,17 @@ def test_ttest_bound(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":safety_dataset},
+        tree_dataset_dict={"all": safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.lower == float("-inf")  # not computed
     assert pt.root.upper == pytest.approx(-0.947693)
 
     # Next, two sided bound
     constraint_str = "abs(Mean_Squared_Error) - 2.0"
-
 
     pt = ParseTree(deltas[0], regime="supervised_learning", sub_regime="regression")
     # pt.create_from_ast(constraint_str)
@@ -2225,12 +2275,12 @@ def test_ttest_bound(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":candidate_dataset},
+        tree_dataset_dict={"all": candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
 
     # assert pt.root.lower == float('-inf') # not bound_computed
@@ -2239,14 +2289,15 @@ def test_ttest_bound(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":safety_dataset},
+        tree_dataset_dict={"all": safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     # assert pt.root.lower == float('-inf') # not computed
     assert pt.root.upper == pytest.approx(-0.930726)
+
 
 def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
     # dummy data for linear regression
@@ -2303,12 +2354,12 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":candidate_dataset},
+        tree_dataset_dict={"all": candidate_dataset},
         n_safety=len(safety_labels),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.lower == float("-inf")  # not bound_computed
     assert pt.root.upper == pytest.approx(12.341009549)
@@ -2316,14 +2367,15 @@ def test_ttest_bound_listdata(simulated_regression_dataset_aslists):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":safety_dataset},
+        tree_dataset_dict={"all": safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.lower == float("-inf")  # not computed
     assert pt.root.upper == pytest.approx(13.1514499)
+
 
 def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # dummy data for linear regression
@@ -2365,7 +2417,7 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
 
     # Build tree with custom bound inflation factor
     pt = ParseTree(deltas[0], regime="supervised_learning", sub_regime="regression")
-    pt.build_tree(constraint_strs[0],infl_factors=1)
+    pt.build_tree(constraint_strs[0], infl_factors=1)
 
     assert pt.n_nodes == 3
     assert pt.n_base_nodes == 1
@@ -2379,12 +2431,12 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # The upper bound should be different than the one we get with default inflation factor
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":candidate_dataset},
+        tree_dataset_dict={"all": candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.lower == float("-inf")  # not bound_computed
     assert pt.root.upper == pytest.approx(-1.0175258779025966)
@@ -2392,11 +2444,11 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Mock Safety test, the result should be the same because bound inflation factor is not used in safety test
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":safety_dataset},
+        tree_dataset_dict={"all": safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.lower == float("-inf")  # not computed
     assert pt.root.upper == pytest.approx(-0.947693)
@@ -2405,7 +2457,7 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     constraint_str = "abs(Mean_Squared_Error) - 2.0"
 
     pt = ParseTree(deltas[0], regime="supervised_learning", sub_regime="regression")
-    pt.build_tree(constraint_str,infl_factor_method="manual",infl_factors=[2,2])
+    pt.build_tree(constraint_str, infl_factor_method="manual", infl_factors=[2, 2])
 
     assert pt.n_nodes == 4
     assert pt.n_base_nodes == 1
@@ -2415,12 +2467,12 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":candidate_dataset},
+        tree_dataset_dict={"all": candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
 
     assert pt.root.upper == pytest.approx(-0.900307)
@@ -2428,17 +2480,17 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":safety_dataset},
+        tree_dataset_dict={"all": safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="regression"
-    )   
+        sub_regime="regression",
+    )
     assert pt.root.upper == pytest.approx(-0.930726)
 
     # Now with custom values we should get different CS results but same ST result
     pt = ParseTree(deltas[0], regime="supervised_learning", sub_regime="regression")
-    pt.build_tree(constraint_str,infl_factor_method="manual",infl_factors=[0.5,3])
+    pt.build_tree(constraint_str, infl_factor_method="manual", infl_factors=[0.5, 3])
 
     assert pt.n_nodes == 4
     assert pt.n_base_nodes == 1
@@ -2448,12 +2500,12 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Candidate selection
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":candidate_dataset},
+        tree_dataset_dict={"all": candidate_dataset},
         n_safety=len(safety_features),
         model=model,
         branch="candidate_selection",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
 
     assert pt.root.upper == pytest.approx(-0.79935738)
@@ -2461,13 +2513,14 @@ def test_ttest_bound_infl_factors(simulated_regression_dataset):
     # Safety test
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":safety_dataset},
+        tree_dataset_dict={"all": safety_dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.upper == pytest.approx(-0.930726)
+
 
 def test_bad_bound_method(simulated_regression_dataset):
     # dummy data for linear regression
@@ -2530,12 +2583,12 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            tree_dataset_dict={"all":candidate_dataset},
+            tree_dataset_dict={"all": candidate_dataset},
             n_safety=len(safety_features),
             model=model,
             branch="candidate_selection",
             regime="supervised_learning",
-            sub_regime="regression"
+            sub_regime="regression",
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2547,11 +2600,11 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            tree_dataset_dict={"all":safety_dataset},
+            tree_dataset_dict={"all": safety_dataset},
             model=model,
             branch="safety_test",
             regime="supervised_learning",
-            sub_regime="regression"
+            sub_regime="regression",
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2572,12 +2625,12 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            tree_dataset_dict={"all":candidate_dataset},
+            tree_dataset_dict={"all": candidate_dataset},
             n_safety=len(safety_features),
             model=model,
             branch="candidate_selection",
             regime="supervised_learning",
-            sub_regime="regression"
+            sub_regime="regression",
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2589,11 +2642,11 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            tree_dataset_dict={"all":safety_dataset},
+            tree_dataset_dict={"all": safety_dataset},
             model=model,
             branch="safety_test",
             regime="supervised_learning",
-            sub_regime="regression"
+            sub_regime="regression",
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2614,12 +2667,12 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            tree_dataset_dict={"all":candidate_dataset},
+            tree_dataset_dict={"all": candidate_dataset},
             n_safety=len(safety_features),
             model=model,
             branch="candidate_selection",
             regime="supervised_learning",
-            sub_regime="regression"
+            sub_regime="regression",
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
@@ -2631,19 +2684,22 @@ def test_bad_bound_method(simulated_regression_dataset):
     with pytest.raises(NotImplementedError) as excinfo:
         pt.propagate_bounds(
             theta=theta,
-            tree_dataset_dict={"all":safety_dataset},
+            tree_dataset_dict={"all": safety_dataset},
             model=model,
             branch="safety_test",
             regime="supervised_learning",
-            sub_regime="regression"
+            sub_regime="regression",
         )
 
     error_str = f"Bounding method {bound_method} is not supported"
     assert str(excinfo.value) == error_str
 
+
 def test_evaluate_constraint(
-    simulated_regression_dataset, gpa_classification_dataset, RL_gridworld_dataset,
-    custom_text_spec
+    simulated_regression_dataset,
+    gpa_classification_dataset,
+    RL_gridworld_dataset,
+    custom_text_spec,
 ):
     # Evaluate constraint mean, not the bound
     # test all of the statistics in all regimes
@@ -2681,11 +2737,11 @@ def test_evaluate_constraint(
     theta = np.array([0, 1])
     pt.evaluate_constraint(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         regime="supervised_learning",
         branch="safety_test",
-        sub_regime="regression"
+        sub_regime="regression",
     )
 
     assert pt.root.value == pytest.approx(-1.06248)
@@ -2705,11 +2761,11 @@ def test_evaluate_constraint(
     pt = parse_trees[0]
     pt.evaluate_constraint(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         regime="supervised_learning",
         branch="safety_test",
-        sub_regime="classification"
+        sub_regime="classification",
     )
     assert pt.root.value == pytest.approx(-5.656718)
 
@@ -2736,11 +2792,11 @@ def test_evaluate_constraint(
     # The default is off-policy evaluation, which should give us one answer
     pt.evaluate_constraint(
         theta=theta_init,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
-        sub_regime="all"
+        sub_regime="all",
     )
     assert pt.root.right.value == pytest.approx(-0.3411361059961765)
     # Now do on-policy evaluation (used as default in experiments)
@@ -2764,12 +2820,12 @@ def test_evaluate_constraint(
     pt = parse_trees[0]
     pt.evaluate_constraint(
         theta=theta_init,
-        tree_dataset_dict={"all":new_dataset},
+        tree_dataset_dict={"all": new_dataset},
         model=model,
         regime="reinforcement_learning",
         branch="safety_test",
         on_policy=True,
-        sub_regime="all"
+        sub_regime="all",
     )
     assert pt.root.right.value == pytest.approx(12.983593429599098)
 
@@ -2778,14 +2834,14 @@ def test_evaluate_constraint(
     ### Custom regime
     custom_spec = custom_text_spec()
     pt = custom_spec.parse_trees[0]
-    theta_init = np.array([-1.0,0.0,1.0])
+    theta_init = np.array([-1.0, 0.0, 1.0])
     pt.evaluate_constraint(
         theta=theta_init,
-        tree_dataset_dict={"all":custom_spec.dataset},
+        tree_dataset_dict={"all": custom_spec.dataset},
         model=custom_spec.model,
         regime="custom",
         branch="safety_test",
-        sub_regime=None
+        sub_regime=None,
     )
     assert pt.root.left.value == 10.0
 
@@ -2831,9 +2887,8 @@ def test_reset_parse_tree():
     assert pt.base_node_dict["FNR"]["lower"] == float("-inf")
     assert pt.base_node_dict["FNR"]["upper"] == float("inf")
 
-def test_single_conditional_columns_propagated(
-    gpa_regression_dataset,
-):
+
+def test_single_conditional_columns_propagated(gpa_regression_dataset,):
     np.random.seed(0)
     # Supervised learning
     constraint_strs = ["abs(Mean_Error|[M]) - 0.1"]
@@ -2857,11 +2912,11 @@ def test_single_conditional_columns_propagated(
     theta = np.random.uniform(-0.05, 0.05, 10)
     pt.propagate_bounds(
         theta=theta,
-        tree_dataset_dict={"all":dataset},
+        tree_dataset_dict={"all": dataset},
         model=model,
         branch="safety_test",
         regime="supervised_learning",
-        sub_regime="regression"
+        sub_regime="regression",
     )
     assert pt.root.lower == pytest.approx(61.9001779655)
     assert pt.root.upper == pytest.approx(62.1362236720)
@@ -2916,16 +2971,17 @@ def test_single_conditional_columns_propagated(
     RL_theta = np.random.uniform(-0.05, 0.05, (9, 4))
     RL_pt.propagate_bounds(
         theta=RL_theta,
-        tree_dataset_dict={"all":RL_dataset},
+        tree_dataset_dict={"all": RL_dataset},
         model=RLmodel,
         branch="safety_test",
         regime="reinforcement_learning",
-        sub_regime="all"
+        sub_regime="all",
     )
     assert RL_pt.root.lower == pytest.approx(-0.00556309)
     assert RL_pt.root.upper == pytest.approx(0.333239520)
 
     assert len(RL_pt.base_node_dict["J_pi_new_IS | [M]"]["data_dict"]["episodes"]) == 52
+
 
 def test_build_tree():
     """Test the convenience function that builds the tree,
@@ -2960,6 +3016,7 @@ def test_build_tree():
     assert pt2.base_node_dict["FNR"]["upper"] == float("inf")
     assert pt2.base_node_dict["FNR"]["bound_computed"] == False
 
+
 def test_bad_delta():
     """Test that supplying delta not in (0,1) raises a ValueError"""
     constraint_str = "FPR <= 0.1"
@@ -2990,6 +3047,7 @@ def test_bad_delta():
 
     error_str = "delta must be in (0,1)"
     assert str(excinfo.value) == error_str
+
 
 def test_e_assigned_as_constant_node():
     constraint_str = "FPR <= e*0.05"

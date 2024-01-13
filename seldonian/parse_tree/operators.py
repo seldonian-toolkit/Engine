@@ -51,44 +51,14 @@ not_supported_op_mapper = {
 }
 
 bounds_required_dict = {
-    "add": {
-        "lower": [1, 0, 1, 0],
-        "upper": [0, 1, 0, 1],
-    },
-    "sub": {
-        "lower": [1, 0, 0, 1],
-        "upper": [0, 1, 1, 0],
-    },
-    "mult": {
-        "lower": [1, 1, 1, 1],
-        "upper": [1, 1, 1, 1],
-    },
-    "div": {
-        "lower": [1, 1, 1, 1],
-        "upper": [1, 1, 1, 1],
-    },
-    "pow": {
-        "lower": [1, 1, 1, 1],
-        "upper": [1, 1, 1, 1],
-    },
-    "min": {
-        "lower": [1, 0, 1, 0],
-        "upper": [0, 1, 0, 1],
-    },
-    "max": {
-        "lower": [1, 0, 1, 0],
-        "upper": [0, 1, 0, 1],
-    },
-    "abs": {
-        "lower": [1, 1],
-        "upper": [1, 1],
-    },
-    "exp": {
-        "lower": [1, 0],
-        "upper": [0, 1],
-    },
-    "log": {
-        "lower": [1, 0],
-        "upper": [0, 1],
-    },
+    "add": {"lower": [1, 0, 1, 0], "upper": [0, 1, 0, 1],},
+    "sub": {"lower": [1, 0, 0, 1], "upper": [0, 1, 1, 0],},
+    "mult": {"lower": [1, 1, 1, 1], "upper": [1, 1, 1, 1],},
+    "div": {"lower": [1, 1, 1, 1], "upper": [1, 1, 1, 1],},
+    "pow": {"lower": [1, 1, 1, 1], "upper": [1, 1, 1, 1],},
+    "min": {"lower": [1, 0, 1, 0], "upper": [0, 1, 0, 1],},
+    "max": {"lower": [1, 0, 1, 0], "upper": [0, 1, 0, 1],},
+    "abs": {"lower": [1, 1], "upper": [1, 1],},
+    "exp": {"lower": [1, 0], "upper": [0, 1],},
+    "log": {"lower": [1, 0], "upper": [0, 1],},
 }
