@@ -24,13 +24,13 @@ from seldonian.dataset import SupervisedDataSet, RLDataSet
 from seldonian.candidate_selection.candidate_selection import CandidateSelection
 from seldonian.safety_test.safety_test import SafetyTest
 from seldonian.models import objectives
-from seldonian.utils.io_utils import load_pickle,save_pickle,cmaes_logger
+from seldonian.utils.io_utils import load_pickle, save_pickle, cmaes_logger
 from seldonian.utils.stats_utils import tinv
-import seldonian.utils.hyperparam_utils as hp_utils 
+import seldonian.utils.hyperparam_utils as hp_utils
 
 
 class HyperSchema(object):
-    def __init__(self,hyper_dict):
+    def __init__(self, hyper_dict):
         """ Container for all hyperparameters one wants to tune
         and their possible values.
         
@@ -84,19 +84,19 @@ class HyperSchema(object):
             "beta_rmsprop",
             "batch_size",
             "n_epochs",
-            "num_iters"
+            "num_iters",
         ]
         self.allowed_SA_hyperparams = [
             "bound_inflation_factor",
             "frac_data_in_safety",
-            "delta_split_vector"
+            "delta_split_vector",
         ]
-        self.allowable_tuning_methods = ["grid_search","CMA-ES"]
-        self.allowable_hyper_types = ["optimization","model","SA"]
-        self.hyper_dict = OrderedDict(self._validate(hyper_dict)) 
+        self.allowable_tuning_methods = ["grid_search", "CMA-ES"]
+        self.allowable_hyper_types = ["optimization", "model", "SA"]
+        self.hyper_dict = OrderedDict(self._validate(hyper_dict))
         self.hyper_param_names = list(self.hyper_dict.keys())
-        
-    def _validate(self,hyper_dict):
+
+    def _validate(self, hyper_dict):
         """ Check that the hyperparameter dictionary is formatted properly
         and contains valid hyperparameters. Model hyperparameters are specific 
         to the model so we can't know what they might be ahead of time. Errors 
@@ -105,53 +105,77 @@ class HyperSchema(object):
         :param hyper_dict: See __init__ docstring.
         :return: A validated hyper_dict
         """
-        for hyper_name,hyper_info in hyper_dict.items():
-            if not isinstance(hyper_info,dict):
+        for hyper_name, hyper_info in hyper_dict.items():
+            if not isinstance(hyper_info, dict):
                 raise RuntimeError(f"hyper_dict['{hyper_name}'] is not a dictionary. ")
-            
+
             # Check for tuning method
             if "tuning_method" not in hyper_info:
-                raise KeyError(f"hyper_dict['{hyper_name}'] must have the key: 'tuning_method'. ")
+                raise KeyError(
+                    f"hyper_dict['{hyper_name}'] must have the key: 'tuning_method'. "
+                )
 
             if hyper_info["tuning_method"] not in self.allowable_tuning_methods:
-                raise ValueError(f"hyper_dict['{hyper_name}']['tuning_method'] must be one of: {self.allowable_tuning_methods}. ")
+                raise ValueError(
+                    f"hyper_dict['{hyper_name}']['tuning_method'] must be one of: {self.allowable_tuning_methods}. "
+                )
 
             if hyper_info["tuning_method"] == "grid_search":
-                required_keys = ["values","hyper_type","tuning_method"]
+                required_keys = ["values", "hyper_type", "tuning_method"]
             elif hyper_info["tuning_method"] == "CMA-ES":
-                required_keys = ["initial_value","min_val","max_val","hyper_type",
-                "search_distribution","tuning_method"]
-            
+                required_keys = [
+                    "initial_value",
+                    "min_val",
+                    "max_val",
+                    "hyper_type",
+                    "search_distribution",
+                    "tuning_method",
+                ]
+
             for w in required_keys:
                 if w not in hyper_info:
-                    tuning_method = hyper_info['tuning_method']
-                    raise KeyError(f"hyper_dict['{hyper_name}'] must have the key: '{w}' when tuning method is: {tuning_method}.")
-            
+                    tuning_method = hyper_info["tuning_method"]
+                    raise KeyError(
+                        f"hyper_dict['{hyper_name}'] must have the key: '{w}' when tuning method is: {tuning_method}."
+                    )
+
             if hyper_info["tuning_method"] == "grid_search":
                 if len(hyper_info["values"]) < 1:
-                    raise ValueError(f"hyper_dict['{hyper_name}']['values'] must have at least one value")
+                    raise ValueError(
+                        f"hyper_dict['{hyper_name}']['values'] must have at least one value"
+                    )
             elif hyper_info["tuning_method"] == "CMA-ES":
-                if not isinstance(hyper_info["initial_value"],(int, float)):
-                    raise ValueError(f"hyper_dict['{hyper_name}']['initial_value'] must be a real number")
+                if not isinstance(hyper_info["initial_value"], (int, float)):
+                    raise ValueError(
+                        f"hyper_dict['{hyper_name}']['initial_value'] must be a real number"
+                    )
 
             if hyper_info["hyper_type"] not in self.allowable_hyper_types:
-                raise ValueError(f"hyper_dict['{hyper_name}']['hyper_type'] must be one of {self.allowable_hyper_types}")
-            
-            if hyper_info["hyper_type"] == "optimization" and hyper_name not in self.allowed_optimization_hyperparams:
-                raise ValueError(f"{hyper_name} is not an allowed optimization hyperparameter")
-            
-            if hyper_info["hyper_type"] == "SA" and hyper_name not in self.allowed_SA_hyperparams:
-                raise ValueError(f"{hyper_name} is not an allowed hyperparameter of the Seldonian algorithm")
-        return hyper_dict   
+                raise ValueError(
+                    f"hyper_dict['{hyper_name}']['hyper_type'] must be one of {self.allowable_hyper_types}"
+                )
+
+            if (
+                hyper_info["hyper_type"] == "optimization"
+                and hyper_name not in self.allowed_optimization_hyperparams
+            ):
+                raise ValueError(
+                    f"{hyper_name} is not an allowed optimization hyperparameter"
+                )
+
+            if (
+                hyper_info["hyper_type"] == "SA"
+                and hyper_name not in self.allowed_SA_hyperparams
+            ):
+                raise ValueError(
+                    f"{hyper_name} is not an allowed hyperparameter of the Seldonian algorithm"
+                )
+        return hyper_dict
 
 
 class HyperparamSearch:
     def __init__(
-            self, 
-            spec, 
-            hyperparam_spec,
-            results_dir,
-            write_logfile=False,
+        self, spec, hyperparam_spec, results_dir, write_logfile=False,
     ):
         """Class for finding the best hyperparameters to use to optimize for probability
         of returning a safe solution for Seldonian algorithms. 
@@ -168,7 +192,7 @@ class HyperparamSearch:
         :type write_logfile: Bool
         """
         self.spec = spec
-        self.hyperparam_spec = hyperparam_spec 
+        self.hyperparam_spec = hyperparam_spec
         self.hyper_dict = self.hyperparam_spec.hyper_schema.hyper_dict
         self.hyper_param_names = self.hyperparam_spec.hyper_schema.hyper_param_names
         self.results_dir = results_dir
@@ -200,7 +224,8 @@ class HyperparamSearch:
         self.meta = self.dataset.meta
 
         self.model = self.spec.model
-        if self.regime == "supervised_learning": self.sub_regime = self.spec.sub_regime
+        if self.regime == "supervised_learning":
+            self.sub_regime = self.spec.sub_regime
 
         if self.spec.primary_objective is None:
             if self.regime == "reinforcement_learning":
@@ -213,12 +238,7 @@ class HyperparamSearch:
                 elif self.spec.sub_regime == "regression":
                     self.spec.primary_objective = objectives.Mean_Squared_Error
 
-
-    def get_safety_size(
-            self,
-            n_total,
-            frac_data_in_safety
-    ):
+    def get_safety_size(self, n_total, frac_data_in_safety):
         """Determine the number of data points in the safety dataset.
 
         :param n_total: the size of the total dataset
@@ -239,12 +259,7 @@ class HyperparamSearch:
 
         return n_safety
 
-
-    def candidate_safety_combine(
-            self,
-            candidate_dataset,
-            safety_dataset
-    ):
+    def candidate_safety_combine(self, candidate_dataset, safety_dataset):
         """Combine candidate_dataset and safety_dataset into a full dataset.
         The data will be joined so that the candidate data comes before the 
         safety data.
@@ -258,46 +273,53 @@ class HyperparamSearch:
         :rtype: :py:class:`.DataSet` object
         """
         if self.regime == "supervised_learning":
-            combined_num_datapoints = (candidate_dataset.num_datapoints +
-                    safety_dataset.num_datapoints)
+            combined_num_datapoints = (
+                candidate_dataset.num_datapoints + safety_dataset.num_datapoints
+            )
             # Combine features.
-            if ((type(candidate_dataset.features) == list) and 
-                    (type(safety_dataset.features) == list)):
-                combined_features = [f_c + f_s for (f_c, f_s) in 
-                        zip(candidate_dataset.features, safety_dataset.features)]
+            if (type(candidate_dataset.features) == list) and (
+                type(safety_dataset.features) == list
+            ):
+                combined_features = [
+                    f_c + f_s
+                    for (f_c, f_s) in zip(
+                        candidate_dataset.features, safety_dataset.features
+                    )
+                ]
             else:
-                combined_features = np.concatenate((candidate_dataset.features, safety_dataset.features),
-                        axis=0)
+                combined_features = np.concatenate(
+                    (candidate_dataset.features, safety_dataset.features), axis=0
+                )
             # Compute labels - must be a numpy array.
-            combined_labels = np.concatenate((candidate_dataset.labels, safety_dataset.labels), axis=0)
+            combined_labels = np.concatenate(
+                (candidate_dataset.labels, safety_dataset.labels), axis=0
+            )
 
             # Combine sensitive attributes. Must be a numpy array.
-            combined_sensitive_attrs = np.concatenate((candidate_dataset.sensitive_attrs, 
-                safety_dataset.sensitive_attrs), axis=0)
+            combined_sensitive_attrs = np.concatenate(
+                (candidate_dataset.sensitive_attrs, safety_dataset.sensitive_attrs),
+                axis=0,
+            )
 
             # Create a dataset.
             combined_dataset = SupervisedDataSet(
-                    features=combined_features,
-                    labels=combined_labels,
-                    sensitive_attrs=combined_sensitive_attrs,
-                    num_datapoints=combined_num_datapoints,
-                    meta=candidate_dataset.meta)
-
+                features=combined_features,
+                labels=combined_labels,
+                sensitive_attrs=combined_sensitive_attrs,
+                num_datapoints=combined_num_datapoints,
+                meta=candidate_dataset.meta,
+            )
 
         elif self.regime == "reinforcement_learning":
             # TODO: Finish implementing this.
             raise NotImplementedError(
-                    "Creating bootstrap sampled datasets not yet implemented for "
-                    "reinforcement_learning regime")
+                "Creating bootstrap sampled datasets not yet implemented for "
+                "reinforcement_learning regime"
+            )
 
         return combined_dataset
 
-
-    def candidate_safety_split(
-            self,
-            dataset,
-            frac_data_in_safety
-    ):
+    def candidate_safety_split(self, dataset, frac_data_in_safety):
         """Split features, labels and sensitive attributes
         into candidate and safety sets according to frac_data_in_safety
 
@@ -342,12 +364,7 @@ class HyperparamSearch:
             S_s = dataset.sensitive_attrs[n_candidate:]
             return E_c, E_s, S_c, S_s, n_candidate, n_safety
 
-    def create_dataset(
-            self,
-            dataset,
-            frac_data_in_safety,
-            shuffle=False
-    ):
+    def create_dataset(self, dataset, frac_data_in_safety, shuffle=False):
         """Partition data to create candidate and safety dataset according to
             frac_data_in_safety. 
 
@@ -377,14 +394,15 @@ class HyperparamSearch:
                 warnings.warn(warning_msg)
 
             # Split the data.
-            (   candidate_features,
+            (
+                candidate_features,
                 safety_features,
                 candidate_labels,
                 safety_labels,
                 candidate_sensitive_attrs,
                 safety_sensitive_attrs,
                 n_candidate,
-                n_safety
+                n_safety,
             ) = self.candidate_safety_split(dataset, frac_data_in_safety)
 
             candidate_dataset = SupervisedDataSet(
@@ -403,19 +421,25 @@ class HyperparamSearch:
                 meta=dataset.meta,
             )
 
-            if candidate_dataset.num_datapoints < 2 or safety_dataset.num_datapoints < 2:
+            if (
+                candidate_dataset.num_datapoints < 2
+                or safety_dataset.num_datapoints < 2
+            ):
                 warning_msg = (
                     "Warning: not enough data to " "run the Seldonian algorithm."
                 )
                 warnings.warn(warning_msg)
             if self.spec.verbose:
                 print(f"Safety dataset has {safety_dataset.num_datapoints} datapoints")
-                print(f"Candidate dataset has {candidate_dataset.num_datapoints} datapoints")
+                print(
+                    f"Candidate dataset has {candidate_dataset.num_datapoints} datapoints"
+                )
 
         elif self.regime == "reinforcement_learning":
 
             # Split the data.
-            (   candidate_episodes,
+            (
+                candidate_episodes,
                 safety_episodes,
                 candidate_sensitive_attrs,
                 safety_sensitive_attrs,
@@ -440,14 +464,13 @@ class HyperparamSearch:
 
         return candidate_dataset, safety_dataset
 
-
     def generate_all_bootstrap_datasets(
-            self,
-            candidate_dataset,
-            frac_data_in_safety,
-            n_bootstrap_samples_candidate,
-            n_bootstrap_samples_safety,
-            bootstrap_savedir,
+        self,
+        candidate_dataset,
+        frac_data_in_safety,
+        n_bootstrap_samples_candidate,
+        n_bootstrap_samples_safety,
+        bootstrap_savedir,
     ):
         """Utility function for supervised learning to generate the
         resampled datasets to use in each bootstrap trial. Resamples (with replacement)
@@ -471,54 +494,68 @@ class HyperparamSearch:
 
         # If not enough datapoints
         if candidate_dataset.num_datapoints < 4:
-            return created_trials 
+            return created_trials
 
-        dataset_save_subdir = os.path.join(bootstrap_savedir, 
-                f"frac_data_in_safety_{frac_data_in_safety:.2f}")
-        
-        os.makedirs(dataset_save_subdir, exist_ok=True) 
+        dataset_save_subdir = os.path.join(
+            bootstrap_savedir, f"frac_data_in_safety_{frac_data_in_safety:.2f}"
+        )
+
+        os.makedirs(dataset_save_subdir, exist_ok=True)
 
         for bootstrap_trial_i in range(self.hyperparam_spec.n_bootstrap_trials):
             # Where to save bootstrapped dataset.
-            bootstrap_datasets_savename = os.path.join(dataset_save_subdir, 
-                    f"bootstrap_datasets_trial_{bootstrap_trial_i}.pkl")
+            bootstrap_datasets_savename = os.path.join(
+                dataset_save_subdir, f"bootstrap_datasets_trial_{bootstrap_trial_i}.pkl"
+            )
 
             # Only create datasets if dataset not already existing.
             if os.path.exists(bootstrap_datasets_savename):
                 continue
 
-            bootstrap_datasets_dict = dict() # Will store all the datasets.
+            bootstrap_datasets_dict = dict()  # Will store all the datasets.
 
             # Bootstrap sample candidate selection and safety datasets.
             if self.hyperparam_spec.use_bs_pools:
-                # Partition candidate_dataset into pools to bootstrap 
+                # Partition candidate_dataset into pools to bootstrap
                 (bootstrap_pool_candidate, bootstrap_pool_safety) = self.create_dataset(
-                        candidate_dataset, frac_data_in_safety, shuffle=True)
+                    candidate_dataset, frac_data_in_safety, shuffle=True
+                )
 
                 # Sample from pools.
-                bootstrap_datasets_dict["candidate"] = hp_utils.bootstrap_sample_dataset(
-                        bootstrap_pool_candidate, n_bootstrap_samples_candidate,self.regime)
+                bootstrap_datasets_dict[
+                    "candidate"
+                ] = hp_utils.bootstrap_sample_dataset(
+                    bootstrap_pool_candidate, n_bootstrap_samples_candidate, self.regime
+                )
                 bootstrap_datasets_dict["safety"] = hp_utils.bootstrap_sample_dataset(
-                        bootstrap_pool_safety, n_bootstrap_samples_safety,self.regime)
+                    bootstrap_pool_safety, n_bootstrap_samples_safety, self.regime
+                )
 
-            else: # Sample directly from candidate datset.
-                bootstrap_datasets_dict["candidate"] = hp_utils.bootstrap_sample_dataset(
-                        candidate_dataset, n_bootstrap_samples_candidate,self.regime)
+            else:  # Sample directly from candidate datset.
+                bootstrap_datasets_dict[
+                    "candidate"
+                ] = hp_utils.bootstrap_sample_dataset(
+                    candidate_dataset, n_bootstrap_samples_candidate, self.regime
+                )
                 bootstrap_datasets_dict["safety"] = hp_utils.bootstrap_sample_dataset(
-                        candidate_dataset, n_bootstrap_samples_safety,self.regime)
+                    candidate_dataset, n_bootstrap_samples_safety, self.regime
+                )
 
             # Save datasets.
-            save_pickle(bootstrap_datasets_savename, bootstrap_datasets_dict, verbose=self.spec.verbose)
+            save_pickle(
+                bootstrap_datasets_savename,
+                bootstrap_datasets_dict,
+                verbose=self.spec.verbose,
+            )
 
-        return 
-
+        return
 
     def create_bootstrap_trial_spec(
-            self,
-            bootstrap_trial_i,
-            frac_data_in_safety, 
-            bootstrap_savedir,
-            hyperparam_setting=None,
+        self,
+        bootstrap_trial_i,
+        frac_data_in_safety,
+        bootstrap_savedir,
+        hyperparam_setting=None,
     ):
         """Create the spec to run this iteration of the bootstrap trial.
 
@@ -539,8 +576,8 @@ class HyperparamSearch:
         bootstrap_datasets_savename = os.path.join(
             self.results_dir,
             "bootstrapped_datasets",
-            f"frac_data_in_safety_{frac_data_in_safety:.2f}", 
-            f"bootstrap_datasets_trial_{bootstrap_trial_i}.pkl"
+            f"frac_data_in_safety_{frac_data_in_safety:.2f}",
+            f"bootstrap_datasets_trial_{bootstrap_trial_i}.pkl",
         )
 
         bootstrap_datasets_dict = load_pickle(bootstrap_datasets_savename)
@@ -549,27 +586,29 @@ class HyperparamSearch:
         bs_safety_dataset = bootstrap_datasets_dict["safety"]
 
         # Combine loaded candidate and safety dataset to create the full dataset.
-        combined_dataset = self.candidate_safety_combine(bs_candidate_dataset, bs_safety_dataset)
+        combined_dataset = self.candidate_safety_combine(
+            bs_candidate_dataset, bs_safety_dataset
+        )
 
         # Set the datasets associated with the trial.
-        spec_for_bootstrap_trial.dataset = combined_dataset 
+        spec_for_bootstrap_trial.dataset = combined_dataset
         spec_for_bootstrap_trial.candidate_dataset = bs_candidate_dataset
         spec_for_bootstrap_trial.safety_dataset = bs_safety_dataset
         spec_for_bootstrap_trial.frac_data_in_safety = frac_data_in_safety
 
         # Update spec with hyperparam_setting.
         spec_for_bootstrap_trial = hp_utils.set_spec_with_hyperparam_setting(
-                spec_for_bootstrap_trial, hyperparam_setting)
+            spec_for_bootstrap_trial, hyperparam_setting
+        )
 
         return spec_for_bootstrap_trial
 
-
     def run_bootstrap_trial(
-            self,
-            bootstrap_trial_i,
-            frac_data_in_safety,
-            parent_savedir,
-            hyperparam_setting=None,
+        self,
+        bootstrap_trial_i,
+        frac_data_in_safety,
+        parent_savedir,
+        hyperparam_setting=None,
     ):
         """Run bootstrap train bootstrap_trial_i to estimate the probability of passing
         with frac_data_in_safety.
@@ -590,45 +629,45 @@ class HyperparamSearch:
         """
         # TODO: Update this with the other kwargs, should be a spec.
 
-        bs_result_savename = os.path.join(parent_savedir, 
-                f"trial_{bootstrap_trial_i}_result.pkl")
+        bs_result_savename = os.path.join(
+            parent_savedir, f"trial_{bootstrap_trial_i}_result.pkl"
+        )
 
         # If this bootstrap trial has already been run, skip.
         if os.path.exists(bs_result_savename):
             if self.spec.verbose:
-                print(f"Bootstrap trial {bootstrap_trial_i} has already been run. Skipping.")
+                print(
+                    f"Bootstrap trial {bootstrap_trial_i} has already been run. Skipping."
+                )
             return False
 
         # Create spec for the bootstrap trial. The bootstrapped candidate and safety
         # datasets are created here.
-        spec_for_bootstrap_trial = self.create_bootstrap_trial_spec(bootstrap_trial_i,
-                frac_data_in_safety, parent_savedir, hyperparam_setting)
+        spec_for_bootstrap_trial = self.create_bootstrap_trial_spec(
+            bootstrap_trial_i, frac_data_in_safety, parent_savedir, hyperparam_setting
+        )
         # Run Seldonian Algorithm on the bootstrapped data. Load the datasets here.
         SA = SeldonianAlgorithm(spec_for_bootstrap_trial)
         # try:
-        passed_safety, solution = SA.run(write_cs_logfile=self.spec.verbose, 
-                debug=self.spec.verbose)
+        passed_safety, solution = SA.run(
+            write_cs_logfile=self.spec.verbose, debug=self.spec.verbose
+        )
         # except (ValueError, ZeroDivisionError): # Now, all experiemnts should return.
         #     passed_safety = False
         #     solution = "NSF"
 
         # Save the results.
-        # os.makedirs(bs_result_subdir, exist_ok=True) 
+        # os.makedirs(bs_result_subdir, exist_ok=True)
         trial_result_dict = {
-                "bootstrap_trial_i" : bootstrap_trial_i,
-                "passed_safety" : passed_safety,
-                "solution" : solution
+            "bootstrap_trial_i": bootstrap_trial_i,
+            "passed_safety": passed_safety,
+            "solution": solution,
         }
         save_pickle(bs_result_savename, trial_result_dict, verbose=self.spec.verbose)
 
         return True
 
-
-    def aggregate_est_prob_pass(
-            self,
-            est_frac_data_in_safety,
-            bootstrap_savedir
-    ):
+    def aggregate_est_prob_pass(self, est_frac_data_in_safety, bootstrap_savedir):
         """Compute the estimated probability of passing using the result files in 
         bootstrap_savedir.
 
@@ -657,13 +696,14 @@ class HyperparamSearch:
             bs_trials_solution.append(result_trial_dict["solution"])
 
         # Create dataframe containing data.
-        results_df = pd.DataFrame(data = {
-            "passed_safety" : bs_trials_pass,
-            "solution" : bs_trials_solution
-        })
+        results_df = pd.DataFrame(
+            data={"passed_safety": bs_trials_pass, "solution": bs_trials_solution}
+        )
         results_df.index = bs_trials_index
         results_df.sort_index(inplace=True)
-        results_csv_savename = os.path.join(bootstrap_savedir, "all_bs_trials_results.csv")
+        results_csv_savename = os.path.join(
+            bootstrap_savedir, "all_bs_trials_results.csv"
+        )
         results_df.to_csv(results_csv_savename)
 
         # Compute the probability of passing.
@@ -673,20 +713,20 @@ class HyperparamSearch:
 
         # TODO: Update so delta is passed through to CIs.
         if self.hyperparam_spec.confidence_interval_type == "ttest":
-            lower_bound, upper_bound = hp_utils.ttest_bound(self.hyperparam_spec,bs_trials_pass)
+            lower_bound, upper_bound = hp_utils.ttest_bound(
+                self.hyperparam_spec, bs_trials_pass
+            )
         elif self.hyperparam_spec.confidence_interval_type == "clopper-pearson":
-            lower_bound, upper_bound = hp_utils.clopper_pearson_bound(self.hyperparam_spec,num_trials_passed)
+            lower_bound, upper_bound = hp_utils.clopper_pearson_bound(
+                self.hyperparam_spec, num_trials_passed
+            )
         else:
             lower_bound, upper_bound = None, None
 
         # TODO: Update tests to have these returns.
         return est_prob_pass, lower_bound, upper_bound, results_df
 
-
-    def get_bootstrap_dataset_size(
-            self,
-            frac_data_in_safety
-    ):
+    def get_bootstrap_dataset_size(self, frac_data_in_safety):
         """Computes the number of datapoints that should go into the bootstrapped 
                 candidate and safety datasets according to frac_data_in_safety.
 
@@ -694,19 +734,14 @@ class HyperparamSearch:
                         the probabiilty of returning a solution for
         :type frac_data_in_safety: float
         """
-        total_data = self.dataset.num_datapoints # Original dataset size.
-        n_bootstrap_samples_safety = int(total_data * frac_data_in_safety) 
+        total_data = self.dataset.num_datapoints  # Original dataset size.
+        n_bootstrap_samples_safety = int(total_data * frac_data_in_safety)
         n_bootstrap_samples_candidate = total_data - n_bootstrap_samples_safety
 
         return n_bootstrap_samples_candidate, n_bootstrap_samples_safety
 
-
-
     def get_est_prob_pass(
-        self,
-        frac_data_in_safety,
-        bootstrap_savedir,
-        hyperparam_setting=None
+        self, frac_data_in_safety, bootstrap_savedir, hyperparam_setting=None
     ):
         """Estimates probability of returning a solution with rho_prime fraction of data
             in candidate selection.
@@ -731,79 +766,96 @@ class HyperparamSearch:
         # TODO: Do we need to think about bootstrap dataset generation in any way for hyperparameters?
 
         # Create a partial function for run_bootstrap_trial.
-       
-        partial_kwargs = { 
-                "frac_data_in_safety": frac_data_in_safety,
-                "parent_savedir": bootstrap_savedir,
-                "hyperparam_setting": hyperparam_setting
-                }
+
+        partial_kwargs = {
+            "frac_data_in_safety": frac_data_in_safety,
+            "parent_savedir": bootstrap_savedir,
+            "hyperparam_setting": hyperparam_setting,
+        }
         helper = partial(self.run_bootstrap_trial, **partial_kwargs)
 
         # Run the trials.
-        bs_trials_ran = [] # List indicating if the bootstrap trial was run.
+        bs_trials_ran = []  # List indicating if the bootstrap trial was run.
         start_time = time.time()
         if self.hyperparam_spec.n_bootstrap_workers == 1:
-            for bootstrap_trial_i in tqdm(range(self.hyperparam_spec.n_bootstrap_trials), leave=False):
+            for bootstrap_trial_i in tqdm(
+                range(self.hyperparam_spec.n_bootstrap_trials), leave=False
+            ):
                 # TODO: Log bs_trials_run.
                 bs_trials_ran.append(helper(bootstrap_trial_i))
-        elif self.hyperparam_spec.n_bootstrap_workers > 1: 
+        elif self.hyperparam_spec.n_bootstrap_workers > 1:
             with ProcessPoolExecutor(
-                    max_workers=self.hyperparam_spec.n_bootstrap_workers, mp_context=mp.get_context("fork")
+                max_workers=self.hyperparam_spec.n_bootstrap_workers,
+                mp_context=mp.get_context("fork"),
             ) as ex:
                 for ran_trial in tqdm(
-                        ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
-                        total=self.hyperparam_spec.n_bootstrap_trials, leave=False):
+                    ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
+                    total=self.hyperparam_spec.n_bootstrap_trials,
+                    leave=False,
+                ):
                     bs_trials_ran.append(ran_trial)
         else:
-            raise ValueError(f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1")
+            raise ValueError(
+                f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1"
+            )
         elapsed_time = time.time() - start_time
 
         # If trial was run, we want to indicate that at least one trial was run.
         ran_new_bs_trials = any(bs_trials_ran)
 
         # Accumulate results from bootstrap trials get estimate.
-        est_prob_pass, lower_bound, upper_bound, results_df = \
-                self.aggregate_est_prob_pass(
-                        frac_data_in_safety, bootstrap_savedir)
+        (
+            est_prob_pass,
+            lower_bound,
+            upper_bound,
+            results_df,
+        ) = self.aggregate_est_prob_pass(frac_data_in_safety, bootstrap_savedir)
 
         # TODO: Update the test for including lower and upper bounds.
-        return (est_prob_pass, lower_bound, upper_bound, results_df, elapsed_time, 
-                ran_new_bs_trials)
+        return (
+            est_prob_pass,
+            lower_bound,
+            upper_bound,
+            results_df,
+            elapsed_time,
+            ran_new_bs_trials,
+        )
 
-
-
-    def get_all_greater_est_prob_pass(
-            self,
-        ):
+    def get_all_greater_est_prob_pass(self,):
         """Compute the estimated probability of passing for all safety fractions in  
             self.all_frac_data_in_safety.
         """
         start_time = time.time()
         all_estimates = {}
-        for frac_data_in_safety in self.all_frac_data_in_safety:  
+        for frac_data_in_safety in self.all_frac_data_in_safety:
             print("rho:", frac_data_in_safety)
             all_estimates[frac_data_in_safety] = {}
-            bootstrap_savedir = os.path.join(self.results_dir,
-                    f"bootstrap_safety_frac_{frac_data_in_safety:.2f}")
+            bootstrap_savedir = os.path.join(
+                self.results_dir, f"bootstrap_safety_frac_{frac_data_in_safety:.2f}"
+            )
 
             # Partition data according to frac_data_in_safety.
-            (   candidate_dataset,
-                safety_dataset,
-            ) = self.create_dataset(self.dataset, frac_data_in_safety, shuffle=False)
+            (candidate_dataset, safety_dataset,) = self.create_dataset(
+                self.dataset, frac_data_in_safety, shuffle=False
+            )
 
             # Need at least 4 points in candidate to bootstrap estimate.
-            if candidate_dataset.num_datapoints < 4: 
+            if candidate_dataset.num_datapoints < 4:
                 continue
 
             # Estimate the probability of passing for datasplits with more in selection.
             for frac_data_in_safety_prime in self.all_frac_data_in_safety:
-                if frac_data_in_safety_prime > frac_data_in_safety:  # Only consider more data in cs, less in safety.
+                if (
+                    frac_data_in_safety_prime > frac_data_in_safety
+                ):  # Only consider more data in cs, less in safety.
                     continue
                 print(" rho':", frac_data_in_safety_prime)
 
                 # Compute desired sizes of the bootstrapped candidate and safety datasets.
-                n_bootstrap_samples_candidate, n_bootstrap_samples_safety = \
-                    self.get_bootstrap_dataset_size(frac_data_in_safety_prime)
+                (
+                    n_bootstrap_samples_candidate,
+                    n_bootstrap_samples_safety,
+                ) = self.get_bootstrap_dataset_size(frac_data_in_safety_prime)
 
                 # Copmute probability of passing.
                 prime_prob_pass, _, _, _, _, ran_new_bs_trials = self.get_est_prob_pass(
@@ -814,16 +866,15 @@ class HyperparamSearch:
                     bootstrap_savedir,
                 )
                 print("     prob pass:", prime_prob_pass)
-                all_estimates[frac_data_in_safety][frac_data_in_safety_prime] = prime_prob_pass
+                all_estimates[frac_data_in_safety][
+                    frac_data_in_safety_prime
+                ] = prime_prob_pass
 
         elapsed_time = time.time() - start_time
         print("elapsed_time:", elapsed_time)
         return all_estimates, elapsed_time
 
-
-    def get_gridsearchable_hyperparameter_iterator(
-            self
-    ):
+    def get_gridsearchable_hyperparameter_iterator(self):
         """
         Create iterator for every combination of grid-searchable hyperparameter values that we want to
             optimize for.
@@ -833,17 +884,19 @@ class HyperparamSearch:
 
         for (hyper_name, hyper_info) in self.hyper_dict.items():
             if hyper_info["tuning_method"] == "grid_search":
-                hyper_values, hyper_type = hyper_info["values"], hyper_info["hyper_type"]
+                hyper_values, hyper_type = (
+                    hyper_info["values"],
+                    hyper_info["hyper_type"],
+                )
                 if hyper_name == "frac_data_in_safety":
-                    hyper_values = sorted(hyper_values,reverse=True)
-                all_hyper_iterables.append([(hyper_name, hyper_type, value) for value in hyper_values])
+                    hyper_values = sorted(hyper_values, reverse=True)
+                all_hyper_iterables.append(
+                    [(hyper_name, hyper_type, value) for value in hyper_values]
+                )
 
         return itertools.product(*all_hyper_iterables)
 
-    def create_hyperparam_bootstrap_savedir(
-            self,
-            hyperparam_setting
-    ):
+    def create_hyperparam_bootstrap_savedir(self, hyperparam_setting):
         # TODO: Do we want to generalize to make work for safety_frac as well?
         bootstrap_savedir = "bootstrap"
         for (hyper_name, hyper_type, hyper_value) in hyperparam_setting:
@@ -851,12 +904,7 @@ class HyperparamSearch:
 
         return bootstrap_savedir
 
-
-    def find_best_hyperparameters(
-            self,
-            frac_data_in_safety,
-            **kwargs
-    ):
+    def find_best_hyperparameters(self, frac_data_in_safety, **kwargs):
         """
         Does hyperparameter tuning for all hyperparameters in HyperSchema.hyper_dict.
         Figures out which ones are to be grid-searched and which are to be optimized with 
@@ -865,37 +913,51 @@ class HyperparamSearch:
         """
 
         # Make a single directory where bootstrapped datasets will live
-        bootstrap_savedir = os.path.join(self.results_dir,'bootstrapped_datasets')
+        bootstrap_savedir = os.path.join(self.results_dir, "bootstrapped_datasets")
         os.makedirs(bootstrap_savedir, exist_ok=True)
 
         # Partition data according to frac_data_in_safety
-        (   candidate_dataset,
-            safety_dataset,
-        ) = self.create_dataset(self.dataset, frac_data_in_safety, shuffle=False)
+        (candidate_dataset, safety_dataset,) = self.create_dataset(
+            self.dataset, frac_data_in_safety, shuffle=False
+        )
 
         # Compute desired sizes of the bootstrapped candiate and safety datasets.
-        n_bootstrap_samples_candidate, n_bootstrap_samples_safety = \
-                self.get_bootstrap_dataset_size(frac_data_in_safety)
+        (
+            n_bootstrap_samples_candidate,
+            n_bootstrap_samples_safety,
+        ) = self.get_bootstrap_dataset_size(frac_data_in_safety)
 
         # Create the bootstrapped datasets
         created_trial_datasets = self.generate_all_bootstrap_datasets(
-                candidate_dataset, frac_data_in_safety, n_bootstrap_samples_candidate, 
-                n_bootstrap_samples_safety, bootstrap_savedir)
-        
+            candidate_dataset,
+            frac_data_in_safety,
+            n_bootstrap_samples_candidate,
+            n_bootstrap_samples_safety,
+            bootstrap_savedir,
+        )
+
         # Dictionary mapping hyperparameter setting to the estimated probability.
         all_est_prob_pass = {}
 
         # Figure out if there are grid searchable hps
         do_grid_search = False
-        grid_search_hps = [name for name,hyper_info in self.hyper_dict.items() if hyper_info['tuning_method']=="grid_search"]
+        grid_search_hps = [
+            name
+            for name, hyper_info in self.hyper_dict.items()
+            if hyper_info["tuning_method"] == "grid_search"
+        ]
         if len(grid_search_hps) > 0:
-            do_grid_search=True
+            do_grid_search = True
 
         # Figure out if there are CMA-ES searchable hps
         do_cmaes = False
         do_powell = False
-        cmaes_hps = [name for name,hyper_info in self.hyper_dict.items() if hyper_info['tuning_method']=="CMA-ES"]
-        
+        cmaes_hps = [
+            name
+            for name, hyper_info in self.hyper_dict.items()
+            if hyper_info["tuning_method"] == "CMA-ES"
+        ]
+
         if len(cmaes_hps) == 1:
             # CMA-ES won't work with 1 param, so use powell
             do_powell = True
@@ -915,10 +977,13 @@ class HyperparamSearch:
                     curr_prob_pass, best_cmaes_hyperparams = self.run_cmaes(
                         frac_data_in_safety=frac_data_in_safety,
                         fixed_hyperparam_setting=hyperparam_setting,
-                        **kwargs)
+                        **kwargs,
+                    )
                     print("Done.")
                     # combine best cmaes params with existing hyperparam setting
-                    full_hyperparam_setting = hyperparam_setting + tuple(best_cmaes_hyperparams)
+                    full_hyperparam_setting = hyperparam_setting + tuple(
+                        best_cmaes_hyperparams
+                    )
                     print("full_hyperparam_setting:")
                     print(full_hyperparam_setting)
                     all_est_prob_pass[full_hyperparam_setting] = curr_prob_pass
@@ -929,55 +994,62 @@ class HyperparamSearch:
                     curr_prob_pass, best_cmaes_hyperparams = self.run_powell(
                         frac_data_in_safety=frac_data_in_safety,
                         fixed_hyperparam_setting=hyperparam_setting,
-                        **kwargs)
+                        **kwargs,
+                    )
                     print("Done.")
-                    full_hyperparam_setting = hyperparam_setting + tuple(best_cmaes_hyperparams)
+                    full_hyperparam_setting = hyperparam_setting + tuple(
+                        best_cmaes_hyperparams
+                    )
                     all_est_prob_pass[full_hyperparam_setting] = curr_prob_pass
-
 
                 else:
                     # No CMA-ES or Powell, just use this combo of hyperparameters
                     # to estimate probability of passing.
-                    curr_prob_pass, _, _, _, _, curr_ran_new_bs_trials = self.get_est_prob_pass(
-                            frac_data_in_safety,
-                            candidate_dataset,
-                            n_bootstrap_samples_candidate,
-                            n_bootstrap_samples_safety,
-                            bootstrap_savedir,
-                            hyperparam_setting
+                    (
+                        curr_prob_pass,
+                        _,
+                        _,
+                        _,
+                        _,
+                        curr_ran_new_bs_trials,
+                    ) = self.get_est_prob_pass(
+                        frac_data_in_safety,
+                        candidate_dataset,
+                        n_bootstrap_samples_candidate,
+                        n_bootstrap_samples_safety,
+                        bootstrap_savedir,
+                        hyperparam_setting,
                     )
                     all_est_prob_pass[hyperparam_setting] = curr_prob_pass
 
             # Select the hyperparameter with the highest predicited probability of passing.
-            best_hyperparam_setting = max(all_est_prob_pass, key=lambda k: all_est_prob_pass[k])
-        
-            
+            best_hyperparam_setting = max(
+                all_est_prob_pass, key=lambda k: all_est_prob_pass[k]
+            )
+
         # Set spec with best hyperparameter setting.
         best_hyperparam_spec = hp_utils.set_spec_with_hyperparam_setting(
-                copy.deepcopy(self.spec), best_hyperparam_setting)
+            copy.deepcopy(self.spec), best_hyperparam_setting
+        )
 
         return best_hyperparam_setting, best_hyperparam_spec
 
-    def run_cmaes(self,frac_data_in_safety,fixed_hyperparam_setting,**kwargs):
+    def run_cmaes(self, frac_data_in_safety, fixed_hyperparam_setting, **kwargs):
         """ Run CMA-ES over the hyperparameters that 
         we specified in hyper_dict to have tuning_method = "CMA-ES". 
         Use fixed values for all other hyperparams. 
-        """  
+        """
         if self.write_logfile:
             log_counter = 0
             logdir = os.path.join(os.getcwd(), "cmaes_logs")
             os.makedirs(logdir, exist_ok=True)
-            filename = os.path.join(
-                logdir, f"cmaes_log{log_counter}.csv"
-            )
+            filename = os.path.join(logdir, f"cmaes_log{log_counter}.csv")
 
             while os.path.exists(filename):
-                filename = filename.replace(
-                    f"log{log_counter}", f"log{log_counter+1}"
-                )
+                filename = filename.replace(f"log{log_counter}", f"log{log_counter+1}")
                 log_counter += 1
 
-            logger = partial(cmaes_logger,filename=filename)
+            logger = partial(cmaes_logger, filename=filename)
         else:
             logger = None
 
@@ -1000,10 +1072,10 @@ class HyperparamSearch:
         partial_objective = partial(
             self.cmaes_objective,
             frac_data_in_safety=frac_data_in_safety,
-            fixed_hyperparam_setting=fixed_hyperparam_setting
+            fixed_hyperparam_setting=fixed_hyperparam_setting,
         )
-        es.optimize(partial_objective,callback=logger)
-        
+        es.optimize(partial_objective, callback=logger)
+
         es.disp()
         if self.write_logfile and kwargs["verbose"]:
             print(f"Wrote {filename} with CMA-ES log info")
@@ -1012,16 +1084,15 @@ class HyperparamSearch:
 
         theta_best = es.result.xbest
         best_hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta_best)
-        return best_prob_pass,best_hyperparam_setting
+        return best_prob_pass, best_hyperparam_setting
 
-
-    def run_powell(self,frac_data_in_safety,fixed_hyperparam_setting,**kwargs):
+    def run_powell(self, frac_data_in_safety, fixed_hyperparam_setting, **kwargs):
         """ Run Powell minimization over a single hyperparameter. 
         This is the fallback optimizer we use when we only have 1 hyperparameter
         and CMA-ES tuning is specified. CMA-ES is not intended for use in 1D.
         Use fixed values for all other hyperparams. 
-        """  
-        
+        """
+
         opts = {}
         if "maxiter" in kwargs:
             opts["maxiter"] = kwargs["maxiter"]
@@ -1040,42 +1111,41 @@ class HyperparamSearch:
         partial_objective = partial(
             self.powell_objective,
             frac_data_in_safety=frac_data_in_safety,
-            fixed_hyperparam_setting=fixed_hyperparam_setting
+            fixed_hyperparam_setting=fixed_hyperparam_setting,
         )
 
-        res = minimize(fun=partial_objective,x0=theta_init,method="Powell")
-        theta_best = res.x        
-        best_prob_pass = res.fun        
+        res = minimize(fun=partial_objective, x0=theta_init, method="Powell")
+        theta_best = res.x
+        best_prob_pass = res.fun
         # if self.write_logfile and kwargs["verbose"]:
         #     print(f"Wrote {filename} with CMA-ES log info")
 
         print(f"theta_best: {theta_best}")
         best_hyperparam_setting = self._unpack_theta_to_hyperparam_values(theta_best)
-        return best_prob_pass,best_hyperparam_setting
-
+        return best_prob_pass, best_hyperparam_setting
 
     def _get_theta_init_from_hyper_dict(self):
         """ Utility function for packing hyperparam initial values
         into a 1D vector for CMA-ES.
         """
-        # self.hyper_dict is an ordered dict 
+        # self.hyper_dict is an ordered dict
         theta_init = []
         for (hyper_name, hyper_info) in self.hyper_dict.items():
             if hyper_info["tuning_method"] == "CMA-ES":
                 hyper_val = hyper_info["initial_value"]
-                x_min,x_max = hyper_info['min_val'],hyper_info['max_val']
+                x_min, x_max = hyper_info["min_val"], hyper_info["max_val"]
                 if hyper_info["search_distribution"] == "log-uniform":
-                    hyper_val = np.log(hyper_val) 
-                    x_min,x_max = np.log(x_min),np.log(x_max) 
+                    hyper_val = np.log(hyper_val)
+                    x_min, x_max = np.log(x_min), np.log(x_max)
                 # reverse the sigmoiding process for encoding parameter gets encoded to theta (see _unpack_theta_to_hyperparam_values())
-                G = (x_max-x_min)/(hyper_val-x_min)
-                theta_ii = np.log(1/(G-1))
-                if hyper_info["search_distribution"] == 'log-uniform':
+                G = (x_max - x_min) / (hyper_val - x_min)
+                theta_ii = np.log(1 / (G - 1))
+                if hyper_info["search_distribution"] == "log-uniform":
                     theta_ii = np.exp(theta_ii)
                 theta_init.append(theta_ii)
         return theta_init
 
-    def _unpack_theta_to_hyperparam_values(self,theta):
+    def _unpack_theta_to_hyperparam_values(self, theta):
         """ Utility function for unpacking hyperparam values 
         from a 1D vector used in CMA-ES to values we can inject into a Seldonian
         Spec object.
@@ -1083,35 +1153,34 @@ class HyperparamSearch:
         :param theta: Vector of hyperparameters
         """
         hyperparam_setting = []
-        for ii,(hyper_name,hyper_info) in enumerate(self.hyper_dict.items()):
+        for ii, (hyper_name, hyper_info) in enumerate(self.hyper_dict.items()):
             if hyper_info["tuning_method"] != "CMA-ES":
                 continue
-            x_min,x_max = hyper_info['min_val'],hyper_info['max_val']
+            x_min, x_max = hyper_info["min_val"], hyper_info["max_val"]
             if hyper_info["search_distribution"] == "log-uniform":
                 # this ensures that search is done uniformly in log space
-                # this is especially important for step size where we want to 
+                # this is especially important for step size where we want to
                 # explore small step sizes just as often as large step sizes
-                x_min,x_max = np.log(x_min),np.log(x_max)
-                log_hyper_val = self.sigmoid(theta[ii])*(x_max-x_min) + x_min # squashes to be between [-10,0] for example
+                x_min, x_max = np.log(x_min), np.log(x_max)
+                log_hyper_val = (
+                    self.sigmoid(theta[ii]) * (x_max - x_min) + x_min
+                )  # squashes to be between [-10,0] for example
                 hyper_val = np.exp(log_hyper_val)
             else:
-                hyper_val = self.sigmoid(theta[ii])*(x_max-x_min) + x_min  
-            
-            if hyper_info["dtype"] == "int":    
+                hyper_val = self.sigmoid(theta[ii]) * (x_max - x_min) + x_min
+
+            if hyper_info["dtype"] == "int":
                 hyper_val = int(round(hyper_val))
 
-            hyperparam_setting.append((hyper_name,hyper_info['hyper_type'],hyper_val))
+            hyperparam_setting.append((hyper_name, hyper_info["hyper_type"], hyper_val))
 
         return hyperparam_setting
-    
-    def sigmoid(self,x):
-        return 1/(1+np.exp(-x))
+
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
 
     def cmaes_objective(
-        self,
-        theta,
-        frac_data_in_safety,
-        fixed_hyperparam_setting,
+        self, theta, frac_data_in_safety, fixed_hyperparam_setting,
     ):
         """ The objective function that CMA-ES tries to minimize. 
         We want to minimize (1-prob_pass) in order to maximize prob_pass. 
@@ -1128,62 +1197,69 @@ class HyperparamSearch:
         full_hyperparam_setting = fixed_hyperparam_setting + tuple(hyperparam_setting)
         print("hyperparams for this iteration of CMAES:")
         print(full_hyperparam_setting)
-        if hasattr(self,"cmaes_iteration"):
+        if hasattr(self, "cmaes_iteration"):
             self.cmaes_iteration += 1
         else:
             self.cmaes_iteration = 0
-        
+
         iteration_savedir = os.path.join(
             self.results_dir,
             f"frac_data_in_safety_{frac_data_in_safety:.2f}",
-            f"cmaes_iteration{self.cmaes_iteration}"
+            f"cmaes_iteration{self.cmaes_iteration}",
         )
 
-        os.makedirs(iteration_savedir,exist_ok=True)
+        os.makedirs(iteration_savedir, exist_ok=True)
         # TODO: Log created_trial_datasets
 
-        partial_kwargs = { 
-                "frac_data_in_safety": frac_data_in_safety,
-                "parent_savedir": iteration_savedir,
-                "hyperparam_setting": full_hyperparam_setting
-                }
+        partial_kwargs = {
+            "frac_data_in_safety": frac_data_in_safety,
+            "parent_savedir": iteration_savedir,
+            "hyperparam_setting": full_hyperparam_setting,
+        }
         helper = partial(self.run_bootstrap_trial, **partial_kwargs)
 
         # Run the trials.
-        bs_trials_ran = [] # List indicating if the bootstrap trial was run.
+        bs_trials_ran = []  # List indicating if the bootstrap trial was run.
         start_time = time.time()
         if self.hyperparam_spec.n_bootstrap_workers == 1:
-            for bootstrap_trial_i in tqdm(range(self.hyperparam_spec.n_bootstrap_trials), leave=False):
+            for bootstrap_trial_i in tqdm(
+                range(self.hyperparam_spec.n_bootstrap_trials), leave=False
+            ):
                 # TODO: Log bs_trials_run.
                 bs_trials_ran.append(helper(bootstrap_trial_i))
-        elif self.hyperparam_spec.n_bootstrap_workers > 1: 
+        elif self.hyperparam_spec.n_bootstrap_workers > 1:
             with ProcessPoolExecutor(
-                    max_workers=self.hyperparam_spec.n_bootstrap_workers, mp_context=mp.get_context("fork")
+                max_workers=self.hyperparam_spec.n_bootstrap_workers,
+                mp_context=mp.get_context("fork"),
             ) as ex:
                 for ran_trial in tqdm(
-                        ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
-                        total=self.hyperparam_spec.n_bootstrap_trials, leave=False):
+                    ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
+                    total=self.hyperparam_spec.n_bootstrap_trials,
+                    leave=False,
+                ):
                     bs_trials_ran.append(ran_trial)
         else:
-            raise ValueError(f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1")
+            raise ValueError(
+                f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1"
+            )
         # elapsed_time = time.time() - start_time
 
         # If trial was run, we want to indicate that at least one trial was run.
         ran_new_bs_trials = any(bs_trials_ran)
 
         # Accumulate results from bootstrap trials get estimate.
-        est_prob_pass, lower_bound, upper_bound, results_df = \
-                self.aggregate_est_prob_pass(
-                        frac_data_in_safety, iteration_savedir)
+        (
+            est_prob_pass,
+            lower_bound,
+            upper_bound,
+            results_df,
+        ) = self.aggregate_est_prob_pass(frac_data_in_safety, iteration_savedir)
         print("est_prob_pass:")
         print(est_prob_pass)
-        return 1-est_prob_pass
+        return 1 - est_prob_pass
 
     def powell_objective(
-        self,
-        theta,
-        frac_data_in_safety,
-        fixed_hyperparam_setting,
+        self, theta, frac_data_in_safety, fixed_hyperparam_setting,
     ):
         """ The objective function that Powell tries to minimize. 
         We want to minimize (1-prob_pass) in order to maximize prob_pass. 
@@ -1200,7 +1276,7 @@ class HyperparamSearch:
         print("hyperparams for this iteration of Powell:")
         print(full_hyperparam_setting)
         print(f"theta: {theta}")
-        if hasattr(self,"powell_iteration"):
+        if hasattr(self, "powell_iteration"):
             self.powell_iteration += 1
         else:
             self.powell_iteration = 0
@@ -1208,54 +1284,62 @@ class HyperparamSearch:
         iteration_savedir = os.path.join(
             self.results_dir,
             f"frac_data_in_safety_{frac_data_in_safety:.2f}",
-            f"powell_iteration{self.powell_iteration}"
+            f"powell_iteration{self.powell_iteration}",
         )
-        os.makedirs(iteration_savedir,exist_ok=True)
+        os.makedirs(iteration_savedir, exist_ok=True)
         # TODO: Log created_trial_datasets
 
-        partial_kwargs = { 
-                "frac_data_in_safety": frac_data_in_safety,
-                "parent_savedir": iteration_savedir,
-                "hyperparam_setting": full_hyperparam_setting
-                }
-        
+        partial_kwargs = {
+            "frac_data_in_safety": frac_data_in_safety,
+            "parent_savedir": iteration_savedir,
+            "hyperparam_setting": full_hyperparam_setting,
+        }
+
         helper = partial(self.run_bootstrap_trial, **partial_kwargs)
 
         # Run the trials.
-        bs_trials_ran = [] # List indicating if the bootstrap trial was run.
+        bs_trials_ran = []  # List indicating if the bootstrap trial was run.
         start_time = time.time()
         if self.hyperparam_spec.n_bootstrap_workers == 1:
-            for bootstrap_trial_i in tqdm(range(self.hyperparam_spec.n_bootstrap_trials), leave=False):
+            for bootstrap_trial_i in tqdm(
+                range(self.hyperparam_spec.n_bootstrap_trials), leave=False
+            ):
                 # TODO: Log bs_trials_run.
                 bs_trials_ran.append(helper(bootstrap_trial_i))
-        elif self.hyperparam_spec.n_bootstrap_workers > 1: 
+        elif self.hyperparam_spec.n_bootstrap_workers > 1:
             with ProcessPoolExecutor(
-                    max_workers=self.hyperparam_spec.n_bootstrap_workers, mp_context=mp.get_context("fork")
+                max_workers=self.hyperparam_spec.n_bootstrap_workers,
+                mp_context=mp.get_context("fork"),
             ) as ex:
                 for ran_trial in tqdm(
-                        ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
-                        total=self.hyperparam_spec.n_bootstrap_trials, leave=False):
+                    ex.map(helper, np.arange(self.hyperparam_spec.n_bootstrap_trials)),
+                    total=self.hyperparam_spec.n_bootstrap_trials,
+                    leave=False,
+                ):
                     bs_trials_ran.append(ran_trial)
         else:
-            raise ValueError(f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1")
+            raise ValueError(
+                f"n_workers value of {self.hyperparam_spec.n_bootstrap_workers} must be >=1"
+            )
         # elapsed_time = time.time() - start_time
 
         # If trial was run, we want to indicate that at least one trial was run.
         # ran_new_bs_trials = any(bs_trials_ran)
 
         # Accumulate results from bootstrap trials get estimate.
-        est_prob_pass, lower_bound, upper_bound, results_df = \
-                self.aggregate_est_prob_pass(
-                        frac_data_in_safety, iteration_savedir)
+        (
+            est_prob_pass,
+            lower_bound,
+            upper_bound,
+            results_df,
+        ) = self.aggregate_est_prob_pass(frac_data_in_safety, iteration_savedir)
         print("est_prob_pass:")
         print(est_prob_pass)
         print()
-        return 1-est_prob_pass
-
+        return 1 - est_prob_pass
 
     def find_best_frac_data_in_safety(
-            self,
-            threshold=0.01 # TODO: Come up with a better name than this.
+        self, threshold=0.01  # TODO: Come up with a better name than this.
     ):
         """Find the best frac_data_in_safety to use for the Seldonian algorithm.
 
@@ -1265,97 +1349,127 @@ class HyperparamSearch:
                 elf.dataset split according to frac_data_in_safety
         :rtyle: Tuple
         """
-        # Sort frac data in safety 
-        self.all_frac_data_in_safety = \
-                self.hyperparam_spec.hyper_schema.hyper_dict["frac_data_in_safety"]["values"]
-        self.all_frac_data_in_safety.sort(reverse=True) # Start with most data in safety.
+        # Sort frac data in safety
+        self.all_frac_data_in_safety = self.hyperparam_spec.hyper_schema.hyper_dict[
+            "frac_data_in_safety"
+        ]["values"]
+        self.all_frac_data_in_safety.sort(
+            reverse=True
+        )  # Start with most data in safety.
 
         # TODO: Can we pass in frac_data_in_safety now as a hyperparam_setting? Just a single one?
         # TODO: Update test now that use CI.
-        all_est_dict_list = [] # Store dicionaries for dataframe.
-        ran_new_bs_trials = False 
+        all_est_dict_list = []  # Store dicionaries for dataframe.
+        ran_new_bs_trials = False
 
         # Move data from safety to cs dataset, high high to low. self.all_frac_data_in_safety
         #   was sorted in init.
-        for frac_data_in_safety in self.all_frac_data_in_safety:  
-            bootstrap_savedir = os.path.join(self.results_dir, 
-                    f"bootstrap_safety_frac_{frac_data_in_safety:.2f}")
-            os.makedirs(bootstrap_savedir, exist_ok=True) 
+        for frac_data_in_safety in self.all_frac_data_in_safety:
+            bootstrap_savedir = os.path.join(
+                self.results_dir, f"bootstrap_safety_frac_{frac_data_in_safety:.2f}"
+            )
+            os.makedirs(bootstrap_savedir, exist_ok=True)
 
             # Partition data according to frac_data_in_safety.
-            (   candidate_dataset,
-                safety_dataset,
-            ) = self.create_dataset(self.dataset, frac_data_in_safety, shuffle=False)
+            (candidate_dataset, safety_dataset,) = self.create_dataset(
+                self.dataset, frac_data_in_safety, shuffle=False
+            )
 
             # Dictionary mapping est_frac_data_in_safety to the estimated probability.
             all_est_prob_pass = {}
 
             # Need at least 4 points in candidate to estimate probability of other splits.
-            if candidate_dataset.num_datapoints < 4: 
+            if candidate_dataset.num_datapoints < 4:
                 continue
 
             # Compute desired sizes of the bootstrapped candidate and safety datasets.
-            n_bootstrap_samples_candidate, n_bootstrap_samples_safety = \
-                self.get_bootstrap_dataset_size(frac_data_in_safety)
+            (
+                n_bootstrap_samples_candidate,
+                n_bootstrap_samples_safety,
+            ) = self.get_bootstrap_dataset_size(frac_data_in_safety)
 
             # Estimate probability of passing.
-            curr_prob_pass, curr_lower_bound, curr_upper_bound, _, _, curr_ran_new_bs_trials \
-                    = self.get_est_prob_pass(
-                            frac_data_in_safety,
-                            candidate_dataset,
-                            n_bootstrap_samples_candidate,
-                            n_bootstrap_samples_safety,
-                            bootstrap_savedir,
-                        )  
+            (
+                curr_prob_pass,
+                curr_lower_bound,
+                curr_upper_bound,
+                _,
+                _,
+                curr_ran_new_bs_trials,
+            ) = self.get_est_prob_pass(
+                frac_data_in_safety,
+                candidate_dataset,
+                n_bootstrap_samples_candidate,
+                n_bootstrap_samples_safety,
+                bootstrap_savedir,
+            )
             ran_new_bs_trials = ran_new_bs_trials or curr_ran_new_bs_trials
             all_est_prob_pass[frac_data_in_safety] = curr_prob_pass
-            all_est_dict_list.append({
-                "frac_data_in_safety": frac_data_in_safety, 
-                "est_frac_data_in_safety": frac_data_in_safety,
-                "est_prob_pass": curr_prob_pass,
-                "est_lower_bound": curr_lower_bound,
-                "est_upper_bound": curr_upper_bound,
-            })
+            all_est_dict_list.append(
+                {
+                    "frac_data_in_safety": frac_data_in_safety,
+                    "est_frac_data_in_safety": frac_data_in_safety,
+                    "est_prob_pass": curr_prob_pass,
+                    "est_lower_bound": curr_lower_bound,
+                    "est_upper_bound": curr_upper_bound,
+                }
+            )
 
             # Estimate if any of the future splits of data lead to higher P(pass)
             prime_better = False
             all_prime_below_threshold = False
             for est_frac_data_in_safety in self.all_frac_data_in_safety:
-                if est_frac_data_in_safety >= frac_data_in_safety:  # Est if more data in cs.
+                if (
+                    est_frac_data_in_safety >= frac_data_in_safety
+                ):  # Est if more data in cs.
                     continue
 
                 # Compute desired sizes of the bootstrapped candidate and safety datasets.
-                n_bootstrap_samples_candidate, n_bootstrap_samples_safety = \
-                    self.get_bootstrap_dataset_size(est_frac_data_in_safety)
+                (
+                    n_bootstrap_samples_candidate,
+                    n_bootstrap_samples_safety,
+                ) = self.get_bootstrap_dataset_size(est_frac_data_in_safety)
 
                 # Compute probability of passing.
-                prime_prob_pass, prime_lower_bound, prime_upper_bound, _, _, curr_ran_new_bs_trials \
-                        = self.get_est_prob_pass(
-                                est_frac_data_in_safety,
-                                candidate_dataset,
-                                n_bootstrap_samples_candidate,
-                                n_bootstrap_samples_safety,
-                                bootstrap_savedir,
-                            )
+                (
+                    prime_prob_pass,
+                    prime_lower_bound,
+                    prime_upper_bound,
+                    _,
+                    _,
+                    curr_ran_new_bs_trials,
+                ) = self.get_est_prob_pass(
+                    est_frac_data_in_safety,
+                    candidate_dataset,
+                    n_bootstrap_samples_candidate,
+                    n_bootstrap_samples_safety,
+                    bootstrap_savedir,
+                )
                 ran_new_bs_trials = ran_new_bs_trials or curr_ran_new_bs_trials
                 all_est_prob_pass[est_frac_data_in_safety] = prime_prob_pass
-                all_est_dict_list.append({
-                    "frac_data_in_safety": frac_data_in_safety, 
-                    "est_frac_data_in_safety": est_frac_data_in_safety,
-                    "est_prob_pass": prime_prob_pass,
-                    "est_lower_bound": prime_lower_bound,
-                    "est_upper_bound": prime_upper_bound,
-                })
+                all_est_dict_list.append(
+                    {
+                        "frac_data_in_safety": frac_data_in_safety,
+                        "est_frac_data_in_safety": est_frac_data_in_safety,
+                        "est_prob_pass": prime_prob_pass,
+                        "est_lower_bound": prime_lower_bound,
+                        "est_upper_bound": prime_upper_bound,
+                    }
+                )
 
                 # Check if estimate is below threshold.
-                all_prime_below_threshold = all_prime_below_threshold and (prime_prob_pass <= threshold)
+                all_prime_below_threshold = all_prime_below_threshold and (
+                    prime_prob_pass <= threshold
+                )
 
                 # Check if ound a future split that we predict is better.
-                if self.hyperparam_spec.confidence_interval_type is not None: # Compare confidence intervals.
+                if (
+                    self.hyperparam_spec.confidence_interval_type is not None
+                ):  # Compare confidence intervals.
                     if prime_upper_bound >= curr_lower_bound:
                         prime_better = True
                         break
-                else: # Use point estimate to compare.
+                else:  # Use point estimate to compare.
                     if prime_prob_pass >= curr_prob_pass:
                         prime_better = True
                         break
@@ -1371,5 +1485,9 @@ class HyperparamSearch:
         all_est_df.to_csv(all_est_csv_savename)
 
         # TODO: frac_data_in_safety should be saved... but perhaps at the top level
-        return (frac_data_in_safety, candidate_dataset, safety_dataset, ran_new_bs_trials)
-
+        return (
+            frac_data_in_safety,
+            candidate_dataset,
+            safety_dataset,
+            ran_new_bs_trials,
+        )

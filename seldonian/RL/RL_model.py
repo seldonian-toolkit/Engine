@@ -19,11 +19,7 @@ class RL_model(SeldonianModel):  # consist of agent, env
             self.env_kwargs["gamma"] = 1.0
 
     def get_probs_from_observations_and_actions(
-        self,
-        new_params,
-        observations,
-        actions,
-        action_probs,
+        self, new_params, observations, actions, action_probs,
     ):
         """Get action probablities under policy with new parameters.
         Just a wrapper to call policy method of same name.

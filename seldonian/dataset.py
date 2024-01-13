@@ -79,7 +79,7 @@ class DataSetLoader:
         # Define a flag for whether there are alt rewards
         has_alt_rewards = False
         n_min_required_cols = len(required_col_names)
-        
+
         if len(meta.all_col_names) > n_min_required_cols:
             if "R_alt_1" in meta.all_col_names:
                 has_alt_rewards = True
@@ -91,7 +91,7 @@ class DataSetLoader:
                     "and the extra column names do not follow the 'R_alt_1','R_alt_2', ... pattern. "
                     "Update the names of these columns, which represent the optional alternate rewards."
                 )
-        
+
         for episode_index in df.episode_index.unique():
             df_ep = df.loc[df.episode_index == episode_index]
             if has_alt_rewards:
@@ -108,7 +108,7 @@ class DataSetLoader:
                 alt_rewards=alt_rewards,
             )
             episodes.append(episode)
-        
+
         if meta.sensitive_col_names != []:
             sensitive_attrs = df.loc[:, meta.sensitive_col_names].values
         else:
@@ -165,9 +165,7 @@ class SupervisedDataSet(DataSet):
         :type meta: :py:class:`.MetaData`
         """
         super().__init__(
-            num_datapoints=num_datapoints,
-            meta=meta,
-            regime="supervised_learning",
+            num_datapoints=num_datapoints, meta=meta, regime="supervised_learning",
         )
 
         self.features = features
@@ -238,11 +236,7 @@ class SupervisedDataSet(DataSet):
 
 class RLDataSet(DataSet):
     def __init__(
-        self,
-        episodes,
-        meta,
-        sensitive_attrs=[],
-        **kwargs,
+        self, episodes, meta, sensitive_attrs=[], **kwargs,
     ):
         """Class for holding reinforcement learning episodes and metadata
 
@@ -254,9 +248,7 @@ class RLDataSet(DataSet):
         :type sensitive_attrs: numpy.ndarray, defaults to []
         """
         super().__init__(
-            num_datapoints=len(episodes),
-            meta=meta,
-            regime="reinforcement_learning",
+            num_datapoints=len(episodes), meta=meta, regime="reinforcement_learning",
         )
         self.episodes = episodes
         self.sensitive_attrs = sensitive_attrs
@@ -277,9 +269,7 @@ class CustomDataSet(DataSet):
         :type meta: :py:class:`.RLMetaData`
         """
         super().__init__(
-            num_datapoints=num_datapoints,
-            meta=meta,
-            regime="custom",
+            num_datapoints=num_datapoints, meta=meta, regime="custom",
         )
         self.data = data
         if not (
@@ -420,9 +410,7 @@ class RLMetaData(MetaData):
 
 class CustomMetaData(MetaData):
     def __init__(
-        self,
-        all_col_names,
-        sensitive_col_names=[],
+        self, all_col_names, sensitive_col_names=[],
     ):
         """Class for holding custom dataset metadata"""
         super().__init__(
@@ -529,7 +517,4 @@ def load_custom_metadata(filename):
     else:
         sensitive_col_names = metadata_dict["sensitive_col_names"]
 
-    return CustomMetaData(
-        all_col_names,
-        sensitive_col_names,
-    )
+    return CustomMetaData(all_col_names, sensitive_col_names,)

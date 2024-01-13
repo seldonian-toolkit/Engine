@@ -140,11 +140,7 @@ class SafetyTest(object):
             return result
 
         elif self.regime == "custom":
-            result = primary_objective(
-                self.model,
-                theta,
-                self.safety_dataset.data,
-            )
+            result = primary_objective(self.model, theta, self.safety_dataset.data,)
             return result
 
     def get_importance_weights(self, theta):

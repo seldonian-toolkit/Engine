@@ -3,6 +3,7 @@ from scipy.stats import t
 
 stability_const = 1e-15
 
+
 def stddev(v):
     """
     Sample standard deviation of the vector v,
@@ -14,6 +15,7 @@ def stddev(v):
     :rtype: float
     """
     return np.std(v, ddof=1)
+
 
 def tinv(p, nu):
     """
@@ -33,6 +35,7 @@ def tinv(p, nu):
     """
     return t.ppf(p, nu)
 
+
 def weighted_sum_gamma(arr, gamma=0.9):
     """Calculate weighted sum of an array,
     where weights are gamma**(index of arr).
@@ -48,6 +51,7 @@ def weighted_sum_gamma(arr, gamma=0.9):
     """
     weights = np.power(gamma, range(len(arr)))
     return np.average(arr, weights=weights) * np.sum(weights)
+
 
 def softmax(x):
     """ Calculate the softmax for a vector of values, x """

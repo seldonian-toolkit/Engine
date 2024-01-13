@@ -6,6 +6,7 @@ from seldonian.models.models import SupervisedModel
 
 import tensorflow as tf
 
+
 @primitive
 def tf_predict(theta, X, model, **kwargs):
     """Do a forward pass through the TensorFlow model.
@@ -31,6 +32,7 @@ def tf_predict(theta, X, model, **kwargs):
     # Convert predictions into a numpy array
     pred_numpy = pred.numpy()
     return pred_numpy
+
 
 def tf_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the TensorFlow model,
@@ -61,6 +63,7 @@ def tf_predict_vjp(ans, theta, X, model):
         return dpred_dtheta
 
     return fn
+
 
 # Link the predict function with its gradient,
 # telling autograd not to look inside either of these functions

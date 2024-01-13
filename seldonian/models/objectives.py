@@ -14,6 +14,7 @@ from seldonian.models.models import BaseLogisticRegressionModel
 
 ####### Regression ########
 
+
 def Mean_Squared_Error(model, theta, X, Y, **kwargs):
     """
     Calculate mean squared error over the whole sample
@@ -34,6 +35,7 @@ def Mean_Squared_Error(model, theta, X, Y, **kwargs):
     res = sum(pow(prediction - Y, 2)) / n
 
     return res
+
 
 def gradient_Mean_Squared_Error(model, theta, X, Y, **kwargs):
     """Gradient of the mean squared error w.r.t. theta
@@ -61,6 +63,7 @@ def gradient_Mean_Squared_Error(model, theta, X, Y, **kwargs):
     X_withintercept = np.hstack([np.ones((n, 1)), np.array(X)])
     return 2 / n * np.dot(err, X_withintercept)
 
+
 def Mean_Error(model, theta, X, Y, **kwargs):
     """
     Calculate mean error (y_hat-y) over the whole sample
@@ -80,6 +83,7 @@ def Mean_Error(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)  # vector of values
     res = sum(prediction - Y) / n
     return res
+
 
 def gradient_Bounded_Squared_Error(model, theta, X, Y, **kwargs):
     """Analytical gradient of the bounded squared error (BSE)
@@ -116,7 +120,9 @@ def gradient_Bounded_Squared_Error(model, theta, X, Y, **kwargs):
     s = sum(term1 * term2)
     return -2 / n * s
 
+
 ####### Classification ########
+
 
 def binary_logistic_loss(model, theta, X, Y, **kwargs):
     """Calculate mean logistic loss
@@ -146,6 +152,7 @@ def binary_logistic_loss(model, theta, X, Y, **kwargs):
     )
     return res
 
+
 def gradient_binary_logistic_loss(model, theta, X, Y, **kwargs):
     """Gradient of binary logistic loss w.r.t. theta.
     WARNING: This is only valid for binary logistic regression models!
@@ -169,6 +176,7 @@ def gradient_binary_logistic_loss(model, theta, X, Y, **kwargs):
     X_withintercept = np.hstack([np.ones((len(X), 1)), np.array(X)])
     res = (1 / len(X)) * np.dot(X_withintercept.T, (h - Y))
     return res
+
 
 def multiclass_logistic_loss(model, theta, X, Y, **kwargs):
     """Calculate mean logistic loss
@@ -196,6 +204,7 @@ def multiclass_logistic_loss(model, theta, X, Y, **kwargs):
     probs_trueclasses = Y_pred[np.arange(N), Y.astype("int")]
     return -1 / N * sum(np.log(probs_trueclasses))
 
+
 def Positive_Rate(model, theta, X, Y, **kwargs):
     """
     Calculate mean positive rate
@@ -220,6 +229,7 @@ def Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _Positive_Rate_binary(model, theta, X, Y)
 
+
 def _Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean positive rate
@@ -239,6 +249,7 @@ def _Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     prediction = model.predict(theta, X)
     return np.sum(prediction) / len(X)  # if all 1s then PR=1.
+
 
 def _Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -261,6 +272,7 @@ def _Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     prediction = model.predict(theta, X)
     return np.sum(prediction[:, class_index]) / len(X)  # if all 1s then PR=1.
+
 
 def Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -287,6 +299,7 @@ def Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _Negative_Rate_binary(model, theta, X, Y)
 
+
 def _Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean negative rate
@@ -306,6 +319,7 @@ def _Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     prediction = model.predict(theta, X)
     return np.sum(1.0 - prediction) / len(X)  # if all 1s then PR=1.
+
 
 def _Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -328,6 +342,7 @@ def _Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     prediction = model.predict(theta, X)
     return np.sum(1.0 - prediction[:, class_index]) / len(X)
+
 
 def False_Positive_Rate(model, theta, X, Y, **kwargs):
     """
@@ -353,6 +368,7 @@ def False_Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _False_Positive_Rate_binary(model, theta, X, Y)
 
+
 def _False_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean false positive rate
@@ -375,6 +391,7 @@ def _False_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     neg_mask = Y != 1.0
     return np.sum(prediction[neg_mask]) / len(X[neg_mask])
+
 
 def _False_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -401,6 +418,7 @@ def _False_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     neg_mask = Y != class_index
     return np.sum(prediction[:, class_index][neg_mask]) / len(X[neg_mask])
 
+
 def False_Negative_Rate(model, theta, X, Y, **kwargs):
     """
     Calculate probabilistic mean false negative rate
@@ -425,6 +443,7 @@ def False_Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _False_Negative_Rate_binary(model, theta, X, Y)
 
+
 def _False_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate probabilistic mean false negative rate
@@ -446,6 +465,7 @@ def _False_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == 1.0
     return np.sum(1.0 - prediction[pos_mask]) / len(X[pos_mask])
+
 
 def _False_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -471,6 +491,7 @@ def _False_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     pos_mask = Y == class_index
     return np.sum(1.0 - prediction[:, class_index][pos_mask]) / len(X[pos_mask])
 
+
 def True_Positive_Rate(model, theta, X, Y, **kwargs):
     """
     Calculate mean true positive rate
@@ -495,6 +516,7 @@ def True_Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _True_Positive_Rate_binary(model, theta, X, Y)
 
+
 def _True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean true positive rate
@@ -516,6 +538,7 @@ def _True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == 1.0
     return np.sum(prediction[pos_mask]) / len(X[pos_mask])
+
 
 def _True_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -539,6 +562,7 @@ def _True_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == class_index
     return np.sum(prediction[:, class_index][pos_mask]) / len(X[pos_mask])
+
 
 def True_Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -564,6 +588,7 @@ def True_Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _True_Negative_Rate_binary(model, theta, X, Y)
 
+
 def _True_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate mean true negative rate
@@ -584,6 +609,7 @@ def _True_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     neg_mask = Y != 1.0
     return np.sum(1.0 - prediction[neg_mask]) / len(X[neg_mask])
+
 
 def _True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -608,6 +634,7 @@ def _True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     neg_mask = Y != class_index
     return np.sum(1.0 - prediction[:, class_index][neg_mask]) / len(X[neg_mask])
 
+
 def Error_Rate(model, theta, X, Y, **kwargs):
     """
     Calculate mean error rate over the whole sample.
@@ -625,6 +652,7 @@ def Error_Rate(model, theta, X, Y, **kwargs):
         return _Error_Rate_multiclass(model, theta, X, Y, **kwargs)
     else:
         return _Error_Rate_binary(model, theta, X, Y, **kwargs)
+
 
 def _Error_Rate_binary(model, theta, X, Y, **kwargs):
     """Calculate mean error rate
@@ -646,6 +674,7 @@ def _Error_Rate_binary(model, theta, X, Y, **kwargs):
     res = np.sum(Y * (1 - Y_pred_probs) + (1 - Y) * Y_pred_probs) / n
     return res
 
+
 def _Error_Rate_multiclass(model, theta, X, Y, **kwargs):
     """Calculate mean error rate
     for the whole sample.
@@ -665,6 +694,7 @@ def _Error_Rate_multiclass(model, theta, X, Y, **kwargs):
     Y_pred_probs = model.predict(theta, X)
     res = np.sum(1.0 - Y_pred_probs[np.arange(n), Y]) / n
     return res
+
 
 def confusion_matrix(model, theta, X, Y, l_i, l_k, **kwargs):
     """Get the mean probability of predicting class label l_k
@@ -698,7 +728,9 @@ def confusion_matrix(model, theta, X, Y, l_i, l_k, **kwargs):
     res = sum(Y_pred[:, l_k][true_mask]) / N_mask
     return res
 
+
 """ Reinforcement learning objectives """
+
 
 def IS_estimate(model, theta, episodes, **kwargs):
     """Calculate the vanilla importance sampling estimate
@@ -733,6 +765,7 @@ def IS_estimate(model, theta, episodes, **kwargs):
 
     return IS_est
 
+
 def PDIS_estimate(model, theta, episodes, **kwargs):
     """Calculate per-decision importance sampling (PDIS) estimate
     using all episodes.
@@ -762,6 +795,7 @@ def PDIS_estimate(model, theta, episodes, **kwargs):
     PDIS_est /= len(episodes)
 
     return PDIS_est
+
 
 def WIS_estimate(model, theta, episodes, **kwargs):
     """Calculate the weighted importance sampling (WIS) estimate
@@ -797,6 +831,7 @@ def WIS_estimate(model, theta, episodes, **kwargs):
     rho_array = np.array(rho_array)
     WIS_est = np.sum(rho_array * weighted_returns) / np.sum(rho_array)
     return WIS_est
+
 
 def US_estimate(model, theta, episodes, **kwargs):
     """Get the expected return of the PRIMARY reward

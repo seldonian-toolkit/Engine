@@ -22,6 +22,7 @@ from seldonian.utils.stats_utils import (
 
 """ Convenience functions """
 
+
 def batcher(func, N, batch_size, num_batches):
     """Calls func num_batches times,
     batching up the inputs.
@@ -36,6 +37,7 @@ def batcher(func, N, batch_size, num_batches):
 
     :return: A wrapper function that does the actual function calls
     """
+
     def wrapper(*args, **kw):
         regime = kw["regime"]
         model = args[0]
@@ -80,6 +82,7 @@ def batcher(func, N, batch_size, num_batches):
 
     return wrapper
 
+
 def _setup_params_for_stat_funcs(model, theta, data_dict, **kwargs):
     """Set up args,kwargs to pass to the
     zhat functions.
@@ -122,6 +125,7 @@ def _setup_params_for_stat_funcs(model, theta, data_dict, **kwargs):
         msr_func_kwargs = kwargs
 
     return args, msr_func_kwargs, num_datapoints
+
 
 def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
     """Calculate a statistical function for each observation
@@ -171,6 +175,7 @@ def sample_from_statistic(model, statistic_name, theta, data_dict, **kwargs):
             batch_size=batch_size_safety,
             num_batches=num_batches,
         )(*args, **msr_func_kwargs)
+
 
 def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
     """Evaluate the mean of a statistical function over the whole sample provided.
@@ -224,7 +229,9 @@ def evaluate_statistic(model, statistic_name, theta, data_dict, **kwargs):
             )(*args, **msr_func_kwargs)
         )
 
+
 """ Regression zhat functions """
+
 
 def vector_Squared_Error(model, theta, X, Y, **kwargs):
     """Calculate squared error for each observation
@@ -244,6 +251,7 @@ def vector_Squared_Error(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     return pow(prediction - Y, 2)
 
+
 def vector_Error(model, theta, X, Y, **kwargs):
     """Calculate error (Y_hat - Y) for each observation
     in the dataset
@@ -262,7 +270,9 @@ def vector_Error(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     return prediction - Y
 
+
 """ Classification zhat functions """
+
 
 def vector_Positive_Rate(model, theta, X, Y, **kwargs):
     """
@@ -288,6 +298,7 @@ def vector_Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _vector_Positive_Rate_binary(model, theta, X, Y)
 
+
 def _vector_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate positive rate
@@ -307,6 +318,7 @@ def _vector_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     prediction = model.predict(theta, X)
     return prediction
+
 
 def _vector_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -329,6 +341,7 @@ def _vector_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     prediction = model.predict(theta, X)
     return prediction[:, class_index]
+
 
 def vector_Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -354,6 +367,7 @@ def vector_Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _vector_Negative_Rate_binary(model, theta, X, Y)
 
+
 def _vector_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate negative rate
@@ -373,6 +387,7 @@ def _vector_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     prediction = model.predict(theta, X)
     return 1.0 - prediction
+
 
 def _vector_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -395,6 +410,7 @@ def _vector_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
     prediction = model.predict(theta, X)
     return 1.0 - prediction[:, class_index]
+
 
 def vector_False_Positive_Rate(model, theta, X, Y, **kwargs):
     """
@@ -420,6 +436,7 @@ def vector_False_Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _vector_False_Positive_Rate_binary(model, theta, X, Y)
 
+
 def _vector_False_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate false positive rate
@@ -440,6 +457,7 @@ def _vector_False_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     neg_mask = Y != 1.0  # this includes false positives and true negatives
     return prediction[neg_mask]
+
 
 def _vector_False_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -463,6 +481,7 @@ def _vector_False_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kw
     prediction = model.predict(theta, X)
     other_mask = Y != class_index
     return prediction[:, class_index][other_mask]
+
 
 def vector_False_Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -488,6 +507,7 @@ def vector_False_Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _vector_False_Negative_Rate_binary(model, theta, X, Y)
 
+
 def _vector_False_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate false negative rate
@@ -508,6 +528,7 @@ def _vector_False_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == 1.0  # this includes false positives and true negatives
     return 1.0 - prediction[pos_mask]
+
 
 def _vector_False_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -531,6 +552,7 @@ def _vector_False_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kw
     prediction = model.predict(theta, X)
     pos_mask = Y == class_index  # this includes false positives and true negatives
     return (1.0 - prediction[:, class_index])[pos_mask]
+
 
 def vector_True_Positive_Rate(model, theta, X, Y, **kwargs):
     """
@@ -556,6 +578,7 @@ def vector_True_Positive_Rate(model, theta, X, Y, **kwargs):
     else:
         return _vector_True_Positive_Rate_binary(model, theta, X, Y)
 
+
 def _vector_True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate true positive rate
@@ -576,6 +599,7 @@ def _vector_True_Positive_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     pos_mask = Y == 1.0  # this includes false positives and true negatives
     return prediction[pos_mask]
+
 
 def _vector_True_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -599,6 +623,7 @@ def _vector_True_Positive_Rate_multiclass(model, theta, X, Y, class_index, **kwa
     prediction = model.predict(theta, X)
     pos_mask = Y == class_index  # this includes false positives and true negatives
     return (prediction[:, class_index])[pos_mask]
+
 
 def vector_True_Negative_Rate(model, theta, X, Y, **kwargs):
     """
@@ -624,6 +649,7 @@ def vector_True_Negative_Rate(model, theta, X, Y, **kwargs):
     else:
         return _vector_True_Negative_Rate_binary(model, theta, X, Y)
 
+
 def _vector_True_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     """
     Calculate true negative rate
@@ -644,6 +670,7 @@ def _vector_True_Negative_Rate_binary(model, theta, X, Y, **kwargs):
     prediction = model.predict(theta, X)
     neg_mask = Y != 1.0
     return 1.0 - prediction[neg_mask]
+
 
 def _vector_True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwargs):
     """
@@ -668,6 +695,7 @@ def _vector_True_Negative_Rate_multiclass(model, theta, X, Y, class_index, **kwa
     neg_mask = Y != class_index
     return (1.0 - prediction[:, class_index])[neg_mask]
 
+
 def vector_Error_Rate(model, theta, X, Y, **kwargs):
     """
     Calculate error rate for each observation.
@@ -689,6 +717,7 @@ def vector_Error_Rate(model, theta, X, Y, **kwargs):
         return _vector_Error_Rate_multiclass(model, theta, X, Y, **kwargs)
     else:
         return _vector_Error_Rate_binary(model, theta, X, Y, **kwargs)
+
 
 def _vector_Error_Rate_binary(model, theta, X, Y, **kwargs):
     """
@@ -713,6 +742,7 @@ def _vector_Error_Rate_binary(model, theta, X, Y, **kwargs):
     # probs. Just need to replace the probabilites in the neg mask with 1-prob
     return Y * (1 - Y_pred_probs) + (1 - Y) * Y_pred_probs
 
+
 def _vector_Error_Rate_multiclass(model, theta, X, Y, **kwargs):
     """
     Calculate error rate for each observation.
@@ -733,6 +763,7 @@ def _vector_Error_Rate_multiclass(model, theta, X, Y, **kwargs):
     n = len(X)
     Y_pred_probs = model.predict(theta, X)
     return 1.0 - Y_pred_probs[np.arange(n), Y]
+
 
 def vector_Accuracy(model, theta, X, Y, **kwargs):
     """
@@ -756,6 +787,7 @@ def vector_Accuracy(model, theta, X, Y, **kwargs):
     else:
         return _vector_Accuracy_binary(model, theta, X, Y, **kwargs)
 
+
 def _vector_Accuracy_binary(model, theta, X, Y, **kwargs):
     """
     Calculate probabilistic accuracy for each observation.
@@ -775,6 +807,7 @@ def _vector_Accuracy_binary(model, theta, X, Y, **kwargs):
     """
     Y_pred_probs = model.predict(theta, X)
     return Y * Y_pred_probs + (1 - Y) * (1 - Y_pred_probs)
+
 
 def _vector_Accuracy_multiclass(model, theta, X, Y, **kwargs):
     """
@@ -796,6 +829,7 @@ def _vector_Accuracy_multiclass(model, theta, X, Y, **kwargs):
     n = len(X)
     Y_pred_probs = model.predict(theta, X)
     return Y_pred_probs[np.arange(n), Y]
+
 
 def vector_confusion_matrix(model, theta, X, Y, l_i, l_k, **kwargs):
     """
@@ -827,10 +861,12 @@ def vector_confusion_matrix(model, theta, X, Y, l_i, l_k, **kwargs):
     true_mask = Y == l_i  # length i
 
     N_mask = sum(true_mask)
-    res = Y_pred[:, l_k][true_mask] 
+    res = Y_pred[:, l_k][true_mask]
     return res
 
+
 """ RL zhat functions """
+
 
 def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     """Calculate the unweighted importance sampling estimate
@@ -856,6 +892,7 @@ def vector_IS_estimate(model, theta, episodes, weighted_returns, **kwargs):
         result.append(pi_ratio_prod * weighted_returns[ii])
 
     return np.array(result)
+
 
 def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     """Calculate per decision importance sampling estimate
@@ -888,6 +925,7 @@ def vector_PDIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
 
     return np.array(PDIS_vector)
 
+
 def vector_WIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     """Calculate weighted importance sampling estimate
     on each episodes in the dataframe
@@ -916,6 +954,7 @@ def vector_WIS_estimate(model, theta, episodes, weighted_returns, **kwargs):
     WIS_vector = n * rho_array * weighted_returns / np.sum(rho_array)
     return WIS_vector
 
+
 def vector_auxiliary_return_US_estimate(
     model, theta, episodes, weighted_returns, **kwargs
 ):
@@ -935,6 +974,7 @@ def vector_auxiliary_return_US_estimate(
             returns_inside_theta_box.append(secondary_return)
     n_inside_box = len(returns_inside_theta_box)
     return np.array(returns_inside_theta_box)
+
 
 """ Measure function mapper that maps from string that appears in the constraint string to the appropriate function. """
 

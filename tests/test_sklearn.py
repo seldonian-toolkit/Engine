@@ -32,10 +32,7 @@ def test_sklearn_linear_regressor():
 	hidden defaults we won't worry about here
 	"""
     spec = SupervisedSpec(
-        dataset=dataset,
-        model=model,
-        parse_trees=parse_trees,
-        sub_regime="regression",
+        dataset=dataset, model=model, parse_trees=parse_trees, sub_regime="regression",
     )
     spec.use_builtin_primary_gradient_fn = True
     # 5. Run seldonian algorithm using the spec object

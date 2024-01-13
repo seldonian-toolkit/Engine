@@ -4,6 +4,7 @@ import autograd.numpy as np
 
 from autograd.extend import primitive, defvjp
 
+
 def probs2theta(probs):
     """ Get theta from p(theta) = sigmoid(theta).
     Need to add a constant for stability in case prob=0 or 1,
@@ -14,8 +15,10 @@ def probs2theta(probs):
     probs[probs >= 0.5] -= const
     return np.log(1 / (1 / probs - 1))
 
+
 def sigmoid(theta):
     return 1 / (1 + np.exp(-1 * theta))
+
 
 @primitive
 def sklearn_predict(theta, X, model, **kwargs):
@@ -45,6 +48,7 @@ def sklearn_predict(theta, X, model, **kwargs):
 
     return pred, leaf_nodes_hit
 
+
 def sklearn_predict_vjp(ans, theta, X, model):
     """Do a backward pass through the Sklearn model,
     obtaining the Jacobian d pred / dtheta.
@@ -71,6 +75,7 @@ def sklearn_predict_vjp(ans, theta, X, model):
 
     return fn
 
+
 # Link the predict function with its gradient,
 # telling autograd not to look inside either of these functions
 defvjp(sklearn_predict, sklearn_predict_vjp)
@@ -85,8 +90,8 @@ class SeldonianDecisionTree(ClassificationModel):
         :ivar classifier: The SKLearn classifier object
         """
         self.classifier = DecisionTreeClassifier(**dt_kwargs)
-        self.has_intercept = False # this model does not have a y-intercept term 
-        self.params_updated = False # internal flag used during model optimization
+        self.has_intercept = False  # this model does not have a y-intercept term
+        self.params_updated = False  # internal flag used during model optimization
 
     def fit(self, features, labels, **kwargs):
         """A wrapper around SKLearn's fit() method. Returns the leaf node probabilities
@@ -112,9 +117,7 @@ class SeldonianDecisionTree(ClassificationModel):
         )
         return self.get_leaf_node_probs()
 
-    def get_leaf_node_probs(
-        self,
-    ):
+    def get_leaf_node_probs(self,):
         """Retrieve the leaf node probabilities from the current tree from left to right"""
         probs = []
         leaf_counter = 0

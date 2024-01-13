@@ -2,6 +2,7 @@
 import autograd.numpy as np
 from seldonian.models.models import SeldonianModel
 
+
 class CustomTextModel(SeldonianModel):
     def __init__(self):
         """ A demo class used for illustrating models for the custom regime """

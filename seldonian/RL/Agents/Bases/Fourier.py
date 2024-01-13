@@ -67,7 +67,7 @@ class Fourier(object):
             max_coupled_vars + 1, num_obs_dims + 1
         ):
             num_features -= (
-                order**mandatory_0_observation_variables
+                order ** mandatory_0_observation_variables
                 * factorial(num_obs_dims)
                 / factorial(num_obs_dims - mandatory_0_observation_variables)
                 / factorial(mandatory_0_observation_variables)

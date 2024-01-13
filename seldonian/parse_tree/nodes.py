@@ -1423,15 +1423,7 @@ custom_base_node_dict = {
 
 measure_functions_dict = {
     "supervised_learning": {
-        "classification": [
-            "PR",
-            "NR",
-            "FPR",
-            "TPR",
-            "FNR",
-            "TNR",
-            "ACC",
-        ],
+        "classification": ["PR", "NR", "FPR", "TPR", "FNR", "TNR", "ACC",],
         "multiclass_classification": [
             "CM",
             "PR",

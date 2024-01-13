@@ -22,7 +22,7 @@ class SeldonianAlgorithm:
         :type spec: :py:class:`.Spec` object
         """
         self.spec = spec
-        # Initialize variables keeping track of whether 
+        # Initialize variables keeping track of whether
         # candidate selection (cs)
         # and the safety test (st) have been run.
         self.cs_has_been_run = False
@@ -101,7 +101,6 @@ class SeldonianAlgorithm:
                     sensitive_attrs=self.candidate_sensitive_attrs,
                     num_datapoints=self.n_candidate,
                     meta=self.dataset.meta,
-
                 )
 
                 self.safety_dataset = SupervisedDataSet(
